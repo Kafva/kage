@@ -1,0 +1,96 @@
+# vi: ft=gitignore
+
+# LaTeX
+*.aux
+*.bcf
+*.toc
+*.log
+*.run.xml
+main.pdf
+output/main.pdf
+output/main.bbl
+output/main.blg
+
+# C/C++
+.ccls-cache
+compile_commands.json
+
+# Rust
+**/target/**
+Cargo.lock
+
+# Python
+.pytest-cache
+*.pyc
+__pycache__
+venv
+
+# Haskell
+dist-newstyle
+*.hi
+
+# Zig
+zig-cache
+zig-out
+
+# Xcode
+Pods
+*.xcodeproj
+xcuserdata
+DerivedData
+.swiftpm/xcode/package.xcworkspace/contents.xcworkspacedata
+Package.resolved
+
+# macOS
+Music Library.musiclibrary
+Media.localized
+.localized
+.DS_Store
+_DS_Store
+*.dSYM
+
+# JS
+node_modules
+
+# C#
+*.app
+*.wsp
+*.nupkg
+**/pkg/**
+**/pkgobj/**
+
+# Misc
+**/bin/**
+**/obj/**
+dist
+build
+Packages
+tags
+.vagrant
+.lego
+.scannerwork/
+sonar-project.properties
+*.o
+*.swp
+*.pid
+*~
+~$*
+*.vrb
+*.snm
+*.out
+*.nav
+*.dtmp
+*.bkp
+*.nav
+*.vrb
+*.snm
+.web-extension-id
+web-ext-artifacts
+.suo
+peda-session*
+*.core
+*.orig
+*.diff
+*.rej
+.build
+
