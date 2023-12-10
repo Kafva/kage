@@ -16,6 +16,11 @@ struct ContentView: View {
         .onAppear {
             let res = rust_add(a: 1, b: 2)
             logger.debug("1 + 2 == \(res)")
+
+            let ptr = rust_cstring()
+            let str = String(cString: ptr)
+            logger.debug("cstr: \(str)")
+            rust_free_cstring(ptr)
         }
     }
 }
