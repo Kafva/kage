@@ -21,11 +21,16 @@ pub extern "C" fn free_cstring(ptr: *mut i8) {
     }
 }
 
+#[no_mangle]
+pub extern "C" fn get_identity() -> *const i8 {
+    let identity = gen_identity();
+    let hello_str = CString::new(identity).expect("CString::new failed");
+    hello_str.into_raw()
+}
 
-// fn gen_identity() -> String {
-//     let key = age::x25519::Identity::generate();
-//     let pubkey = key.to_public();
-
-//     pubkey.to_string()
-// }
+fn gen_identity() -> String {
+    let key = age::x25519::Identity::generate();
+    let pubkey = key.to_public();
+    pubkey.to_string()
+}
 

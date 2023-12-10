@@ -17,10 +17,17 @@ struct ContentView: View {
             let res = rust_add(a: 1, b: 2)
             logger.debug("1 + 2 == \(res)")
 
-            let ptr = rust_cstring()
+            // let ptr = rust_cstring()
+            // let str = String(cString: ptr)
+            // logger.debug("cstr: \(str)")
+            // rust_free_cstring(ptr)
+
+
+            let ptr = rust_identity()
             let str = String(cString: ptr)
-            logger.debug("cstr: \(str)")
+            logger.debug("identity: \(str)")
             rust_free_cstring(ptr)
+
         }
     }
 }
