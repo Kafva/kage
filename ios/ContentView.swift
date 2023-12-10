@@ -11,6 +11,9 @@ struct ContentView: View {
                 .imageScale(.large)
                 .foregroundStyle(.tint)
             Text("Hello, world!")
+            .onTapGesture {
+                rust_git_init()
+            }
         }
         .padding()
         .onAppear {
@@ -27,6 +30,7 @@ struct ContentView: View {
             let str = String(cString: ptr)
             logger.debug("identity: \(str)")
             rust_free_cstring(ptr)
+
 
         }
     }

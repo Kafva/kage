@@ -12,3 +12,6 @@ public func rust_free_cstring(_ ptr: UnsafeMutablePointer<Int8>?)
 @_silgen_name("get_identity")
 public func rust_identity() -> UnsafeMutablePointer<Int8>
 
+@_silgen_name("git_init")
+public func rust_git_init()
+
