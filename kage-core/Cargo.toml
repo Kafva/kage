@@ -2,6 +2,7 @@
 name = "kage-core"
 version = "0.1.0"
 edition = "2021"
+authors = [ "Kafva" ]
 
 [lib]
 crate-type = ["cdylib"]

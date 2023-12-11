@@ -12,26 +12,29 @@ struct ContentView: View {
                 .foregroundStyle(.tint)
             Text("Hello, world!")
             .onTapGesture {
-                rust_git_init()
+                let appData = FileManager.default.appDataDirectory
+                                                 .appending(path: "me")
+                let cStr = appData.path().cString(using: .utf8)!
+                rust_git_init(cStr)
+                logger.debug("git init done")
             }
         }
         .padding()
         .onAppear {
-            let res = rust_add(a: 1, b: 2)
-            logger.debug("1 + 2 == \(res)")
-
-            // let ptr = rust_cstring()
-            // let str = String(cString: ptr)
-            // logger.debug("cstr: \(str)")
-            // rust_free_cstring(ptr)
-
-
             let ptr = rust_identity()
             let str = String(cString: ptr)
             logger.debug("identity: \(str)")
             rust_free_cstring(ptr)
-
-
         }
     }
 }
+
+extension FileManager {
+    var appDataDirectory: URL {
+        let urls = self.urls(
+            for: .documentDirectory,
+            in: .userDomainMask)
+        return urls[0]
+    }
+}
+
