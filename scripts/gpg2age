@@ -8,15 +8,13 @@ set -e
 set -o pipefail
 
 if [ -z "$2" ]; then
-    echo  "usage: $(basename $0) <gpg-store> <name>" >&2
+    echo  "usage: $(basename $0) <gpg-store> <age-store>" >&2
     exit 1
 fi
 
 GPG_STORE="$1"
+AGE_STORE="$2"
 GPG_ID=$(cat $GPG_STORE/.gpg-id)
-
-NAME="$2"
-AGE_STORE="$PWD/kage-store/$NAME"
 
 mkdir -p "$AGE_STORE"
 
