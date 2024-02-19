@@ -10,21 +10,25 @@ struct ContentView: View {
             Image(systemName: "globe")
                 .imageScale(.large)
                 .foregroundStyle(.tint)
-            Text("Hello, world!")
+            Text("Initalize new repo")
             .onTapGesture {
                 let appData = FileManager.default.appDataDirectory
                                                  .appending(path: "me")
-                let cStr = appData.path().cString(using: .utf8)!
-                rust_git_init(cStr)
-                logger.debug("git init done")
+                let repoPath = appData.path()
+                let r = ffi_git_init(repoPath.cString(using: .utf8)!)
+                if r != 0 {
+                    logger.error("git init failed: \(r)")
+                    return
+                }
+                logger.debug("git init OK")
             }
         }
         .padding()
         .onAppear {
-            let ptr = rust_identity()
-            let str = String(cString: ptr)
-            logger.debug("identity: \(str)")
-            rust_free_cstring(ptr)
+            // let ptr = rust_identity()
+            // let str = String(cString: ptr)
+            // logger.debug("identity: \(str)")
+            // rust_free_cstring(ptr)
         }
     }
 }

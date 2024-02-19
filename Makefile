@@ -1,6 +1,7 @@
-LIB=libkage_core.dylib
-RUST_SRC=$(wildcard ./kage-core/src/*.rs)
-SWIFT_SRC=$(wildcard ./ios/*.swift)
+LIB = libkage_core.dylib
+RUST_SRC = $(wildcard ./kage-core/src/*.rs)
+SWIFT_SRC = $(wildcard ./ios/*.swift)
+OUT = $(CURDIR)/out
 
 # XXX: Default to simulator compatible build
 ifeq ("$(XCODE_PLATFORM)", "iOS")
@@ -9,15 +10,15 @@ else
 	RUST_TARGET=aarch64-apple-ios-sim
 endif
 
-all: ./out/$(LIB)
+all: $(OUT)/$(LIB)
 
-./out/$(LIB): $(RUST_SRC) $(SWIFT_SRC)
+$(OUT)/$(LIB): $(RUST_SRC) $(SWIFT_SRC)
 	$(info XCODE_PLATFORM=$(XCODE_PLATFORM))
-	mkdir -p ./out
-	cd kage-core; \
-		cargo build --target $(RUST_TARGET)
+	mkdir -p $(OUT)
+	(cd kage-core && cargo build --target $(RUST_TARGET))
 	install kage-core/target/$(RUST_TARGET)/debug/$(LIB) $@
 	nm -gU $@
 
 clean:
-	rm -rf ./out
+	(cd kage-core && cargo clean)
+	rm -rf $(OUT)
