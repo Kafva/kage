@@ -9,7 +9,6 @@ mod log;
 // no_mangle: Rust mangles function names by default, we need to disable this for
 // ffi so that the public methods have predicatable names.
 
-
 #[no_mangle]
 pub extern "C" fn ffi_free_cstring(ptr: *mut c_char) {
     unsafe {
@@ -45,11 +44,11 @@ pub extern "C" fn ffi_git_init(path: *const c_char) -> c_int {
 fn git_init(path: &str) -> c_int {
     match git2::Repository::init(path) {
         Ok(_) => {
-            log!("INFO", "Created repo: {}", path);
+            info!("Created repo: {}", path);
             0
         },
         Err(e) => {
-            log!("ERROR", "Failed to create repo: {}", e);
+            info!("Failed to create repo: {}", e);
             e.raw_code()
         },
     }
