@@ -1,4 +1,9 @@
 #[macro_export]
+macro_rules! log_prefix {
+    () => { "[ffi] " }
+}
+
+#[macro_export]
 macro_rules! level_to_color {
     ("DEBUG") => { "94" };
     ("INFO") => { "92" };
@@ -42,22 +47,21 @@ macro_rules! log {
     // gets a literal as its argument.
     ($level:tt, $fmt:literal, $($x:expr),*) => {
         if cfg!(target = "aarch64-apple-ios") {
-            println!(concat!($level, " {}:{} ", $fmt),
+            println!(concat!(log_prefix!(), $level, " {}:{} ", $fmt),
                        file!(), line!(), $($x),*);
         } else {
-            println!(concat!("\x1b[", level_to_color!($level), "m", $level, "\x1b[0m {}:{} ", $fmt),
+            println!(concat!(log_prefix!(), "\x1b[", level_to_color!($level), "m", $level, "\x1b[0m {}:{} ", $fmt),
                        file!(), line!(), $($x),*);
         }
     };
     // Match level and string literal message
     ($level:tt, $msg:literal) => {
         if cfg!(target = "aarch64-apple-ios") {
-            println!(concat!($level, " {}:{} {}"),
+            println!(concat!(log_prefix!(), $level, " {}:{} {}"),
                        file!(), line!(), $msg);
         } else {
-            println!(concat!("\x1b[", level_to_color!($level), "m", $level, "\x1b[0m {}:{} ", $msg),
+            println!(concat!(log_prefix!(), "\x1b[", level_to_color!($level), "m", $level, "\x1b[0m {}:{} ", $msg),
                        file!(), line!());
         }
     };
-
 }
