@@ -45,6 +45,7 @@ fn git_init(path: &str) -> c_int {
     match git2::Repository::init(path) {
         Ok(_) => {
             info!("Created repo: {}", path);
+            info!("Other branch");
             0
         },
         Err(e) => {
