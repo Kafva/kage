@@ -6,14 +6,31 @@ macro_rules! level_to_color {
     ("ERROR") => { "91" };
 }
 
+#[macro_export]
+macro_rules! debug {
+    ($($args:tt)*) => {
+        log!("DEBUG", $($args)*);
+    };
+}
 
 #[macro_export]
 macro_rules! info {
-    ($fmt:literal, $($x:expr),*) => {
-        log!("INFO", $fmt, $($x),*);
+    ($($args:tt)*) => {
+        log!("INFO", $($args)*);
     };
-    ($msg:literal) => {
-        log!("INFO", $msg);
+}
+
+#[macro_export]
+macro_rules! warn {
+    ($($args:tt)*) => {
+        log!("WARN", $($args)*);
+    };
+}
+
+#[macro_export]
+macro_rules! error {
+    ($($args:tt)*) => {
+        log!("ERROR", $($args)*);
     };
 }
 
@@ -32,7 +49,7 @@ macro_rules! log {
                        file!(), line!(), $($x),*);
         }
     };
-    // Match level and string literal message 
+    // Match level and string literal message
     ($level:tt, $msg:literal) => {
         if cfg!(target = "aarch64-apple-ios") {
             println!(concat!($level, " {}:{} {}"),
@@ -44,4 +61,3 @@ macro_rules! log {
     };
 
 }
-
