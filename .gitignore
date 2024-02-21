@@ -1,5 +1,6 @@
 # vi: ft=gitignore
 
+/kage-client
 /kage-store
 /scripts/iosdevel.sh
 /log

@@ -1,6 +1,8 @@
 use std::ffi::{CStr,CString};
 use std::os::raw::{c_char,c_int};
 
+use git2::{Repository,RepositoryInitOptions};
+
 mod log;
 
 // CString: an owned instance of a C-string
@@ -32,20 +34,23 @@ pub extern "C" fn ffi_git_init(path: *const c_char) -> c_int {
 
 }
 
-// Git api:
-//
-// * Create a git repo locally
-// * Initalize a repo that points to it in ios
-//  * pull from it
-//  * commit to it
-//  * push to it
+// Git repo for each user is initialized server side with
+// .age-recipients and .age-identities already present
+// In iOS, we need to:
+//  * Clone it
+//  * Pull / Push
+//  * conflict resolution...
+//      - big error message and red button to delete local copy and re-clone
 
 // return status code
 fn git_init(path: &str) -> c_int {
-    match git2::Repository::init(path) {
+    // TODO clone
+    let init_opts = RepositoryInitOptions::new();
+    // Some("git://10.0.2.7/james");
+
+    match Repository::init_opts(path, &init_opts) {
         Ok(_) => {
             info!("Created repo: {}", path);
-            info!("Other branch");
             0
         },
         Err(e) => {
@@ -53,4 +58,10 @@ fn git_init(path: &str) -> c_int {
             e.raw_code()
         },
     }
+}
+
+
+#[test]
+fn git_clone_test() {
+
 }
