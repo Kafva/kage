@@ -4,9 +4,9 @@ import OSLog
 let logger = Logger(subsystem: Bundle.main.bundleIdentifier!,
                     category: "generic")
 
-// The remote IP should be configurable
-// The remote path on the server needs to be configured in the client
-
+// The remote IP and path should be configurable.
+// The server will control access to each repository based on the source IP
+// (assigned from Wireguard config).
 
 struct ContentView: View {
     let repo = FileManager.default.appDataDirectory.appending(path: "pw")
@@ -19,6 +19,8 @@ struct ContentView: View {
                 .foregroundStyle(.tint)
             Text("Clone repo")
             .onTapGesture {
+                try? FileManager.default.removeItem(at: repo)
+
                 let intoC = repo.path().cString(using: .utf8)!
                 let urlC = remote.cString(using: .utf8)!
 

@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+#
+# man git-daemon(1) --access-hook
+#
+
+REQUEST_PATH="$2"
+
+case "$(basename $REQUEST_PATH)" in
+james)
+    [ "$REMOTE_ADDR" = 10.0.2.7 ]
+;;
+*)
+    echo "Access denied"
+    return 1
+;;
+esac

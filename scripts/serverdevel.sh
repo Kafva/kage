@@ -72,6 +72,7 @@ git_server_restart() {
     git_server_stop
     git daemon --base-path="$TOP/kage-store" \
                --enable=receive-pack \
+               --access-hook="$TOP/scripts/ip-auth" \
                --export-all \
                --reuseaddr \
                --informative-errors &
@@ -134,6 +135,7 @@ git_server_status() {
 git_server_controls() {
     local james=${JAMES_REPO_CLIENT##"${TOP}/"}
     cat << EOF
+R: Restart git-daemon
 S: Status of $james
 A: Add files to $james
 M: Modify files in $james
@@ -168,6 +170,9 @@ while read -n1 -rs ans; do
     ;;
     [dD])
         git_server_del
+    ;;
+    [rR])
+        git_server_restart
     ;;
     [qQ])
         git_server_exit
