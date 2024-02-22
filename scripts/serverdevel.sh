@@ -126,9 +126,15 @@ git_server_mod() {
     git -C $JAMES_REPO_CLIENT log -n1
 }
 
+git_server_status() {
+    git -C $JAMES_REPO_CLIENT log --format='%C(auto) %h %s'
+    git -C $JAMES_REPO_CLIENT status
+}
+
 git_server_controls() {
     local james=${JAMES_REPO_CLIENT##"${TOP}/"}
     cat << EOF
+S: Status of $james
 A: Add files to $james
 M: Modify files in $james
 D: Delete files in $james
@@ -151,6 +157,9 @@ git_server_controls
 
 while read -n1 -rs ans; do
     case "$ans" in
+    [sS])
+        git_server_status
+    ;;
     [aA])
         git_server_add
     ;;
