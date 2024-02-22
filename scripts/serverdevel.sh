@@ -45,7 +45,7 @@ _age_generate_keys() {
 }
 
 git_server_setup() {
-    [ -d "$JAMES_REPO_CLIENT" ] && return
+    [[ -d "$JAMES_REPO_CLIENT" && -d "$JAMES_REPO_REMOTE" ]] && return
     echo "Creating $JAMES_REPO_CLIENT"
     mkdir -p $JAMES_REPO_CLIENT
 
