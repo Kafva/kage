@@ -13,6 +13,13 @@ mod log;
 // no_mangle: Rust mangles function names by default, we need to disable this for
 // ffi so that the public methods have predicatable names.
 
+
+#[macro_export]
+macro_rules! c_char_ptr_to_str {
+    ($arg:ident) => {
+    }
+}
+
 #[no_mangle]
 pub extern "C" fn ffi_free_cstring(ptr: *mut c_char) {
     unsafe {
@@ -24,11 +31,10 @@ pub extern "C" fn ffi_free_cstring(ptr: *mut c_char) {
     }
 }
 
-
 #[no_mangle]
 pub extern "C" fn ffi_git_clone(url: *const c_char, into: *const c_char) -> c_int {
     unsafe {
-        if let (Ok(url), Ok(into)) = (CStr::from_ptr(url).to_str(), 
+        if let (Ok(url), Ok(into)) = (CStr::from_ptr(url).to_str(),
                                       CStr::from_ptr(into).to_str()) {
             return git_clone(url, into)
         }
@@ -39,14 +45,31 @@ pub extern "C" fn ffi_git_clone(url: *const c_char, into: *const c_char) -> c_in
 #[no_mangle]
 pub extern "C" fn ffi_git_pull(repo_path: *const c_char) -> c_int {
     unsafe {
-        0
+        if let Ok(repo_path) = CStr::from_ptr(repo_path).to_str() {
+            return git_pull(repo_path);
+        }
+        -1
     }
 }
 
 #[no_mangle]
 pub extern "C" fn ffi_git_push(repo_path: *const c_char) -> c_int {
     unsafe {
-        0
+        if let Ok(repo_path) = CStr::from_ptr(repo_path).to_str() {
+            return git_push(repo_path);
+        }
+        -1
+    }
+}
+
+#[no_mangle]
+pub extern "C" fn ffi_git_commit(repo_path: *const c_char, message: *const c_char) -> c_int {
+    unsafe {
+        if let (Ok(repo_path), Ok(message)) = (CStr::from_ptr(repo_path).to_str(),
+                                               CStr::from_ptr(message).to_str()) {
+            return git_commit(repo_path, message);
+        }
+        -1
     }
 }
 
@@ -57,6 +80,18 @@ pub extern "C" fn ffi_git_push(repo_path: *const c_char) -> c_int {
 //  * Pull / Push
 //  * conflict resolution...
 //      - big error message and red button to delete local copy and re-clone
+
+fn git_pull(repo_path: &str) -> c_int {
+    0
+}
+
+fn git_push(repo_path: &str) -> c_int {
+    0
+}
+
+fn git_commit(repo_path: &str, message: &str) -> c_int {
+    0
+}
 
 fn git_clone(url: &str, into: &str) -> c_int {
     let mut cb = RemoteCallbacks::new();
@@ -100,6 +135,6 @@ fn git_clone_test() {
         }
     }
 
-    assert_eq!(git_clone("git://10.0.2.7/james", checkout), 0);
-    assert_eq!(git_clone("git://10.0.2.7/invalid", "/tmp/invalid"), -1);
+    assert_eq!(git_clone("git://127.0.0.1/james", checkout), 0);
+    assert_eq!(git_clone("git://127.0.0.1/invalid", "/tmp/invalid"), -1);
 }

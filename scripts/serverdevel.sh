@@ -9,7 +9,7 @@ JAMES_REPO_CLIENT="$TOP/kage-client/james"
 JAMES_KEY="$TOP/kage-client/james/.age-identities"
 JAMES_PUBKEY="$TOP/kage-client/james/.age-recipients"
 
-die() { 
+die() {
     printf "$1\n" >&2
     git_server_stop
     exit 1
@@ -97,7 +97,7 @@ git_server_stop() {
 git_server_add() {
     local folder="added-$RANDOM"
     _age_generate_files "$JAMES_REPO_CLIENT/$folder" "$JAMES_PUBKEY" 1
-    
+
     git -C $JAMES_REPO_CLIENT add .
     git -C $JAMES_REPO_CLIENT commit -m "Added ${folder##"$TOP/"}"
     git -C $JAMES_REPO_CLIENT push -q
