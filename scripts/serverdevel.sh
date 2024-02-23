@@ -2,7 +2,7 @@
 set -e
 set -o pipefail
 
-REMOTE_ORIGIN="git://10.0.2.7"
+REMOTE_ORIGIN="git://127.0.0.1"
 TOP="$(cd "$(dirname "$0")/.." && pwd)"
 JAMES_REPO_REMOTE="$TOP/kage-store/james"
 JAMES_REPO_CLIENT="$TOP/kage-client/james"
@@ -45,14 +45,13 @@ _age_generate_keys() {
 }
 
 git_server_setup() {
-    [[ -d "$JAMES_REPO_CLIENT" && -d "$JAMES_REPO_REMOTE" ]] && return
     echo "Creating $JAMES_REPO_CLIENT"
     mkdir -p $JAMES_REPO_CLIENT
 
     _age_generate_keys "$JAMES_KEY" "$JAMES_PUBKEY"
     _age_generate_files "$JAMES_REPO_CLIENT/red" "$JAMES_PUBKEY"
 
-    echo "Pushing to $JAMES_REPO_REMOTE"
+    echo "Creating $JAMES_REPO_REMOTE"
     mkdir -p $JAMES_REPO_REMOTE
     git -C $JAMES_REPO_REMOTE init --bare
 
@@ -64,7 +63,9 @@ git_server_setup() {
     git -C $JAMES_REPO_CLIENT remote add origin "$REMOTE_ORIGIN/james"
 
     git_server_restart
+    sleep 1
 
+    echo "Pushing first commit"
     git -C $JAMES_REPO_CLIENT push --set-upstream origin main
 }
 
@@ -77,7 +78,6 @@ git_server_restart() {
                --reuseaddr \
                --informative-errors &
     GIT_SERVER_PID=$!
-    sleep 1
 }
 
 git_server_exit() {
@@ -91,7 +91,7 @@ git_server_stop() {
         kill $GIT_SERVER_PID &> /dev/null || :
     fi
 
-    killall -SIGINT git-daemon &> /dev/null || :
+    killall -SIGTERM git-daemon &> /dev/null || :
 }
 
 git_server_add() {
@@ -151,8 +151,12 @@ EOF
 
 trap git_server_exit SIGINT
 
-git_server_setup
-git_server_restart
+if [[ ! -d "$JAMES_REPO_CLIENT" || ! -d "$JAMES_REPO_REMOTE" ]]; then
+    git_server_setup
+else
+    git_server_restart
+fi
+
 
 echo "Launched git-daemon:"
 git_server_controls
