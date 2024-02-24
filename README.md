@@ -1,5 +1,5 @@
 # kage
-Password manager using age encryption.
+iOS password manager with age-encryption and git.
 
 ```bash
 # Update compiled lib and import it via

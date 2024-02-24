@@ -14,6 +14,17 @@ mod log;
 // no_mangle: Rust mangles function names by default, we need to disable this for
 // ffi so that the public methods have predicatable names.
 
+macro_rules! ffi_call {
+    ($result:expr) => (
+        match $result {
+            Ok(_) => 0,
+            Err(err) => {
+                error!("{}", err);
+                err.raw_code() as c_int
+            }
+        };
+    )
+}
 
 #[no_mangle]
 pub extern "C" fn ffi_free_cstring(ptr: *mut c_char) {
@@ -31,13 +42,7 @@ pub extern "C" fn ffi_git_clone(url: *const c_char, into: *const c_char) -> c_in
     unsafe {
         if let (Ok(url), Ok(into)) = (CStr::from_ptr(url).to_str(),
                                       CStr::from_ptr(into).to_str()) {
-            match git_clone(url, into) {
-                Ok(_) => 0,
-                Err(err) => {
-                    error!("{}", err);
-                    err.raw_code() as c_int
-                }
-            };
+            ffi_call!(git_clone(url, into));
         }
         -1
     }
@@ -47,17 +52,18 @@ pub extern "C" fn ffi_git_clone(url: *const c_char, into: *const c_char) -> c_in
 pub extern "C" fn ffi_git_pull(repo_path: *const c_char) -> c_int {
     unsafe {
         if let Ok(repo_path) = CStr::from_ptr(repo_path).to_str() {
-            return git_pull(repo_path);
+            ffi_call!(git_pull(repo_path));
         }
         -1
     }
 }
 
+
 #[no_mangle]
 pub extern "C" fn ffi_git_push(repo_path: *const c_char) -> c_int {
     unsafe {
         if let Ok(repo_path) = CStr::from_ptr(repo_path).to_str() {
-            return git_push(repo_path);
+            ffi_call!(git_push(repo_path));
         }
         -1
     }
@@ -68,13 +74,7 @@ pub extern "C" fn ffi_git_commit(repo_path: *const c_char, message: *const c_cha
     unsafe {
         if let (Ok(repo_path), Ok(message)) = (CStr::from_ptr(repo_path).to_str(),
                                                CStr::from_ptr(message).to_str()) {
-            match git_commit(repo_path, message) {
-                Ok(_) => 0,
-                Err(err) => {
-                    error!("{}", err);
-                    err.raw_code() as c_int
-                }
-            };
+            ffi_call!(git_commit(repo_path, message));
         }
         -1
     }

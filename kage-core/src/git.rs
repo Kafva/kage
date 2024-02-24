@@ -4,8 +4,6 @@ use std::path::Path;
 use git2::{RemoteCallbacks,FetchOptions,Repository};
 use git2::build::RepoBuilder;
 
-
-#[macro_export]
 macro_rules! concat_strs {
     ($li:expr)=> (
         $li.concat().as_str()
@@ -20,12 +18,27 @@ macro_rules! concat_strs {
 //  * conflict resolution...
 //      - big error message and red button to delete local copy and re-clone
 
-pub fn git_pull(repo_path: &str) -> i32 {
-    0
+pub fn git_pull(repo_path: &str) -> Result<(),git2::Error> {
+    let repo = Repository::open(repo_path)?;
+    Ok(())
 }
 
-pub fn git_push(repo_path: &str) -> i32 {
-    0
+pub fn git_push(repo_path: &str) -> Result<(),git2::Error> {
+    let repo = Repository::open(repo_path)?;
+    let mut remote = repo.find_remote("origin")?;
+
+    let mut push_options = git2::PushOptions::new();
+    let mut remote_callbacks = git2::RemoteCallbacks::new();
+
+    remote_callbacks.push_transfer_progress(|current, total, bytes| {
+        debug!("{}: {}/{}", bytes, current, total);
+    });
+    push_options.remote_callbacks(remote_callbacks);
+
+    let mut refspecs = ["refs/heads/main"];
+    remote.push(&mut refspecs, Some(&mut push_options))?;
+
+    Ok(())
 }
 
 pub fn git_add(repo_path: &str, path: &Path) -> Result<(), git2::Error> {
@@ -90,8 +103,8 @@ mod tests {
     use super::*;
     use std::fs;
 
-    const CHECKOUT: &'static str =  "../git/kage-client/james";
-    const NEWFILE: &'static str =  "newfile";
+    const CHECKOUT: &'static str = "../git/kage-client/james";
+    const NEWFILE: &'static str = "newfile";
 
     fn touch(path: &str) -> Result<fs::File, std::io::Error> {
         OpenOptions::new()
@@ -125,6 +138,10 @@ mod tests {
         assert_ok(git_add(CHECKOUT, Path::new(NEWFILE)));
 
         assert_ok(git_commit(CHECKOUT, concat_strs!(["Adding ", NEWFILE])));
+
+        assert_ok(git_push(CHECKOUT));
+
+        assert_ok(git_pull(CHECKOUT));
     }
 }
 

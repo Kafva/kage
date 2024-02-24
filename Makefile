@@ -1,3 +1,5 @@
+.PHONY: clean test
+
 LIB 		    = libkage_core.dylib
 RUST_SRC 	    = $(wildcard ./kage-core/src/*.rs)
 SWIFT_SRC 	    = $(wildcard ./ios/*.swift)
@@ -22,3 +24,9 @@ $(OUT)/$(LIB): $(RUST_SRC) $(SWIFT_SRC)
 clean:
 	(cd kage-core && cargo clean)
 	rm -rf $(OUT)
+
+test:
+	@# Start git server with scripts/serverdevel.sh first
+	nc -zv 127.0.0.1 9418
+	@# To show stdout/stderr: cargo test -- --nocapture
+	(cd kage-core && cargo test)
