@@ -70,6 +70,17 @@ pub extern "C" fn ffi_git_push(repo_path: *const c_char) -> c_int {
 }
 
 #[no_mangle]
+pub extern "C" fn ffi_git_add(repo_path: *const c_char, path: *const c_char) -> c_int {
+    unsafe {
+        if let (Ok(repo_path), Ok(path)) = (CStr::from_ptr(repo_path).to_str(),
+                                            CStr::from_ptr(path).to_str()) {
+            ffi_call!(git_add(repo_path, path));
+        }
+        -1
+    }
+}
+
+#[no_mangle]
 pub extern "C" fn ffi_git_commit(repo_path: *const c_char, message: *const c_char) -> c_int {
     unsafe {
         if let (Ok(repo_path), Ok(message)) = (CStr::from_ptr(repo_path).to_str(),

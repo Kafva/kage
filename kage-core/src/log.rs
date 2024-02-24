@@ -1,7 +1,5 @@
 #[macro_export]
-macro_rules! log_prefix {
-    () => { "[kage-core] " }
-}
+macro_rules! log_prefix { () => { "[kage-core] " } }
 
 #[macro_export]
 macro_rules! level_to_color {
@@ -50,8 +48,10 @@ macro_rules! log {
             println!(concat!(log_prefix!(), $level, " {}:{} ", $fmt),
                        file!(), line!(), $($x),*);
         } else {
-            println!(concat!(log_prefix!(), "\x1b[", level_to_color!($level), "m", $level, "\x1b[0m {}:{} ", $fmt),
-                       file!(), line!(), $($x),*);
+            println!(concat!(log_prefix!(),
+                             "\x1b[", level_to_color!($level), "m", $level,
+                             "\x1b[0m {}:{} ", $fmt),
+                     file!(), line!(), $($x),*);
         }
     };
     // Match level and string literal message
@@ -60,8 +60,10 @@ macro_rules! log {
             println!(concat!(log_prefix!(), $level, " {}:{} {}"),
                        file!(), line!(), $msg);
         } else {
-            println!(concat!(log_prefix!(), "\x1b[", level_to_color!($level), "m", $level, "\x1b[0m {}:{} ", $msg),
-                       file!(), line!());
+            println!(concat!(log_prefix!(),
+                             "\x1b[", level_to_color!($level), "m", $level,
+                             "\x1b[0m {}:{} ", $msg),
+                     file!(), line!());
         }
     };
 }

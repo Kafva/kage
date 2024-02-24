@@ -8,6 +8,13 @@ let logger = Logger(subsystem: Bundle.main.bundleIdentifier!,
 // The server will control access to each repository based on the source IP
 // (assigned from Wireguard config).
 
+// Git repo for each user is initialized server side with
+// .age-recipients and .age-identities already present
+// In iOS, we need to:
+//  * Clone it
+//  * Pull / Push
+//  * No conflict resolution, option to start over OR force push
+
 struct ContentView: View {
     let repo = FileManager.default.appDataDirectory.appending(path: "pw")
     let remote = "git://10.0.2.7/james"
