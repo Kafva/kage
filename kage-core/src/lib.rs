@@ -4,6 +4,7 @@ use std::os::raw::{c_char,c_int};
 use crate::git::*;
 
 mod git;
+mod age;
 
 #[macro_use]
 mod log;
@@ -38,7 +39,7 @@ pub extern "C" fn ffi_free_cstring(ptr: *mut c_char) {
 }
 
 #[no_mangle]
-pub extern "C" fn ffi_git_clone(url: *const c_char, 
+pub extern "C" fn ffi_git_clone(url: *const c_char,
                                 into: *const c_char) -> c_int {
     unsafe {
         if let (Ok(url), Ok(into)) = (CStr::from_ptr(url).to_str(),
@@ -71,7 +72,7 @@ pub extern "C" fn ffi_git_push(repo_path: *const c_char) -> c_int {
 }
 
 #[no_mangle]
-pub extern "C" fn ffi_git_add(repo_path: *const c_char, 
+pub extern "C" fn ffi_git_add(repo_path: *const c_char,
                               path: *const c_char) -> c_int {
     unsafe {
         if let (Ok(repo_path), Ok(path)) = (CStr::from_ptr(repo_path).to_str(),
@@ -83,7 +84,7 @@ pub extern "C" fn ffi_git_add(repo_path: *const c_char,
 }
 
 #[no_mangle]
-pub extern "C" fn ffi_git_commit(repo_path: *const c_char, 
+pub extern "C" fn ffi_git_commit(repo_path: *const c_char,
                                  message: *const c_char) -> c_int {
     unsafe {
         if let (Ok(repo_path), Ok(message)) = (CStr::from_ptr(repo_path).to_str(),
