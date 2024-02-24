@@ -4,10 +4,10 @@ set -o pipefail
 
 REMOTE_ORIGIN="git://127.0.0.1"
 TOP="$(cd "$(dirname "$0")/.." && pwd)"
-JAMES_REPO_REMOTE="$TOP/kage-store/james"
-JAMES_REPO_CLIENT="$TOP/kage-client/james"
-JAMES_KEY="$TOP/kage-client/james/.age-identities"
-JAMES_PUBKEY="$TOP/kage-client/james/.age-recipients"
+JAMES_REPO_REMOTE="$TOP/git/kage-store/james"
+JAMES_REPO_CLIENT="$TOP/git/kage-client/james"
+JAMES_KEY="$TOP/git/kage-client/james/.age-identities"
+JAMES_PUBKEY="$TOP/git/kage-client/james/.age-recipients"
 
 die() {
     printf "$1\n" >&2
@@ -71,7 +71,7 @@ git_server_setup() {
 
 git_server_restart() {
     git_server_stop
-    git daemon --base-path="$TOP/kage-store" \
+    git daemon --base-path="$TOP/git/kage-store" \
                --enable=receive-pack \
                --access-hook="$TOP/scripts/ip-auth" \
                --export-all \
@@ -99,7 +99,7 @@ git_server_add() {
     _age_generate_files "$JAMES_REPO_CLIENT/$folder" "$JAMES_PUBKEY" 1
 
     git -C $JAMES_REPO_CLIENT add .
-    git -C $JAMES_REPO_CLIENT commit -m "Added ${folder##"$TOP/"}"
+    git -C $JAMES_REPO_CLIENT commit -m "Added ${folder##"$TOP/git/"}"
     git -C $JAMES_REPO_CLIENT push -q
     git -C $JAMES_REPO_CLIENT log -n1
 }
@@ -110,7 +110,7 @@ git_server_del() {
 
     rm "$file"
     git -C $JAMES_REPO_CLIENT rm "$file"
-    git -C $JAMES_REPO_CLIENT commit -m "Removed ${file##"$TOP/"}"
+    git -C $JAMES_REPO_CLIENT commit -m "Removed ${file##"$TOP/git/"}"
     git -C $JAMES_REPO_CLIENT push -q
     git -C $JAMES_REPO_CLIENT log -n1
 }
@@ -122,7 +122,7 @@ git_server_mod() {
     age -r "$(cat $JAMES_PUBKEY)" -o "$file" - <<< "password-modified"
 
     git -C $JAMES_REPO_CLIENT add "$file"
-    git -C $JAMES_REPO_CLIENT commit -m "Modified ${file##"$TOP/"}"
+    git -C $JAMES_REPO_CLIENT commit -m "Modified ${file##"$TOP/git/"}"
     git -C $JAMES_REPO_CLIENT push -q
     git -C $JAMES_REPO_CLIENT log -n1
 }
@@ -133,7 +133,7 @@ git_server_status() {
 }
 
 git_server_controls() {
-    local james=${JAMES_REPO_CLIENT##"${TOP}/"}
+    local james=${JAMES_REPO_CLIENT##"${TOP}/git/"}
     cat << EOF
 R: Restart git-daemon
 S: Status of $james

@@ -1,10 +1,11 @@
-use std::path::Path;
 use std::ffi::{CStr,CString};
 use std::os::raw::{c_char,c_int};
 
-use git2::{RemoteCallbacks,FetchOptions};
-use git2::build::RepoBuilder;
+use crate::git::*;
 
+mod git;
+
+#[macro_use]
 mod log;
 
 // CString: an owned instance of a C-string
@@ -13,12 +14,6 @@ mod log;
 // no_mangle: Rust mangles function names by default, we need to disable this for
 // ffi so that the public methods have predicatable names.
 
-
-#[macro_export]
-macro_rules! c_char_ptr_to_str {
-    ($arg:ident) => {
-    }
-}
 
 #[no_mangle]
 pub extern "C" fn ffi_free_cstring(ptr: *mut c_char) {
@@ -36,7 +31,13 @@ pub extern "C" fn ffi_git_clone(url: *const c_char, into: *const c_char) -> c_in
     unsafe {
         if let (Ok(url), Ok(into)) = (CStr::from_ptr(url).to_str(),
                                       CStr::from_ptr(into).to_str()) {
-            return git_clone(url, into)
+            match git_clone(url, into) {
+                Ok(_) => 0,
+                Err(err) => {
+                    error!("{}", err);
+                    err.raw_code() as c_int
+                }
+            };
         }
         -1
     }
@@ -67,74 +68,14 @@ pub extern "C" fn ffi_git_commit(repo_path: *const c_char, message: *const c_cha
     unsafe {
         if let (Ok(repo_path), Ok(message)) = (CStr::from_ptr(repo_path).to_str(),
                                                CStr::from_ptr(message).to_str()) {
-            return git_commit(repo_path, message);
+            match git_commit(repo_path, message) {
+                Ok(_) => 0,
+                Err(err) => {
+                    error!("{}", err);
+                    err.raw_code() as c_int
+                }
+            };
         }
         -1
     }
-}
-
-// Git repo for each user is initialized server side with
-// .age-recipients and .age-identities already present
-// In iOS, we need to:
-//  * Clone it
-//  * Pull / Push
-//  * conflict resolution...
-//      - big error message and red button to delete local copy and re-clone
-
-fn git_pull(repo_path: &str) -> c_int {
-    0
-}
-
-fn git_push(repo_path: &str) -> c_int {
-    0
-}
-
-fn git_commit(repo_path: &str, message: &str) -> c_int {
-    0
-}
-
-fn git_clone(url: &str, into: &str) -> c_int {
-    let mut cb = RemoteCallbacks::new();
-    cb.transfer_progress(|stats| {
-        let total = stats.total_objects();
-        let indexed = stats.indexed_objects();
-        let recv = stats.received_objects();
-        let increments = total / 4;
-
-        if recv == total && indexed == total {
-            debug!("Cloning: Done");
-        }
-        else if recv % increments == 0 {
-            debug!("Cloning: [{:4} / {:4}]", recv, total);
-        }
-        true
-    });
-
-    let mut fopts = FetchOptions::new();
-    fopts.remote_callbacks(cb);
-
-    match RepoBuilder::new().fetch_options(fopts).clone(url, Path::new(into)) {
-        Ok(_) => 0,
-        Err(err) => {
-            error!("Clone failed: {}", err);
-            -1
-        }
-    }
-}
-
-#[test]
-fn git_clone_test() {
-    use std::fs;
-    let checkout = "/tmp/james_clone";
-
-    // Remove previous checkout if needed
-    if let Err(err) = fs::remove_dir_all(checkout) {
-        match err.kind() {
-            std::io::ErrorKind::NotFound => (),
-            _ => panic!("{}", err)
-        }
-    }
-
-    assert_eq!(git_clone("git://127.0.0.1/james", checkout), 0);
-    assert_eq!(git_clone("git://127.0.0.1/invalid", "/tmp/invalid"), -1);
 }

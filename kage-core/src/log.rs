@@ -1,6 +1,6 @@
 #[macro_export]
 macro_rules! log_prefix {
-    () => { "[ffi] " }
+    () => { "[kage-core] " }
 }
 
 #[macro_export]
