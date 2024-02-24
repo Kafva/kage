@@ -2,7 +2,7 @@ use crate::{level_to_color,log_prefix,log,debug};
 
 use std::path::Path;
 use git2::{RemoteCallbacks,FetchOptions,Repository};
-use git2::build::RepoBuilder;
+use git2::build::{CheckoutBuilder,RepoBuilder};
 
 const GIT_REMOTE: &'static str = "origin";
 const GIT_BRANCH: &'static str = "main";
@@ -12,48 +12,35 @@ pub fn git_pull(repo_path: &str) -> Result<(),git2::Error> {
     let repo = Repository::open(repo_path)?;
     let mut remote = repo.find_remote(GIT_REMOTE)?;
 
+    // Fetch remote changes
     let mut cb = git2::RemoteCallbacks::new();
     let mut fopts = git2::FetchOptions::new();
-
-    cb.transfer_progress(|progress| transfer_progress(progress, "Fetch"));
+    cb.transfer_progress(|progress| transfer_progress(progress, "Fetching"));
     fopts.remote_callbacks(cb);
 
     remote.fetch(&[GIT_BRANCH], Some(&mut fopts), None)?;
 
-    let fetch_head = repo.find_reference("FETCH_HEAD")?;
-    let fetch_commit = repo.reference_to_annotated_commit(&fetch_head)?;
+    // Update the local checkout to use the remote head (fast-forward)
+    let remote_origin_head = repo.revparse_single(&format!("{}/{}", GIT_REMOTE, GIT_BRANCH))?.id();
+    let remote_origin_head = repo.find_annotated_commit(remote_origin_head)?;
 
-    let analysis = repo.merge_analysis(&[&fetch_commit])?;
+    let analysis = repo.merge_analysis(&[&remote_origin_head])?;
 
     if analysis.0.is_up_to_date() {
         debug!("Already up to date.");
-    }
-    else if analysis.0.is_fast_forward() {
-        debug!("Doing fast-forward merge");
-        // let refname = format!("refs/heads/{}", GIT_BRANCH);
-        // match repo.find_reference(&refname) {
-        //     Ok(mut r) => {
-        //         let name = match lb.name() {
-        //             Some(s) => s.to_string(),
-        //             None => String::from_utf8_lossy(lb.name_bytes()).to_string(),
-        //         };
-        //         let msg = format!("Fast-Forward: Setting {} to id: {}", name, rc.id());
-        //         println!("{}", msg);
-        //         lb.set_target(rc.id(), &msg)?;
-        //         repo.set_head(&name)?;
-        //         repo.checkout_head(Some(
-        //             git2::build::CheckoutBuilder::default()
-        //                 // For some reason the force is required to make the working directory actually get updated
-        //                 // I suspect we should be adding some logic to handle dirty working directory states
-        //                 // but this is just an example so maybe not.
-        //                 .force(),
-        //         ))?;
-        //         Ok(())
-        //     }
-        //     Err(err) => { 
-        //         return Err(err)
-        //     }
-        // };
+
+    } else if analysis.0.is_fast_forward() {
+        let head_ref_name = format!("refs/heads/{}", GIT_BRANCH);
+        let mut head_reference = repo.find_reference(&head_ref_name)?;
+
+        let reflog_message = format!("Fast-Forward: {} -> {}",
+                                      head_ref_name,
+                                      remote_origin_head.id());
+        debug!("{}", reflog_message);
+        head_reference.set_target(remote_origin_head.id(), &reflog_message)?;
+        repo.set_head(&head_ref_name)?;
+        repo.checkout_head(Some(CheckoutBuilder::default().force()))?;
+
     } else {
         debug!("Cannot fast-forward");
         return Err(git2::Error::new(git2::ErrorCode::NotFastForward,
@@ -158,9 +145,11 @@ mod tests {
     use crate::error;
     use std::fs::OpenOptions;
     use std::fs;
+    use std::process::Command;
+    use std::time::{SystemTime, UNIX_EPOCH};
 
     const CHECKOUT: &'static str = "../git/kage-client/james";
-    const NEWFILE: &'static str = "newfile";
+    const EXTERNAL_CHECKOUT: &'static str = "/tmp/james";
 
     fn touch(path: &str) -> Result<fs::File, std::io::Error> {
         OpenOptions::new()
@@ -176,26 +165,65 @@ mod tests {
         assert!(result.is_ok())
     }
 
-    #[test]
-    fn git_test() {
+    fn clone(path: &str) {
         // Remove previous checkout if needed
-        if let Err(err) = fs::remove_dir_all(CHECKOUT) {
+        if let Err(err) = fs::remove_dir_all(path) {
             match err.kind() {
                 std::io::ErrorKind::NotFound => (),
                 _ => panic!("{}", err)
             }
         }
 
-        // Test clone -> add -> commit -> push
-        assert_ok(git_clone("git://127.0.0.1/james", CHECKOUT));
+        assert_ok(git_clone("git://127.0.0.1/james", path));
+    }
 
-        touch(format!("{}/{}", CHECKOUT, NEWFILE).as_str()).expect("touch failed");
-        assert_ok(git_add(CHECKOUT, NEWFILE));
+    #[test]
+    fn git_clone_test() {
+        let now = SystemTime::now().duration_since(UNIX_EPOCH).unwrap();
+        let newfile = format!("newfile-{}", now.as_secs());
+        let externalfile = format!("externalfile-{}", now.as_secs());
 
-        assert_ok(git_commit(CHECKOUT, format!("Adding {}", NEWFILE).as_str()));
+        // Test: clone -> add -> commit -> push
+        clone(CHECKOUT);
+
+        touch(format!("{}/{}", CHECKOUT, newfile).as_str()).expect("touch failed");
+        assert_ok(git_add(CHECKOUT, &newfile));
+
+        assert_ok(git_commit(CHECKOUT, format!("Adding {}", newfile).as_str()));
 
         assert_ok(git_push(CHECKOUT));
 
+        // Nothing to do
+        assert_ok(git_pull(CHECKOUT));
+
+        // Clone into a new location, add, commit and push from here
+        clone(EXTERNAL_CHECKOUT);
+
+        touch(format!("{}/{}", EXTERNAL_CHECKOUT, externalfile).as_str()).expect("touch failed");
+        let status = Command::new("git").arg("add")
+                                        .arg(&externalfile)
+                                        .current_dir(EXTERNAL_CHECKOUT)
+                                        .status()
+                                        .expect("command failed");
+        assert!(status.success());
+
+        let status = Command::new("git").arg("commit")
+                                        .arg("-m")
+                                        .arg(format!("Adding {}", &externalfile))
+                                        .current_dir(EXTERNAL_CHECKOUT)
+                                        .status()
+                                        .expect("command failed");
+        assert!(status.success());
+
+        let status = Command::new("git").arg("push")
+                                        .arg(GIT_REMOTE)
+                                        .arg(GIT_BRANCH)
+                                        .current_dir(EXTERNAL_CHECKOUT)
+                                        .status()
+                                        .expect("command failed");
+        assert!(status.success());
+
+        // Pull in external updates
         assert_ok(git_pull(CHECKOUT));
     }
 }

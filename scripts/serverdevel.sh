@@ -135,7 +135,7 @@ git_server_status() {
 git_server_controls() {
     local james=${JAMES_REPO_CLIENT##"${TOP}/git/"}
     cat << EOF
-R: Restart git-daemon
+R: Reinitialise git repo
 S: Status of $james
 A: Add files to $james
 M: Modify files in $james
@@ -176,6 +176,11 @@ while read -n1 -rs ans; do
         git_server_del
     ;;
     [rR])
+        git_server_stop
+
+        echo "Clearing $TOP/git"
+        rm -rf "$TOP/git"
+        git_server_setup
         git_server_restart
     ;;
     [qQ])

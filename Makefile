@@ -26,7 +26,7 @@ clean:
 	rm -rf $(OUT)
 
 test:
-	@# Start git server with scripts/serverdevel.sh first
+	@echo Local git server needs to be running
 	nc -zv 127.0.0.1 9418
 	@# To show stdout/stderr: cargo test -- --nocapture
 	(cd kage-core && cargo test)
