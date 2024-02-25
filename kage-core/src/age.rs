@@ -1,10 +1,12 @@
 //use age::secrecy::Secret;
 use derive_more::{From,Display};
-use age::{Encryptor,Decryptor};
-use age::x25519;
-use super::{error,log,info,level_to_color,log_prefix};
+use age;
+use age::secrecy::Secret;
+
 use std::io::{Read, Write}; // .write_all() trait
 use std::iter;
+
+use super::{error,log,level_to_color,log_prefix};
 
 /// *.age:           x25519 encrypted files.
 /// .age-recepients: The public x25519 key used to encrypt plaintext data into .age files.
@@ -25,10 +27,27 @@ pub enum AgeError {
     RecipientError
 }
 
+/// Decrypt the provided ciphertext using the private key inside of the `encrypted_identity`,
+/// the identity unlocked with the passphrase.
+pub fn age_decrypt_with_identity(ciphertext: &[u8], 
+                                 encrypted_identity: &[u8], 
+                                 passphrase: &str)  -> Result<Vec<u8>,AgeError> {
+
+    let passphrase = Secret::new(passphrase.to_owned());
+    let identity = age_decrypt_passphrase(encrypted_identity, passphrase)?;
+
+    if let Ok(identity) = String::from_utf8(identity) {
+        if let Ok(identity) = identity.parse::<age::x25519::Identity>() {
+            return age_decrypt(ciphertext, &identity)
+        }
+    }
+    Ok(vec![])
+}
+
 pub fn age_encrypt(plaintext: &str, recepient: &str) -> Result<Vec<u8>,AgeError> {
-    match recepient.parse::<x25519::Recipient>() {
+    match recepient.parse::<age::x25519::Recipient>() {
         Ok(pubkey) => {
-            if let Some(encryptor) = Encryptor::with_recipients(vec![Box::new(pubkey)]) {
+            if let Some(encryptor) = age::Encryptor::with_recipients(vec![Box::new(pubkey)]) {
 
                 let mut encrypted = vec![];
                 let mut writer = encryptor.wrap_output(&mut encrypted)?;
@@ -45,21 +64,7 @@ pub fn age_encrypt(plaintext: &str, recepient: &str) -> Result<Vec<u8>,AgeError>
     Err(AgeError::RecipientError)
 }
 
-pub fn age_decrypt_passphrase(encrypted_path: &str, passphrase: &str) -> Result<Vec<u8>,AgeError> {
-    // let decryptor = match age::Decryptor::new(&encrypted[..])? {
-    //     age::Decryptor::Passphrase(d) => d,
-    //     _ => unreachable!(),
-    // };
-
-    // let mut decrypted = vec![];
-    // let mut reader = decryptor.decrypt(&Secret::new(passphrase.to_owned()), None)?;
-    // reader.read_to_end(&mut decrypted);
-
-    // decrypted
-    Ok(vec![])
-}
-
-pub fn age_decrypt(ciphertext: &[u8], key: &dyn age::Identity) -> Result<Vec<u8>,AgeError> {
+fn age_decrypt(ciphertext: &[u8], key: &dyn age::Identity) -> Result<Vec<u8>,AgeError> {
     let decryptor = match age::Decryptor::new(ciphertext)? {
         age::Decryptor::Recipients(d) => d,
         _ => unreachable!(),
@@ -72,6 +77,29 @@ pub fn age_decrypt(ciphertext: &[u8], key: &dyn age::Identity) -> Result<Vec<u8>
     Ok(decrypted)
 }
 
+fn age_encrypt_passphrase(plaintext: &[u8], passphrase: Secret<String>) -> Result<Vec<u8>,AgeError> {
+    let encryptor = age::Encryptor::with_user_passphrase(passphrase);
+
+    let mut encrypted = vec![];
+    let mut writer = encryptor.wrap_output(&mut encrypted)?;
+    writer.write_all(plaintext)?;
+    writer.finish()?;
+
+    Ok(encrypted)
+}
+
+fn age_decrypt_passphrase(ciphertext: &[u8], passphrase: Secret<String>) -> Result<Vec<u8>,AgeError> {
+    let decryptor = match age::Decryptor::new(ciphertext)? {
+        age::Decryptor::Passphrase(d) => d,
+        _ => unreachable!(),
+    };
+
+    let mut decrypted = vec![];
+    let mut reader = decryptor.decrypt(&passphrase, None)?;
+    let _ = reader.read_to_end(&mut decrypted);
+
+    Ok(decrypted)
+}
 
 
 #[cfg(test)]
@@ -88,12 +116,11 @@ mod tests {
     }
 
     #[test]
-    fn encrypt_and_decrypt_test() {
+    fn age_x25519_identity_test() {
         let plaintext = "plaintext string";
         let key = age::x25519::Identity::generate();
         let pubkey = key.to_public();
 
-        info!("pubkey: {}", pubkey);
         let ciphertext = age_encrypt(plaintext, pubkey.to_string().as_str());
         assert_ok(&ciphertext);
 
@@ -104,37 +131,18 @@ mod tests {
     }
 
     #[test]
-    fn passphrase_decrypt_test() {
+    fn age_passphrase_test() {
+        let plaintext = "plaintext string";
+        let passphrase = "abc";
 
+        let ciphertext = age_encrypt_passphrase(plaintext.as_bytes(), 
+                                                Secret::new(passphrase.to_owned()));
+        assert_ok(&ciphertext);
+
+        let decrypted = age_decrypt_passphrase(&ciphertext.unwrap(),
+                                               Secret::new(passphrase.to_owned()));
+
+        assert_ok(&decrypted);
+        assert_eq!(decrypted.unwrap(), plaintext.as_bytes());
     }
-
 }
-
-
-// // Encrypt the plaintext to a ciphertext using the passphrase...
-// let encrypted = {
-//     let encryptor = age::Encryptor::with_user_passphrase(Secret::new(passphrase.to_owned()));
-
-//     let mut encrypted = vec![];
-//     let mut writer = encryptor.wrap_output(&mut encrypted)?;
-//     writer.write_all(plaintext)?;
-//     writer.finish()?;
-
-//     encrypted
-// };
-
-// // ... and decrypt the ciphertext to the plaintext again using the same passphrase.
-// let decrypted = {
-//     let decryptor = match age::Decryptor::new(&encrypted[..])? {
-//         age::Decryptor::Passphrase(d) => d,
-//         _ => unreachable!(),
-//     };
-
-//     let mut decrypted = vec![];
-//     let mut reader = decryptor.decrypt(&Secret::new(passphrase.to_owned()), None)?;
-//     reader.read_to_end(&mut decrypted);
-
-//     decrypted
-// };
-
-// assert_eq!(decrypted, plaintext);
