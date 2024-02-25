@@ -12,3 +12,4 @@ name = "kage_core"
 age = "0.9.2"
 # Without https/ssh support
 git2 = { version = "0.18.1", default-features = false}
+derive_more = { version = "0.99.17", features = ["from", "display"] }

@@ -2,6 +2,7 @@ use std::ffi::{CStr,CString};
 use std::os::raw::{c_char,c_int};
 
 use crate::git::*;
+use crate::age::*;
 
 mod git;
 mod age;
@@ -15,7 +16,7 @@ mod log;
 // no_mangle: Rust mangles function names by default, we need to disable this for
 // ffi so that the public methods have predicatable names.
 
-macro_rules! ffi_call {
+macro_rules! ffi_git_call {
     ($result:expr) => (
         match $result {
             Ok(_) => 0,
@@ -44,7 +45,7 @@ pub extern "C" fn ffi_git_clone(url: *const c_char,
     unsafe {
         if let (Ok(url), Ok(into)) = (CStr::from_ptr(url).to_str(),
                                       CStr::from_ptr(into).to_str()) {
-            ffi_call!(git_clone(url, into));
+            ffi_git_call!(git_clone(url, into));
         }
         -1
     }
@@ -54,7 +55,7 @@ pub extern "C" fn ffi_git_clone(url: *const c_char,
 pub extern "C" fn ffi_git_pull(repo_path: *const c_char) -> c_int {
     unsafe {
         if let Ok(repo_path) = CStr::from_ptr(repo_path).to_str() {
-            ffi_call!(git_pull(repo_path));
+            ffi_git_call!(git_pull(repo_path));
         }
         -1
     }
@@ -65,7 +66,7 @@ pub extern "C" fn ffi_git_pull(repo_path: *const c_char) -> c_int {
 pub extern "C" fn ffi_git_push(repo_path: *const c_char) -> c_int {
     unsafe {
         if let Ok(repo_path) = CStr::from_ptr(repo_path).to_str() {
-            ffi_call!(git_push(repo_path));
+            ffi_git_call!(git_push(repo_path));
         }
         -1
     }
@@ -77,7 +78,7 @@ pub extern "C" fn ffi_git_add(repo_path: *const c_char,
     unsafe {
         if let (Ok(repo_path), Ok(path)) = (CStr::from_ptr(repo_path).to_str(),
                                             CStr::from_ptr(path).to_str()) {
-            ffi_call!(git_add(repo_path, path));
+            ffi_git_call!(git_add(repo_path, path));
         }
         -1
     }
@@ -89,8 +90,27 @@ pub extern "C" fn ffi_git_commit(repo_path: *const c_char,
     unsafe {
         if let (Ok(repo_path), Ok(message)) = (CStr::from_ptr(repo_path).to_str(),
                                                CStr::from_ptr(message).to_str()) {
-            ffi_call!(git_commit(repo_path, message));
+            ffi_git_call!(git_commit(repo_path, message));
         }
         -1
     }
 }
+
+#[no_mangle]
+pub extern "C" fn ffi_encrypt(plaintext: *const c_char,
+                              recipient: *const c_char) -> c_int {
+    unsafe {
+        if let (Ok(plaintext), Ok(recipient)) = (CStr::from_ptr(plaintext).to_str(),
+                                                 CStr::from_ptr(recipient).to_str()) {
+            match age_encrypt(plaintext, recipient) {
+                Ok(_) => 0,
+                Err(err) => {
+                    error!("{}", err);
+                    -1
+                }
+            };
+        }
+        -1
+    }
+}
+
