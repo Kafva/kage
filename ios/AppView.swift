@@ -17,11 +17,11 @@ let logger = Logger(subsystem: Bundle.main.bundleIdentifier!,
 
 
 // Views:
-// Main view: 
+// Main view:
 //  password list, folders, drop down or new page...
 //  Search
 //  add button, push button, settings wheel
-//  
+//
 // Create view: (pop over)
 // Push button: loading screen --> error or sucess
 // Settings view: (pop over)
@@ -34,6 +34,7 @@ let logger = Logger(subsystem: Bundle.main.bundleIdentifier!,
 
 struct AppView: View {
     @AppStorage("server") private var server: String = ""
+    let repo = FileManager.default.appDataDirectory.appending(path: "store")
 
     var body: some View {
         NavigationStack {
@@ -47,6 +48,10 @@ struct AppView: View {
                     // TODO progress view
                     clone()
                 }
+                Text("Encrypt").onTapGesture {
+                    age_test()
+
+                }
                 NavigationLink("Settings") {
                     SettingsView()
                 }
@@ -56,8 +61,39 @@ struct AppView: View {
         }
     }
 
+    func age_test() {
+        let identityUrl = URL(string: "\(repo)/.age-identities")!
+        let recipientUrl = URL(string: "\(repo)/.age-recipients")!
+        do {
+            //let encryptedIdentity = try String(contentsOf: identityUrl, encoding: .utf8)
+            let recepient = (try String(contentsOf: recipientUrl, encoding: .utf8))
+                                .trimmingCharacters(in: .whitespacesAndNewlines)
+            let recepientC = recepient.cString(using: .utf8)!
+
+            let plaintextC = "wow".cString(using: .utf8)!
+
+            let outSize: CInt = 1024
+            let outC = UnsafeMutableRawPointer.allocate(byteCount: Int(outSize), alignment: 1)
+
+            // TODO: Output argument not needed, provide filepath instead...
+            let ciphertextSize = ffi_age_encrypt(plaintext: plaintextC,
+                                                 recepient: recepientC,
+                                                 out: outC,
+                                                 outsize: outSize)
+            if ciphertextSize > 0 {
+                let ciphertext = Data(bytes: outC, count: Int(ciphertextSize))
+                logger.info("Encryption OK: \(ciphertextSize) byte(s)")
+                logger.info("Data: \(ciphertext[10])")
+            }
+
+            outC.deallocate()
+
+        } catch {
+            logger.error("\(error)")
+        }
+    }
+
     func clone() {
-        let repo = FileManager.default.appDataDirectory.appending(path: "store")
         try? FileManager.default.removeItem(at: repo)
 
 #if targetEnvironment(simulator)

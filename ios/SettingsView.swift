@@ -12,8 +12,8 @@ struct SettingsView: View {
                                         supportsOpacity: false)
                 .onChange(of: selection, initial: false) { oldColor, newColor in
                     logger.debug("Selected color changed to \(newColor)")
-                    let data = try NSKeyedArchiver.archivedData(withRootObject: newColor, 
-                                                                requiringSecureCoding: false)
+                    // let data = try NSKeyedArchiver.archivedData(withRootObject: newColor, 
+                    //                                             requiringSecureCoding: false)
 
                 }
         }

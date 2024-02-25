@@ -1,12 +1,10 @@
-//use age::secrecy::Secret;
-use derive_more::{From,Display};
-use age;
-use age::secrecy::Secret;
-
-use std::io::{Read, Write}; // .write_all() trait
+use std::io::{Read, Write}; // For .read_to_end() and .write_all()
 use std::iter;
 
 use super::{error,log,level_to_color,log_prefix};
+
+use age;
+use age::secrecy::Secret;
 
 /// *.age:           x25519 encrypted files.
 /// .age-recepients: The public x25519 key used to encrypt plaintext data into .age files.
@@ -17,16 +15,35 @@ use super::{error,log,level_to_color,log_prefix};
 /// Common error type for all age operations, allows us to use `?` for
 /// different types of operations in the same function
 /// A conversion from each error type into an `AgeError` needs to be defined,
-/// the derive_more crate lets us do this without a lot of boilerplate.
+/// the derive_more crate can be used to generate these automatically.
 ///  https://jeltef.github.io/derive_more/derive_more/from.html
-#[derive(From,Debug,Display)]
+#[derive(Debug)]
 pub enum AgeError {
     IoError(std::io::Error),
     EncryptError(age::EncryptError),
     DecryptError(age::DecryptError),
-    RecipientError
+    InternalError
 }
 
+impl From<std::io::Error> for AgeError {
+    fn from(err: std::io::Error) -> AgeError {
+        AgeError::IoError(err)
+    }
+}
+
+impl From<age::EncryptError> for AgeError {
+    fn from(err: age::EncryptError) -> AgeError {
+        AgeError::EncryptError(err)
+    }
+}
+
+impl From<age::DecryptError> for AgeError {
+    fn from(err: age::DecryptError) -> AgeError {
+        AgeError::DecryptError(err)
+    }
+}
+
+#[allow(unused)]
 /// Decrypt the provided ciphertext using the private key inside of the `encrypted_identity`,
 /// the identity unlocked with the passphrase.
 pub fn age_decrypt_with_identity(ciphertext: &[u8], 
@@ -61,7 +78,7 @@ pub fn age_encrypt(plaintext: &str, recepient: &str) -> Result<Vec<u8>,AgeError>
         }
     }
 
-    Err(AgeError::RecipientError)
+    Err(AgeError::InternalError)
 }
 
 fn age_decrypt(ciphertext: &[u8], key: &dyn age::Identity) -> Result<Vec<u8>,AgeError> {
@@ -77,6 +94,7 @@ fn age_decrypt(ciphertext: &[u8], key: &dyn age::Identity) -> Result<Vec<u8>,Age
     Ok(decrypted)
 }
 
+#[allow(unused)]
 fn age_encrypt_passphrase(plaintext: &[u8], passphrase: Secret<String>) -> Result<Vec<u8>,AgeError> {
     let encryptor = age::Encryptor::with_user_passphrase(passphrase);
 
@@ -101,48 +119,47 @@ fn age_decrypt_passphrase(ciphertext: &[u8], passphrase: Secret<String>) -> Resu
     Ok(decrypted)
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::error;
     use age;
 
+    const PLAINTEXT: &str = "!\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
+    const PASSPHRASE: &str = "pass: !#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
+
     fn assert_ok(result: &Result<Vec<u8>, AgeError>) {
         if let Some(err) = result.as_ref().err() {
-            error!("{}", err);
+            error!("{:#?}", err);
         }
         assert!(result.is_ok())
     }
 
     #[test]
     fn age_x25519_identity_test() {
-        let plaintext = "plaintext string";
         let key = age::x25519::Identity::generate();
         let pubkey = key.to_public();
 
-        let ciphertext = age_encrypt(plaintext, pubkey.to_string().as_str());
+        let ciphertext = age_encrypt(PLAINTEXT, pubkey.to_string().as_str());
         assert_ok(&ciphertext);
 
         let decrypted = age_decrypt(&ciphertext.unwrap(), &key);
 
         assert_ok(&decrypted);
-        assert_eq!(decrypted.unwrap(), plaintext.as_bytes());
+        assert_eq!(decrypted.unwrap(), PLAINTEXT.as_bytes());
     }
 
     #[test]
     fn age_passphrase_test() {
-        let plaintext = "plaintext string";
-        let passphrase = "abc";
 
-        let ciphertext = age_encrypt_passphrase(plaintext.as_bytes(), 
-                                                Secret::new(passphrase.to_owned()));
+        let ciphertext = age_encrypt_passphrase(PLAINTEXT.as_bytes(), 
+                                                Secret::new(PASSPHRASE.to_owned()));
         assert_ok(&ciphertext);
 
         let decrypted = age_decrypt_passphrase(&ciphertext.unwrap(),
-                                               Secret::new(passphrase.to_owned()));
+                                               Secret::new(PASSPHRASE.to_owned()));
 
         assert_ok(&decrypted);
-        assert_eq!(decrypted.unwrap(), plaintext.as_bytes());
+        assert_eq!(decrypted.unwrap(), PLAINTEXT.as_bytes());
     }
 }

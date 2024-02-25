@@ -1,8 +1,8 @@
-use crate::{level_to_color,log_prefix,log,debug};
-
 use std::path::Path;
 use git2::{RemoteCallbacks,FetchOptions,Repository};
 use git2::build::{CheckoutBuilder,RepoBuilder};
+
+use crate::{level_to_color,log_prefix,log,debug};
 
 const GIT_REMOTE: &'static str = "origin";
 const GIT_BRANCH: &'static str = "main";
@@ -208,6 +208,7 @@ mod tests {
         assert!(status.success());
 
         let status = Command::new("git").arg("commit")
+                                        .arg("-q")
                                         .arg("-m")
                                         .arg(format!("Adding {}", &externalfile))
                                         .current_dir(EXTERNAL_CHECKOUT)
@@ -216,6 +217,7 @@ mod tests {
         assert!(status.success());
 
         let status = Command::new("git").arg("push")
+                                        .arg("-q")
                                         .arg(GIT_REMOTE)
                                         .arg(GIT_BRANCH)
                                         .current_dir(EXTERNAL_CHECKOUT)
