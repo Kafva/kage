@@ -12,28 +12,28 @@ macro_rules! level_to_color {
 #[macro_export]
 macro_rules! debug {
     ($($args:tt)*) => {
-        log!("DEBUG", $($args)*);
+        log!("DEBUG", $($args)*)
     };
 }
 
 #[macro_export]
 macro_rules! info {
     ($($args:tt)*) => {
-        log!("INFO", $($args)*);
+        log!("INFO", $($args)*)
     };
 }
 
 #[macro_export]
 macro_rules! warn {
     ($($args:tt)*) => {
-        log!("WARN", $($args)*);
+        log!("WARN", $($args)*)
     };
 }
 
 #[macro_export]
 macro_rules! error {
     ($($args:tt)*) => {
-        log!("ERROR", $($args)*);
+        log!("ERROR", $($args)*)
     };
 }
 
@@ -46,12 +46,12 @@ macro_rules! log {
     ($level:tt, $fmt:literal, $($x:expr),*) => {
         if cfg!(target = "aarch64-apple-ios") {
             println!(concat!(log_prefix!(), $level, " {}:{} ", $fmt),
-                       file!(), line!(), $($x),*);
+                       file!(), line!(), $($x),*)
         } else {
             println!(concat!(log_prefix!(),
                              "\x1b[", level_to_color!($level), "m", $level,
                              "\x1b[0m {}:{} ", $fmt),
-                     file!(), line!(), $($x),*);
+                     file!(), line!(), $($x),*)
         }
     };
     // Match level and string literal message
@@ -63,7 +63,7 @@ macro_rules! log {
             println!(concat!(log_prefix!(),
                              "\x1b[", level_to_color!($level), "m", $level,
                              "\x1b[0m {}:{} ", $msg),
-                     file!(), line!());
+                     file!(), line!())
         }
     };
 }

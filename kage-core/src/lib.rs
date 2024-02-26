@@ -96,46 +96,84 @@ pub extern "C" fn ffi_git_commit(repo_path: *const c_char,
     -1
 }
 
-/// Encrypt `plaintext` for `recipient`, writing the ciphertext into `out`,
-/// fails if the ciphertext exceeds the `outsize` and returns the bytes written.
+/// Encrypt `plaintext` for `recipient`, writing the ciphertext to outpath.
 #[no_mangle]
 pub extern "C" fn ffi_age_encrypt(plaintext: *const c_char,
                                   recipient: *const c_char,
-                                  out: *mut c_char,
-                                  outsize: c_int) -> c_int {
-    // TODO: limit unsafe blocks?
-    unsafe {
-        if let (Ok(plaintext), Ok(recipient)) = (CStr::from_ptr(plaintext).to_str(),
-                                                 CStr::from_ptr(recipient).to_str()) {
-            match age_encrypt(plaintext, recipient) {
-                Ok(ciphertext) => {
-                    let ciphersize = ciphertext.len();
-                    if ciphersize < outsize as usize {
-                        let out_slice = std::slice::from_raw_parts_mut(out, outsize as usize);
-                        for i in 0..ciphersize {
-                            out_slice[i] = ciphertext[i] as c_char
-                        }
-                        debug!("value: {}", out_slice[10]);
-                        return ciphersize as c_int
-                    }
-                    warn!("Encryption output buffer to small: {} < {}", ciphersize, outsize);
-                },
-                Err(err) => {
-                    error!("{:#?}", err);
-                }
+                                  outpath: *const c_char) -> c_int {
+
+    let plaintext = unsafe { CStr::from_ptr(plaintext).to_str() };
+    let recipient = unsafe { CStr::from_ptr(recipient).to_str() };
+    let outpath = unsafe { CStr::from_ptr(outpath).to_str() };
+
+    if let (Ok(plaintext), Ok(recipient), Ok(outpath)) = (plaintext, recipient, outpath) {
+        let outpath = std::path::Path::new(outpath);
+        // TODO handle bad paths
+        let outfile = outpath.file_name().expect("invalid path").to_str().unwrap();
+
+        match age_encrypt(plaintext, recipient) {
+            Ok(ciphertext) => {
+               match std::fs::write(outpath, &ciphertext) {
+                   Ok(_) => {
+                       debug!("Wrote {} byte(s) to {}", ciphertext.len(), outfile);
+                       return 0
+                   },
+                   Err(err) => {
+                       error!("{}: {}", outfile, err);
+                   }
+               }
+            },
+            Err(err) => {
+                error!("{}: {}", outfile, err);
             }
         }
     }
     -1
 }
 
-// #[no_mangle]
-// pub extern "C" fn ffi_age_decrypt_with_identity(ciphertext: *const c_char, 
-//                                                 encrypted_identity: *const c_char, 
-//                                                 passphrase: *const c_char) -> *const c_char {
-//     // unsafe {
-//     // }
-//     std::ctr::null()
-// }
+#[no_mangle]
+pub extern "C" fn ffi_age_decrypt_with_identity(path: *const c_char,
+                                                encrypted_identity: *const c_char,
+                                                passphrase: *const c_char,
+                                                out: &mut c_char,
+                                                outsize: c_int) -> c_int {
+    let path = unsafe { CStr::from_ptr(path).to_str() };
+    let encrypted_identity = unsafe { CStr::from_ptr(encrypted_identity).to_str() };
+    let passphrase = unsafe { CStr::from_ptr(passphrase).to_str() };
 
+    if let (Ok(path), 
+            Ok(encrypted_identity), 
+            Ok(passphrase)) = (path, encrypted_identity, passphrase) {
+
+        let path = std::path::Path::new(path);
+        // TODO handle bad paths
+        let filename = path.file_name().expect("invalid path").to_str().unwrap();
+
+        match std::fs::read(path) {
+            Ok(data) => {
+                match age_decrypt_with_identity(data.as_slice(), encrypted_identity, passphrase) {
+                    Ok(data) => {
+                        let datalen = data.len();
+                        if datalen < outsize as usize {
+                            let out_slice = unsafe { std::slice::from_raw_parts_mut(out, outsize as usize) };
+                            for i in 0..datalen {
+                                out_slice[i] = data[i] as c_char
+                            }
+                            return datalen as c_int
+                        }
+                        warn!("{}: decryption output buffer to small: {} < {}", 
+                              filename, datalen, outsize);
+                    },
+                    Err(err) => {
+                        error!("{}: {}", filename, err);
+                    }
+                }
+            },
+            Err(err) => {
+                error!("{}: {}", filename, err);
+            }
+        }
+    }
+    -1
+}
 

@@ -38,19 +38,22 @@ struct AppView: View {
 
     var body: some View {
         NavigationStack {
-            VStack {
+            VStack(alignment: .center, spacing: 5) {
                 Image(systemName: "globe")
                     .imageScale(.large)
                     .foregroundStyle(.tint)
 
-                Text("Clone!")
+                Text("Clone")
                 .onTapGesture {
                     // TODO progress view
                     clone()
                 }
                 Text("Encrypt").onTapGesture {
-                    age_test()
-
+                    ageEncrypt(outpath: "\(repo.path())/from_ios.age", plaintext: "wow")
+                }
+                Text("Decrypt").onTapGesture {
+                    let plaintext = ageDecrypt(path: "\(repo.path())/from_ios.age", passphrase: "x")
+                    logger.info("Decrypted: \(plaintext)")
                 }
                 NavigationLink("Settings") {
                     SettingsView()
@@ -61,33 +64,66 @@ struct AppView: View {
         }
     }
 
-    func age_test() {
-        let identityUrl = URL(string: "\(repo)/.age-identities")!
-        let recipientUrl = URL(string: "\(repo)/.age-recipients")!
+    func ageDecrypt(path: String, passphrase: String) -> String {
         do {
-            //let encryptedIdentity = try String(contentsOf: identityUrl, encoding: .utf8)
-            let recepient = (try String(contentsOf: recipientUrl, encoding: .utf8))
-                                .trimmingCharacters(in: .whitespacesAndNewlines)
-            let recepientC = recepient.cString(using: .utf8)!
+            let identityUrl = try guardLet(URL(string: "\(repo)/.age-identities"),
+                                       AppError.urlError("\(repo)/.age-identities"))
 
-            let plaintextC = "wow".cString(using: .utf8)!
+            let encryptedIdentity = try String(contentsOf: identityUrl, encoding: .utf8)
 
-            let outSize: CInt = 1024
-            let outC = UnsafeMutableRawPointer.allocate(byteCount: Int(outSize), alignment: 1)
+            let encryptedIdentityC = try guardLet(encryptedIdentity.cString(using: .utf8), AppError.cStringError)
+            let pathC              = try guardLet(path.cString(using: .utf8), AppError.cStringError)
+            let passphraseC        = try guardLet(passphrase.cString(using: .utf8), AppError.cStringError)
 
-            // TODO: Output argument not needed, provide filepath instead...
-            let ciphertextSize = ffi_age_encrypt(plaintext: plaintextC,
-                                                 recepient: recepientC,
-                                                 out: outC,
-                                                 outsize: outSize)
-            if ciphertextSize > 0 {
-                let ciphertext = Data(bytes: outC, count: Int(ciphertextSize))
-                logger.info("Encryption OK: \(ciphertextSize) byte(s)")
-                logger.info("Data: \(ciphertext[10])")
+            let outsize: CInt = 1024
+            let outC = UnsafeMutableRawPointer.allocate(byteCount: Int(outsize), alignment: 1)
+
+            logger.info("encryptedIdentity: \(encryptedIdentity)")
+            let written = ffi_age_decrypt_with_identity(path: pathC,
+                                                        encryptedIdentity: encryptedIdentityC,
+                                                        passphrase: passphraseC,
+                                                        out: outC,
+                                                        outsize: outsize)
+
+            if written > 0 {
+                let data = Data(bytes: outC, count: Int(written))
+
+                let plaintext = String(decoding: data, as: UTF8.self)
+
+                if !plaintext.isEmpty {
+                    outC.deallocate()
+                    return plaintext
+                }
             }
 
             outC.deallocate()
+            logger.error("Decryption failed: \(Int(written))")
 
+        } catch {
+            logger.error("\(error)")
+        }
+
+        return ""
+    }
+
+    func ageEncrypt(outpath: String, plaintext: String) {
+        do {
+            let recipientUrl = try guardLet(URL(string: "\(repo)/.age-recipients"),
+                                            AppError.urlError("\(repo)/.age-recipients"))
+
+            let recepient = (try String(contentsOf: recipientUrl, encoding: .utf8))
+                                .trimmingCharacters(in: .whitespacesAndNewlines)
+
+            let recepientC = try guardLet(recepient.cString(using: .utf8), AppError.cStringError)
+            let plaintextC = try guardLet(plaintext.cString(using: .utf8), AppError.cStringError)
+            let outpathC   = try guardLet(outpath.cString(using: .utf8), AppError.cStringError)
+
+            let r = ffi_age_encrypt(plaintext: plaintextC,
+                                    recepient: recepientC,
+                                    outpath: outpathC)
+            if r == 0 {
+                logger.info("Created: \(outpath)")
+            }
         } catch {
             logger.error("\(error)")
         }
@@ -115,6 +151,13 @@ struct AppView: View {
     }
 }
 
+func guardLet<T>(_ value: T?, _ error: Error) throws -> T {
+    guard let unwrappedValue = value else {
+        throw error
+    }
+    return unwrappedValue
+}
+
 extension FileManager {
     var appDataDirectory: URL {
         let urls = self.urls(
@@ -123,3 +166,18 @@ extension FileManager {
         return urls[0]
     }
 }
+
+enum AppError: Error, LocalizedError {
+    case urlError(String)
+    case cStringError
+
+    var errorDescription: String? {
+        switch self {
+        case .urlError(let value):
+            return "URL parsing failure: \(value)"
+        case .cStringError:
+            return "Cstring conversion failure"
+        }
+    }
+}
+

@@ -1,5 +1,6 @@
 use std::io::{Read, Write}; // For .read_to_end() and .write_all()
 use std::iter;
+use std::fmt;
 
 use super::{error,log,level_to_color,log_prefix};
 
@@ -43,15 +44,28 @@ impl From<age::DecryptError> for AgeError {
     }
 }
 
-#[allow(unused)]
+impl fmt::Display for AgeError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+         use AgeError::*;
+         match self {
+             InternalError => f.write_str("Internal error"),
+             EncryptError(err) => err.fmt(f),
+             DecryptError(err) => err.fmt(f),
+             IoError(err) => err.fmt(f),
+         }
+    }
+}
+
+
 /// Decrypt the provided ciphertext using the private key inside of the `encrypted_identity`,
 /// the identity unlocked with the passphrase.
-pub fn age_decrypt_with_identity(ciphertext: &[u8], 
-                                 encrypted_identity: &[u8], 
+/// The encrypted_identity is given as bech32 string.
+pub fn age_decrypt_with_identity(ciphertext: &[u8],
+                                 encrypted_identity: &str,
                                  passphrase: &str)  -> Result<Vec<u8>,AgeError> {
 
     let passphrase = Secret::new(passphrase.to_owned());
-    let identity = age_decrypt_passphrase(encrypted_identity, passphrase)?;
+    let identity = age_decrypt_passphrase(encrypted_identity.as_bytes(), passphrase)?;
 
     if let Ok(identity) = String::from_utf8(identity) {
         if let Ok(identity) = identity.parse::<age::x25519::Identity>() {
@@ -94,7 +108,7 @@ fn age_decrypt(ciphertext: &[u8], key: &dyn age::Identity) -> Result<Vec<u8>,Age
     Ok(decrypted)
 }
 
-#[allow(unused)]
+#[cfg(test)]
 fn age_encrypt_passphrase(plaintext: &[u8], passphrase: Secret<String>) -> Result<Vec<u8>,AgeError> {
     let encryptor = age::Encryptor::with_user_passphrase(passphrase);
 
@@ -152,7 +166,7 @@ mod tests {
     #[test]
     fn age_passphrase_test() {
 
-        let ciphertext = age_encrypt_passphrase(PLAINTEXT.as_bytes(), 
+        let ciphertext = age_encrypt_passphrase(PLAINTEXT.as_bytes(),
                                                 Secret::new(PASSPHRASE.to_owned()));
         assert_ok(&ciphertext);
 
