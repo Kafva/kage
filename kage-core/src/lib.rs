@@ -141,8 +141,8 @@ pub extern "C" fn ffi_age_decrypt_with_identity(path: *const c_char,
     let encrypted_identity = unsafe { CStr::from_ptr(encrypted_identity).to_str() };
     let passphrase = unsafe { CStr::from_ptr(passphrase).to_str() };
 
-    if let (Ok(path), 
-            Ok(encrypted_identity), 
+    if let (Ok(path),
+            Ok(encrypted_identity),
             Ok(passphrase)) = (path, encrypted_identity, passphrase) {
 
         let path = std::path::Path::new(path);
@@ -161,7 +161,7 @@ pub extern "C" fn ffi_age_decrypt_with_identity(path: *const c_char,
                             }
                             return datalen as c_int
                         }
-                        warn!("{}: decryption output buffer to small: {} < {}", 
+                        warn!("{}: decryption output buffer to small: {} < {}",
                               filename, datalen, outsize);
                     },
                     Err(err) => {

@@ -9,6 +9,7 @@ crate-type = ["cdylib"]
 name = "kage_core"
 
 [dependencies]
-age = "0.9.2"
+# With support for the ASCII armored format
+age = { version = "0.10.0", features = ["armor"] }
 # Without https/ssh support
 git2 = { version = "0.18.1", default-features = false}

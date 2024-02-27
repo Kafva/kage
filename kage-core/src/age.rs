@@ -11,6 +11,7 @@ use age::secrecy::Secret;
 /// .age-recepients: The public x25519 key used to encrypt plaintext data into .age files.
 /// .age-identities: Passphrase encrypted file, this contains the private
 ///                  x25519 key used to decrypt .age files.
+///                  This should be in the ascii-armored format, i.e. created with `age -a`
 
 
 /// Common error type for all age operations, allows us to use `?` for
@@ -65,7 +66,7 @@ pub fn age_decrypt_with_identity(ciphertext: &[u8],
                                  passphrase: &str)  -> Result<Vec<u8>,AgeError> {
 
     let passphrase = Secret::new(passphrase.to_owned());
-    let identity = age_decrypt_passphrase(encrypted_identity.as_bytes(), passphrase)?;
+    let identity = age_decrypt_passphrase_armored(encrypted_identity.as_bytes(), passphrase)?;
 
     if let Ok(identity) = String::from_utf8(identity) {
         if let Ok(identity) = identity.parse::<age::x25519::Identity>() {
@@ -109,19 +110,26 @@ fn age_decrypt(ciphertext: &[u8], key: &dyn age::Identity) -> Result<Vec<u8>,Age
 }
 
 #[cfg(test)]
-fn age_encrypt_passphrase(plaintext: &[u8], passphrase: Secret<String>) -> Result<Vec<u8>,AgeError> {
+fn age_encrypt_passphrase_armored(plaintext: &[u8], passphrase: Secret<String>) -> Result<Vec<u8>,AgeError> {
     let encryptor = age::Encryptor::with_user_passphrase(passphrase);
 
     let mut encrypted = vec![];
-    let mut writer = encryptor.wrap_output(&mut encrypted)?;
+    let mut writer = encryptor.wrap_output(
+        age::armor::ArmoredWriter::wrap_output(
+            &mut encrypted,
+            age::armor::Format::AsciiArmor,
+        )?
+    )?;
     writer.write_all(plaintext)?;
-    writer.finish()?;
+    writer.finish()
+        .and_then(|armor| armor.finish())?;
 
     Ok(encrypted)
 }
 
-fn age_decrypt_passphrase(ciphertext: &[u8], passphrase: Secret<String>) -> Result<Vec<u8>,AgeError> {
-    let decryptor = match age::Decryptor::new(ciphertext)? {
+fn age_decrypt_passphrase_armored(ciphertext: &[u8], passphrase: Secret<String>) -> Result<Vec<u8>,AgeError> {
+    let armored_reader = age::armor::ArmoredReader::new(ciphertext);
+    let decryptor = match age::Decryptor::new(armored_reader)? {
         age::Decryptor::Passphrase(d) => d,
         _ => unreachable!(),
     };
@@ -166,11 +174,11 @@ mod tests {
     #[test]
     fn age_passphrase_test() {
 
-        let ciphertext = age_encrypt_passphrase(PLAINTEXT.as_bytes(),
+        let ciphertext = age_encrypt_passphrase_armored(PLAINTEXT.as_bytes(),
                                                 Secret::new(PASSPHRASE.to_owned()));
         assert_ok(&ciphertext);
 
-        let decrypted = age_decrypt_passphrase(&ciphertext.unwrap(),
+        let decrypted = age_decrypt_passphrase_armored(&ciphertext.unwrap(),
                                                Secret::new(PASSPHRASE.to_owned()));
 
         assert_ok(&decrypted);
