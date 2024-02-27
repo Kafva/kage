@@ -21,7 +21,7 @@ public func ffi_age_encrypt(plaintext: UnsafePointer<CChar>,
                             outpath: UnsafePointer<CChar>) -> CInt
 
 @_silgen_name("ffi_age_decrypt_with_identity")
-public func ffi_age_decrypt_with_identity(path: UnsafePointer<CChar>,
+public func ffi_age_decrypt_with_identity(encryptedFilepath: UnsafePointer<CChar>,
                                           encryptedIdentity: UnsafePointer<CChar>,
                                           passphrase: UnsafePointer<CChar>,
                                           out: UnsafeMutableRawPointer,

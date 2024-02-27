@@ -79,7 +79,7 @@ struct AppView: View {
             let outC = UnsafeMutableRawPointer.allocate(byteCount: Int(outsize), alignment: 1)
 
             logger.info("encryptedIdentity: \(encryptedIdentity)")
-            let written = ffi_age_decrypt_with_identity(path: pathC,
+            let written = ffi_age_decrypt_with_identity(encryptedFilepath: pathC,
                                                         encryptedIdentity: encryptedIdentityC,
                                                         passphrase: passphraseC,
                                                         out: outC,

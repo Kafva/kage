@@ -24,7 +24,8 @@ pub enum AgeError {
     IoError(std::io::Error),
     EncryptError(age::EncryptError),
     DecryptError(age::DecryptError),
-    InternalError
+    InternalError,
+    BadInput
 }
 
 impl From<std::io::Error> for AgeError {
@@ -49,7 +50,8 @@ impl fmt::Display for AgeError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
          use AgeError::*;
          match self {
-             InternalError => f.write_str("Internal error"),
+             InternalError => f.write_str("internal error"),
+             BadInput => f.write_str("bad input"),
              EncryptError(err) => err.fmt(f),
              DecryptError(err) => err.fmt(f),
              IoError(err) => err.fmt(f),
@@ -58,9 +60,9 @@ impl fmt::Display for AgeError {
 }
 
 
-/// Decrypt the provided ciphertext using the private key inside of the `encrypted_identity`,
-/// the identity unlocked with the passphrase.
-/// The encrypted_identity is given as bech32 string.
+/// Unlock `encrypted_identity` (given as an ascii-armored string) using
+/// `passphrase` and decrypt `ciphertext` with the key contained in the
+/// `encrypted_identity`.
 pub fn age_decrypt_with_identity(ciphertext: &[u8],
                                  encrypted_identity: &str,
                                  passphrase: &str)  -> Result<Vec<u8>,AgeError> {
@@ -99,7 +101,7 @@ pub fn age_encrypt(plaintext: &str, recepient: &str) -> Result<Vec<u8>,AgeError>
 fn age_decrypt(ciphertext: &[u8], key: &dyn age::Identity) -> Result<Vec<u8>,AgeError> {
     let decryptor = match age::Decryptor::new(ciphertext)? {
         age::Decryptor::Recipients(d) => d,
-        _ => unreachable!(),
+        _ => return Err(AgeError::BadInput),
     };
 
     let mut decrypted = vec![];
@@ -131,7 +133,9 @@ fn age_decrypt_passphrase_armored(ciphertext: &[u8], passphrase: Secret<String>)
     let armored_reader = age::armor::ArmoredReader::new(ciphertext);
     let decryptor = match age::Decryptor::new(armored_reader)? {
         age::Decryptor::Passphrase(d) => d,
-        _ => unreachable!(),
+        _ => {
+            return Err(AgeError::BadInput)
+        }
     };
 
     let mut decrypted = vec![];
