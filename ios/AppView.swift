@@ -66,8 +66,7 @@ struct AppView: View {
 
     func ageDecrypt(path: String, passphrase: String) -> String {
         do {
-            let identityUrl = try guardLet(URL(string: "\(repo)/.age-identities"),
-                                       AppError.urlError("\(repo)/.age-identities"))
+            let identityUrl = try URL.fromString("\(repo)/.age-identities")
 
             let encryptedIdentity = try String(contentsOf: identityUrl, encoding: .utf8)
 
@@ -78,7 +77,6 @@ struct AppView: View {
             let outsize: CInt = 1024
             let outC = UnsafeMutableRawPointer.allocate(byteCount: Int(outsize), alignment: 1)
 
-            logger.info("encryptedIdentity: \(encryptedIdentity)")
             let written = ffi_age_decrypt_with_identity(encryptedFilepath: pathC,
                                                         encryptedIdentity: encryptedIdentityC,
                                                         passphrase: passphraseC,
@@ -108,8 +106,7 @@ struct AppView: View {
 
     func ageEncrypt(outpath: String, plaintext: String) {
         do {
-            let recipientUrl = try guardLet(URL(string: "\(repo)/.age-recipients"),
-                                            AppError.urlError("\(repo)/.age-recipients"))
+            let recipientUrl = try URL.fromString("\(repo)/.age-recipients")
 
             let recepient = (try String(contentsOf: recipientUrl, encoding: .utf8))
                                 .trimmingCharacters(in: .whitespacesAndNewlines)
@@ -121,9 +118,6 @@ struct AppView: View {
             let r = ffi_age_encrypt(plaintext: plaintextC,
                                     recepient: recepientC,
                                     outpath: outpathC)
-            if r == 0 {
-                logger.info("Created: \(outpath)")
-            }
         } catch {
             logger.error("\(error)")
         }
@@ -156,6 +150,12 @@ func guardLet<T>(_ value: T?, _ error: Error) throws -> T {
         throw error
     }
     return unwrappedValue
+}
+
+extension URL {
+    static func fromString(_ string: String) throws -> URL {
+        return try guardLet(URL(string: string), AppError.urlError(string))
+    }
 }
 
 extension FileManager {

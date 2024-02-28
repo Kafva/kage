@@ -26,7 +26,3 @@ public func ffi_age_decrypt_with_identity(encryptedFilepath: UnsafePointer<CChar
                                           passphrase: UnsafePointer<CChar>,
                                           out: UnsafeMutableRawPointer,
                                           outsize: CInt) -> CInt
-
-@_silgen_name("ffi_free_cstring")
-public func ffi_free_cstring(_ ptr: UnsafeMutablePointer<CChar>?) -> Void
-

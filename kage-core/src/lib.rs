@@ -1,4 +1,10 @@
-use std::ffi::{CStr,CString};
+//! CString: an owned instance of a C-string
+//! CStr: a const reference to a C-string (immutable)
+//!
+//! no_mangle: Rust mangles function names by default, we need to disable this for
+//! ffi so that the public methods have predictable names.
+
+use std::ffi::CStr;
 use std::os::raw::{c_char,c_int};
 
 use crate::git::*;
@@ -10,12 +16,6 @@ mod age;
 #[macro_use]
 mod log;
 
-// CString: an owned instance of a C-string
-// CStr: a const reference to a C-string (immutable)
-
-// no_mangle: Rust mangles function names by default, we need to disable this for
-// ffi so that the public methods have predictable names.
-
 macro_rules! ffi_git_call {
     ($result:expr) => (
         match $result {
@@ -26,18 +26,6 @@ macro_rules! ffi_git_call {
             }
         }
     )
-}
-
-#[no_mangle]
-pub extern "C" fn ffi_free_cstring(ptr: *mut c_char) {
-    unsafe {
-        if ptr.is_null() {
-            return;
-        }
-        debug!("freeing ptr: {:#?}", ptr);
-        let cstr = CString::from_raw(ptr);
-        drop(cstr)
-    }
 }
 
 #[no_mangle]
@@ -115,7 +103,7 @@ pub extern "C" fn ffi_age_encrypt(plaintext: *const c_char,
             Ok(ciphertext) => {
                match std::fs::write(outpath, &ciphertext) {
                    Ok(_) => {
-                       debug!("Wrote {} byte(s) to {}", ciphertext.len(), outfile);
+                       debug!("Wrote {} byte(s) to '{}'", ciphertext.len(), outfile);
                        return 0
                    },
                    Err(err) => {
@@ -132,24 +120,24 @@ pub extern "C" fn ffi_age_encrypt(plaintext: *const c_char,
 }
 
 #[no_mangle]
-pub extern "C" fn ffi_age_decrypt_with_identity(path: *const c_char,
+pub extern "C" fn ffi_age_decrypt_with_identity(encrypted_path: *const c_char,
                                                 encrypted_identity: *const c_char,
                                                 passphrase: *const c_char,
                                                 out: &mut c_char,
                                                 outsize: c_int) -> c_int {
-    let path = unsafe { CStr::from_ptr(path).to_str() };
+    let encrypted_path = unsafe { CStr::from_ptr(encrypted_path).to_str() };
     let encrypted_identity = unsafe { CStr::from_ptr(encrypted_identity).to_str() };
     let passphrase = unsafe { CStr::from_ptr(passphrase).to_str() };
 
-    if let (Ok(path),
+    if let (Ok(encrypted_path),
             Ok(encrypted_identity),
-            Ok(passphrase)) = (path, encrypted_identity, passphrase) {
+            Ok(passphrase)) = (encrypted_path, encrypted_identity, passphrase) {
 
-        let path = std::path::Path::new(path);
+        let encrypted_path = std::path::Path::new(encrypted_path);
         // TODO handle bad paths
-        let filename = path.file_name().expect("invalid path").to_str().unwrap();
+        let filename = encrypted_path.file_name().expect("invalid path").to_str().unwrap();
 
-        match std::fs::read(path) {
+        match std::fs::read(encrypted_path) {
             Ok(data) => {
                 match age_decrypt_with_identity(data.as_slice(), encrypted_identity, passphrase) {
                     Ok(data) => {
