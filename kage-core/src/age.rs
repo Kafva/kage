@@ -15,7 +15,7 @@ use zeroize::Zeroize;
 
 /// Max work factor during passphrase based decryption
 const MAX_WORK_FACTOR: u8 = if cfg!(target = "aarch64-apple-ios-sim") {
-    40
+    50
 } else {
     32
 };
@@ -81,9 +81,10 @@ pub fn age_decrypt_with_identity(ciphertext: &[u8],
                                  encrypted_identity: &str,
                                  passphrase: &str)  -> Result<Vec<u8>,AgeError> {
 
-    let key = age_decrypt_passphrase_armored(encrypted_identity.as_bytes(), 
+    let key = age_decrypt_passphrase_armored(encrypted_identity.as_bytes(),
                                              Secret::new(passphrase.to_owned()))?;
 
+    // TODO strip comment lines
     let mut key = String::from_utf8(key.to_vec())?;
     let identity = key.parse::<age::x25519::Identity>();
     key.zeroize();
@@ -224,8 +225,8 @@ mod tests {
         let identity = encrypted_identity.unwrap();
         let identity_str = String::from_utf8(identity).unwrap();
         let identity_str = identity_str.as_str();
-        let decrypted = age_decrypt_with_identity(&ciphertext.unwrap(), 
-                                                  &identity_str, 
+        let decrypted = age_decrypt_with_identity(&ciphertext.unwrap(),
+                                                  &identity_str,
                                                   PASSPHRASE);
         assert_ok(&decrypted);
         assert_eq!(decrypted.unwrap(), PLAINTEXT.as_bytes());
