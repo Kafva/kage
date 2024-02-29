@@ -52,8 +52,13 @@ struct AppView: View {
                     ageEncrypt(outpath: "\(repo.path())/from_ios.age", plaintext: "wow")
                 }
                 Text("Decrypt").onTapGesture {
-                    let plaintext = ageDecrypt(path: "\(repo.path())/from_ios.age", passphrase: "x")
-                    logger.info("Decrypted: \(plaintext)")
+                    let clock = ContinuousClock()
+                    let elapsed = clock.measure {
+                        logger.info("Decryption: BEGIN")
+                        let plaintext = ageDecrypt(path: "\(repo.path())/from_ios.age", passphrase: "x")
+                        logger.info("Decrypted: '\(plaintext)'")
+                    }
+                    logger.info("Decryption: END [\(elapsed.components.seconds) sec]")
                 }
                 NavigationLink("Settings") {
                     SettingsView()
@@ -115,7 +120,7 @@ struct AppView: View {
             let plaintextC = try guardLet(plaintext.cString(using: .utf8), AppError.cStringError)
             let outpathC   = try guardLet(outpath.cString(using: .utf8), AppError.cStringError)
 
-            let r = ffi_age_encrypt(plaintext: plaintextC,
+            let _ = ffi_age_encrypt(plaintext: plaintextC,
                                     recepient: recepientC,
                                     outpath: outpathC)
         } catch {

@@ -4,16 +4,21 @@
 //!                  x25519 key used to decrypt .age files.
 //!                  This should be in the ascii-armored format, i.e. created with `age -a`
 
-use std::io::{Read, Write, BufReader}; // For .read_to_end() and .write_all()
+use std::io::{Read, Write}; // For .read_to_end() and .write_all()
 use std::fmt;
 
 use super::{error,log,level_to_color,log_prefix};
 
 use age;
 use age::secrecy::Secret;
+use zeroize::Zeroize;
 
 /// Max work factor during passphrase based decryption
-const MAX_WORK_FACTOR: u8 = 40;
+const MAX_WORK_FACTOR: u8 = if cfg!(target = "aarch64-apple-ios-sim") {
+    40
+} else {
+    32
+};
 
 /// Common error type for all age operations, allows us to use `?` for
 /// different types of operations in the same function
@@ -25,6 +30,7 @@ pub enum AgeError {
     IoError(std::io::Error),
     EncryptError(age::EncryptError),
     DecryptError(age::DecryptError),
+    Utf8Error(std::string::FromUtf8Error),
     InternalError,
     BadInput
 }
@@ -47,6 +53,12 @@ impl From<age::DecryptError> for AgeError {
     }
 }
 
+impl From<std::string::FromUtf8Error> for AgeError {
+    fn from(err: std::string::FromUtf8Error) -> AgeError {
+        AgeError::Utf8Error(err)
+    }
+}
+
 impl fmt::Display for AgeError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
          use AgeError::*;
@@ -56,6 +68,7 @@ impl fmt::Display for AgeError {
              EncryptError(err) => err.fmt(f),
              DecryptError(err) => err.fmt(f),
              IoError(err) => err.fmt(f),
+             Utf8Error(err) => err.fmt(f),
          }
     }
 }
@@ -70,7 +83,15 @@ pub fn age_decrypt_with_identity(ciphertext: &[u8],
 
     let key = age_decrypt_passphrase_armored(encrypted_identity.as_bytes(), 
                                              Secret::new(passphrase.to_owned()))?;
-    age_decrypt_with_raw_key(ciphertext, &key)
+
+    let mut key = String::from_utf8(key.to_vec())?;
+    let identity = key.parse::<age::x25519::Identity>();
+    key.zeroize();
+
+    match identity {
+        Ok(identity) => age_decrypt(ciphertext, &identity),
+        Err(_) => Err(AgeError::BadInput)
+    }
 }
 
 pub fn age_encrypt(plaintext: &str, recepient: &str) -> Result<Vec<u8>,AgeError> {
@@ -93,10 +114,9 @@ pub fn age_encrypt(plaintext: &str, recepient: &str) -> Result<Vec<u8>,AgeError>
     Err(AgeError::InternalError)
 }
 
-#[cfg(test)]
 fn age_decrypt(ciphertext: &[u8], key: &dyn age::Identity) -> Result<Vec<u8>,AgeError> {
     let decryptor = match age::Decryptor::new(ciphertext)? {
-        age::Decryptor::Recipients(d) => d,
+        age::Decryptor::Recipients(decryptor) => decryptor,
         _ => return Err(AgeError::BadInput),
     };
 
@@ -130,7 +150,7 @@ fn age_decrypt_passphrase_armored(ciphertext: &[u8],
                                   passphrase: Secret<String>) -> Result<Vec<u8>,AgeError> {
     let armored_reader = age::armor::ArmoredReader::new(ciphertext);
     let decryptor = match age::Decryptor::new(armored_reader)? {
-        age::Decryptor::Passphrase(d) => d,
+        age::Decryptor::Passphrase(decryptor) => decryptor,
         _ => return Err(AgeError::BadInput)
     };
 
@@ -139,27 +159,6 @@ fn age_decrypt_passphrase_armored(ciphertext: &[u8],
     let _ = reader.read_to_end(&mut decrypted);
 
     Ok(decrypted)
-}
-
-fn age_decrypt_with_raw_key(ciphertext: &[u8], key: &[u8]) -> Result<Vec<u8>,AgeError> {
-    let decryptor = match age::Decryptor::new(ciphertext)? {
-        age::Decryptor::Recipients(d) => d,
-        _ => return Err(AgeError::BadInput),
-    };
-
-    let reader = BufReader::new(key);
-    let identities = age::IdentityFile::from_buffer(reader)?.into_identities();
-
-    match identities.first() {
-        Some(age::IdentityFileEntry::Native(key)) => {
-            let mut decrypted = vec![];
-            let mut reader = decryptor.decrypt(std::iter::once(key as &dyn age::Identity))?;
-            let _ = reader.read_to_end(&mut decrypted);
-
-            Ok(decrypted)
-        }
-        _ => Err(AgeError::BadInput)
-    }
 }
 
 #[cfg(test)]
@@ -222,13 +221,12 @@ mod tests {
                                                 Secret::new(PASSPHRASE.to_owned()));
         assert_ok(&encrypted_identity);
 
-        let decrypted_identity = age_decrypt_passphrase_armored(&encrypted_identity.unwrap(),
-                                                Secret::new(PASSPHRASE.to_owned()));
-        assert_ok(&decrypted_identity);
-        let raw_key = decrypted_identity.unwrap();
-        assert_eq!(raw_key, key.as_bytes());
-
-        let decrypted = age_decrypt_with_raw_key(&ciphertext.unwrap(), raw_key.as_slice());
+        let identity = encrypted_identity.unwrap();
+        let identity_str = String::from_utf8(identity).unwrap();
+        let identity_str = identity_str.as_str();
+        let decrypted = age_decrypt_with_identity(&ciphertext.unwrap(), 
+                                                  &identity_str, 
+                                                  PASSPHRASE);
         assert_ok(&decrypted);
         assert_eq!(decrypted.unwrap(), PLAINTEXT.as_bytes());
     }
