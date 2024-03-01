@@ -8,6 +8,13 @@ authors = [ "Kafva" ]
 crate-type = ["cdylib"]
 name = "kage_core"
 
+[package.metadata]
+# Use stable channel, the curve25519-dalek dependency fails to build with the
+# nightly toolchain:
+#   error[E0658]: use of unstable library feature 'stdsimd'
+# https://github.com/dalek-cryptography/curve25519-dalek/pull/619#issuecomment-1931198286
+rust = "1.75.0"
+
 [dependencies]
 zeroize = "1.7.0"
 # With support for the ASCII armored format
@@ -15,3 +22,7 @@ age = { version = "0.10.0", features = ["armor"] }
 # Without https/ssh support
 git2 = { version = "0.18.1", default-features = false}
 
+[features]
+default = []
+# iOS simulator compatible build
+simulator = []

@@ -58,6 +58,7 @@ git_server_setup() {
     git -C $JAMES_REPO_CLIENT init
     git -C $JAMES_REPO_CLIENT config user.name "James Doe"
     git -C $JAMES_REPO_CLIENT config user.email "james.doe@kafva.one"
+    git -C $JAMES_REPO_CLIENT config commit.gpgsign false
     git -C $JAMES_REPO_CLIENT add .
     git -C $JAMES_REPO_CLIENT commit -m "First commit"
     git -C $JAMES_REPO_CLIENT remote add origin "$REMOTE_ORIGIN/james"

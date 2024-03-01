@@ -14,11 +14,11 @@ use age::secrecy::Secret;
 use zeroize::Zeroize;
 
 /// Max work factor during passphrase based decryption
-const MAX_WORK_FACTOR: u8 = if cfg!(target = "aarch64-apple-ios-sim") {
-    50
-} else {
-    32
-};
+const MAX_WORK_FACTOR: u8 = if cfg!(feature = "simulator") {
+                                50
+                            } else {
+                                32
+                            };
 
 /// Common error type for all age operations, allows us to use `?` for
 /// different types of operations in the same function
