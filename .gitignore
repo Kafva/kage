@@ -3,6 +3,8 @@
 /git
 /scripts/iosdevel.sh
 /log
+/.bundle
+/.bundle.xcresult
 .compile
 buildServer.json
 
