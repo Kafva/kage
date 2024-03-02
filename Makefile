@@ -8,15 +8,15 @@ OUT             := $(CURDIR)/out
 
 # Build for simulator unless XCODE_PLATFORM is explicitly passed
 ifeq ("$(XCODE_PLATFORM)", "iOS")
-RUST_TARGET = aarch64-apple-ios
+CARGO_TARGET = aarch64-apple-ios
 else ifeq ("$(ARCH)", "x86_64")
 # x86_64 simulator
-RUST_TARGET = x86_64-apple-ios
-RUST_FLAGS += --feature simulator
+CARGO_TARGET = x86_64-apple-ios
+CARGO_FLAGS += --features simulator
 else
 # arm64 simulator
-RUST_TARGET = aarch64-apple-ios-sim
-RUST_FLAGS += --feature simulator
+CARGO_TARGET = aarch64-apple-ios-sim
+CARGO_FLAGS += --features simulator
 endif
 
 all: $(OUT)/$(LIB)
@@ -24,8 +24,8 @@ all: $(OUT)/$(LIB)
 $(OUT)/$(LIB): $(RUST_SRC) $(SWIFT_SRC)
 	$(info XCODE_PLATFORM=$(XCODE_PLATFORM))
 	mkdir -p $(OUT)
-	(cd kage-core && cargo build $(RUST_FLAGS) --target $(RUST_TARGET))
-	install kage-core/target/$(RUST_TARGET)/debug/$(LIB) $@
+	(cd kage-core && cargo build $(CARGO_FLAGS) --target $(CARGO_TARGET))
+	install kage-core/target/$(CARGO_TARGET)/debug/$(LIB) $@
 	nm -gU $@
 
 clean:
