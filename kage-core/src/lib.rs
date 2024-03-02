@@ -105,27 +105,30 @@ pub extern "C" fn ffi_age_encrypt(plaintext: *const c_char,
     let recipient = unsafe { CStr::from_ptr(recipient).to_str() };
     let outpath = unsafe { CStr::from_ptr(outpath).to_str() };
 
-    if let (Ok(plaintext), Ok(recipient), Ok(outpath)) = (plaintext, recipient, outpath) {
+    let (Ok(plaintext),
+         Ok(recipient),
+         Ok(outpath)) = (plaintext, recipient, outpath) else {
+        return -1
+    };
 
-        let Some(outfile) = path_to_filename(outpath) else {
-            return -1
-        };
+    let Some(outfile) = path_to_filename(outpath) else {
+        return -1
+    };
 
-        match age_encrypt(plaintext, recipient) {
-            Ok(ciphertext) => {
-               match std::fs::write(outpath, &ciphertext) {
-                   Ok(_) => {
-                       debug!("Wrote {} byte(s) to '{}'", ciphertext.len(), outfile);
-                       return 0
-                   },
-                   Err(err) => {
-                       error!("{}: {}", outfile, err);
-                   }
+    match age_encrypt(plaintext, recipient) {
+        Ok(ciphertext) => {
+           match std::fs::write(outpath, &ciphertext) {
+               Ok(_) => {
+                   debug!("Wrote {} byte(s) to '{}'", ciphertext.len(), outfile);
+                   return 0
+               },
+               Err(err) => {
+                   error!("{}: {}", outfile, err);
                }
-            },
-            Err(err) => {
-                error!("{}: {}", outfile, err);
-            }
+           }
+        },
+        Err(err) => {
+            error!("{}: {}", outfile, err);
         }
     }
     -1
@@ -137,41 +140,47 @@ pub extern "C" fn ffi_age_decrypt_with_identity(encrypted_path: *const c_char,
                                                 passphrase: *const c_char,
                                                 out: &mut c_char,
                                                 outsize: c_int) -> c_int {
+
     let encrypted_path = unsafe { CStr::from_ptr(encrypted_path).to_str() };
     let encrypted_identity = unsafe { CStr::from_ptr(encrypted_identity).to_str() };
     let passphrase = unsafe { CStr::from_ptr(passphrase).to_str() };
 
-    if let (Ok(encrypted_path),
-            Ok(encrypted_identity),
-            Ok(passphrase)) = (encrypted_path, encrypted_identity, passphrase) {
+    let (Ok(encrypted_path),
+         Ok(encrypted_identity),
+         Ok(passphrase)) = (encrypted_path, encrypted_identity, passphrase) else {
+        return -1
+    };
 
-        let Some(filename) = path_to_filename(encrypted_path) else {
-            return -1
-        };
+    let Some(filename) = path_to_filename(encrypted_path) else {
+        return -1
+    };
 
-        match std::fs::read(encrypted_path) {
-            Ok(data) => {
-                match age_decrypt_with_identity(data.as_slice(), encrypted_identity, passphrase) {
-                    Ok(data) => {
-                        let datalen = data.len();
-                        if datalen < outsize as usize {
-                            let out_slice = unsafe { std::slice::from_raw_parts_mut(out, outsize as usize) };
-                            for i in 0..datalen {
-                                out_slice[i] = data[i] as c_char
-                            }
-                            return datalen as c_int
+    match std::fs::read(encrypted_path) {
+        Ok(data) => {
+            match age_decrypt_with_identity(data.as_slice(),
+                                            encrypted_identity,
+                                            passphrase) {
+                Ok(data) => {
+                    let datalen = data.len();
+                    if datalen < outsize as usize {
+                        let out_slice = unsafe {
+                            std::slice::from_raw_parts_mut(out, outsize as usize)
+                        };
+                        for i in 0..datalen {
+                            out_slice[i] = data[i] as c_char
                         }
-                        warn!("{}: decryption output buffer to small: {} < {}",
-                              filename, datalen, outsize);
-                    },
-                    Err(err) => {
-                        error!("{}: {}", filename, err);
+                        return datalen as c_int
                     }
+                    warn!("{}: decryption output buffer to small: {} < {}",
+                          filename, datalen, outsize);
+                },
+                Err(err) => {
+                    error!("{}: {}", filename, err);
                 }
-            },
-            Err(err) => {
-                error!("{}: {}", filename, err);
             }
+        },
+        Err(err) => {
+            error!("{}: {}", filename, err);
         }
     }
     -1

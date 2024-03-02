@@ -13,11 +13,7 @@ use age::secrecy::Secret;
 use zeroize::Zeroize;
 
 /// Max work factor during passphrase based decryption
-const MAX_WORK_FACTOR: u8 = if cfg!(feature = "simulator") {
-                                50
-                            } else {
-                                32
-                            };
+const MAX_WORK_FACTOR: u8 = 32;
 
 /// Common error type for all age operations, allows us to use `?` for
 /// different types of operations in the same function
@@ -30,8 +26,9 @@ pub enum AgeError {
     EncryptError(age::EncryptError),
     DecryptError(age::DecryptError),
     Utf8Error(std::string::FromUtf8Error),
-    InternalError,
-    BadInput
+    BadRecepient,
+    BadCipherInput,
+    BadKey,
 }
 
 impl From<std::io::Error> for AgeError {
@@ -62,8 +59,9 @@ impl std::fmt::Display for AgeError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
          use AgeError::*;
          match self {
-             InternalError => f.write_str("internal error"),
-             BadInput => f.write_str("bad input"),
+             BadRecepient => f.write_str("Bad recepient format"),
+             BadCipherInput => f.write_str("Bad ciphertext format"),
+             BadKey => f.write_str("Bad key format"),
              EncryptError(err) => err.fmt(f),
              DecryptError(err) => err.fmt(f),
              IoError(err) => err.fmt(f),
@@ -85,23 +83,24 @@ pub fn age_decrypt_with_identity(ciphertext: &[u8],
     let mut age_key = String::from_utf8(age_key.to_vec())?;
 
     // Private keys can contain comments, these need to be filtered out
-    if let Some(key) = age_key.split('\n').filter(|a| { !a.starts_with("#") }).next() {
-        let identity = key.parse::<age::x25519::Identity>();
+    let Some(key) = age_key.split('\n').filter(|a| { !a.starts_with("#") }).next() else {
         age_key.zeroize();
+        return Err(AgeError::BadKey)
+    };
 
-        if let Ok(identity) = identity {
-            return age_decrypt(ciphertext, &identity)
-        }
-    }
+    let Ok(identity) = key.parse::<age::x25519::Identity>() else {
+        age_key.zeroize();
+        return Err(AgeError::BadKey)
+    };
 
-    Err(AgeError::BadInput)
+    age_key.zeroize();
+    age_decrypt(ciphertext, &identity)
 }
 
 pub fn age_encrypt(plaintext: &str, recepient: &str) -> Result<Vec<u8>,AgeError> {
     match recepient.parse::<age::x25519::Recipient>() {
         Ok(pubkey) => {
             if let Some(encryptor) = age::Encryptor::with_recipients(vec![Box::new(pubkey)]) {
-
                 let mut encrypted = vec![];
                 let mut writer = encryptor.wrap_output(&mut encrypted)?;
                 writer.write_all(plaintext.as_bytes())?;
@@ -114,13 +113,13 @@ pub fn age_encrypt(plaintext: &str, recepient: &str) -> Result<Vec<u8>,AgeError>
         }
     }
 
-    Err(AgeError::InternalError)
+    Err(AgeError::BadRecepient)
 }
 
 fn age_decrypt(ciphertext: &[u8], key: &dyn age::Identity) -> Result<Vec<u8>,AgeError> {
     let decryptor = match age::Decryptor::new(ciphertext)? {
         age::Decryptor::Recipients(decryptor) => decryptor,
-        _ => return Err(AgeError::BadInput),
+        _ => return Err(AgeError::BadCipherInput),
     };
 
     let mut decrypted = vec![];
@@ -154,7 +153,7 @@ fn age_decrypt_passphrase_armored(ciphertext: &[u8],
     let armored_reader = age::armor::ArmoredReader::new(ciphertext);
     let decryptor = match age::Decryptor::new(armored_reader)? {
         age::Decryptor::Passphrase(decryptor) => decryptor,
-        _ => return Err(AgeError::BadInput)
+        _ => return Err(AgeError::BadCipherInput)
     };
 
     let mut decrypted = vec![];
