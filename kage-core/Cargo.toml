@@ -2,10 +2,11 @@
 name = "kage-core"
 version = "0.1.0"
 edition = "2021"
-authors = [ "Kafva" ]
+authors = ["Kafva"]
 
 [lib]
-crate-type = ["cdylib"]
+# For the ffi bindings to work on target, a static library is easiest
+crate-type = ["staticlib"]
 name = "kage_core"
 
 [package.metadata]
@@ -17,10 +18,13 @@ rust = "1.75.0"
 
 [dependencies]
 zeroize = "1.7.0"
+
 # With support for the ASCII armored format
 age = { version = "0.10.0", features = ["armor"] }
+
 # Without https/ssh support
-git2 = { version = "0.18.1", default-features = false}
+# XXX: This depends on libiconv2, it needs to be included in the Xcode build
+git2 = { version = "0.18.1", default-features = false }
 
 [features]
 default = []

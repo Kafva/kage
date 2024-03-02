@@ -4,31 +4,37 @@ set -e
 CURDIR=$(cd "$(dirname $0)" && pwd)
 
 # Defaults for environment variables passed by Xcode
-# XXX: Default to simulator build
 SOURCE_ROOT=${SOURCE_ROOT:-"${CURDIR}/.."}
-CONFIGURATION=${CONFIGURATION:-Debug}
 PLATFORM_DISPLAY_NAME=${PLATFORM_DISPLAY_NAME:-"iOS Simulator"}
+CONFIGURATION=${CONFIGURATION:-Debug}
 PATH="$PATH:$HOME/.cargo/bin"
+LIB="libkage_core.a"
 
 OUT="${SOURCE_ROOT:-}/out"
 CARGO_FLAGS=
 
 mkdir -p "$OUT"
 
-if [ $CONFIGURATION = Release ]; then 
-    CARGO_FLAGS+=" --release"
-fi
-
 case "$PLATFORM_DISPLAY_NAME" in
 "iOS Simulator")
+    if [ "$CONFIGURATION" != Debug ]; then
+        echo "Simulator should use debug configuration"
+        exit 1
+    fi
+
+    CARGO_BUILDTYPE=debug
+    CARGO_FLAGS+=" --features simulator"
+
     if [ "$(uname -m)" = x86_64 ]; then
         CARGO_TARGET=x86_64-apple-ios
     else
         CARGO_TARGET=aarch64-apple-ios-sim
     fi
-    CARGO_FLAGS+=" --features simulator"
 ;;
 "iOS")
+    CARGO_BUILDTYPE=release
+    CARGO_FLAGS+=" --release"
+
     CARGO_TARGET=aarch64-apple-ios
 ;;
 *)
@@ -38,9 +44,10 @@ case "$PLATFORM_DISPLAY_NAME" in
 esac
 
 
-(cd $SOURCE_ROOT/kage-core && 
+(cd $SOURCE_ROOT/kage-core &&
     cargo build ${CARGO_FLAGS} --target ${CARGO_TARGET})
 
-install -m644 $SOURCE_ROOT/kage-core/target/${CARGO_TARGET}/debug/libkage_core.dylib $OUT
-
-nm -gU $OUT/libkage_core.dylib
+rm -rf "$OUT/kage_core.xcframework"
+xcodebuild -create-xcframework \
+    -library "$SOURCE_ROOT/kage-core/target/${CARGO_TARGET}/${CARGO_BUILDTYPE}/$LIB" \
+    -output "$OUT/kage_core.xcframework"
