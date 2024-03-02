@@ -28,6 +28,17 @@ macro_rules! ffi_git_call {
     )
 }
 
+fn path_to_filename(pathstr: &str) -> Option<&str> {
+    let path = std::path::Path::new(pathstr);
+
+    if let Some(filename) = path.file_name() {
+        return filename.to_str()
+    }
+
+    error!("Bad filepath: '{}'", pathstr);
+    None
+}
+
 #[no_mangle]
 pub extern "C" fn ffi_git_clone(url: *const c_char,
                                 into: *const c_char) -> c_int {
@@ -95,9 +106,10 @@ pub extern "C" fn ffi_age_encrypt(plaintext: *const c_char,
     let outpath = unsafe { CStr::from_ptr(outpath).to_str() };
 
     if let (Ok(plaintext), Ok(recipient), Ok(outpath)) = (plaintext, recipient, outpath) {
-        let outpath = std::path::Path::new(outpath);
-        // TODO handle bad paths
-        let outfile = outpath.file_name().expect("invalid path").to_str().unwrap();
+
+        let Some(outfile) = path_to_filename(outpath) else {
+            return -1
+        };
 
         match age_encrypt(plaintext, recipient) {
             Ok(ciphertext) => {
@@ -133,9 +145,9 @@ pub extern "C" fn ffi_age_decrypt_with_identity(encrypted_path: *const c_char,
             Ok(encrypted_identity),
             Ok(passphrase)) = (encrypted_path, encrypted_identity, passphrase) {
 
-        let encrypted_path = std::path::Path::new(encrypted_path);
-        // TODO handle bad paths
-        let filename = encrypted_path.file_name().expect("invalid path").to_str().unwrap();
+        let Some(filename) = path_to_filename(encrypted_path) else {
+            return -1
+        };
 
         match std::fs::read(encrypted_path) {
             Ok(data) => {

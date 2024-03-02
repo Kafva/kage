@@ -8,14 +8,14 @@ REQUEST_PATH="$2"
 case "$(basename $REQUEST_PATH)" in
 james)
     case "$REMOTE_ADDR" in
-    127.0.0.1) true ;;
-    10.0.2.*)  true ;;
-    10.0.1.*) true ;;
-    *) false ;;
+    127.0.0.1) exit 0 ;;
+    10.0.2.*)  exit 0 ;;
+    10.0.1.*)  exit 0 ;;
+    *)         exit 1 ;;
     esac
 ;;
 *)
     echo "Access denied"
-    return 1
+    exit 1
 ;;
 esac

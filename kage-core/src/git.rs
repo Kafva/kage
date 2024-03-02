@@ -122,20 +122,28 @@ pub fn git_clone(url: &str, into: &str) -> Result<(), git2::Error> {
 
 fn transfer_progress(progress: git2::Progress, label: &str) -> bool {
     let total = progress.total_objects();
+    let total_deltas = progress.total_deltas();
     if total <= TRANSFER_STAGES {
         return true
     }
 
     let indexed = progress.indexed_objects();
     let recv = progress.received_objects();
+    let deltas = progress.indexed_deltas();
     let increments = total / TRANSFER_STAGES;
 
-    if recv == total && indexed == total {
+    if recv % increments == 0 {
+        if recv == total && (indexed < total || deltas < total_deltas) {
+            /* skip */
+        } else {
+            debug!("{}: [{:4} / {:4}]", label, recv, total);
+        }
+    }
+
+    if recv == total && indexed == total && deltas == total_deltas {
         debug!("{}: Done", label);
     }
-    else if recv % increments == 0 {
-        debug!("{}: [{:4} / {:4}]", label, recv, total);
-    }
+
     true
 }
 

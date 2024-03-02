@@ -5,7 +5,6 @@
 //!                  This should be in the ascii-armored format, i.e. created with `age -a`
 
 use std::io::{Read, Write}; // For .read_to_end() and .write_all()
-use std::fmt;
 
 use super::{error,log,level_to_color,log_prefix};
 
@@ -59,8 +58,8 @@ impl From<std::string::FromUtf8Error> for AgeError {
     }
 }
 
-impl fmt::Display for AgeError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+impl std::fmt::Display for AgeError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
          use AgeError::*;
          match self {
              InternalError => f.write_str("internal error"),
@@ -73,7 +72,6 @@ impl fmt::Display for AgeError {
     }
 }
 
-
 /// Unlock `encrypted_identity` (given as an ascii-armored string) using
 /// `passphrase` and decrypt `ciphertext` with the key contained in the
 /// `encrypted_identity`.
@@ -81,18 +79,22 @@ pub fn age_decrypt_with_identity(ciphertext: &[u8],
                                  encrypted_identity: &str,
                                  passphrase: &str)  -> Result<Vec<u8>,AgeError> {
 
-    let key = age_decrypt_passphrase_armored(encrypted_identity.as_bytes(),
-                                             Secret::new(passphrase.to_owned()))?;
+    let age_key = age_decrypt_passphrase_armored(encrypted_identity.as_bytes(),
+                                                       Secret::new(passphrase.to_owned()))?;
 
-    // TODO strip comment lines
-    let mut key = String::from_utf8(key.to_vec())?;
-    let identity = key.parse::<age::x25519::Identity>();
-    key.zeroize();
+    let mut age_key = String::from_utf8(age_key.to_vec())?;
 
-    match identity {
-        Ok(identity) => age_decrypt(ciphertext, &identity),
-        Err(_) => Err(AgeError::BadInput)
+    // Private keys can contain comments, these need to be filtered out
+    if let Some(key) = age_key.split('\n').filter(|a| { !a.starts_with("#") }).next() {
+        let identity = key.parse::<age::x25519::Identity>();
+        age_key.zeroize();
+
+        if let Ok(identity) = identity {
+            return age_decrypt(ciphertext, &identity)
+        }
     }
+
+    Err(AgeError::BadInput)
 }
 
 pub fn age_encrypt(plaintext: &str, recepient: &str) -> Result<Vec<u8>,AgeError> {

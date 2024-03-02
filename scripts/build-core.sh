@@ -7,22 +7,20 @@ CURDIR=$(cd "$(dirname $0)" && pwd)
 SOURCE_ROOT=${SOURCE_ROOT:-"${CURDIR}/.."}
 PLATFORM_DISPLAY_NAME=${PLATFORM_DISPLAY_NAME:-"iOS Simulator"}
 CONFIGURATION=${CONFIGURATION:-Debug}
+
 PATH="$PATH:$HOME/.cargo/bin"
 LIB="libkage_core.a"
+OUT="$SOURCE_ROOT/out"
 
-OUT="${SOURCE_ROOT:-}/out"
-CARGO_FLAGS=
+# Always build for release.
+CARGO_BUILDTYPE=release
+CARGO_FLAGS=" --release"
 
+rm -rf "$OUT"
 mkdir -p "$OUT"
 
 case "$PLATFORM_DISPLAY_NAME" in
 "iOS Simulator")
-    if [ "$CONFIGURATION" != Debug ]; then
-        echo "Simulator should use debug configuration"
-        exit 1
-    fi
-
-    CARGO_BUILDTYPE=debug
     CARGO_FLAGS+=" --features simulator"
 
     if [ "$(uname -m)" = x86_64 ]; then
@@ -32,9 +30,6 @@ case "$PLATFORM_DISPLAY_NAME" in
     fi
 ;;
 "iOS")
-    CARGO_BUILDTYPE=release
-    CARGO_FLAGS+=" --release"
-
     CARGO_TARGET=aarch64-apple-ios
 ;;
 *)
