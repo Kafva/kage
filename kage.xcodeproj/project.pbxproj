@@ -13,7 +13,7 @@
 		B7ECE1F010341AE2D87160D8 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F6A7900AD2C656E12312A42 /* SettingsView.swift */; };
 		DDA4B62D2AFDF6A00046DFCE /* kageApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDA4B62C2AFDF6A00046DFCE /* kageApp.swift */; };
 		DDA4B6312AFDF6A10046DFCE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DDA4B6302AFDF6A10046DFCE /* Assets.xcassets */; };
-		DDB30B722B25B93900248011 /* libkage_core.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = DDB30B712B25B93900248011 /* libkage_core.dylib */; };
+		DDB30B722B25B93900248011 /* libkage_core.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = DDB30B712B25B93900248011 /* libkage_core.dylib */; settings = {ATTRIBUTES = (Required, ); }; };
 		DDB30B732B25B93900248011 /* libkage_core.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = DDB30B712B25B93900248011 /* libkage_core.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 /* End PBXBuildFile section */
 
@@ -113,6 +113,7 @@
 			buildConfigurationList = DDA4B6372AFDF6A10046DFCE /* Build configuration list for PBXNativeTarget "kage" */;
 			buildPhases = (
 				F126A092682C7488F442352F /* [CP] Check Pods Manifest.lock */,
+				DD56D7E32B936D7A006C43CE /* Compile kage-core library */,
 				DDA4B6252AFDF6A00046DFCE /* Sources */,
 				DDA4B6262AFDF6A00046DFCE /* Frameworks */,
 				DDA4B6272AFDF6A00046DFCE /* Resources */,
@@ -172,6 +173,25 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		DD56D7E32B936D7A006C43CE /* Compile kage-core library */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Compile kage-core library";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/bash;
+			shellScript = "./scripts/build-core.sh\n";
+		};
 		F126A092682C7488F442352F /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -248,7 +268,7 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -311,7 +331,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -346,6 +366,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.2;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -383,6 +404,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.2;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
