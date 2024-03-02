@@ -7,9 +7,12 @@ REQUEST_PATH="$2"
 
 case "$(basename $REQUEST_PATH)" in
 james)
-    [[ "$REMOTE_ADDR" = 10.0.2.7 ||
-       "$REMOTE_ADDR" = 10.0.1.40 ||
-       "$REMOTE_ADDR" = 127.0.0.1 ]]
+    case "$REMOTE_ADDR" in
+    127.0.0.1) true ;;
+    10.0.2.*)  true ;;
+    10.0.1.*) true ;;
+    *) false ;;
+    esac
 ;;
 *)
     echo "Access denied"

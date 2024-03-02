@@ -38,7 +38,7 @@ struct AppView: View {
 
     var body: some View {
         NavigationStack {
-            VStack(alignment: .center, spacing: 5) {
+            VStack(alignment: .center, spacing: 20) {
                 Image(systemName: "globe")
                     .imageScale(.large)
                     .foregroundStyle(.tint)
@@ -60,10 +60,12 @@ struct AppView: View {
                     }
                     logger.info("Decryption: END [\(elapsed.components.seconds) sec]")
                 }
+
                 NavigationLink("Settings") {
                     SettingsView()
                 }
             }
+            .font(.system(size: 24))
             .padding()
 
         }
@@ -131,11 +133,13 @@ struct AppView: View {
     func clone() {
         try? FileManager.default.removeItem(at: repo)
 
-#if targetEnvironment(simulator)
         if server.isEmpty {
+#if targetEnvironment(simulator)
             server = "git://127.0.0.1/james"
-        }
+#else
+            server = "git://10.0.1.8/james"
 #endif
+        }
 
         let intoC = repo.path().cString(using: .utf8)!
         let urlC = server.cString(using: .utf8)!

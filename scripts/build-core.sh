@@ -47,7 +47,5 @@ esac
 (cd $SOURCE_ROOT/kage-core &&
     cargo build ${CARGO_FLAGS} --target ${CARGO_TARGET})
 
-rm -rf "$OUT/kage_core.xcframework"
-xcodebuild -create-xcframework \
-    -library "$SOURCE_ROOT/kage-core/target/${CARGO_TARGET}/${CARGO_BUILDTYPE}/$LIB" \
-    -output "$OUT/kage_core.xcframework"
+cp "$SOURCE_ROOT/kage-core/target/${CARGO_TARGET}/${CARGO_BUILDTYPE}/$LIB" \
+   "$OUT/$LIB"

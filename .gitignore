@@ -1,7 +1,6 @@
 # vi: ft=gitignore
 
 /git
-/scripts/iosdevel.sh
 /log
 /.bundle
 /.bundle.xcresult
