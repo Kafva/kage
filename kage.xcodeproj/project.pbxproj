@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		24EC3A66C120BF7B757CAE3E /* ffiApi.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7589A15AC15B8628E6AF92B5 /* ffiApi.swift */; };
 		280C2456F83493EF0464D60B /* AppView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 716EF067A6DF8FB0447ACA87 /* AppView.swift */; };
-		609C58C01029E435A26E1C72 /* Pods_kage.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 36C5676800D18BE9623D2A78 /* Pods_kage.framework */; };
 		B7ECE1F010341AE2D87160D8 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F6A7900AD2C656E12312A42 /* SettingsView.swift */; };
 		DDA4B62D2AFDF6A00046DFCE /* kageApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDA4B62C2AFDF6A00046DFCE /* kageApp.swift */; };
 		DDA4B6312AFDF6A10046DFCE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DDA4B6302AFDF6A10046DFCE /* Assets.xcassets */; };
@@ -32,9 +31,6 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		1F29A8F08F88FF58ABA9F382 /* Pods-kage.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-kage.debug.xcconfig"; path = "Target Support Files/Pods-kage/Pods-kage.debug.xcconfig"; sourceTree = "<group>"; };
-		36C5676800D18BE9623D2A78 /* Pods_kage.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_kage.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		4C46F25DE522188C6259AB37 /* Pods-kage.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-kage.release.xcconfig"; path = "Target Support Files/Pods-kage/Pods-kage.release.xcconfig"; sourceTree = "<group>"; };
 		716EF067A6DF8FB0447ACA87 /* AppView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AppView.swift; sourceTree = "<group>"; };
 		7589A15AC15B8628E6AF92B5 /* ffiApi.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ffiApi.swift; sourceTree = "<group>"; };
 		7F6A7900AD2C656E12312A42 /* SettingsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
@@ -49,7 +45,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				609C58C01029E435A26E1C72 /* Pods_kage.framework in Frameworks */,
 				DDB30B722B25B93900248011 /* libkage_core.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -61,7 +56,6 @@
 			isa = PBXGroup;
 			children = (
 				DDB30B712B25B93900248011 /* libkage_core.dylib */,
-				36C5676800D18BE9623D2A78 /* Pods_kage.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -99,8 +93,6 @@
 		FA748E51365E65A831D78EA4 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				1F29A8F08F88FF58ABA9F382 /* Pods-kage.debug.xcconfig */,
-				4C46F25DE522188C6259AB37 /* Pods-kage.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -112,7 +104,6 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = DDA4B6372AFDF6A10046DFCE /* Build configuration list for PBXNativeTarget "kage" */;
 			buildPhases = (
-				F126A092682C7488F442352F /* [CP] Check Pods Manifest.lock */,
 				DD56D7E32B936D7A006C43CE /* Compile kage-core library */,
 				DDA4B6252AFDF6A00046DFCE /* Sources */,
 				DDA4B6262AFDF6A00046DFCE /* Frameworks */,
@@ -191,28 +182,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/bash;
 			shellScript = "./scripts/build-core.sh\n";
-		};
-		F126A092682C7488F442352F /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-kage-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -352,7 +321,6 @@
 		};
 		DDA4B6382AFDF6A10046DFCE /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 1F29A8F08F88FF58ABA9F382 /* Pods-kage.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -390,7 +358,6 @@
 		};
 		DDA4B6392AFDF6A10046DFCE /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 4C46F25DE522188C6259AB37 /* Pods-kage.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
