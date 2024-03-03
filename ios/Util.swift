@@ -7,6 +7,12 @@ func guardLet<T>(_ value: T?, _ error: Error) throws -> T {
     return unwrappedValue
 }
 
+extension String {
+    func toCString() throws -> [CChar] {
+        return try guardLet(self.cString(using: .utf8), AppError.cStringError)
+    }
+}
+
 extension URL {
     static func fromString(_ string: String) throws -> URL {
         return try guardLet(URL(string: string), AppError.urlError(string))

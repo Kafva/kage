@@ -1,17 +1,17 @@
 import Foundation
 
+let OUT_SIZE: CInt = 2048
+
 /// Decryption/encryption API
 struct Age {
+
     static func unlockIdentity(_ encryptedIdentity: URL,
                                passphrase: String) -> Bool {
         do {
-            let encryptedIdentity = try String(contentsOf: encryptedIdentity, encoding: .utf8)
-
-            let encryptedIdentityC = try guardLet(encryptedIdentity.cString(using: .utf8),
-                                                  AppError.cStringError)
-            let passphraseC        = try guardLet(passphrase.cString(using: .utf8),
-                                                  AppError.cStringError)
-
+            let encryptedIdentity = try String(contentsOf: encryptedIdentity, 
+                                               encoding: .utf8)
+            let encryptedIdentityC = try encryptedIdentity.toCString()
+            let passphraseC        = try passphrase.toCString()
 
             let r = ffi_age_unlock_identity(encryptedIdentity: encryptedIdentityC,
                                             passphrase: passphraseC)
@@ -40,13 +40,13 @@ struct Age {
 
     static func decrypt(_ at: URL) -> String {
         do {
-            let outsize: CInt = 1024
-            let pathC = try guardLet(at.path().cString(using: .utf8), AppError.cStringError)
-            let outC = UnsafeMutableRawPointer.allocate(byteCount: Int(outsize), alignment: 1)
+            let pathC = try at.path().toCString()
+            let outC = UnsafeMutableRawPointer.allocate(byteCount: Int(OUT_SIZE), 
+                                                        alignment: 1)
 
             let written = ffi_age_decrypt(encryptedFilepath: pathC,
                                           out: outC,
-                                          outsize: outsize)
+                                          outsize: OUT_SIZE)
 
             if written > 0 {
                 let data = Data(bytes: outC, count: Int(written))
@@ -76,12 +76,9 @@ struct Age {
             let recepient = (try String(contentsOf: recipient, encoding: .utf8))
                                 .trimmingCharacters(in: .whitespacesAndNewlines)
 
-            let recepientC = try guardLet(recepient.cString(using: .utf8),
-                                          AppError.cStringError)
-            let plaintextC = try guardLet(plaintext.cString(using: .utf8),
-                                          AppError.cStringError)
-            let outpathC   = try guardLet(outpath.path().cString(using: .utf8),
-                                          AppError.cStringError)
+            let recepientC = try recepient.toCString()
+            let plaintextC = try plaintext.toCString()
+            let outpathC   = try outpath.path().toCString()
 
             let r = ffi_age_encrypt(plaintext: plaintextC,
                                     recepient: recepientC,

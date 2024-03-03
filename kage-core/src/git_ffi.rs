@@ -19,56 +19,61 @@ macro_rules! ffi_git_call {
 #[no_mangle]
 pub extern "C" fn ffi_git_clone(url: *const c_char,
                                 into: *const c_char) -> c_int {
-    unsafe {
-        if let (Ok(url), Ok(into)) = (CStr::from_ptr(url).to_str(),
-                                      CStr::from_ptr(into).to_str()) {
-            return ffi_git_call!(git_clone(url, into))
-        }
-    }
-    -1
+    let url = unsafe { CStr::from_ptr(url).to_str() };
+    let into = unsafe { CStr::from_ptr(into).to_str() };
+
+    let (Ok(url), Ok(into)) = (url, into) else {
+        return -1
+    };
+
+    ffi_git_call!(git_clone(url, into))
 }
 
 #[no_mangle]
 pub extern "C" fn ffi_git_pull(repo_path: *const c_char) -> c_int {
-    unsafe {
-        if let Ok(repo_path) = CStr::from_ptr(repo_path).to_str() {
-            return ffi_git_call!(git_pull(repo_path))
-        }
-    }
-    -1
+    let repo_path = unsafe { CStr::from_ptr(repo_path).to_str() };
+
+    let Ok(repo_path) = repo_path else {
+        return -1
+    };
+
+    ffi_git_call!(git_pull(repo_path))
 }
 
 #[no_mangle]
 pub extern "C" fn ffi_git_push(repo_path: *const c_char) -> c_int {
-    unsafe {
-        if let Ok(repo_path) = CStr::from_ptr(repo_path).to_str() {
-            return ffi_git_call!(git_push(repo_path))
-        }
-    }
-    -1
+    let repo_path = unsafe { CStr::from_ptr(repo_path).to_str() };
+
+    let Ok(repo_path) = repo_path else {
+        return -1
+    };
+
+    ffi_git_call!(git_push(repo_path))
 }
 
 #[no_mangle]
 pub extern "C" fn ffi_git_add(repo_path: *const c_char,
-                              path: *const c_char) -> c_int {
-    unsafe {
-        if let (Ok(repo_path), Ok(path)) = (CStr::from_ptr(repo_path).to_str(),
-                                            CStr::from_ptr(path).to_str()) {
-            return ffi_git_call!(git_add(repo_path, path))
-        }
-    }
-    -1
+                              relative_path: *const c_char) -> c_int {
+    let repo_path = unsafe { CStr::from_ptr(repo_path).to_str() };
+    let relative_path = unsafe { CStr::from_ptr(relative_path).to_str() };
+
+    let (Ok(repo_path), Ok(relative_path)) = (repo_path, relative_path) else {
+        return -1
+    };
+
+    ffi_git_call!(git_add(repo_path, relative_path))
 }
 
 #[no_mangle]
 pub extern "C" fn ffi_git_commit(repo_path: *const c_char,
                                  message: *const c_char) -> c_int {
-    unsafe {
-        if let (Ok(repo_path), Ok(message)) = (CStr::from_ptr(repo_path).to_str(),
-                                               CStr::from_ptr(message).to_str()) {
-            return ffi_git_call!(git_commit(repo_path, message));
-        }
-    }
-    -1
+    let repo_path = unsafe { CStr::from_ptr(repo_path).to_str() };
+    let message = unsafe { CStr::from_ptr(message).to_str() };
+
+    let (Ok(repo_path), Ok(message)) = (repo_path, message) else {
+        return -1
+    };
+
+    ffi_git_call!(git_commit(repo_path, message))
 }
 
