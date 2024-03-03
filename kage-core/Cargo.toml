@@ -19,6 +19,9 @@ rust = "1.75.0"
 [dependencies]
 zeroize = "1.7.0"
 
+# To maintain state inside of the library
+once_cell = "1.19.0"
+
 # With support for the ASCII armored format
 age = { version = "0.10.0", features = ["armor"] }
 

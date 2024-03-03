@@ -21,7 +21,7 @@ pub struct AgeState {
 }
 
 impl AgeState {
-    pub fn new() -> Self {
+    pub fn default() -> Self {
         Self { identity: None,
                created: std::time::SystemTime::UNIX_EPOCH
         }

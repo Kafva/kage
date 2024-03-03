@@ -15,14 +15,19 @@ public func ffi_git_pull(repo: UnsafePointer<CChar>) -> CInt
 public func ffi_git_push(repo: UnsafePointer<CChar>) -> CInt
 
 
+@_silgen_name("ffi_age_unlock_identity")
+public func ffi_age_unlock_identity(encryptedIdentity: UnsafePointer<CChar>,
+                                          passphrase: UnsafePointer<CChar>) -> CInt
+
+@_silgen_name("ffi_age_lock_identity")
+public func ffi_age_unlock_identity() -> CInt
+
 @_silgen_name("ffi_age_encrypt")
 public func ffi_age_encrypt(plaintext: UnsafePointer<CChar>,
                             recepient: UnsafePointer<CChar>,
                             outpath: UnsafePointer<CChar>) -> CInt
 
-@_silgen_name("ffi_age_decrypt_with_identity")
+@_silgen_name("ffi_age_decrypt")
 public func ffi_age_decrypt_with_identity(encryptedFilepath: UnsafePointer<CChar>,
-                                          encryptedIdentity: UnsafePointer<CChar>,
-                                          passphrase: UnsafePointer<CChar>,
                                           out: UnsafeMutableRawPointer,
                                           outsize: CInt) -> CInt

@@ -139,8 +139,7 @@ fn transfer_progress(progress: git2::Progress, label: &str) -> bool {
             debug!("{}: [{:4} / {:4}]", label, recv, total);
         }
     }
-
-    if recv == total && indexed == total && deltas == total_deltas {
+    else if recv == total && indexed == total && deltas == total_deltas {
         debug!("{}: Done", label);
     }
 
