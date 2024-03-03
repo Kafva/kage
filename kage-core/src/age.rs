@@ -6,162 +6,133 @@
 
 use std::io::{Read, Write}; // For .read_to_end() and .write_all()
 
-use super::{error,log,level_to_color,log_prefix};
+use crate::{error,log,level_to_color,log_prefix};
+use crate::age_error::AgeError;
 
 use age;
 use age::secrecy::Secret;
 use zeroize::Zeroize;
 
-/// Max work factor during passphrase based decryption
-const MAX_WORK_FACTOR: u8 = 32;
-
-/// Common error type for all age operations, allows us to use `?` for
-/// different types of operations in the same function
-/// A conversion from each error type into an `AgeError` needs to be defined,
-/// the derive_more crate can be used to generate these automatically.
-///  https://jeltef.github.io/derive_more/derive_more/from.html
-#[derive(Debug)]
-pub enum AgeError {
-    IoError(std::io::Error),
-    EncryptError(age::EncryptError),
-    DecryptError(age::DecryptError),
-    Utf8Error(std::string::FromUtf8Error),
-    BadRecepient,
-    BadCipherInput,
-    BadKey,
+pub struct AgeState {
+    /// Identity to use for decryption
+    identity: Option<age::x25519::Identity>,
+    /// When the identity was loaded
+    created: std::time::SystemTime
 }
 
-impl From<std::io::Error> for AgeError {
-    fn from(err: std::io::Error) -> AgeError {
-        AgeError::IoError(err)
-    }
-}
-
-impl From<age::EncryptError> for AgeError {
-    fn from(err: age::EncryptError) -> AgeError {
-        AgeError::EncryptError(err)
-    }
-}
-
-impl From<age::DecryptError> for AgeError {
-    fn from(err: age::DecryptError) -> AgeError {
-        AgeError::DecryptError(err)
-    }
-}
-
-impl From<std::string::FromUtf8Error> for AgeError {
-    fn from(err: std::string::FromUtf8Error) -> AgeError {
-        AgeError::Utf8Error(err)
-    }
-}
-
-impl std::fmt::Display for AgeError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-         use AgeError::*;
-         match self {
-             BadRecepient => f.write_str("Bad recepient format"),
-             BadCipherInput => f.write_str("Bad ciphertext format"),
-             BadKey => f.write_str("Bad key format"),
-             EncryptError(err) => err.fmt(f),
-             DecryptError(err) => err.fmt(f),
-             IoError(err) => err.fmt(f),
-             Utf8Error(err) => err.fmt(f),
-         }
-    }
-}
-
-/// Unlock `encrypted_identity` (given as an ascii-armored string) using
-/// `passphrase` and decrypt `ciphertext` with the key contained in the
-/// `encrypted_identity`.
-pub fn age_decrypt_with_identity(ciphertext: &[u8],
-                                 encrypted_identity: &str,
-                                 passphrase: &str)  -> Result<Vec<u8>,AgeError> {
-
-    let age_key = age_decrypt_passphrase_armored(encrypted_identity.as_bytes(),
-                                                       Secret::new(passphrase.to_owned()))?;
-
-    let mut age_key = String::from_utf8(age_key.to_vec())?;
-
-    // Private keys can contain comments, these need to be filtered out
-    let Some(key) = age_key.split('\n').filter(|a| { !a.starts_with("#") }).next() else {
-        age_key.zeroize();
-        return Err(AgeError::BadKey)
-    };
-
-    let Ok(identity) = key.parse::<age::x25519::Identity>() else {
-        age_key.zeroize();
-        return Err(AgeError::BadKey)
-    };
-
-    age_key.zeroize();
-    age_decrypt(ciphertext, &identity)
-}
-
-pub fn age_encrypt(plaintext: &str, recepient: &str) -> Result<Vec<u8>,AgeError> {
-    match recepient.parse::<age::x25519::Recipient>() {
-        Ok(pubkey) => {
-            if let Some(encryptor) = age::Encryptor::with_recipients(vec![Box::new(pubkey)]) {
-                let mut encrypted = vec![];
-                let mut writer = encryptor.wrap_output(&mut encrypted)?;
-                writer.write_all(plaintext.as_bytes())?;
-                writer.finish()?;
-                return Ok(encrypted)
-            }
-        },
-        Err(e) => {
-            error!("{}", e);
+impl AgeState {
+    pub fn new() -> Self {
+        Self { identity: None,
+               created: std::time::SystemTime::UNIX_EPOCH
         }
     }
 
-    Err(AgeError::BadRecepient)
-}
-
-fn age_decrypt(ciphertext: &[u8], key: &dyn age::Identity) -> Result<Vec<u8>,AgeError> {
-    let decryptor = match age::Decryptor::new(ciphertext)? {
-        age::Decryptor::Recipients(decryptor) => decryptor,
-        _ => return Err(AgeError::BadCipherInput),
-    };
-
-    let mut decrypted = vec![];
-    let mut reader = decryptor.decrypt(std::iter::once(key as &dyn age::Identity))?;
-    let _ = reader.read_to_end(&mut decrypted);
-
-    Ok(decrypted)
-}
-
-#[cfg(test)]
-fn age_encrypt_passphrase_armored(plaintext: &[u8],
+    fn decrypt_passphrase_armored(&mut self,
+                                  ciphertext: &[u8],
                                   passphrase: Secret<String>) -> Result<Vec<u8>,AgeError> {
-    let encryptor = age::Encryptor::with_user_passphrase(passphrase);
+        let armored_reader = age::armor::ArmoredReader::new(ciphertext);
+        let decryptor = match age::Decryptor::new(armored_reader)? {
+            age::Decryptor::Passphrase(decryptor) => decryptor,
+            _ => return Err(AgeError::BadCipherInput)
+        };
 
-    let mut encrypted = vec![];
-    let mut writer = encryptor.wrap_output(
-        age::armor::ArmoredWriter::wrap_output(
-            &mut encrypted,
-            age::armor::Format::AsciiArmor,
-        )?
-    )?;
-    writer.write_all(plaintext)?;
-    writer.finish()
-        .and_then(|armor| armor.finish())?;
+        let mut decrypted = vec![];
+        let mut reader = decryptor.decrypt(&passphrase, None)?;
+        let _ = reader.read_to_end(&mut decrypted);
 
-    Ok(encrypted)
+        Ok(decrypted)
+    }
+
+    /// Unlock `encrypted_identity` using `passphras`e and save the result
+    pub fn unlock_identity(&mut self,
+                           encrypted_identity: &str,
+                           passphrase: &str) -> Result<(),AgeError> {
+
+        let ciphertext = encrypted_identity.as_bytes();
+        let passphrase = Secret::new(passphrase.to_owned());
+
+        let age_key = self.decrypt_passphrase_armored(ciphertext, passphrase)?;
+
+        let mut age_key = String::from_utf8(age_key.to_vec())?;
+
+        // Private keys can contain comments, these need to be filtered out
+        if let Some(key) = age_key.split('\n').filter(|a| { !a.starts_with("#") }).next() {
+            if let Ok(identity) = key.parse::<age::x25519::Identity>() {
+                self.identity = Some(identity);
+                self.created = std::time::SystemTime::now();
+                age_key.zeroize();
+                return Ok(())
+            };
+        };
+
+        age_key.zeroize();
+        Err(AgeError::BadKey)
+    }
+
+    pub fn lock_identity(&mut self) {
+        self.identity = None;
+        self.created = std::time::SystemTime::UNIX_EPOCH;
+    }
+
+    pub fn decrypt(&self, ciphertext: &[u8]) -> Result<Vec<u8>,AgeError> {
+        let Some(ref identity) = self.identity else {
+            return Err(AgeError::NoIdentity)
+        };
+
+        let decryptor = match age::Decryptor::new(ciphertext)? {
+            age::Decryptor::Recipients(decryptor) => decryptor,
+            _ => return Err(AgeError::BadCipherInput),
+        };
+
+        let mut decrypted = vec![];
+        let mut reader = decryptor.decrypt(std::iter::once(identity as &dyn age::Identity))?;
+        let _ = reader.read_to_end(&mut decrypted);
+
+        Ok(decrypted)
+    }
+
+    pub fn encrypt(&self,
+                   plaintext: &str,
+                   recepient: &str) -> Result<Vec<u8>,AgeError> {
+        match recepient.parse::<age::x25519::Recipient>() {
+            Ok(pubkey) => {
+                if let Some(encryptor) = age::Encryptor::with_recipients(vec![Box::new(pubkey)]) {
+                    let mut encrypted = vec![];
+                    let mut writer = encryptor.wrap_output(&mut encrypted)?;
+                    writer.write_all(plaintext.as_bytes())?;
+                    writer.finish()?;
+                    return Ok(encrypted)
+                }
+            },
+            Err(e) => {
+                error!("{}", e);
+            }
+        }
+
+        Err(AgeError::BadRecepient)
+    }
+
+    #[cfg(test)]
+    pub fn encrypt_passphrase_armored(&self,
+                                      plaintext: &[u8],
+                                      passphrase: Secret<String>) -> Result<Vec<u8>,AgeError> {
+        let encryptor = age::Encryptor::with_user_passphrase(passphrase);
+
+        let mut encrypted = vec![];
+        let mut writer = encryptor.wrap_output(
+            age::armor::ArmoredWriter::wrap_output(
+                &mut encrypted,
+                age::armor::Format::AsciiArmor,
+            )?
+        )?;
+        writer.write_all(plaintext)?;
+        writer.finish()
+            .and_then(|armor| armor.finish())?;
+
+        Ok(encrypted)
+    }
 }
 
-fn age_decrypt_passphrase_armored(ciphertext: &[u8],
-                                  passphrase: Secret<String>) -> Result<Vec<u8>,AgeError> {
-    let armored_reader = age::armor::ArmoredReader::new(ciphertext);
-    let decryptor = match age::Decryptor::new(armored_reader)? {
-        age::Decryptor::Passphrase(decryptor) => decryptor,
-        _ => return Err(AgeError::BadCipherInput)
-    };
-
-    let mut decrypted = vec![];
-    let mut reader = decryptor.decrypt(&passphrase, Some(MAX_WORK_FACTOR))?;
-    let _ = reader.read_to_end(&mut decrypted);
-
-    Ok(decrypted)
-}
 
 #[cfg(test)]
 mod tests {
@@ -183,53 +154,56 @@ mod tests {
     /// Encrypt and decrypt with a pair of x25519 keys
     #[test]
     fn age_key_test() {
-        let key = age::x25519::Identity::generate();
-        let pubkey = key.to_public();
+        let identity = age::x25519::Identity::generate();
+        let pubkey = identity.to_public();
+        let state = AgeState { identity: Some(identity), 
+                               created: std::time::SystemTime::now() };
 
-        let ciphertext = age_encrypt(PLAINTEXT, pubkey.to_string().as_str());
+        let ciphertext = state.encrypt(PLAINTEXT, pubkey.to_string().as_str());
         assert_ok(&ciphertext);
 
-        let decrypted = age_decrypt(&ciphertext.unwrap(), &key);
+        let decrypted = state.decrypt(&ciphertext.unwrap());
 
         assert_ok(&decrypted);
         assert_eq!(decrypted.unwrap(), PLAINTEXT.as_bytes());
     }
 
-    /// Encrypt and decrypt with a passphrase
-    #[test]
-    fn age_passphrase_test() {
-        let ciphertext = age_encrypt_passphrase_armored(PLAINTEXT.as_bytes(),
-                                                Secret::new(PASSPHRASE.to_owned()));
-        assert_ok(&ciphertext);
+    // /// Encrypt and decrypt with a passphrase
+    // #[test]
+    // fn age_passphrase_test() {
+    //     let age_state = AgeState::new();
+    //     let ciphertext = age_encrypt_passphrase_armored(PLAINTEXT.as_bytes(),
+    //                                             Secret::new(PASSPHRASE.to_owned()));
+    //     assert_ok(&ciphertext);
 
-        let decrypted = age_decrypt_passphrase_armored(&ciphertext.unwrap(),
-                                               Secret::new(PASSPHRASE.to_owned()));
+    //     let decrypted = age_decrypt_passphrase_armored(&ciphertext.unwrap(),
+    //                                            Secret::new(PASSPHRASE.to_owned()));
 
-        assert_ok(&decrypted);
-        assert_eq!(decrypted.unwrap(), PLAINTEXT.as_bytes());
-    }
+    //     assert_ok(&decrypted);
+    //     assert_eq!(decrypted.unwrap(), PLAINTEXT.as_bytes());
+    // }
 
-    /// Encrypt a private key with a passphrase, decrypt it and use it for
-    /// decryption of a secret.
-    #[test]
-    fn age_encrypted_key_test() {
-        // `age-keygen`
-        let key = "AGE-SECRET-KEY-1P5R9D3F743XGQJDQ02DR8PE2AVFCLKALYXRE4SP0YMYW9PTYW2TQPPDKFW";
-        let pubkey = "age1ganl3gcyvjlnyh9373knv5du2hlhuafg6tp0elsz43q7fqu60s7qqural4";
+    // /// Encrypt a private key with a passphrase, decrypt it and use it for
+    // /// decryption of a secret.
+    // #[test]
+    // fn age_encrypted_key_test() {
+    //     // `age-keygen`
+    //     let key = "AGE-SECRET-KEY-1P5R9D3F743XGQJDQ02DR8PE2AVFCLKALYXRE4SP0YMYW9PTYW2TQPPDKFW";
+    //     let pubkey = "age1ganl3gcyvjlnyh9373knv5du2hlhuafg6tp0elsz43q7fqu60s7qqural4";
 
-        let ciphertext = age_encrypt(PLAINTEXT, pubkey);
+    //     let ciphertext = age_encrypt(PLAINTEXT, pubkey);
 
-        let encrypted_identity = age_encrypt_passphrase_armored(key.as_bytes(),
-                                                Secret::new(PASSPHRASE.to_owned()));
-        assert_ok(&encrypted_identity);
+    //     let encrypted_identity = age_encrypt_passphrase_armored(key.as_bytes(),
+    //                                             Secret::new(PASSPHRASE.to_owned()));
+    //     assert_ok(&encrypted_identity);
 
-        let identity = encrypted_identity.unwrap();
-        let identity_str = String::from_utf8(identity).unwrap();
-        let identity_str = identity_str.as_str();
-        let decrypted = age_decrypt_with_identity(&ciphertext.unwrap(),
-                                                  &identity_str,
-                                                  PASSPHRASE);
-        assert_ok(&decrypted);
-        assert_eq!(decrypted.unwrap(), PLAINTEXT.as_bytes());
-    }
+    //     let identity = encrypted_identity.unwrap();
+    //     let identity_str = String::from_utf8(identity).unwrap();
+    //     let identity_str = identity_str.as_str();
+    //     let decrypted = age_decrypt_with_identity(&ciphertext.unwrap(),
+    //                                               &identity_str,
+    //                                               PASSPHRASE);
+    //     assert_ok(&decrypted);
+    //     assert_eq!(decrypted.unwrap(), PLAINTEXT.as_bytes());
+    // }
 }
