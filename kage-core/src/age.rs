@@ -168,42 +168,35 @@ mod tests {
         assert_eq!(decrypted.unwrap(), PLAINTEXT.as_bytes());
     }
 
-    // /// Encrypt and decrypt with a passphrase
-    // #[test]
-    // fn age_passphrase_test() {
-    //     let age_state = AgeState::new();
-    //     let ciphertext = age_encrypt_passphrase_armored(PLAINTEXT.as_bytes(),
-    //                                             Secret::new(PASSPHRASE.to_owned()));
-    //     assert_ok(&ciphertext);
+    /// Encrypt a private key with a passphrase, decrypt it and use it for
+    /// decryption of a secret.
+    #[test]
+    fn age_encrypted_key_test() {
+        // From `age-keygen`
+        let key = "AGE-SECRET-KEY-1P5R9D3F743XGQJDQ02DR8PE2AVFCLKALYXRE4SP0YMYW9PTYW2TQPPDKFW";
+        let pubkey = "age1ganl3gcyvjlnyh9373knv5du2hlhuafg6tp0elsz43q7fqu60s7qqural4";
+        let mut state = AgeState { identity: None, 
+                                   created: std::time::SystemTime::now() };
 
-    //     let decrypted = age_decrypt_passphrase_armored(&ciphertext.unwrap(),
-    //                                            Secret::new(PASSPHRASE.to_owned()));
+        // Encrypt data with the public key
+        let ciphertext = state.encrypt(PLAINTEXT, pubkey);
 
-    //     assert_ok(&decrypted);
-    //     assert_eq!(decrypted.unwrap(), PLAINTEXT.as_bytes());
-    // }
+        // Encrypt the identity with a passphrase
+        let encrypted_identity = state.encrypt_passphrase_armored(key.as_bytes(),
+                                                                  Secret::new(PASSPHRASE.to_owned()));
+        assert_ok(&encrypted_identity);
 
-    // /// Encrypt a private key with a passphrase, decrypt it and use it for
-    // /// decryption of a secret.
-    // #[test]
-    // fn age_encrypted_key_test() {
-    //     // `age-keygen`
-    //     let key = "AGE-SECRET-KEY-1P5R9D3F743XGQJDQ02DR8PE2AVFCLKALYXRE4SP0YMYW9PTYW2TQPPDKFW";
-    //     let pubkey = "age1ganl3gcyvjlnyh9373knv5du2hlhuafg6tp0elsz43q7fqu60s7qqural4";
+        let encrypted_identity = encrypted_identity.unwrap();
+        let encrypted_identity = String::from_utf8(encrypted_identity).unwrap();
+        let encrypted_identity = encrypted_identity.as_str();
 
-    //     let ciphertext = age_encrypt(PLAINTEXT, pubkey);
+        // Unlock the `encrypted_identity` using the passphrase
+        let _ = state.unlock_identity(&encrypted_identity, PASSPHRASE);
 
-    //     let encrypted_identity = age_encrypt_passphrase_armored(key.as_bytes(),
-    //                                             Secret::new(PASSPHRASE.to_owned()));
-    //     assert_ok(&encrypted_identity);
+        let decrypted = state.decrypt(&ciphertext.unwrap());
+        assert_ok(&decrypted);
+        assert_eq!(decrypted.unwrap(), PLAINTEXT.as_bytes());
 
-    //     let identity = encrypted_identity.unwrap();
-    //     let identity_str = String::from_utf8(identity).unwrap();
-    //     let identity_str = identity_str.as_str();
-    //     let decrypted = age_decrypt_with_identity(&ciphertext.unwrap(),
-    //                                               &identity_str,
-    //                                               PASSPHRASE);
-    //     assert_ok(&decrypted);
-    //     assert_eq!(decrypted.unwrap(), PLAINTEXT.as_bytes());
-    // }
+        state.lock_identity();
+    }
 }
