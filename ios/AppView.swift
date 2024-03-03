@@ -30,40 +30,74 @@ import OSLog
 //  - version info
 
 
+struct PwNode: Identifiable {
+    let id = UUID()
+    let url: URL
+    let children: [PwNode]?
+
+    var name: String {
+         return url.deletingPathExtension().lastPathComponent
+    }
+
+    var isFile: Bool {
+        return (children ?? []).isEmpty
+    }
+
+    static func loadChildren(_ fromDir: URL) throws -> Self {
+        var children: [Self] = []
+
+        for url in try FileManager.default.ls(fromDir) {
+            let node = FileManager.default.isDir(url) ?
+                                try loadChildren(url) :
+                                PwNode(url: url, children: nil)
+
+            children.append(node)
+        }
+
+        return PwNode(url: fromDir, children: children)
+    }
+
+    func show() {
+        if !self.isFile {
+            return
+        }
+
+        let clock = ContinuousClock()
+        let elapsed = clock.measure {
+            logger.info("Decryption: BEGIN")
+            let plaintext = Age.decrypt(self.url)
+            logger.info("Decrypted: '\(plaintext)'")
+        }
+        logger.info("Decryption: END [\(elapsed)]")
+    }
+}
+
 struct AppView: View {
     @AppStorage("remote") private var remote: String = ""
-    let repo = FileManager.default.appDataDirectory.appending(path: "git")
+    @State private var searchText = ""
+    @State private var gitTree: [PwNode] = []
+    let gitDir = FileManager.default.gitDirectory
+
+    var searchResults: [PwNode] {
+        if searchText.isEmpty {
+            return gitTree
+        } else {
+            return gitTree // TODO
+            //return gitTree.filter { $0.contains(searchText) }
+        }
+    }
 
     var body: some View {
         NavigationStack {
             VStack(alignment: .center, spacing: 20) {
-                Image(systemName: "globe")
-                    .imageScale(.large)
-                    .foregroundStyle(.tint)
-
-                Text("Clone").onTapGesture {
-                    // TODO progress view
-                    if remote.isEmpty {
-#if targetEnvironment(simulator)
-                        remote = "git://127.0.0.1/james"
-#else
-                        remote = "git://10.0.1.8/james"
-#endif
-                    }
-
-                    Git.clone(remote: remote, into: repo);
-                }
-
-                Text("Encrypt").onTapGesture {
-                    let recipient = repo.appending(path: ".age-recipients")
-                    let outpath = repo.appending(path: "iOS.age")
-                    let _ = Age.encrypt(recipient: recipient,
-                                        outpath: outpath,
-                                        plaintext: "wow")
+                NavigationLink {
+                    SettingsView()
+                } label: {
+                    Image(systemName: "gear")
                 }
 
                 Text("Unlock").onTapGesture {
-                    let encryptedIdentity = repo.appending(path: ".age-identities")
+                    let encryptedIdentity = gitDir.appending(path: ".age-identities")
                     let _ = Age.unlockIdentity(encryptedIdentity, passphrase: "x")
                 }
 
@@ -71,24 +105,26 @@ struct AppView: View {
                     let _ = Age.lockIdentity()
                 }
 
-                Text("Decrypt").onTapGesture {
-                    let path = repo.appending(path: "iOS.age")
-
-                    let clock = ContinuousClock()
-                    let elapsed = clock.measure {
-                        logger.info("Decryption: BEGIN")
-                        let plaintext = Age.decrypt(path)
-                        logger.info("Decrypted: '\(plaintext)'")
-                    }
-                    logger.info("Decryption: END [\(elapsed)]")
+                List(searchResults, children: \.children) { node in
+                    Text("\(node.name)")
+                        .font(.system(size: 24))
+                        .onTapGesture {
+                            node.show()
+                        }
                 }
-
-                NavigationLink("Settings") {
-                    SettingsView()
-                }
+                .searchable(text: $searchText)
             }
-            .font(.system(size: 24))
-            .padding()
+        }
+        .padding()
+        .onAppear {
+            do {
+                try? FileManager.default.removeItem(at: gitDir)
+                Git.clone(remote: remote,  into: gitDir)
+                gitTree = (try PwNode.loadChildren(gitDir)).children ?? []
+
+            } catch {
+                logger.error("\(error)")
+            }
         }
     }
 }

@@ -26,5 +26,31 @@ extension FileManager {
             in: .userDomainMask)
         return urls[0]
     }
+
+    var gitDirectory: URL {
+        return self.appDataDirectory.appending(path: "git")
+    }
+
+    func isDir(_ at: URL) -> Bool {
+        return access(at, expectDirectory: true)
+    }
+
+    func isFile(_ at: URL) -> Bool {
+        return access(at, expectDirectory: false)
+    }
+
+    func ls(_ at: URL) throws -> [URL] {
+        return try self.contentsOfDirectory(at: at,
+                                            includingPropertiesForKeys: nil,
+                                            options: .skipsHiddenFiles)
+    }
+
+    private func access(_ at: URL, expectDirectory: Bool) -> Bool {
+        var isDirectory: ObjCBool = true
+        let atPath = at.path(percentEncoded: false)
+        let exists = FileManager.default.fileExists(atPath: atPath,
+                                                    isDirectory: &isDirectory)
+        return exists && isDirectory.boolValue == expectDirectory
+    }
 }
 

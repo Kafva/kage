@@ -2,8 +2,6 @@ import Foundation
 
 struct Git {
     static func clone(remote: String, into: URL) {
-        try? FileManager.default.removeItem(at: into)
-
         do {
             let intoC = try into.path().toCString()
             let urlC = try remote.toCString()
@@ -47,11 +45,27 @@ struct Git {
         return false
     }
 
-    static func pull(_ repo: URL) {
+    static func pull(_ repo: URL) -> Bool {
+        do {
+            let repoC = try repo.path().toCString()
+            return ffi_git_pull(repoC) == 0
 
+        } catch {
+            logger.error("\(error)")
+        }
+
+        return false
     }
 
-    static func push(_ repo: URL) {
+    static func push(_ repo: URL) -> Bool {
+        do {
+            let repoC = try repo.path().toCString()
+            return ffi_git_push(repoC) == 0
 
+        } catch {
+            logger.error("\(error)")
+        }
+
+        return false
     }
 }

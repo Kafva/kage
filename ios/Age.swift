@@ -2,13 +2,11 @@ import Foundation
 
 let OUT_SIZE: CInt = 2048
 
-/// Decryption/encryption API
 struct Age {
-
     static func unlockIdentity(_ encryptedIdentity: URL,
                                passphrase: String) -> Bool {
         do {
-            let encryptedIdentity = try String(contentsOf: encryptedIdentity, 
+            let encryptedIdentity = try String(contentsOf: encryptedIdentity,
                                                encoding: .utf8)
             let encryptedIdentityC = try encryptedIdentity.toCString()
             let passphraseC        = try passphrase.toCString()
@@ -41,7 +39,7 @@ struct Age {
     static func decrypt(_ at: URL) -> String {
         do {
             let pathC = try at.path().toCString()
-            let outC = UnsafeMutableRawPointer.allocate(byteCount: Int(OUT_SIZE), 
+            let outC = UnsafeMutableRawPointer.allocate(byteCount: Int(OUT_SIZE),
                                                         alignment: 1)
 
             let written = ffi_age_decrypt(encryptedFilepath: pathC,
@@ -52,6 +50,7 @@ struct Age {
                 let data = Data(bytes: outC, count: Int(written))
 
                 let plaintext = String(decoding: data, as: UTF8.self)
+                                .trimmingCharacters(in: .whitespacesAndNewlines)
 
                 if !plaintext.isEmpty {
                     outC.deallocate()
@@ -77,7 +76,9 @@ struct Age {
                                 .trimmingCharacters(in: .whitespacesAndNewlines)
 
             let recepientC = try recepient.toCString()
-            let plaintextC = try plaintext.toCString()
+            let plaintextC = try plaintext
+                                    .trimmingCharacters(in: .whitespacesAndNewlines)
+                                    .toCString()
             let outpathC   = try outpath.path().toCString()
 
             let r = ffi_age_encrypt(plaintext: plaintextC,
