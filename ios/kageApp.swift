@@ -1,4 +1,9 @@
 import SwiftUI
+import OSLog
+
+let logger = Logger(subsystem: Bundle.main.bundleIdentifier!,
+                    category: "generic")
+
 
 @main
 struct kageApp: App {

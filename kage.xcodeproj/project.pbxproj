@@ -7,19 +7,27 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		000C1529C435CF0B7C4B54FB /* AppError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D2E99B835A95A59B72E372E /* AppError.swift */; };
+		248579D742348DE90B134793 /* Util.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2337C17EA24226D839574D9 /* Util.swift */; };
 		24EC3A66C120BF7B757CAE3E /* ffiApi.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7589A15AC15B8628E6AF92B5 /* ffiApi.swift */; };
 		280C2456F83493EF0464D60B /* AppView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 716EF067A6DF8FB0447ACA87 /* AppView.swift */; };
+		9DBB65AD2437C02BA4AB5995 /* Age.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62E58D179FCD1B4C3F7BBE18 /* Age.swift */; };
 		B7ECE1F010341AE2D87160D8 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F6A7900AD2C656E12312A42 /* SettingsView.swift */; };
 		DD728F762B9392EF00A4BC99 /* libiconv.2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = DD728F752B9392DA00A4BC99 /* libiconv.2.tbd */; };
 		DD8C97312B93A18800753495 /* libkage_core.a in Frameworks */ = {isa = PBXBuildFile; fileRef = DD8C97302B93A17500753495 /* libkage_core.a */; };
 		DDA4B62D2AFDF6A00046DFCE /* kageApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDA4B62C2AFDF6A00046DFCE /* kageApp.swift */; };
 		DDA4B6312AFDF6A10046DFCE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DDA4B6302AFDF6A10046DFCE /* Assets.xcassets */; };
+		EDCD26E61496FE5E345B40CE /* Git.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F0D8E0ACE255FC38D0D6C8F /* Git.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		4D2E99B835A95A59B72E372E /* AppError.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AppError.swift; sourceTree = "<group>"; };
+		4F0D8E0ACE255FC38D0D6C8F /* Git.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Git.swift; sourceTree = "<group>"; };
+		62E58D179FCD1B4C3F7BBE18 /* Age.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Age.swift; sourceTree = "<group>"; };
 		716EF067A6DF8FB0447ACA87 /* AppView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AppView.swift; sourceTree = "<group>"; };
 		7589A15AC15B8628E6AF92B5 /* ffiApi.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ffiApi.swift; sourceTree = "<group>"; };
 		7F6A7900AD2C656E12312A42 /* SettingsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		C2337C17EA24226D839574D9 /* Util.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Util.swift; sourceTree = "<group>"; };
 		DD728F752B9392DA00A4BC99 /* libiconv.2.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libiconv.2.tbd; path = usr/lib/libiconv.2.tbd; sourceTree = SDKROOT; };
 		DD8C97302B93A17500753495 /* libkage_core.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libkage_core.a; path = out/libkage_core.a; sourceTree = "<group>"; };
 		DDA4B6292AFDF6A00046DFCE /* kage.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = kage.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -74,6 +82,10 @@
 				7589A15AC15B8628E6AF92B5 /* ffiApi.swift */,
 				716EF067A6DF8FB0447ACA87 /* AppView.swift */,
 				7F6A7900AD2C656E12312A42 /* SettingsView.swift */,
+				4D2E99B835A95A59B72E372E /* AppError.swift */,
+				4F0D8E0ACE255FC38D0D6C8F /* Git.swift */,
+				C2337C17EA24226D839574D9 /* Util.swift */,
+				62E58D179FCD1B4C3F7BBE18 /* Age.swift */,
 			);
 			path = ios;
 			sourceTree = "<group>";
@@ -174,6 +186,10 @@
 				24EC3A66C120BF7B757CAE3E /* ffiApi.swift in Sources */,
 				280C2456F83493EF0464D60B /* AppView.swift in Sources */,
 				B7ECE1F010341AE2D87160D8 /* SettingsView.swift in Sources */,
+				000C1529C435CF0B7C4B54FB /* AppError.swift in Sources */,
+				EDCD26E61496FE5E345B40CE /* Git.swift in Sources */,
+				248579D742348DE90B134793 /* Util.swift in Sources */,
+				9DBB65AD2437C02BA4AB5995 /* Age.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

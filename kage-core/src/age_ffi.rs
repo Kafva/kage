@@ -24,7 +24,7 @@ pub extern "C" fn ffi_age_unlock_identity(encrypted_identity: *const c_char,
     let encrypted_identity = unsafe { CStr::from_ptr(encrypted_identity).to_str() };
     let passphrase = unsafe { CStr::from_ptr(passphrase).to_str() };
 
-    let (Ok(encrypted_identity), 
+    let (Ok(encrypted_identity),
          Ok(passphrase)) = (encrypted_identity, passphrase) else {
         return -1
     };

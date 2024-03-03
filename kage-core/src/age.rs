@@ -43,7 +43,7 @@ impl AgeState {
         Ok(decrypted)
     }
 
-    /// Unlock `encrypted_identity` using `passphras`e and save the result
+    /// Unlock `encrypted_identity` using `passphrase` and save the result
     pub fn unlock_identity(&mut self,
                            encrypted_identity: &str,
                            passphrase: &str) -> Result<(),AgeError> {
@@ -156,7 +156,7 @@ mod tests {
     fn age_key_test() {
         let identity = age::x25519::Identity::generate();
         let pubkey = identity.to_public();
-        let state = AgeState { identity: Some(identity), 
+        let state = AgeState { identity: Some(identity),
                                created: std::time::SystemTime::now() };
 
         let ciphertext = state.encrypt(PLAINTEXT, pubkey.to_string().as_str());
@@ -175,7 +175,7 @@ mod tests {
         // From `age-keygen`
         let key = "AGE-SECRET-KEY-1P5R9D3F743XGQJDQ02DR8PE2AVFCLKALYXRE4SP0YMYW9PTYW2TQPPDKFW";
         let pubkey = "age1ganl3gcyvjlnyh9373knv5du2hlhuafg6tp0elsz43q7fqu60s7qqural4";
-        let mut state = AgeState { identity: None, 
+        let mut state = AgeState { identity: None,
                                    created: std::time::SystemTime::now() };
 
         // Encrypt data with the public key
