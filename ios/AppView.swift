@@ -29,13 +29,21 @@ import OSLog
 //  - reset all data
 //  - version info
 
-
+struct SelectionDetails: Identifiable {
+    let id = UUID()
+    let url: URL
+    let error: String
+}
 
 struct AppView: View {
     @AppStorage("remote") private var remote: String = ""
     @EnvironmentObject var appState: AppState
     @State private var searchText = ""
     @State private var gitTree: [PwNode] = []
+    @State private var showAdd = false
+    @State private var showSettings = false
+    @State private var showAuthAlert = false
+    @State private var authPassphrase: String = ""
 
     var searchResults: [PwNode] {
         if searchText.isEmpty {
@@ -47,69 +55,85 @@ struct AppView: View {
         }
     }
 
-    var body: some View {
-        NavigationStack {
-            VStack(alignment: .center, spacing: 20) {
-                List(searchResults, children: \.children) { node in
-                    Text("\(node.name)")
-                        .font(.system(size: 24))
-                        .onTapGesture {
-                            node.showPlaintext()
-                        }
-                        .swipeActions(allowsFullSwipe: false) {
-                            Button(action: {
-                                handleGitRemove(node: node)
-                            }) {
-                                Image(systemName: "xmark")
-                            }
-                            .tint(.red)
-                        }
+    private var listView: some View {
+        List(searchResults, children: \.children) { node in
+            Text("\(node.name)")
+                .font(.system(size: 24))
+                .onTapGesture {
+                    if !appState.identityIsUnlocked {
+                        showAuthAlert = true
+                    } else {
+                        node.showPlaintext()
+                    }
                 }
-                .searchable(text: $searchText)
-                .toolbar {
-                    ToolbarItem(placement: .bottomBar) {
-                        Button {
-                            handleGitSync()
-                        } label: {
-                            let systemName = Git.indexHasLocalChanges() ?
-                                                        "icloud.and.arrow.up" :
-                                                        "icloud.and.arrow.down"
-                            Image(systemName: systemName).bold()
-                        }
+                .swipeActions(allowsFullSwipe: false) {
+                    Button(action: {
+                        handleGitRemove(node: node)
+                    }) {
+                        Image(systemName: "xmark")
                     }
+                    .tint(.red)
+                }
+        }
+        .searchable(text: $searchText)
+        .toolbar {
+            ToolbarItem(placement: .bottomBar) {
+                Button {
+                    handleGitSync()
+                } label: {
+                    let systemName = Git.indexHasLocalChanges() ?
+                                                "icloud.and.arrow.up" :
+                                                "icloud.and.arrow.down"
+                    Image(systemName: systemName).bold()
+                }
+            }
 
-                    ToolbarItem(placement: .bottomBar) {
-                        Button {
-                            G.logger.info("TODO")
-                        } label: {
-                            Image(systemName: "plus.circle").bold()
-                        }
-                    }
+            ToolbarItem(placement: .bottomBar) {
+                Button {
+                    showAdd = true
+                } label: {
+                    Image(systemName: "plus.circle").bold()
+                }
+            }
 
-                    ToolbarItem(placement: .bottomBar) {
-                        Button {
-                            if appState.identityIsUnlocked {
-                                let _ = appState.lockIdentity()
-                            } else {
-                                let _ = appState.unlockIdentity(passphrase: "x")
-                            }
-                        } label: {
-                            let systemName = appState.identityIsUnlocked ? "lock.open.fill" :
-                                                                           "lock.fill"
-                            Image(systemName: systemName).bold()
-                        }
+            ToolbarItem(placement: .bottomBar) {
+                Button {
+                    if appState.identityIsUnlocked {
+                        let _ = appState.lockIdentity()
+                    } else {
+                        let _ = appState.unlockIdentity(passphrase: "x")
                     }
+                } label: {
+                    let systemName = appState.identityIsUnlocked ? "lock.open.fill" :
+                                                                   "lock.fill"
+                    Image(systemName: systemName).bold()
+                }
+            }
 
-                    ToolbarItem(placement: .bottomBar) {
-                        NavigationLink {
-                            SettingsView()
-                        } label: {
-                            Image(systemName: "gearshape.circle").bold()
-                        }
-                    }
+            ToolbarItem(placement: .bottomBar) {
+                Button {
+                    showSettings = true
+                } label: {
+                    Image(systemName: "plus.circle").bold()
                 }
             }
         }
+    }
+
+    var body: some View {
+        NavigationStack {
+            listView
+        }
+        .alert("Authentication required", isPresented: $showAuthAlert) {
+                SecureField("", text: $authPassphrase)
+                Button("Submit") {
+                    if appState.unlockIdentity(passphrase: authPassphrase) {
+                        showAuthAlert = false
+                    }
+                }
+        }
+        .popover(isPresented: $showAdd) { AddView() }
+        .popover(isPresented: $showSettings) { SettingsView() }
         .padding()
         .onAppear {
             if remote.isEmpty {
