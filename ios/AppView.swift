@@ -13,140 +13,180 @@ import OSLog
 //  * Pull / Push
 //  * No conflict resolution, option to start over OR force push
 
+// struct AlertType: Identifiable {
+//     let id = UUID()
+//     let title: String
+//     let error: String
+// }
 
-// Views:
-// Main view:
-//  password list, folders, drop down or new page...
-//  Search
-//  add button, push button, settings wheel
-//
-// Create view: (pop over)
-// Push button: loading screen --> error or sucess
-// Settings view: (pop over)
-//  - remote address
-//  - tint color
-//  - fetch remote updates (automatically on startup instead?)
-//  - reset all data
-//  - version info
+enum AlertType {
+    case plaintext
+    case authentication
+    case newFolder
+    case newPassword
 
-struct SelectionDetails: Identifiable {
-    let id = UUID()
-    let url: URL
-    let error: String
+    func title(targetNode: PwNode?) -> String {
+        switch (self) {
+            case .plaintext:
+                 return "\(targetNode?.name ?? "No name")"
+            case .authentication:
+                 return "Authentication required"
+            case .newFolder:
+                 return "Create new folder"
+            case .newPassword:
+                return "Create new password"
+        }
+    }
 }
 
 struct AppView: View {
     @AppStorage("remote") private var remote: String = ""
+
     @EnvironmentObject var appState: AppState
+
     @State private var searchText = ""
+
     @State private var gitTree: [PwNode] = []
-    @State private var showAdd = false
+    @State private var targetNode: PwNode?
+    @State private var alertType: AlertType?
+
+    @State private var showAlert: Bool = false
     @State private var showSettings = false
-    @State private var showAuthAlert = false
-    @State private var authPassphrase: String = ""
+
+
+    @State private var plaintext: String = ""
+
+    // Auth view
+    @State private var passphrase: String = ""
+    @State private var err: String?
 
     var searchResults: [PwNode] {
         if searchText.isEmpty {
             return gitTree
         } else {
-            // TODO do not show sibilings of match
             let rootNode = PwNode(url: G.gitDir, children: gitTree)
             return rootNode.findChildren(predicate: searchText)
         }
     }
 
+    private func setAlert(_ value: AlertType) {
+        alertType = value
+        showAlert = true
+    }
+
+    private var authenticationView: some View {
+        SecureField("", text: $passphrase).onSubmit {
+            if !appState.unlockIdentity(passphrase: passphrase) {
+                err = "Incorrect password"
+                return
+            }
+            setAlert(.authentication)
+            handleShowPlaintext()
+        }
+    }
+    
+    private var newFolderView: some View {
+        EmptyView()
+    }
+
+    private var pwTreeView: some View {
+        // Two buttons at the bottom of each folder for add pw/folder
+
+    }
+
+    private func handleShowPlaintext() {
+        guard let targetNode else {
+            return
+        }
+        guard let value = targetNode.getPlaintext() else {
+            G.logger.error("Failed to retrieve plaintext")
+            return
+        }
+        plaintext = value
+        setAlert(.plaintext)
+    }
+
     private var listView: some View {
         List(searchResults, children: \.children) { node in
             Text("\(node.name)")
-                .font(.system(size: 24))
+                .font(.system(size: 18))
                 .onTapGesture {
+                    targetNode = node
                     if !appState.identityIsUnlocked {
-                        showAuthAlert = true
+                        
                     } else {
-                        node.showPlaintext()
+                        handleShowPlaintext()
                     }
                 }
                 .swipeActions(allowsFullSwipe: false) {
                     Button(action: {
                         handleGitRemove(node: node)
                     }) {
-                        Image(systemName: "xmark")
+                        Image(systemName: "xmark.circle")
                     }
                     .tint(.red)
                 }
         }
         .searchable(text: $searchText)
+        .listStyle(.plain)
         .toolbar {
-            ToolbarItem(placement: .bottomBar) {
-                Button {
-                    handleGitSync()
-                } label: {
-                    let systemName = Git.indexHasLocalChanges() ?
-                                                "icloud.and.arrow.up" :
-                                                "icloud.and.arrow.down"
-                    Image(systemName: systemName).bold()
+            ToolbarItemGroup(placement: .bottomBar) {
+                // TODO: only show when index is dirty and can't connect to
+                // server
+                if Git.indexHasLocalChanges() {
+                    Button {
+                        let _ = Git.push()
+                    } label: {
+                        Image(systemName: "icloud.and.arrow.up.fill").bold().foregroundColor(.green)
+                    }
                 }
-            }
-
-            ToolbarItem(placement: .bottomBar) {
                 Button {
-                    showAdd = true
+                    setAlert(.newPassword)
                 } label: {
                     Image(systemName: "plus.circle").bold()
                 }
-            }
-
-            ToolbarItem(placement: .bottomBar) {
-                Button {
-                    if appState.identityIsUnlocked {
-                        let _ = appState.lockIdentity()
-                    } else {
-                        let _ = appState.unlockIdentity(passphrase: "x")
-                    }
-                } label: {
-                    let systemName = appState.identityIsUnlocked ? "lock.open.fill" :
-                                                                   "lock.fill"
-                    Image(systemName: systemName).bold()
-                }
-            }
-
-            ToolbarItem(placement: .bottomBar) {
                 Button {
                     showSettings = true
                 } label: {
-                    Image(systemName: "plus.circle").bold()
+                    Image(systemName: "gearshape.circle").bold()
                 }
             }
         }
     }
 
     var body: some View {
+        let alertTitle = alertType?.title(targetNode: targetNode) ?? ""
         NavigationStack {
             listView
         }
-        .alert("Authentication required", isPresented: $showAuthAlert) {
-                SecureField("", text: $authPassphrase)
-                Button("Submit") {
-                    if appState.unlockIdentity(passphrase: authPassphrase) {
-                        showAuthAlert = false
-                    }
+        .alert(alertTitle, isPresented: $showAlert) {
+            if let alertType {
+                switch (alertType) {
+                    case .plaintext:
+                        Text(plaintext) 
+                    case .authentication:
+                        authenticationView
+                    case .newFolder:
+                        newFolderView
+                    case .newPassword:
+                        AddView(targetNode: $targetNode)
                 }
-        }
-        .popover(isPresented: $showAdd) { AddView() }
-        .popover(isPresented: $showSettings) { SettingsView() }
-        .padding()
-        .onAppear {
-            if remote.isEmpty {
-#if targetEnvironment(simulator)
-                remote = "git://127.0.0.1/james"
-#else
-                remote = "git://10.0.1.8/james"
-#endif
+            } else {
+                EmptyView()
             }
-
-            try? FileManager.default.removeItem(at: G.gitDir)
-            Git.clone(remote: remote)
-            loadGitTree()
+        }
+        .popover(isPresented: $showSettings) { SettingsView() }
+        .onAppear {
+#if DEBUG && targetEnvironment(simulator)
+            remote = "git://127.0.0.1/james"
+#elseif DEBUG
+            remote = "git://10.0.1.8/james"
+#endif
+            if !remote.isEmpty {
+                try? FileManager.default.removeItem(at: G.gitDir)
+                Git.clone(remote: remote)
+                loadGitTree()
+            }
         }
     }
 
@@ -158,19 +198,11 @@ struct AppView: View {
         }
     }
 
-    private func handleGitSync() {
-        if Git.indexHasLocalChanges() {
-            let _ = Git.push()
-        } else {
-            let _ = Git.pull()
-            loadGitTree()
-        }
-    }
-
     private func handleGitRemove(node: PwNode) {
         do {
             try FileManager.default.removeItem(at: node.url)
-            let _ = Git.add(relativePath: ".")
+            let relativePath = node.url.path().trimmingPrefix(G.gitDir.path())
+            let _ = Git.add(relativePath: String(relativePath))
 
         } catch {
             G.logger.error("\(error)")

@@ -53,18 +53,11 @@ struct PwNode: Identifiable {
         return matches
     }
 
-    func showPlaintext() {
+    func getPlaintext() -> String? {
         if !self.isLeaf {
-            return
+            return nil
         }
-
-        let clock = ContinuousClock()
-        let elapsed = clock.measure {
-            G.logger.info("Decryption: BEGIN")
-            let plaintext = Age.decrypt(self.url)
-            G.logger.info("Decrypted: '\(plaintext)'")
-        }
-        G.logger.info("Decryption: END [\(elapsed)]")
+        return Age.decrypt(self.url)
     }
 }
 

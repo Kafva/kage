@@ -9,6 +9,7 @@ struct kageApp: App {
     var body: some Scene {
         WindowGroup {
             AppView()
+            .ignoresSafeArea()
             .autocorrectionDisabled()
             .autocapitalization(.none)
             // Default keyboard layout

@@ -39,7 +39,7 @@ struct Age {
         return false
     }
 
-    static func decrypt(_ at: URL) -> String {
+    static func decrypt(_ at: URL) -> String? {
         do {
             let pathC = try at.path().toCString()
             let outC = UnsafeMutableRawPointer.allocate(byteCount:
@@ -69,7 +69,7 @@ struct Age {
             G.logger.error("\(error)")
         }
 
-        return ""
+        return nil
     }
 
     static func encrypt(recipient: URL,

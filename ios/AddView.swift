@@ -2,34 +2,45 @@ import SwiftUI
 import OSLog
 
 struct AddView: View {
-    @State private var path = ""
+    @Binding var targetNode: PwNode?
+
+    @State private var name = ""
     @State private var password = ""
     @State private var confirmPassword = ""
+    @State private var generate = true
 
     var body: some View {
-        Form {
-            Section(header: Text("Path")) {
-                TextField("Enter path", text: $path)
+
+        VStack {
+            Text("Add a new password").font(.title)
+            Spacer()
+            TextField("Name", text: $name)
+
+            Toggle(isOn: $generate) {
+                Text("Autogenerate")
             }
 
-            Section(header: Text("Password")) {
-                SecureField("Enter password", text: $password)
-            }
-
-            Section(header: Text("Confirm Password")) {
+            if !generate {
+                let underlineColor = !password.isEmpty && password == confirmPassword ? 
+                                      Color.green : Color.red
+                SecureField("Password", text: $password)
                 SecureField("Confirm password", text: $confirmPassword)
+                Divider().frame(height: 2)
+                         .overlay(underlineColor)
             }
 
-            Section {
-                Button("Submit") {
-                    if password == confirmPassword {
-                        addPassword(password: password)
-                    } else {
-                        G.logger.debug("Passwords do not match")
-                    }
+            Button {
+                if password == confirmPassword {
+                    addPassword(password: password)
+                } else {
+                    G.logger.debug("Passwords do not match")
                 }
+            } label: {
+                Image(systemName: "key.viewfinder").bold()
             }
         }
+        .textFieldStyle(.roundedBorder)
+        .frame(width: 0.8 * G.screenWidth)
     }
 
     private func addPassword(password: String) {
@@ -38,8 +49,6 @@ struct AddView: View {
         let _ = Age.encrypt(recipient: recipient,
                             outpath: outpath,
                             plaintext: password)
-
-        G.logger.debug("Password submitted: \(password)")
     }
 }
 
