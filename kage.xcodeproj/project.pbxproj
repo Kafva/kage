@@ -7,11 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		0F45C0AE3DF027585E0A166A /* AddView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA8FF736CEAF4C4C385FD8CD /* AddView.swift */; };
 		248579D742348DE90B134793 /* Util.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2337C17EA24226D839574D9 /* Util.swift */; };
 		24EC3A66C120BF7B757CAE3E /* ffiApi.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7589A15AC15B8628E6AF92B5 /* ffiApi.swift */; };
 		280C2456F83493EF0464D60B /* AppView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 716EF067A6DF8FB0447ACA87 /* AppView.swift */; };
 		488BC80BAAE8375F6CD6CAFF /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E5D4DBC06BF413DE2010C /* AppState.swift */; };
+		577B57C07CECB04C2299C48B /* NewPasswordView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEAD0321A747C92C4E85224A /* NewPasswordView.swift */; };
 		780ED3C778C8151F093DE84E /* PwNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = B388611AF2E940951CB91C83 /* PwNode.swift */; };
 		9DBB65AD2437C02BA4AB5995 /* Age.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62E58D179FCD1B4C3F7BBE18 /* Age.swift */; };
 		B7ECE1F010341AE2D87160D8 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F6A7900AD2C656E12312A42 /* SettingsView.swift */; };
@@ -30,8 +30,8 @@
 		7589A15AC15B8628E6AF92B5 /* ffiApi.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ffiApi.swift; sourceTree = "<group>"; };
 		7F6A7900AD2C656E12312A42 /* SettingsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		B388611AF2E940951CB91C83 /* PwNode.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PwNode.swift; sourceTree = "<group>"; };
+		BEAD0321A747C92C4E85224A /* NewPasswordView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NewPasswordView.swift; sourceTree = "<group>"; };
 		C2337C17EA24226D839574D9 /* Util.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Util.swift; sourceTree = "<group>"; };
-		DA8FF736CEAF4C4C385FD8CD /* AddView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AddView.swift; sourceTree = "<group>"; };
 		DD728F752B9392DA00A4BC99 /* libiconv.2.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libiconv.2.tbd; path = usr/lib/libiconv.2.tbd; sourceTree = SDKROOT; };
 		DD8C97302B93A17500753495 /* libkage_core.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libkage_core.a; path = out/libkage_core.a; sourceTree = "<group>"; };
 		DDA4B6292AFDF6A00046DFCE /* kage.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = kage.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -94,7 +94,7 @@
 				B388611AF2E940951CB91C83 /* PwNode.swift */,
 				EF9E5D4DBC06BF413DE2010C /* AppState.swift */,
 				F20324E04859C2C0DC3D8C62 /* G.swift */,
-				DA8FF736CEAF4C4C385FD8CD /* AddView.swift */,
+				BEAD0321A747C92C4E85224A /* NewPasswordView.swift */,
 			);
 			path = ios;
 			sourceTree = "<group>";
@@ -201,7 +201,7 @@
 				780ED3C778C8151F093DE84E /* PwNode.swift in Sources */,
 				488BC80BAAE8375F6CD6CAFF /* AppState.swift in Sources */,
 				E2B23155701BEA7113C3F4DB /* G.swift in Sources */,
-				0F45C0AE3DF027585E0A166A /* AddView.swift in Sources */,
+				577B57C07CECB04C2299C48B /* NewPasswordView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

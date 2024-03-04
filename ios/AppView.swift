@@ -13,17 +13,9 @@ import OSLog
 //  * Pull / Push
 //  * No conflict resolution, option to start over OR force push
 
-// struct AlertType: Identifiable {
-//     let id = UUID()
-//     let title: String
-//     let error: String
-// }
-
 enum AlertType {
     case plaintext
     case authentication
-    case newFolder
-    case newPassword
 
     func title(targetNode: PwNode?) -> String {
         switch (self) {
@@ -31,10 +23,6 @@ enum AlertType {
                  return "\(targetNode?.name ?? "No name")"
             case .authentication:
                  return "Authentication required"
-            case .newFolder:
-                 return "Create new folder"
-            case .newPassword:
-                return "Create new password"
         }
     }
 }
@@ -46,56 +34,33 @@ struct AppView: View {
 
     @State private var searchText = ""
 
-    @State private var gitTree: [PwNode] = []
     @State private var targetNode: PwNode?
     @State private var alertType: AlertType?
 
     @State private var showAlert: Bool = false
     @State private var showSettings = false
+    @State private var showNewPassword = false
 
 
     @State private var plaintext: String = ""
-
-    // Auth view
     @State private var passphrase: String = ""
-    @State private var err: String?
 
     var searchResults: [PwNode] {
         if searchText.isEmpty {
-            return gitTree
+            return appState.rootNode.children ?? []
         } else {
-            let rootNode = PwNode(url: G.gitDir, children: gitTree)
-            return rootNode.findChildren(predicate: searchText)
+            return appState.rootNode.findChildren(predicate: searchText)
         }
     }
 
-    private func setAlert(_ value: AlertType) {
+    private func setAlert(_ value: AlertType?) {
         alertType = value
-        showAlert = true
+        showAlert = value != nil
     }
-
-    private var authenticationView: some View {
-        SecureField("", text: $passphrase).onSubmit {
-            if !appState.unlockIdentity(passphrase: passphrase) {
-                err = "Incorrect password"
-                return
-            }
-            setAlert(.authentication)
-            handleShowPlaintext()
-        }
-    }
-    
-    private var newFolderView: some View {
-        EmptyView()
-    }
-
-    private var pwTreeView: some View {
-        // Two buttons at the bottom of each folder for add pw/folder
-
-    }
-
+ 
     private func handleShowPlaintext() {
         guard let targetNode else {
+            G.logger.debug("No target node set")
             return
         }
         guard let value = targetNode.getPlaintext() else {
@@ -107,13 +72,14 @@ struct AppView: View {
     }
 
     private var listView: some View {
+        // Two buttons at the bottom of each folder for add pw/folder
         List(searchResults, children: \.children) { node in
             Text("\(node.name)")
                 .font(.system(size: 18))
                 .onTapGesture {
                     targetNode = node
                     if !appState.identityIsUnlocked {
-                        
+                        setAlert(.authentication)
                     } else {
                         handleShowPlaintext()
                     }
@@ -141,7 +107,7 @@ struct AppView: View {
                     }
                 }
                 Button {
-                    setAlert(.newPassword)
+                    showNewPassword = true
                 } label: {
                     Image(systemName: "plus.circle").bold()
                 }
@@ -163,17 +129,27 @@ struct AppView: View {
             if let alertType {
                 switch (alertType) {
                     case .plaintext:
-                        Text(plaintext) 
+                        VStack {
+                            Text(plaintext) 
+                            Button("Close", role: .cancel) {
+                                setAlert(nil)
+                            }
+                        }
                     case .authentication:
-                        authenticationView
-                    case .newFolder:
-                        newFolderView
-                    case .newPassword:
-                        AddView(targetNode: $targetNode)
+                        SecureField("", text: $passphrase)
+
+                        Button("Submit") {
+                            if !appState.unlockIdentity(passphrase: passphrase) {
+                                G.logger.debug("Incorrect password")
+                                return
+                            }
+                            handleShowPlaintext()
+                        }
                 }
-            } else {
-                EmptyView()
             }
+        }
+        .popover(isPresented: $showNewPassword) { 
+            NewPasswordView(targetNode: $targetNode) 
         }
         .popover(isPresented: $showSettings) { SettingsView() }
         .onAppear {
@@ -185,23 +161,17 @@ struct AppView: View {
             if !remote.isEmpty {
                 try? FileManager.default.removeItem(at: G.gitDir)
                 Git.clone(remote: remote)
-                loadGitTree()
+                appState.loadGitTree()
             }
         }
     }
 
-    private func loadGitTree() {
-        do {
-            gitTree = (try PwNode.loadFrom(G.gitDir)).children ?? []
-        } catch {
-            G.logger.error("\(error)")
-        }
-    }
 
     private func handleGitRemove(node: PwNode) {
         do {
             try FileManager.default.removeItem(at: node.url)
-            let relativePath = node.url.path().trimmingPrefix(G.gitDir.path())
+            let relativePath = node.url.path()
+                                       .trimmingPrefix(G.gitDir.path() + "/")
             let _ = Git.add(relativePath: String(relativePath))
 
         } catch {

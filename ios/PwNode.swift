@@ -29,12 +29,17 @@ struct PwNode: Identifiable {
 
     /// Returns a subset of the tree with paths to every node that matches
     /// `predicate`.
-    func findChildren(predicate: String) -> [PwNode] {
+    func findChildren(predicate: String, onlyFolders: Bool = false) -> [PwNode] {
         var matches: [PwNode] = []
         let predicate = predicate.lowercased()
 
         for child in children ?? [] {
-            let childMatches = child.findChildren(predicate: predicate)
+            if child.isLeaf && onlyFolders {
+                continue
+            }
+
+            let childMatches = child.findChildren(predicate: predicate,
+                                                  onlyFolders: onlyFolders)
 
             if childMatches.isEmpty {
                 // Append the child with all its children if it matches the

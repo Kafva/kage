@@ -2,6 +2,15 @@ import SwiftUI
 
 class AppState: ObservableObject {
     @Published var identityIsUnlocked: Bool = false
+    @Published var rootNode: PwNode = PwNode(url: G.gitDir, children: [])
+
+    func loadGitTree() {
+        do {
+            rootNode = try PwNode.loadFrom(G.gitDir)
+        } catch {
+            G.logger.error("\(error)")
+        }
+    }
 
     func unlockIdentity(passphrase: String) -> Bool {
         let encryptedIdentity = G.gitDir.appending(path: ".age-identities")
