@@ -8,9 +8,12 @@
 
 /* Begin PBXBuildFile section */
 		000C1529C435CF0B7C4B54FB /* AppError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D2E99B835A95A59B72E372E /* AppError.swift */; };
+		203090709CA3B8456B9363A7 /* Globals.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD36A1E446EE4A8E3B20B7AC /* Globals.swift */; };
 		248579D742348DE90B134793 /* Util.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2337C17EA24226D839574D9 /* Util.swift */; };
 		24EC3A66C120BF7B757CAE3E /* ffiApi.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7589A15AC15B8628E6AF92B5 /* ffiApi.swift */; };
 		280C2456F83493EF0464D60B /* AppView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 716EF067A6DF8FB0447ACA87 /* AppView.swift */; };
+		488BC80BAAE8375F6CD6CAFF /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E5D4DBC06BF413DE2010C /* AppState.swift */; };
+		780ED3C778C8151F093DE84E /* PwNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = B388611AF2E940951CB91C83 /* PwNode.swift */; };
 		9DBB65AD2437C02BA4AB5995 /* Age.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62E58D179FCD1B4C3F7BBE18 /* Age.swift */; };
 		B7ECE1F010341AE2D87160D8 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F6A7900AD2C656E12312A42 /* SettingsView.swift */; };
 		DD728F762B9392EF00A4BC99 /* libiconv.2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = DD728F752B9392DA00A4BC99 /* libiconv.2.tbd */; };
@@ -27,12 +30,15 @@
 		716EF067A6DF8FB0447ACA87 /* AppView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AppView.swift; sourceTree = "<group>"; };
 		7589A15AC15B8628E6AF92B5 /* ffiApi.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ffiApi.swift; sourceTree = "<group>"; };
 		7F6A7900AD2C656E12312A42 /* SettingsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		B388611AF2E940951CB91C83 /* PwNode.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PwNode.swift; sourceTree = "<group>"; };
 		C2337C17EA24226D839574D9 /* Util.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Util.swift; sourceTree = "<group>"; };
 		DD728F752B9392DA00A4BC99 /* libiconv.2.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libiconv.2.tbd; path = usr/lib/libiconv.2.tbd; sourceTree = SDKROOT; };
 		DD8C97302B93A17500753495 /* libkage_core.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libkage_core.a; path = out/libkage_core.a; sourceTree = "<group>"; };
 		DDA4B6292AFDF6A00046DFCE /* kage.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = kage.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DDA4B62C2AFDF6A00046DFCE /* kageApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = kageApp.swift; sourceTree = "<group>"; };
 		DDA4B6302AFDF6A10046DFCE /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		EF9E5D4DBC06BF413DE2010C /* AppState.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
+		FD36A1E446EE4A8E3B20B7AC /* Globals.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Globals.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -86,6 +92,9 @@
 				4F0D8E0ACE255FC38D0D6C8F /* Git.swift */,
 				C2337C17EA24226D839574D9 /* Util.swift */,
 				62E58D179FCD1B4C3F7BBE18 /* Age.swift */,
+				B388611AF2E940951CB91C83 /* PwNode.swift */,
+				EF9E5D4DBC06BF413DE2010C /* AppState.swift */,
+				FD36A1E446EE4A8E3B20B7AC /* Globals.swift */,
 			);
 			path = ios;
 			sourceTree = "<group>";
@@ -190,6 +199,9 @@
 				EDCD26E61496FE5E345B40CE /* Git.swift in Sources */,
 				248579D742348DE90B134793 /* Util.swift in Sources */,
 				9DBB65AD2437C02BA4AB5995 /* Age.swift in Sources */,
+				780ED3C778C8151F093DE84E /* PwNode.swift in Sources */,
+				488BC80BAAE8375F6CD6CAFF /* AppState.swift in Sources */,
+				203090709CA3B8456B9363A7 /* Globals.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

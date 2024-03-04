@@ -5,6 +5,7 @@
 //!                  This should be in the ascii-armored format, i.e. created with `age -a`
 
 use std::io::{Read, Write}; // For .read_to_end() and .write_all()
+use std::time::SystemTime;
 
 use crate::{error,log,level_to_color,log_prefix};
 use crate::age_error::AgeError;
@@ -16,15 +17,13 @@ use zeroize::Zeroize;
 pub struct AgeState {
     /// Identity to use for decryption
     identity: Option<age::x25519::Identity>,
-    /// When the identity was loaded
-    created: std::time::SystemTime
+    /// Timestamp when the identity was unlocked
+    pub unlock_timestamp: Option<SystemTime>
 }
 
 impl AgeState {
     pub fn default() -> Self {
-        Self { identity: None,
-               created: std::time::SystemTime::UNIX_EPOCH
-        }
+        Self { identity: None, unlock_timestamp: None }
     }
 
     fn decrypt_passphrase_armored(&mut self,
@@ -59,7 +58,7 @@ impl AgeState {
         if let Some(key) = age_key.split('\n').filter(|a| { !a.starts_with("#") }).next() {
             if let Ok(identity) = key.parse::<age::x25519::Identity>() {
                 self.identity = Some(identity);
-                self.created = std::time::SystemTime::now();
+                self.unlock_timestamp = Some(SystemTime::now());
                 age_key.zeroize();
                 return Ok(())
             };
@@ -71,7 +70,7 @@ impl AgeState {
 
     pub fn lock_identity(&mut self) {
         self.identity = None;
-        self.created = std::time::SystemTime::UNIX_EPOCH;
+        self.unlock_timestamp = None;
     }
 
     pub fn decrypt(&self, ciphertext: &[u8]) -> Result<Vec<u8>,AgeError> {
@@ -139,6 +138,7 @@ mod tests {
     use super::*;
     use crate::error;
     use age;
+    use std::time::SystemTime;
 
     const PLAINTEXT: &str = "!\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
     const PASSPHRASE: &str = "pass: !#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
@@ -157,7 +157,7 @@ mod tests {
         let identity = age::x25519::Identity::generate();
         let pubkey = identity.to_public();
         let state = AgeState { identity: Some(identity),
-                               created: std::time::SystemTime::now() };
+                               unlock_timestamp: Some(SystemTime::now()) };
 
         let ciphertext = state.encrypt(PLAINTEXT, pubkey.to_string().as_str());
         assert_ok(&ciphertext);
@@ -176,7 +176,7 @@ mod tests {
         let key = "AGE-SECRET-KEY-1P5R9D3F743XGQJDQ02DR8PE2AVFCLKALYXRE4SP0YMYW9PTYW2TQPPDKFW";
         let pubkey = "age1ganl3gcyvjlnyh9373knv5du2hlhuafg6tp0elsz43q7fqu60s7qqural4";
         let mut state = AgeState { identity: None,
-                                   created: std::time::SystemTime::now() };
+                                   unlock_timestamp: None };
 
         // Encrypt data with the public key
         let ciphertext = state.encrypt(PLAINTEXT, pubkey);

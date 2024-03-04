@@ -26,6 +26,10 @@ public func ffi_age_unlock_identity(encryptedIdentity: UnsafePointer<CChar>,
 @_silgen_name("ffi_age_lock_identity")
 public func ffi_age_lock_identity() -> CInt
 
+@_silgen_name("ffi_age_unlock_timestamp")
+public func ffi_age_unlock_timestamp() -> CUnsignedLongLong
+
+
 @_silgen_name("ffi_age_encrypt")
 public func ffi_age_encrypt(plaintext: UnsafePointer<CChar>,
                             recepient: UnsafePointer<CChar>,

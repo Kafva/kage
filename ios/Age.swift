@@ -1,8 +1,11 @@
 import Foundation
 
-let OUT_SIZE: CInt = 2048
 
 struct Age {
+    static func unlockTimestamp() -> UInt64 {
+        return ffi_age_unlock_timestamp()
+    }
+
     static func unlockIdentity(_ encryptedIdentity: URL,
                                passphrase: String) -> Bool {
         do {
@@ -15,12 +18,12 @@ struct Age {
                                             passphrase: passphraseC)
 
             if r == 0 {
-                logger.info("OK: identity unlocked")
+                LOGGER.info("OK: identity unlocked")
                 return true
             }
 
         } catch {
-            logger.error("\(error)")
+            LOGGER.error("\(error)")
         }
 
         return false
@@ -30,7 +33,7 @@ struct Age {
         let r = ffi_age_lock_identity()
 
         if r == 0 {
-            logger.info("OK: identity locked")
+            LOGGER.info("OK: identity locked")
             return true
         }
         return false
@@ -39,12 +42,13 @@ struct Age {
     static func decrypt(_ at: URL) -> String {
         do {
             let pathC = try at.path().toCString()
-            let outC = UnsafeMutableRawPointer.allocate(byteCount: Int(OUT_SIZE),
+            let outC = UnsafeMutableRawPointer.allocate(byteCount:
+                                                        Int(AGE_DECRYPT_OUT_SIZE),
                                                         alignment: 1)
 
             let written = ffi_age_decrypt(encryptedFilepath: pathC,
                                           out: outC,
-                                          outsize: OUT_SIZE)
+                                          outsize: AGE_DECRYPT_OUT_SIZE)
 
             if written > 0 {
                 let data = Data(bytes: outC, count: Int(written))
@@ -59,10 +63,10 @@ struct Age {
             }
 
             outC.deallocate()
-            logger.error("Decryption failed: \(Int(written))")
+            LOGGER.error("Decryption failed: \(Int(written))")
 
         } catch {
-            logger.error("\(error)")
+            LOGGER.error("\(error)")
         }
 
         return ""
@@ -86,7 +90,7 @@ struct Age {
                                     outpath: outpathC)
             return r == 0
         } catch {
-            logger.error("\(error)")
+            LOGGER.error("\(error)")
         }
         return false
     }

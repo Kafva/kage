@@ -6,16 +6,16 @@ struct Git {
             let intoC = try into.path().toCString()
             let urlC = try remote.toCString()
 
-            logger.debug("Cloning from: \(remote)")
+            LOGGER.debug("Cloning from: \(remote)")
             let r = ffi_git_clone(urlC, into: intoC);
             if r != 0 {
-                logger.error("git clone failed: \(r)")
+                LOGGER.error("git clone failed: \(r)")
                 return
             }
-            logger.debug("git clone OK")
+            LOGGER.debug("git clone OK")
 
         } catch {
-            logger.error("\(error)")
+            LOGGER.error("\(error)")
         }
     }
 
@@ -26,7 +26,7 @@ struct Git {
 
             return ffi_git_commit(repoC, message: messageC) == 0
         } catch {
-            logger.error("\(error)")
+            LOGGER.error("\(error)")
         }
 
         return false
@@ -39,7 +39,7 @@ struct Git {
 
             return ffi_git_add(repoC, relativePath: relativePathC) == 0
         } catch {
-            logger.error("\(error)")
+            LOGGER.error("\(error)")
         }
 
         return false
@@ -51,7 +51,7 @@ struct Git {
             return ffi_git_pull(repoC) == 0
 
         } catch {
-            logger.error("\(error)")
+            LOGGER.error("\(error)")
         }
 
         return false
@@ -63,7 +63,7 @@ struct Git {
             return ffi_git_push(repoC) == 0
 
         } catch {
-            logger.error("\(error)")
+            LOGGER.error("\(error)")
         }
 
         return false

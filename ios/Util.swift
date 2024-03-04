@@ -27,10 +27,6 @@ extension FileManager {
         return urls[0]
     }
 
-    var gitDirectory: URL {
-        return self.appDataDirectory.appending(path: "git")
-    }
-
     func isDir(_ at: URL) -> Bool {
         return access(at, expectDirectory: true)
     }

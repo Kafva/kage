@@ -30,81 +30,25 @@ import OSLog
 //  - version info
 
 
-struct PwNode: Identifiable {
-    let id = UUID()
-    let url: URL
-    let children: [PwNode]?
-
-    var name: String {
-         return url.deletingPathExtension().lastPathComponent
-    }
-
-    var isFile: Bool {
-        return (children ?? []).isEmpty
-    }
-
-    static func loadChildren(_ fromDir: URL) throws -> Self {
-        var children: [Self] = []
-
-        for url in try FileManager.default.ls(fromDir) {
-            let node = FileManager.default.isDir(url) ?
-                                try loadChildren(url) :
-                                PwNode(url: url, children: nil)
-
-            children.append(node)
-        }
-
-        return PwNode(url: fromDir, children: children)
-    }
-
-    func show() {
-        if !self.isFile {
-            return
-        }
-
-        let clock = ContinuousClock()
-        let elapsed = clock.measure {
-            logger.info("Decryption: BEGIN")
-            let plaintext = Age.decrypt(self.url)
-            logger.info("Decrypted: '\(plaintext)'")
-        }
-        logger.info("Decryption: END [\(elapsed)]")
-    }
-}
 
 struct AppView: View {
     @AppStorage("remote") private var remote: String = ""
+    @EnvironmentObject var appState: AppState
     @State private var searchText = ""
     @State private var gitTree: [PwNode] = []
-    let gitDir = FileManager.default.gitDirectory
 
     var searchResults: [PwNode] {
         if searchText.isEmpty {
             return gitTree
         } else {
-            return gitTree // TODO
-            //return gitTree.filter { $0.contains(searchText) }
+            let rootNode = PwNode(url: GIT_DIR, children: gitTree)
+            return rootNode.findChildren(predicate: searchText)
         }
     }
 
     var body: some View {
         NavigationStack {
             VStack(alignment: .center, spacing: 20) {
-                NavigationLink {
-                    SettingsView()
-                } label: {
-                    Image(systemName: "gear")
-                }
-
-                Text("Unlock").onTapGesture {
-                    let encryptedIdentity = gitDir.appending(path: ".age-identities")
-                    let _ = Age.unlockIdentity(encryptedIdentity, passphrase: "x")
-                }
-
-                Text("Lock").onTapGesture {
-                    let _ = Age.lockIdentity()
-                }
-
                 List(searchResults, children: \.children) { node in
                     Text("\(node.name)")
                         .font(.system(size: 24))
@@ -113,17 +57,55 @@ struct AppView: View {
                         }
                 }
                 .searchable(text: $searchText)
+                .toolbar {
+                    ToolbarItem(placement: .bottomBar) {
+                        Button {
+                            let _ = Git.pull(GIT_DIR)
+                        } label: {
+                            Image(systemName: "arrow.down.circle").bold()
+                        }
+                    }
+                    ToolbarItem(placement: .bottomBar) {
+                        Button {
+                            LOGGER.info("TODO")
+                        } label: {
+                            Image(systemName: "plus.circle").bold()
+                        }
+                    }
+
+                    ToolbarItem(placement: .bottomBar) {
+                        Button {
+                            if appState.identityIsUnlocked {
+                                let _ = appState.lockIdentity()
+                            } else {
+                                let _ = appState.unlockIdentity(passphrase: "x")
+                            }
+                        } label: {
+                            let systemName = appState.identityIsUnlocked ? "lock.open.fill" : 
+                                                                           "lock.fill"
+                            Image(systemName: systemName).bold()
+                        }
+                    }
+
+                    ToolbarItem(placement: .bottomBar) {
+                        NavigationLink {
+                            SettingsView()
+                        } label: {
+                            Image(systemName: "gearshape.circle").bold()
+                        }
+                    }
+                }
             }
         }
         .padding()
         .onAppear {
             do {
-                try? FileManager.default.removeItem(at: gitDir)
-                Git.clone(remote: remote,  into: gitDir)
-                gitTree = (try PwNode.loadChildren(gitDir)).children ?? []
+                try? FileManager.default.removeItem(at: GIT_DIR)
+                Git.clone(remote: remote,  into: GIT_DIR)
+                gitTree = (try PwNode.loadChildren(GIT_DIR)).children ?? []
 
             } catch {
-                logger.error("\(error)")
+                LOGGER.error("\(error)")
             }
         }
     }

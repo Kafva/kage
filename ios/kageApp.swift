@@ -1,13 +1,10 @@
 import SwiftUI
 import OSLog
 
-let logger = Logger(subsystem: Bundle.main.bundleIdentifier!,
-                    category: "generic")
-
 @main
 struct kageApp: App {
-    @AppStorage("tint") private var tint: String = ""
     @AppStorage("remote") private var remote: String = ""
+    @StateObject private var appState: AppState = AppState()
 
     var body: some Scene {
         WindowGroup {
@@ -21,7 +18,7 @@ struct kageApp: App {
 #endif
                 }
             }
-            .tint(tint == "Red" ? Color.red : Color.blue)
+            .environmentObject(appState)
         }
     }
 }
