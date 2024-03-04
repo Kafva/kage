@@ -41,7 +41,8 @@ struct AppView: View {
         if searchText.isEmpty {
             return gitTree
         } else {
-            let rootNode = PwNode(url: GIT_DIR, children: gitTree)
+            // TODO do not show sibilings of match
+            let rootNode = PwNode(url: G.gitDir, children: gitTree)
             return rootNode.findChildren(predicate: searchText)
         }
     }
@@ -60,14 +61,14 @@ struct AppView: View {
                 .toolbar {
                     ToolbarItem(placement: .bottomBar) {
                         Button {
-                            let _ = Git.pull(GIT_DIR)
+                            let _ = Git.pull(G.gitDir)
                         } label: {
                             Image(systemName: "arrow.down.circle").bold()
                         }
                     }
                     ToolbarItem(placement: .bottomBar) {
                         Button {
-                            LOGGER.info("TODO")
+                            G.logger.info("TODO")
                         } label: {
                             Image(systemName: "plus.circle").bold()
                         }
@@ -100,12 +101,20 @@ struct AppView: View {
         .padding()
         .onAppear {
             do {
-                try? FileManager.default.removeItem(at: GIT_DIR)
-                Git.clone(remote: remote,  into: GIT_DIR)
-                gitTree = (try PwNode.loadChildren(GIT_DIR)).children ?? []
+                if remote.isEmpty {
+#if targetEnvironment(simulator)
+                    remote = "git://127.0.0.1/james"
+#else
+                    remote = "git://10.0.1.8/james"
+#endif
+                }
+
+                try? FileManager.default.removeItem(at: G.gitDir)
+                Git.clone(remote: remote,  into: G.gitDir)
+                gitTree = (try PwNode.loadChildren(G.gitDir)).children ?? []
 
             } catch {
-                LOGGER.error("\(error)")
+                G.logger.error("\(error)")
             }
         }
     }

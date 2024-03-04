@@ -18,12 +18,12 @@ struct Age {
                                             passphrase: passphraseC)
 
             if r == 0 {
-                LOGGER.info("OK: identity unlocked")
+                G.logger.info("OK: identity unlocked")
                 return true
             }
 
         } catch {
-            LOGGER.error("\(error)")
+            G.logger.error("\(error)")
         }
 
         return false
@@ -33,7 +33,7 @@ struct Age {
         let r = ffi_age_lock_identity()
 
         if r == 0 {
-            LOGGER.info("OK: identity locked")
+            G.logger.info("OK: identity locked")
             return true
         }
         return false
@@ -43,12 +43,12 @@ struct Age {
         do {
             let pathC = try at.path().toCString()
             let outC = UnsafeMutableRawPointer.allocate(byteCount:
-                                                        Int(AGE_DECRYPT_OUT_SIZE),
+                                                        Int(G.ageDecryptOutSize),
                                                         alignment: 1)
 
             let written = ffi_age_decrypt(encryptedFilepath: pathC,
                                           out: outC,
-                                          outsize: AGE_DECRYPT_OUT_SIZE)
+                                          outsize: G.ageDecryptOutSize)
 
             if written > 0 {
                 let data = Data(bytes: outC, count: Int(written))
@@ -63,10 +63,10 @@ struct Age {
             }
 
             outC.deallocate()
-            LOGGER.error("Decryption failed: \(Int(written))")
+            G.logger.error("Decryption failed: \(Int(written))")
 
         } catch {
-            LOGGER.error("\(error)")
+            G.logger.error("\(error)")
         }
 
         return ""
@@ -90,7 +90,7 @@ struct Age {
                                     outpath: outpathC)
             return r == 0
         } catch {
-            LOGGER.error("\(error)")
+            G.logger.error("\(error)")
         }
         return false
     }

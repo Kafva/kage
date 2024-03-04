@@ -9,17 +9,17 @@ struct SettingsView: View {
         VStack(alignment: .center, spacing: 20) {
             Text("Clone").onTapGesture {
                 // TODO progress view
-                try? FileManager.default.removeItem(at: GIT_DIR)
-                Git.clone(remote: remote, into: GIT_DIR);
+                try? FileManager.default.removeItem(at: G.gitDir)
+                Git.clone(remote: remote, into: G.gitDir);
             }
 
             Text("Pull").onTapGesture {
-                Git.pull(GIT_DIR);
+                Git.pull(G.gitDir);
             }
 
             Text("Encrypt").onTapGesture {
-                let recipient = GIT_DIR.appending(path: ".age-recipients")
-                let outpath = GIT_DIR.appending(path: "iOS.age")
+                let recipient = G.gitDir.appending(path: ".age-recipients")
+                let outpath = G.gitDir.appending(path: "iOS.age")
                 let _ = Age.encrypt(recipient: recipient,
                                     outpath: outpath,
                                     plaintext: "wow")

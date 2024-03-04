@@ -56,11 +56,11 @@ struct PwNode: Identifiable {
 
         let clock = ContinuousClock()
         let elapsed = clock.measure {
-            LOGGER.info("Decryption: BEGIN")
+            G.logger.info("Decryption: BEGIN")
             let plaintext = Age.decrypt(self.url)
-            LOGGER.info("Decrypted: '\(plaintext)'")
+            G.logger.info("Decrypted: '\(plaintext)'")
         }
-        LOGGER.info("Decryption: END [\(elapsed)]")
+        G.logger.info("Decryption: END [\(elapsed)]")
     }
 }
 
