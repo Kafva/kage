@@ -132,7 +132,6 @@ impl AgeState {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::*;

@@ -1,8 +1,9 @@
 use std::path::Path;
+
 use git2::{RemoteCallbacks,FetchOptions,Repository};
 use git2::build::{CheckoutBuilder,RepoBuilder};
 
-use crate::{level_to_color,log_prefix,log,debug};
+use crate::*;
 
 const GIT_REMOTE: &'static str = "origin";
 const GIT_BRANCH: &'static str = "main";
@@ -21,7 +22,7 @@ pub fn git_pull(repo_path: &str) -> Result<(),git2::Error> {
     remote.fetch(&[GIT_BRANCH], Some(&mut fopts), None)?;
 
     // Update the local checkout to use the remote head (fast-forward)
-    let remote_origin_head = repo.revparse_single(&format!("{}/{}", GIT_REMOTE, GIT_BRANCH))?.id();
+    let remote_origin_head = remote_branch_oid(&repo)?;
     let remote_origin_head = repo.find_annotated_commit(remote_origin_head)?;
 
     let analysis = repo.merge_analysis(&[&remote_origin_head])?;
@@ -120,6 +121,32 @@ pub fn git_clone(url: &str, into: &str) -> Result<(), git2::Error> {
     Ok(())
 }
 
+/// Returns true if there are no uncommitted changes and nothing to push
+pub fn git_index_has_local_changes(repo_path: &str) -> Result<bool, git2::Error> {
+    let repo = Repository::open(repo_path)?;
+    let head = repo.head()?;
+    let statuses = repo.statuses(None)?;
+
+    let is_clean = statuses.iter().all(|entry| {
+        let status = entry.status();
+        status.is_empty()
+    });
+
+    let remote_oid = remote_branch_oid(&repo)?;
+    let Some(local_oid) = head.target() else {
+        warn!("Could not determine local HEAD");
+        return Ok(false)
+    };
+
+    Ok(!is_clean || local_oid != remote_oid)
+}
+
+fn remote_branch_oid(repo: &git2::Repository) -> Result<git2::Oid, git2::Error> {
+    let spec = format!("{}/{}", GIT_REMOTE, GIT_BRANCH);
+    let id = repo.revparse_single(&spec)?.id();
+    Ok(id)
+}
+
 fn transfer_progress(progress: git2::Progress, label: &str) -> bool {
     let total = progress.total_objects();
     let total_deltas = progress.total_deltas();
@@ -155,7 +182,7 @@ mod tests {
     use std::process::Command;
     use std::time::{SystemTime, UNIX_EPOCH};
 
-    const CHECKOUT: &'static str = "../git/kage-client/james";
+    const REPO_PATH: &'static str = "../git/kage-client/james";
     const EXTERNAL_CHECKOUT: &'static str = "/tmp/james";
 
     fn touch(path: &str) -> Result<fs::File, std::io::Error> {
@@ -191,17 +218,23 @@ mod tests {
         let externalfile = format!("externalfile-{}", now.as_secs());
 
         // Test: clone -> add -> commit -> push
-        clone(CHECKOUT);
+        clone(REPO_PATH);
 
-        touch(format!("{}/{}", CHECKOUT, newfile).as_str()).expect("touch failed");
-        assert_ok(git_add(CHECKOUT, &newfile));
+        // Add
+        touch(format!("{}/{}", REPO_PATH, newfile).as_str()).expect("touch failed");
+        assert_ok(git_add(REPO_PATH, &newfile));
+        assert_eq!(git_index_has_local_changes(REPO_PATH).unwrap(), true);
 
-        assert_ok(git_commit(CHECKOUT, format!("Adding {}", newfile).as_str()));
+        // Commit
+        assert_ok(git_commit(REPO_PATH, format!("Adding {}", newfile).as_str()));
+        assert_eq!(git_index_has_local_changes(REPO_PATH).unwrap(), true);
 
-        assert_ok(git_push(CHECKOUT));
+        // Push
+        assert_ok(git_push(REPO_PATH));
+        assert_eq!(git_index_has_local_changes(REPO_PATH).unwrap(), false);
 
         // Nothing to do
-        assert_ok(git_pull(CHECKOUT));
+        assert_ok(git_pull(REPO_PATH));
 
         // Clone into a new location, add, commit and push from here
         clone(EXTERNAL_CHECKOUT);
@@ -233,6 +266,6 @@ mod tests {
         assert!(status.success());
 
         // Pull in external updates
-        assert_ok(git_pull(CHECKOUT));
+        assert_ok(git_pull(REPO_PATH));
     }
 }

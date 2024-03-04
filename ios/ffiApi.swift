@@ -18,6 +18,8 @@ public func ffi_git_pull(_ repo: UnsafePointer<CChar>) -> CInt
 @_silgen_name("ffi_git_push")
 public func ffi_git_push(_ repo: UnsafePointer<CChar>) -> CInt
 
+@_silgen_name("ffi_git_index_has_local_changes")
+public func ffi_git_index_has_local_changes(_ repo: UnsafePointer<CChar>) -> CInt
 
 @_silgen_name("ffi_age_unlock_identity")
 public func ffi_age_unlock_identity(encryptedIdentity: UnsafePointer<CChar>,

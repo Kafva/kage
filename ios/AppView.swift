@@ -54,18 +54,30 @@ struct AppView: View {
                     Text("\(node.name)")
                         .font(.system(size: 24))
                         .onTapGesture {
-                            node.show()
+                            node.showPlaintext()
+                        }
+                        .swipeActions(allowsFullSwipe: false) {
+                            Button(action: {
+                                handleGitRemove(node: node)
+                            }) {
+                                Image(systemName: "xmark")
+                            }
+                            .tint(.red)
                         }
                 }
                 .searchable(text: $searchText)
                 .toolbar {
                     ToolbarItem(placement: .bottomBar) {
                         Button {
-                            let _ = Git.pull(G.gitDir)
+                            handleGitSync()
                         } label: {
-                            Image(systemName: "arrow.down.circle").bold()
+                            let systemName = Git.indexHasLocalChanges() ?
+                                                        "icloud.and.arrow.up" :
+                                                        "icloud.and.arrow.down"
+                            Image(systemName: systemName).bold()
                         }
                     }
+
                     ToolbarItem(placement: .bottomBar) {
                         Button {
                             G.logger.info("TODO")
@@ -82,7 +94,7 @@ struct AppView: View {
                                 let _ = appState.unlockIdentity(passphrase: "x")
                             }
                         } label: {
-                            let systemName = appState.identityIsUnlocked ? "lock.open.fill" : 
+                            let systemName = appState.identityIsUnlocked ? "lock.open.fill" :
                                                                            "lock.fill"
                             Image(systemName: systemName).bold()
                         }
@@ -100,22 +112,44 @@ struct AppView: View {
         }
         .padding()
         .onAppear {
-            do {
-                if remote.isEmpty {
+            if remote.isEmpty {
 #if targetEnvironment(simulator)
-                    remote = "git://127.0.0.1/james"
+                remote = "git://127.0.0.1/james"
 #else
-                    remote = "git://10.0.1.8/james"
+                remote = "git://10.0.1.8/james"
 #endif
-                }
-
-                try? FileManager.default.removeItem(at: G.gitDir)
-                Git.clone(remote: remote,  into: G.gitDir)
-                gitTree = (try PwNode.loadChildren(G.gitDir)).children ?? []
-
-            } catch {
-                G.logger.error("\(error)")
             }
+
+            try? FileManager.default.removeItem(at: G.gitDir)
+            Git.clone(remote: remote)
+            loadGitTree()
+        }
+    }
+
+    private func loadGitTree() {
+        do {
+            gitTree = (try PwNode.loadFrom(G.gitDir)).children ?? []
+        } catch {
+            G.logger.error("\(error)")
+        }
+    }
+
+    private func handleGitSync() {
+        if Git.indexHasLocalChanges() {
+            let _ = Git.push()
+        } else {
+            let _ = Git.pull()
+            loadGitTree()
+        }
+    }
+
+    private func handleGitRemove(node: PwNode) {
+        do {
+            try FileManager.default.removeItem(at: node.url)
+            let _ = Git.add(relativePath: ".")
+
+        } catch {
+            G.logger.error("\(error)")
         }
     }
 }

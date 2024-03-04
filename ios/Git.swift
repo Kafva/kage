@@ -1,13 +1,15 @@
 import Foundation
 
 struct Git {
-    static func clone(remote: String, into: URL) {
+    static let repo = G.gitDir
+
+    static func clone(remote: String) {
         do {
-            let intoC = try into.path().toCString()
+            let repoC = try repo.path().toCString()
             let urlC = try remote.toCString()
 
             G.logger.debug("Cloning from: \(remote)")
-            let r = ffi_git_clone(urlC, into: intoC);
+            let r = ffi_git_clone(urlC, into: repoC);
             if r != 0 {
                 G.logger.error("git clone failed: \(r)")
                 return
@@ -19,7 +21,7 @@ struct Git {
         }
     }
 
-    static func commit(_ repo: URL, message: String) -> Bool {
+    static func commit(message: String) -> Bool {
         do {
             let repoC = try repo.path().toCString()
             let messageC = try message.toCString()
@@ -32,7 +34,7 @@ struct Git {
         return false
     }
 
-    static func add(_ repo: URL, relativePath: String) -> Bool {
+    static func add(relativePath: String) -> Bool {
         do {
             let repoC = try repo.path().toCString()
             let relativePathC = try relativePath.toCString()
@@ -45,7 +47,7 @@ struct Git {
         return false
     }
 
-    static func pull(_ repo: URL) -> Bool {
+    static func pull() -> Bool {
         do {
             let repoC = try repo.path().toCString()
             return ffi_git_pull(repoC) == 0
@@ -57,10 +59,22 @@ struct Git {
         return false
     }
 
-    static func push(_ repo: URL) -> Bool {
+    static func push() -> Bool {
         do {
             let repoC = try repo.path().toCString()
             return ffi_git_push(repoC) == 0
+
+        } catch {
+            G.logger.error("\(error)")
+        }
+
+        return false
+    }
+
+    static func indexHasLocalChanges() -> Bool {
+        do {
+            let repoC = try repo.path().toCString()
+            return ffi_git_index_has_local_changes(repoC) == 1
 
         } catch {
             G.logger.error("\(error)")

@@ -77,3 +77,20 @@ pub extern "C" fn ffi_git_commit(repo_path: *const c_char,
     ffi_git_call!(git_commit(repo_path, message))
 }
 
+#[no_mangle]
+pub extern "C" fn ffi_git_index_has_local_changes(repo_path: *const c_char) -> c_int {
+    let repo_path = unsafe { CStr::from_ptr(repo_path).to_str() };
+
+    let Ok(repo_path) = repo_path else {
+        return -1
+    };
+
+    match git_index_has_local_changes(repo_path) {
+        Ok(has_changes) => has_changes as c_int,
+        Err(err) => {
+            error!("{}", err);
+            err.raw_code() as c_int
+        }
+    }
+}
+
