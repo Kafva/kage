@@ -1,5 +1,6 @@
 # vi: ft=gitignore
 
+/build
 /git
 /log
 /.bundle
