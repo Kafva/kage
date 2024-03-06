@@ -10,14 +10,10 @@ CONFIGURATION=${CONFIGURATION:-Debug}
 
 PATH="$PATH:$HOME/.cargo/bin"
 LIB="libkage_core.a"
-OUT="$SOURCE_ROOT/out"
 
 # Always build for release.
 CARGO_BUILDTYPE=release
 CARGO_FLAGS=" --release"
-
-rm -rf "$OUT"
-mkdir -p "$OUT"
 
 case "$PLATFORM_DISPLAY_NAME" in
 "iOS Simulator")
@@ -42,5 +38,6 @@ esac
 (cd $SOURCE_ROOT/kage-core &&
     cargo build ${CARGO_FLAGS} --target ${CARGO_TARGET})
 
+mkdir -p "$SOURCE_ROOT/kage-core/dist"
 cp "$SOURCE_ROOT/kage-core/target/${CARGO_TARGET}/${CARGO_BUILDTYPE}/$LIB" \
-   "$OUT/$LIB"
+   "$SOURCE_ROOT/kage-core/dist/$LIB"
