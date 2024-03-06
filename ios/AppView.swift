@@ -13,20 +13,6 @@ import OSLog
 //  * Pull / Push
 //  * No conflict resolution, option to start over OR force push
 
-enum AlertType {
-    case plaintext
-    case authentication
-
-    func title(targetNode: PwNode?) -> String {
-        switch (self) {
-            case .plaintext:
-                 return "\(targetNode?.name ?? "No name")"
-            case .authentication:
-                 return "Authentication required"
-        }
-    }
-}
-
 struct AppView: View {
     @AppStorage("remote") private var remote: String = ""
 
@@ -35,9 +21,9 @@ struct AppView: View {
     @State private var searchText = ""
 
     @State private var targetNode: PwNode?
-    @State private var alertType: AlertType?
 
-    @State private var showAlert: Bool = false
+    @State private var showAuthentication: Bool = false
+    @State private var showPlaintext: Bool = false
     @State private var showSettings = false
     @State private var showNewPassword = false
 
@@ -53,11 +39,6 @@ struct AppView: View {
         }
     }
 
-    private func setAlert(_ value: AlertType?) {
-        alertType = value
-        showAlert = value != nil
-    }
- 
     private func handleShowPlaintext() {
         guard let targetNode else {
             G.logger.debug("No target node set")
@@ -68,7 +49,8 @@ struct AppView: View {
             return
         }
         plaintext = value
-        setAlert(.plaintext)
+        showAuthentication = false
+        showPlaintext = true
     }
 
     private var listView: some View {
@@ -79,7 +61,7 @@ struct AppView: View {
                 .onTapGesture {
                     targetNode = node
                     if !appState.identityIsUnlocked {
-                        setAlert(.authentication)
+                        showAuthentication = true
                     } else {
                         handleShowPlaintext()
                     }
@@ -99,6 +81,7 @@ struct AppView: View {
             ToolbarItemGroup(placement: .bottomBar) {
                 // TODO: only show when index is dirty and can't connect to
                 // server
+                // TODO use appstate
                 if Git.indexHasLocalChanges() {
                     Button {
                         let _ = Git.push()
@@ -116,40 +99,49 @@ struct AppView: View {
                 } label: {
                     Image(systemName: "gearshape.circle").bold()
                 }
+
+                Button {
+                    if appState.identityIsUnlocked {
+                        let _ = appState.lockIdentity()
+                    } else {
+                        showAuthentication = true
+                    }
+                } label: {
+                    let systemName =  appState.identityIsUnlocked ?
+                                        "lock.open.fill" : "lock.fill"
+                    Image(systemName: systemName).bold()
+                }
             }
         }
     }
 
     var body: some View {
-        let alertTitle = alertType?.title(targetNode: targetNode) ?? ""
         NavigationStack {
             listView
         }
-        .alert(alertTitle, isPresented: $showAlert) {
-            if let alertType {
-                switch (alertType) {
-                    case .plaintext:
-                        VStack {
-                            Text(plaintext) 
-                            Button("Close", role: .cancel) {
-                                setAlert(nil)
-                            }
-                        }
-                    case .authentication:
-                        SecureField("", text: $passphrase)
-
-                        Button("Submit") {
-                            if !appState.unlockIdentity(passphrase: passphrase) {
-                                G.logger.debug("Incorrect password")
-                                return
-                            }
-                            handleShowPlaintext()
-                        }
-                }
+        .alert("", isPresented: $showPlaintext) {
+            // TODO folders should not trigger unlockIdentity
+            // TODO do not use an alert for this...
+            Text("\(targetNode?.name ?? "Plaintext")")
+            Text(plaintext).bold().monospaced().foregroundColor(.black)
+            //Text(" ")
+            Button("Close", role: .cancel) {
+                showPlaintext = false
             }
         }
-        .popover(isPresented: $showNewPassword) { 
-            NewPasswordView(targetNode: $targetNode) 
+        .alert("Authentication required", isPresented: $showAuthentication) {
+            SecureField("", text: $passphrase)
+
+            Button("Submit") {
+                if !appState.unlockIdentity(passphrase: passphrase) {
+                    G.logger.debug("Incorrect password")
+                    return
+                }
+                handleShowPlaintext()
+            }
+        }
+        .popover(isPresented: $showNewPassword) {
+            NewPasswordView(targetNode: $targetNode)
         }
         .popover(isPresented: $showSettings) { SettingsView() }
         .onAppear {
