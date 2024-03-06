@@ -1,0 +1,5 @@
+project: kage.xcodeproj
+schemes:
+- kage
+targets:
+- kage
