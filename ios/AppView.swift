@@ -119,7 +119,7 @@ struct AppView: View {
     }
 
     private var authenticationView: some View {
-        VStack(alignment: .center) {
+        VStack(alignment: .center, spacing: 5) {
             Text("Authentication required")
             SecureField("Passphrase", text: $passphrase)
                 .textFieldStyle(.roundedBorder)
@@ -130,6 +130,23 @@ struct AppView: View {
                     }
                     handleShowPlaintext()
             }
+            .padding(.bottom, 20)
+            HStack {
+                Button("Cancel") {
+                    showAuthentication = false
+                }
+                .padding(.leading, 10)
+                Spacer()
+                Button("Ok") {
+                    if !appState.unlockIdentity(passphrase: passphrase) {
+                        G.logger.debug("Incorrect password")
+                        return
+                    }
+                    handleShowPlaintext()
+                }
+                .padding(.trailing, 10)
+            }
+            .font(.system(size: 18))
         }
     }
 
@@ -142,6 +159,9 @@ struct AppView: View {
                        .underline(color: .accentColor)
 
             Text(plaintext).bold().monospaced()
+            .padding(.bottom, 20)
+
+
 
             Button {
                 UIPasteboard.general.string = plaintext
@@ -149,6 +169,13 @@ struct AppView: View {
             } label: {
                 Image(systemName: "doc.on.clipboard").bold()
             }
+            .padding(.bottom, 10)
+            .font(.system(size: 18))
+
+            Button("Dismiss") {
+                showPlaintext = false
+            }
+            .font(.system(size: 18))
         }
     }
 
@@ -158,24 +185,18 @@ struct AppView: View {
         }
         .overlay(OverlayView(showView: $showPlaintext,
                              contentWidth: 0.8 * G.screenWidth,
-                             contentHeight: 0.2 * G.screenHeight) {
+                             contentHeight: 0.3 * G.screenHeight) {
              plaintextView
         })
         .overlay(OverlayView(showView: $showAuthentication,
                              contentWidth: 0.8 * G.screenWidth,
-                             contentHeight: 0.2 * G.screenHeight) {
+                             contentHeight: G.screenHeight) {
              authenticationView
         })
-        .overlay(OverlayView(showView: $showNewPassword,
-                             contentWidth: 0.8 * G.screenWidth,
-                             contentHeight: 0.7 * G.screenHeight) {
+        .popover(isPresented: $showNewPassword) {
             NewPasswordView(targetNode: $targetNode)
-        })
-        .overlay(OverlayView(showView: $showSettings,
-                             contentWidth: 0.8 * G.screenWidth,
-                             contentHeight: 0.7 * G.screenHeight) {
-            SettingsView()
-        })
+        }
+        .popover(isPresented: $showSettings) { SettingsView() }
 
         .onAppear {
 #if DEBUG && targetEnvironment(simulator)
@@ -215,20 +236,7 @@ private struct OverlayView<Content: View>: View {
     var body: some View {
         ZStack {
             if showView {
-                // Tap background to exit
                 Color(UIColor.systemBackground).opacity(0.8)
-                                               .onTapGesture {
-                                                   showView = false
-                                               }
-                // Container to catch taps and prevent the view from
-                // being unintentionally closed when tapping close to the content.
-                Color(UIColor.systemBackground)
-                                               .frame(width: G.screenWidth,
-                                                      height: contentHeight)
-                                               .opacity(0.01)
-                                               //.border(.red, width: 1)
-                                               .onTapGesture {}
-
                 content
                 .frame(width: contentWidth, height: contentHeight)
             }
