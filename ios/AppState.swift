@@ -3,6 +3,7 @@ import SwiftUI
 class AppState: ObservableObject {
     @Published var identityIsUnlocked: Bool = false
     @Published var rootNode: PwNode = PwNode(url: G.gitDir, children: [])
+    @Published var hasLocalChanges: Bool = false
 
     func loadGitTree() {
         do {

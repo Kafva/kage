@@ -63,8 +63,6 @@ struct NewPasswordView: View {
                 Image(systemName: "key.viewfinder").bold()
             }.controlSize(.large)
         }
-        
-        .frame(width: 0.8 * G.screenWidth)
     }
 
     private func addPassword(password: String) {

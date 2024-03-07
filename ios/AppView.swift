@@ -59,6 +59,9 @@ struct AppView: View {
             Text("\(node.name)")
                 .font(.system(size: 18))
                 .onTapGesture {
+                    if !node.isLeaf {
+                        return
+                    }
                     targetNode = node
                     if !appState.identityIsUnlocked {
                         showAuthentication = true
@@ -115,35 +118,65 @@ struct AppView: View {
         }
     }
 
+    private var authenticationView: some View {
+        VStack(alignment: .center) {
+            Text("Authentication required")
+            SecureField("Passphrase", text: $passphrase)
+                .textFieldStyle(.roundedBorder)
+                .onSubmit {
+                    if !appState.unlockIdentity(passphrase: passphrase) {
+                        G.logger.debug("Incorrect password")
+                        return
+                    }
+                    handleShowPlaintext()
+            }
+        }
+    }
+
+
+    private var plaintextView: some View {
+        VStack(alignment: .center, spacing: 10) {
+            let title = "\(targetNode?.name ?? "Plaintext")"
+            Text(title)
+                       .font(.system(size: 22))
+                       .underline(color: .accentColor)
+
+            Text(plaintext).bold().monospaced()
+
+            Button {
+                UIPasteboard.general.string = plaintext
+                G.logger.debug("Copied '\(title)' to clipboard")
+            } label: {
+                Image(systemName: "doc.on.clipboard").bold()
+            }
+        }
+    }
+
     var body: some View {
         NavigationStack {
             listView
         }
-        .alert("", isPresented: $showPlaintext) {
-            // TODO folders should not trigger unlockIdentity
-            // TODO do not use an alert for this...
-            Text("\(targetNode?.name ?? "Plaintext")")
-            Text(plaintext).bold().monospaced().foregroundColor(.black)
-            //Text(" ")
-            Button("Close", role: .cancel) {
-                showPlaintext = false
-            }
-        }
-        .alert("Authentication required", isPresented: $showAuthentication) {
-            SecureField("", text: $passphrase)
-
-            Button("Submit") {
-                if !appState.unlockIdentity(passphrase: passphrase) {
-                    G.logger.debug("Incorrect password")
-                    return
-                }
-                handleShowPlaintext()
-            }
-        }
-        .popover(isPresented: $showNewPassword) {
+        .overlay(OverlayView(showView: $showPlaintext,
+                             contentWidth: 0.8 * G.screenWidth,
+                             contentHeight: 0.2 * G.screenHeight) {
+             plaintextView
+        })
+        .overlay(OverlayView(showView: $showAuthentication,
+                             contentWidth: 0.8 * G.screenWidth,
+                             contentHeight: 0.2 * G.screenHeight) {
+             authenticationView
+        })
+        .overlay(OverlayView(showView: $showNewPassword,
+                             contentWidth: 0.8 * G.screenWidth,
+                             contentHeight: 0.7 * G.screenHeight) {
             NewPasswordView(targetNode: $targetNode)
-        }
-        .popover(isPresented: $showSettings) { SettingsView() }
+        })
+        .overlay(OverlayView(showView: $showSettings,
+                             contentWidth: 0.8 * G.screenWidth,
+                             contentHeight: 0.7 * G.screenHeight) {
+            SettingsView()
+        })
+
         .onAppear {
 #if DEBUG && targetEnvironment(simulator)
             remote = "git://127.0.0.1/james"
@@ -169,5 +202,37 @@ struct AppView: View {
         } catch {
             G.logger.error("\(error)")
         }
+    }
+}
+
+
+private struct OverlayView<Content: View>: View {
+    @Binding var showView: Bool
+    let contentWidth: CGFloat
+    let contentHeight: CGFloat
+    @ViewBuilder let content: Content
+
+    var body: some View {
+        ZStack {
+            if showView {
+                // Tap background to exit
+                Color(UIColor.systemBackground).opacity(0.8)
+                                               .onTapGesture {
+                                                   showView = false
+                                               }
+                // Container to catch taps and prevent the view from
+                // being unintentionally closed when tapping close to the content.
+                Color(UIColor.systemBackground)
+                                               .frame(width: G.screenWidth,
+                                                      height: contentHeight)
+                                               .opacity(0.01)
+                                               //.border(.red, width: 1)
+                                               .onTapGesture {}
+
+                content
+                .frame(width: contentWidth, height: contentHeight)
+            }
+        }
+        .ignoresSafeArea()
     }
 }
