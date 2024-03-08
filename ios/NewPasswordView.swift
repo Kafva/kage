@@ -14,31 +14,38 @@ struct NewPasswordView: View {
 
     private var completion: String {
         if path.isEmpty {
-            return "Use '/' for folder paths"
+            return " " // "Use '/' for folder paths"
         }
 
         let matches = appState.rootNode.findChildren(predicate: path, 
                                                      onlyFolders: true)
         let result = matches.map { $0.name }.joined(separator: ", ")
 
-        if path.contains("/") && result.isEmpty {
-            return "[New folder(s)]"
-        }
-        else if result.isEmpty {
+        if result.isEmpty {
             return " "
         }
 
         return result
     }
 
+    private var validPasswordPath: Bool {
+        return path.isPrintableASCII
+    }
+
+    private var validPassword: Bool {
+        if generate {
+            return true
+        }
+        return !password.isEmpty &&
+               path.isPrintableASCII &&
+               password == confirmPassword
+    }
 
     var body: some View {
-        VStack(alignment: .center, spacing: 5) {
-            Text("Add a new password").font(.headline).padding(.bottom, 20)
-                                    
-
+        VStack(alignment: .leading, spacing: 20) {
+            Text("New password").font(.system(size: 20)).bold()
             Text(completion).foregroundColor(.gray)
-            TextField("Password path", text: $path).textFieldStyle(.roundedBorder)
+            TextField("New password path", text: $path).textFieldStyle(.roundedBorder)
 
             Toggle(isOn: $generate) {
                 Text("Autogenerate")
@@ -53,27 +60,37 @@ struct NewPasswordView: View {
                          .overlay(underlineColor)
             }
 
-            Button {
-                if password == confirmPassword {
-                    addPassword(password: password)
-                } else {
-                    G.logger.debug("Passwords do not match")
+            VStack(alignment: .center) {
+                Button(action: addPassword) {
+                    Image(systemName: "key.viewfinder").bold().font(.system(size: 34))
                 }
-            } label: {
-                Image(systemName: "key.viewfinder").bold()
-            }.controlSize(.large)
+                .padding([.top, .bottom], 20)
+                .disabled(!validPasswordPath || !validPassword)
+            }
         }
         .frame(width: 0.8 * G.screenWidth)
     }
 
-    private func addPassword(password: String) {
-        let recipient = G.gitDir.appending(path: ".age-recipients")
-        let outpath = G.gitDir.appending(path: "iOS.age")
-        let r = Age.encrypt(recipient: recipient,
+    private func addPassword() {
+        if !validPasswordPath || !validPassword {
+            return
+        }
+
+        do {
+            let recipient = G.gitDir.appending(path: ".age-recipients")
+            let outpath = G.gitDir.appending(path: path)
+
+            try FileManager.default.mkdirp(outpath.deletingLastPathComponent())
+
+            try Age.encrypt(recipient: recipient,
                             outpath: outpath,
                             plaintext: password)
-        if r {
+
+            // Reload git tree with new entry
             appState.loadGitTree()
+            
+        } catch {
+            G.logger.error("\(error)")
         }
     }
 }

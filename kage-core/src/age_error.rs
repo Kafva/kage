@@ -6,14 +6,14 @@
 ///  https://jeltef.github.io/derive_more/derive_more/from.html
 #[derive(Debug)]
 pub enum AgeError {
-    IoError(std::io::Error),
-    EncryptError(age::EncryptError),
-    DecryptError(age::DecryptError),
-    Utf8Error(std::string::FromUtf8Error),
     BadRecepient,
     BadCipherInput,
     BadKey,
     NoIdentity,
+    IoError(std::io::Error),
+    EncryptError(age::EncryptError),
+    DecryptError(age::DecryptError),
+    Utf8Error(std::string::FromUtf8Error),
 }
 
 impl From<std::io::Error> for AgeError {

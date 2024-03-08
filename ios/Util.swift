@@ -3,6 +3,7 @@ import Foundation
 enum AppError: Error, LocalizedError {
     case urlError(String)
     case cStringError
+    case ageError
 
     var errorDescription: String? {
         switch self {
@@ -10,6 +11,8 @@ enum AppError: Error, LocalizedError {
             return "URL parsing failure: \(value)"
         case .cStringError:
             return "Cstring conversion failure"
+        case .ageError:
+            return "Cryptographic operation error"
         }
     }
 }
@@ -30,6 +33,19 @@ extension String {
         return String((0..<length).map { _ in
             "\"!#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~".randomElement()!
         })
+    }
+
+    var isPrintableASCII: Bool {
+        for c in self {
+            guard let ch = c.asciiValue else {
+                return false
+            }
+            if ch < 0x20 || ch > 0x7e {
+                return false
+            }
+        }
+
+        return true
     }
 }
 
@@ -59,6 +75,14 @@ extension FileManager {
         return try self.contentsOfDirectory(at: at,
                                             includingPropertiesForKeys: nil,
                                             options: .skipsHiddenFiles)
+    }
+
+    func mkdirp(_ at: URL) throws {
+        if isDir(at) {
+            return
+        }
+        return try self.createDirectory(at: at,
+                                        withIntermediateDirectories: true)
     }
 
     private func access(_ at: URL, expectDirectory: Bool) -> Bool {

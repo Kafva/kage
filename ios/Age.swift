@@ -7,91 +7,68 @@ struct Age {
     }
 
     static func unlockIdentity(_ encryptedIdentity: URL,
-                               passphrase: String) -> Bool {
-        do {
-            let encryptedIdentity = try String(contentsOf: encryptedIdentity,
-                                               encoding: .utf8)
-            let encryptedIdentityC = try encryptedIdentity.toCString()
-            let passphraseC        = try passphrase.toCString()
+                               passphrase: String) throws {
+        let encryptedIdentity = try String(contentsOf: encryptedIdentity,
+                                           encoding: .utf8)
+        let encryptedIdentityC = try encryptedIdentity.toCString()
+        let passphraseC        = try passphrase.toCString()
 
-            let r = ffi_age_unlock_identity(encryptedIdentity: encryptedIdentityC,
-                                            passphrase: passphraseC)
+        let r = ffi_age_unlock_identity(encryptedIdentity: encryptedIdentityC,
+                                        passphrase: passphraseC)
 
-            if r == 0 {
-                G.logger.info("OK: identity unlocked")
-                return true
-            }
-
-        } catch {
-            G.logger.error("\(error)")
+        if r != 0 {
+            throw AppError.ageError
         }
-
-        return false
+        G.logger.debug("OK: identity unlocked")
     }
 
-    static func lockIdentity() -> Bool {
-        let r = ffi_age_lock_identity()
-
-        if r == 0 {
-            G.logger.info("OK: identity locked")
-            return true
+    static func lockIdentity() throws {
+        if ffi_age_lock_identity() != 0 {
+            throw AppError.ageError
         }
-        return false
+        G.logger.debug("OK: identity locked")
     }
 
-    static func decrypt(_ at: URL) -> String? {
-        do {
-            let pathC = try at.path().toCString()
-            let outC = UnsafeMutableRawPointer.allocate(byteCount:
-                                                        Int(G.ageDecryptOutSize),
-                                                        alignment: 1)
+    static func decrypt(_ at: URL) throws -> String {
+        let pathC = try at.path().toCString()
+        let outC = UnsafeMutableRawPointer.allocate(byteCount:
+                                                    Int(G.ageDecryptOutSize),
+                                                    alignment: 1)
 
-            let written = ffi_age_decrypt(encryptedFilepath: pathC,
-                                          out: outC,
-                                          outsize: G.ageDecryptOutSize)
+        let written = ffi_age_decrypt(encryptedFilepath: pathC,
+                                      out: outC,
+                                      outsize: G.ageDecryptOutSize)
 
-            if written > 0 {
-                let data = Data(bytes: outC, count: Int(written))
-
-                let plaintext = String(decoding: data, as: UTF8.self)
-                                .trimmingCharacters(in: .whitespacesAndNewlines)
-
-                if !plaintext.isEmpty {
-                    outC.deallocate()
-                    return plaintext
-                }
-            }
-
+        if written <= 0 {
             outC.deallocate()
-            G.logger.error("Decryption failed: \(Int(written))")
-
-        } catch {
-            G.logger.error("\(error)")
+            throw AppError.ageError
         }
+        let data = Data(bytes: outC, count: Int(written))
 
-        return nil
+        let plaintext = String(decoding: data, as: UTF8.self)
+                        .trimmingCharacters(in: .whitespacesAndNewlines)
+
+        outC.deallocate()
+        return plaintext
     }
 
     static func encrypt(recipient: URL,
                         outpath: URL,
-                        plaintext: String) -> Bool {
-        do {
-            let recepient = (try String(contentsOf: recipient, encoding: .utf8))
+                        plaintext: String) throws {
+        let recepient = (try String(contentsOf: recipient, encoding: .utf8))
+                            .trimmingCharacters(in: .whitespacesAndNewlines)
+
+        let recepientC = try recepient.toCString()
+        let plaintextC = try plaintext
                                 .trimmingCharacters(in: .whitespacesAndNewlines)
+                                .toCString()
+        let outpathC   = try outpath.path().toCString()
 
-            let recepientC = try recepient.toCString()
-            let plaintextC = try plaintext
-                                    .trimmingCharacters(in: .whitespacesAndNewlines)
-                                    .toCString()
-            let outpathC   = try outpath.path().toCString()
-
-            let r = ffi_age_encrypt(plaintext: plaintextC,
-                                    recepient: recepientC,
-                                    outpath: outpathC)
-            return r == 0
-        } catch {
-            G.logger.error("\(error)")
+        let r = ffi_age_encrypt(plaintext: plaintextC,
+                                recepient: recepientC,
+                                outpath: outpathC)
+        if r != 0 {
+            throw AppError.ageError
         }
-        return false
     }
 }

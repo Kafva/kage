@@ -14,7 +14,6 @@ struct kageApp: App {
             .autocapitalization(.none)
             // Default keyboard layout
             .keyboardType(.asciiCapable)
-            .scrollDismissesKeyboard(.immediately)
             // Avoid extra spacing below the toolbar
             .navigationBarTitle("")
             .navigationBarTitleDisplayMode(.inline)

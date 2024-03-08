@@ -11,6 +11,7 @@
 		24EC3A66C120BF7B757CAE3E /* ffiApi.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7589A15AC15B8628E6AF92B5 /* ffiApi.swift */; };
 		280C2456F83493EF0464D60B /* AppView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 716EF067A6DF8FB0447ACA87 /* AppView.swift */; };
 		488BC80BAAE8375F6CD6CAFF /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E5D4DBC06BF413DE2010C /* AppState.swift */; };
+		4FCA2999C1C4B6B9DE4C02F3 /* PlaintextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 279302FC130F95C1A6EAC721 /* PlaintextView.swift */; };
 		577B57C07CECB04C2299C48B /* NewPasswordView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEAD0321A747C92C4E85224A /* NewPasswordView.swift */; };
 		780ED3C778C8151F093DE84E /* PwNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = B388611AF2E940951CB91C83 /* PwNode.swift */; };
 		9DBB65AD2437C02BA4AB5995 /* Age.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62E58D179FCD1B4C3F7BBE18 /* Age.swift */; };
@@ -21,14 +22,17 @@
 		DDA4B6312AFDF6A10046DFCE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DDA4B6302AFDF6A10046DFCE /* Assets.xcassets */; };
 		E2B23155701BEA7113C3F4DB /* G.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20324E04859C2C0DC3D8C62 /* G.swift */; };
 		EDCD26E61496FE5E345B40CE /* Git.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F0D8E0ACE255FC38D0D6C8F /* Git.swift */; };
+		F10E6B806AA5040B70BA775A /* AuthenticationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84E73E35337CBF4D0047083D /* AuthenticationView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		279302FC130F95C1A6EAC721 /* PlaintextView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PlaintextView.swift; sourceTree = "<group>"; };
 		4F0D8E0ACE255FC38D0D6C8F /* Git.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Git.swift; sourceTree = "<group>"; };
 		62E58D179FCD1B4C3F7BBE18 /* Age.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Age.swift; sourceTree = "<group>"; };
 		716EF067A6DF8FB0447ACA87 /* AppView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AppView.swift; sourceTree = "<group>"; };
 		7589A15AC15B8628E6AF92B5 /* ffiApi.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ffiApi.swift; sourceTree = "<group>"; };
 		7F6A7900AD2C656E12312A42 /* SettingsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		84E73E35337CBF4D0047083D /* AuthenticationView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AuthenticationView.swift; sourceTree = "<group>"; };
 		B388611AF2E940951CB91C83 /* PwNode.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PwNode.swift; sourceTree = "<group>"; };
 		BEAD0321A747C92C4E85224A /* NewPasswordView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NewPasswordView.swift; sourceTree = "<group>"; };
 		C2337C17EA24226D839574D9 /* Util.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Util.swift; sourceTree = "<group>"; };
@@ -99,6 +103,8 @@
 				EF9E5D4DBC06BF413DE2010C /* AppState.swift */,
 				F20324E04859C2C0DC3D8C62 /* G.swift */,
 				BEAD0321A747C92C4E85224A /* NewPasswordView.swift */,
+				84E73E35337CBF4D0047083D /* AuthenticationView.swift */,
+				279302FC130F95C1A6EAC721 /* PlaintextView.swift */,
 			);
 			path = ios;
 			sourceTree = "<group>";
@@ -206,6 +212,8 @@
 				488BC80BAAE8375F6CD6CAFF /* AppState.swift in Sources */,
 				E2B23155701BEA7113C3F4DB /* G.swift in Sources */,
 				577B57C07CECB04C2299C48B /* NewPasswordView.swift in Sources */,
+				F10E6B806AA5040B70BA775A /* AuthenticationView.swift in Sources */,
+				4FCA2999C1C4B6B9DE4C02F3 /* PlaintextView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

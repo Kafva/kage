@@ -57,12 +57,5 @@ struct PwNode: Identifiable {
 
         return matches
     }
-
-    func getPlaintext() -> String? {
-        if !self.isLeaf {
-            return nil
-        }
-        return Age.decrypt(self.url)
-    }
 }
 

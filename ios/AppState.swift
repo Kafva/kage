@@ -13,20 +13,16 @@ class AppState: ObservableObject {
         }
     }
 
-    func unlockIdentity(passphrase: String) -> Bool {
+    func unlockIdentity(passphrase: String) throws {
         let encryptedIdentity = G.gitDir.appending(path: ".age-identities")
-        identityIsUnlocked = Age.unlockIdentity(encryptedIdentity, 
-                                                passphrase: passphrase)
-        return identityIsUnlocked
+        try Age.unlockIdentity(encryptedIdentity, 
+                               passphrase: passphrase)
+        identityIsUnlocked = true
     }
 
-    func lockIdentity() -> Bool {
-        if Age.lockIdentity() {
-            identityIsUnlocked = false
-        } else {
-            G.logger.warning("Failed to lock identity")
-        }
-        return identityIsUnlocked
+    func lockIdentity() throws {
+        try Age.lockIdentity()
+        identityIsUnlocked = false
     }
 }
 

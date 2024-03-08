@@ -27,11 +27,42 @@ struct AppView: View {
     @State private var showSettings = false
     @State private var showNewPassword = false
 
+    var body: some View {
+        NavigationStack {
+            listView
+        }
+        .overlay(OverlayView(showView: $showPlaintext,
+                             contentWidth: 0.8 * G.screenWidth,
+                             contentHeight: 0.3 * G.screenHeight) {
+             PlaintextView(showPlaintext: $showPlaintext,
+                           targetNode: $targetNode)
+        })
+        .overlay(OverlayView(showView: $showAuthentication,
+                             contentWidth: 0.8 * G.screenWidth,
+                             contentHeight: G.screenHeight) {
+             AuthenticationView(showAuthentication: $showAuthentication,
+                                showPlaintext: $showPlaintext)
+        })
+        .popover(isPresented: $showNewPassword) {
+            NewPasswordView(targetNode: $targetNode)
+        }
+        .popover(isPresented: $showSettings) { SettingsView() }
 
-    @State private var plaintext: String = ""
-    @State private var passphrase: String = ""
+        .onAppear {
+#if DEBUG && targetEnvironment(simulator)
+            remote = "git://127.0.0.1/james"
+#elseif DEBUG
+            remote = "git://10.0.1.8/james"
+#endif
+            if !remote.isEmpty {
+                try? FileManager.default.removeItem(at: G.gitDir)
+                Git.clone(remote: remote)
+                appState.loadGitTree()
+            }
+        }
+    }
 
-    var searchResults: [PwNode] {
+    private var searchResults: [PwNode] {
         if searchText.isEmpty {
             return appState.rootNode.children ?? []
         } else {
@@ -39,22 +70,7 @@ struct AppView: View {
         }
     }
 
-    private func handleShowPlaintext() {
-        guard let targetNode else {
-            G.logger.debug("No target node set")
-            return
-        }
-        guard let value = targetNode.getPlaintext() else {
-            G.logger.error("Failed to retrieve plaintext")
-            return
-        }
-        plaintext = value
-        showAuthentication = false
-        showPlaintext = true
-    }
-
     private var listView: some View {
-        // Two buttons at the bottom of each folder for add pw/folder
         List(searchResults, children: \.children) { node in
             Text("\(node.name)")
                 .font(.system(size: 18))
@@ -66,7 +82,7 @@ struct AppView: View {
                     if !appState.identityIsUnlocked {
                         showAuthentication = true
                     } else {
-                        handleShowPlaintext()
+                        showPlaintext = true
                     }
                 }
                 .swipeActions(allowsFullSwipe: false) {
@@ -105,7 +121,12 @@ struct AppView: View {
 
                 Button {
                     if appState.identityIsUnlocked {
-                        let _ = appState.lockIdentity()
+                        do {
+                            try appState.lockIdentity()
+                        } catch {
+                            G.logger.error("\(error)")
+                        }
+                        
                     } else {
                         showAuthentication = true
                     }
@@ -117,101 +138,6 @@ struct AppView: View {
             }
         }
     }
-
-    private var authenticationView: some View {
-        VStack(alignment: .center, spacing: 5) {
-            Text("Authentication required")
-            SecureField("Passphrase", text: $passphrase)
-                .textFieldStyle(.roundedBorder)
-                .onSubmit {
-                    if !appState.unlockIdentity(passphrase: passphrase) {
-                        G.logger.debug("Incorrect password")
-                        return
-                    }
-                    handleShowPlaintext()
-            }
-            .padding(.bottom, 20)
-            HStack {
-                Button("Cancel") {
-                    showAuthentication = false
-                }
-                .padding(.leading, 10)
-                Spacer()
-                Button("Ok") {
-                    if !appState.unlockIdentity(passphrase: passphrase) {
-                        G.logger.debug("Incorrect password")
-                        return
-                    }
-                    handleShowPlaintext()
-                }
-                .padding(.trailing, 10)
-            }
-            .font(.system(size: 18))
-        }
-    }
-
-
-    private var plaintextView: some View {
-        VStack(alignment: .center, spacing: 10) {
-            let title = "\(targetNode?.name ?? "Plaintext")"
-            Text(title)
-                       .font(.system(size: 22))
-                       .underline(color: .accentColor)
-
-            Text(plaintext).bold().monospaced()
-            .padding(.bottom, 20)
-
-
-
-            Button {
-                UIPasteboard.general.string = plaintext
-                G.logger.debug("Copied '\(title)' to clipboard")
-            } label: {
-                Image(systemName: "doc.on.clipboard").bold()
-            }
-            .padding(.bottom, 10)
-            .font(.system(size: 18))
-
-            Button("Dismiss") {
-                showPlaintext = false
-            }
-            .font(.system(size: 18))
-        }
-    }
-
-    var body: some View {
-        NavigationStack {
-            listView
-        }
-        .overlay(OverlayView(showView: $showPlaintext,
-                             contentWidth: 0.8 * G.screenWidth,
-                             contentHeight: 0.3 * G.screenHeight) {
-             plaintextView
-        })
-        .overlay(OverlayView(showView: $showAuthentication,
-                             contentWidth: 0.8 * G.screenWidth,
-                             contentHeight: G.screenHeight) {
-             authenticationView
-        })
-        .popover(isPresented: $showNewPassword) {
-            NewPasswordView(targetNode: $targetNode)
-        }
-        .popover(isPresented: $showSettings) { SettingsView() }
-
-        .onAppear {
-#if DEBUG && targetEnvironment(simulator)
-            remote = "git://127.0.0.1/james"
-#elseif DEBUG
-            remote = "git://10.0.1.8/james"
-#endif
-            if !remote.isEmpty {
-                try? FileManager.default.removeItem(at: G.gitDir)
-                Git.clone(remote: remote)
-                appState.loadGitTree()
-            }
-        }
-    }
-
 
     private func handleGitRemove(node: PwNode) {
         do {
