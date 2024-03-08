@@ -3,83 +3,61 @@ import Foundation
 struct Git {
     static let repo = G.gitDir
 
-    static func clone(remote: String) {
-        do {
-            let repoC = try repo.path().toCString()
-            let urlC = try remote.toCString()
+    static func clone(remote: String) throws {
+        let repoC = try repo.path().toCString()
+        let urlC = try remote.toCString()
 
-            G.logger.debug("Cloning from: \(remote)")
-            let r = ffi_git_clone(urlC, into: repoC);
-            if r != 0 {
-                G.logger.error("git clone failed: \(r)")
-                return
-            }
-            G.logger.debug("git clone OK")
+        G.logger.debug("Cloning from: \(remote)")
 
-        } catch {
-            G.logger.error("\(error)")
+        let r = ffi_git_clone(urlC, into: repoC);
+        if r != 0 {
+            throw AppError.gitError(r)
         }
     }
 
-    static func commit(message: String) -> Bool {
-        do {
-            let repoC = try repo.path().toCString()
-            let messageC = try message.toCString()
+    static func commit(message: String) throws {
+        let repoC = try repo.path().toCString()
+        let messageC = try message.toCString()
 
-            return ffi_git_commit(repoC, message: messageC) == 0
-        } catch {
-            G.logger.error("\(error)")
+        let r = ffi_git_commit(repoC, message: messageC)
+        if r != 0 {
+            throw AppError.gitError(r)
         }
-
-        return false
     }
 
-    static func add(relativePath: String) -> Bool {
-        do {
-            let repoC = try repo.path().toCString()
-            let relativePathC = try relativePath.toCString()
+    static func add(relativePath: String) throws {
+        let repoC = try repo.path().toCString()
+        let relativePathC = try relativePath.toCString()
 
-            return ffi_git_add(repoC, relativePath: relativePathC) == 0
-        } catch {
-            G.logger.error("\(error)")
+        G.logger.debug("Adding '\(relativePath)'")
+        let r = ffi_git_add(repoC, relativePath: relativePathC)
+        if r != 0 {
+            throw AppError.gitError(r)
         }
-
-        return false
     }
 
-    static func pull() -> Bool {
-        do {
-            let repoC = try repo.path().toCString()
-            return ffi_git_pull(repoC) == 0
-
-        } catch {
-            G.logger.error("\(error)")
+    static func pull() throws {
+        let repoC = try repo.path().toCString()
+        let r = ffi_git_pull(repoC)
+        if r != 0 {
+            throw AppError.gitError(r)
         }
-
-        return false
     }
 
-    static func push() -> Bool {
-        do {
-            let repoC = try repo.path().toCString()
-            return ffi_git_push(repoC) == 0
-
-        } catch {
-            G.logger.error("\(error)")
+    static func push() throws {
+        let repoC = try repo.path().toCString()
+        let r = ffi_git_push(repoC)
+        if r != 0 {
+            throw AppError.gitError(r)
         }
-
-        return false
     }
 
-    static func indexHasLocalChanges() -> Bool {
-        do {
-            let repoC = try repo.path().toCString()
-            return ffi_git_index_has_local_changes(repoC) == 1
-
-        } catch {
-            G.logger.error("\(error)")
+    static func indexHasLocalChanges() throws -> Bool {
+        let repoC = try repo.path().toCString()
+        let r = ffi_git_index_has_local_changes(repoC)
+        if r != 0 && r != 1 {
+            throw AppError.gitError(r)
         }
-
-        return false
+        return r == 1
     }
 }

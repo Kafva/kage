@@ -56,8 +56,12 @@ struct AppView: View {
 #endif
             if !remote.isEmpty {
                 try? FileManager.default.removeItem(at: G.gitDir)
-                Git.clone(remote: remote)
-                appState.loadGitTree()
+                do {
+                    try Git.clone(remote: remote)
+                    appState.loadGitTree()
+                } catch {
+                    G.logger.error("\(error)")
+                }
             }
         }
     }
@@ -101,9 +105,9 @@ struct AppView: View {
                 // TODO: only show when index is dirty and can't connect to
                 // server
                 // TODO use appstate
-                if Git.indexHasLocalChanges() {
+                if false {
                     Button {
-                        let _ = Git.push()
+                        handleGitPush()
                     } label: {
                         Image(systemName: "icloud.and.arrow.up.fill").bold().foregroundColor(.green)
                     }
@@ -120,16 +124,7 @@ struct AppView: View {
                 }
 
                 Button {
-                    if appState.identityIsUnlocked {
-                        do {
-                            try appState.lockIdentity()
-                        } catch {
-                            G.logger.error("\(error)")
-                        }
-                        
-                    } else {
-                        showAuthentication = true
-                    }
+                    handleUnlockIdentity()
                 } label: {
                     let systemName =  appState.identityIsUnlocked ?
                                         "lock.open.fill" : "lock.fill"
@@ -139,19 +134,38 @@ struct AppView: View {
         }
     }
 
+    private func handleGitPush() {
+        do {
+            try Git.push()
+        } catch {
+            G.logger.error("\(error)")
+        }
+    }
+
+    private func handleUnlockIdentity() {
+        if appState.identityIsUnlocked {
+            do {
+                try appState.lockIdentity()
+            } catch {
+                G.logger.error("\(error)")
+            }
+        } else {
+            showAuthentication = true
+        }
+    }
+
     private func handleGitRemove(node: PwNode) {
         do {
             try FileManager.default.removeItem(at: node.url)
             let relativePath = node.url.path()
                                        .trimmingPrefix(G.gitDir.path() + "/")
-            let _ = Git.add(relativePath: String(relativePath))
+            try Git.add(relativePath: String(relativePath))
 
         } catch {
             G.logger.error("\(error)")
         }
     }
 }
-
 
 private struct OverlayView<Content: View>: View {
     @Binding var showView: Bool
