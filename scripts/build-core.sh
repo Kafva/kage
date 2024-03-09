@@ -15,6 +15,8 @@ LIB="libkage_core.a"
 CARGO_BUILDTYPE=release
 CARGO_FLAGS=" --release"
 
+rm -f "$SOURCE_ROOT/kage-core/dist/$LIB"
+
 case "$PLATFORM_DISPLAY_NAME" in
 "iOS Simulator")
     CARGO_FLAGS+=" --features simulator"
