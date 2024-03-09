@@ -58,7 +58,7 @@ struct AppView: View {
                 try? FileManager.default.removeItem(at: G.gitDir)
                 do {
                     try Git.clone(remote: remote)
-                    appState.loadGitTree()
+                    try appState.reloadGitTree()
                 } catch {
                     G.logger.error("\(error)")
                 }
@@ -104,8 +104,7 @@ struct AppView: View {
             ToolbarItemGroup(placement: .bottomBar) {
                 // TODO: only show when index is dirty and can't connect to
                 // server
-                // TODO use appstate
-                if false {
+                if appState.hasLocalChanges {
                     Button {
                         handleGitPush()
                     } label: {
@@ -160,6 +159,8 @@ struct AppView: View {
             let relativePath = node.url.path()
                                        .trimmingPrefix(G.gitDir.path() + "/")
             try Git.add(relativePath: String(relativePath))
+
+            try appState.reloadGitTree()
 
         } catch {
             G.logger.error("\(error)")

@@ -86,9 +86,12 @@ struct NewPasswordView: View {
                             outpath: outpath,
                             plaintext: password)
 
+            // TODO git add .
+            // TODO git commit -m ""
+
             // Reload git tree with new entry
-            appState.loadGitTree()
-            
+            try appState.reloadGitTree()
+
         } catch {
             G.logger.error("\(error)")
         }

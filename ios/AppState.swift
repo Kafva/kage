@@ -5,12 +5,9 @@ class AppState: ObservableObject {
     @Published var rootNode: PwNode = PwNode(url: G.gitDir, children: [])
     @Published var hasLocalChanges: Bool = false
 
-    func loadGitTree() {
-        do {
-            rootNode = try PwNode.loadFrom(G.gitDir)
-        } catch {
-            G.logger.error("\(error)")
-        }
+    func reloadGitTree() throws {
+        rootNode = try PwNode.loadFrom(G.gitDir)
+        hasLocalChanges = try Git.indexHasLocalChanges()
     }
 
     func unlockIdentity(passphrase: String) throws {
