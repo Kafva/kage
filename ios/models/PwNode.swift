@@ -1,4 +1,5 @@
 import Foundation
+import SwiftUI
 
 struct PwNode: Identifiable {
     let id = UUID()

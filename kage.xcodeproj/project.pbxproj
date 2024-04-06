@@ -7,35 +7,39 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		248579D742348DE90B134793 /* Util.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2337C17EA24226D839574D9 /* Util.swift */; };
+		16A0CF8D7757B5AEA4CC2A24 /* NewPasswordView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 487FBE1D6D8EF28C4AE7BAB1 /* NewPasswordView.swift */; };
+		20B2962BC903165C1547B91D /* PwNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78AD88FC59CD039B63A7F5FC /* PwNode.swift */; };
 		24EC3A66C120BF7B757CAE3E /* ffiApi.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7589A15AC15B8628E6AF92B5 /* ffiApi.swift */; };
-		280C2456F83493EF0464D60B /* AppView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 716EF067A6DF8FB0447ACA87 /* AppView.swift */; };
 		488BC80BAAE8375F6CD6CAFF /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E5D4DBC06BF413DE2010C /* AppState.swift */; };
-		4FCA2999C1C4B6B9DE4C02F3 /* PlaintextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 279302FC130F95C1A6EAC721 /* PlaintextView.swift */; };
-		577B57C07CECB04C2299C48B /* NewPasswordView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEAD0321A747C92C4E85224A /* NewPasswordView.swift */; };
-		780ED3C778C8151F093DE84E /* PwNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = B388611AF2E940951CB91C83 /* PwNode.swift */; };
+		5CE0BC8DBA2CC64C5104AC0A /* FileManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3E1AE2EA2D1C8B61349B273 /* FileManager.swift */; };
+		6F9CEFA5EA5B7215ADC18BF9 /* AuthenticationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F7215AE713FACE43D49D54F /* AuthenticationView.swift */; };
+		76EC9EE687663EEE0EF7148F /* PlaintextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99F7F75375C6C53062F70A36 /* PlaintextView.swift */; };
+		865B9ACA97D8515B1A0A0184 /* URL.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5318F2240B8EACFD17614D11 /* URL.swift */; };
 		9DBB65AD2437C02BA4AB5995 /* Age.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62E58D179FCD1B4C3F7BBE18 /* Age.swift */; };
-		B7ECE1F010341AE2D87160D8 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F6A7900AD2C656E12312A42 /* SettingsView.swift */; };
+		AE8788ABAF80BD560599AECE /* AppError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C698A209DE28A17573144F4 /* AppError.swift */; };
+		C7B5F27130F26C88BF968C7D /* AppView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF1D1F4B38B1606D697C7BE2 /* AppView.swift */; };
 		DD4AACEB2B9832AE0077C541 /* libkage_core.a in Frameworks */ = {isa = PBXBuildFile; fileRef = DD4AACEA2B9832A50077C541 /* libkage_core.a */; };
 		DD728F762B9392EF00A4BC99 /* libiconv.2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = DD728F752B9392DA00A4BC99 /* libiconv.2.tbd */; };
 		DDA4B62D2AFDF6A00046DFCE /* kageApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDA4B62C2AFDF6A00046DFCE /* kageApp.swift */; };
 		DDA4B6312AFDF6A10046DFCE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DDA4B6302AFDF6A10046DFCE /* Assets.xcassets */; };
 		E2B23155701BEA7113C3F4DB /* G.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20324E04859C2C0DC3D8C62 /* G.swift */; };
 		EDCD26E61496FE5E345B40CE /* Git.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F0D8E0ACE255FC38D0D6C8F /* Git.swift */; };
-		F10E6B806AA5040B70BA775A /* AuthenticationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84E73E35337CBF4D0047083D /* AuthenticationView.swift */; };
+		F1B6B33CA88CECACA9EADFB9 /* String.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9145173DDBC56F12DB11C9AE /* String.swift */; };
+		FF484E4134D87C67A3283DCC /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E154AC3F5AE691FFEDC3EEB /* SettingsView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		279302FC130F95C1A6EAC721 /* PlaintextView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PlaintextView.swift; sourceTree = "<group>"; };
+		3E154AC3F5AE691FFEDC3EEB /* SettingsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SettingsView.swift; path = views/SettingsView.swift; sourceTree = "<group>"; };
+		487FBE1D6D8EF28C4AE7BAB1 /* NewPasswordView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = NewPasswordView.swift; path = views/NewPasswordView.swift; sourceTree = "<group>"; };
 		4F0D8E0ACE255FC38D0D6C8F /* Git.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Git.swift; sourceTree = "<group>"; };
+		5318F2240B8EACFD17614D11 /* URL.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = URL.swift; path = extensions/URL.swift; sourceTree = "<group>"; };
 		62E58D179FCD1B4C3F7BBE18 /* Age.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Age.swift; sourceTree = "<group>"; };
-		716EF067A6DF8FB0447ACA87 /* AppView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AppView.swift; sourceTree = "<group>"; };
 		7589A15AC15B8628E6AF92B5 /* ffiApi.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ffiApi.swift; sourceTree = "<group>"; };
-		7F6A7900AD2C656E12312A42 /* SettingsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
-		84E73E35337CBF4D0047083D /* AuthenticationView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AuthenticationView.swift; sourceTree = "<group>"; };
-		B388611AF2E940951CB91C83 /* PwNode.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PwNode.swift; sourceTree = "<group>"; };
-		BEAD0321A747C92C4E85224A /* NewPasswordView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NewPasswordView.swift; sourceTree = "<group>"; };
-		C2337C17EA24226D839574D9 /* Util.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Util.swift; sourceTree = "<group>"; };
+		78AD88FC59CD039B63A7F5FC /* PwNode.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = PwNode.swift; path = models/PwNode.swift; sourceTree = "<group>"; };
+		8F7215AE713FACE43D49D54F /* AuthenticationView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AuthenticationView.swift; path = views/AuthenticationView.swift; sourceTree = "<group>"; };
+		9145173DDBC56F12DB11C9AE /* String.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = String.swift; path = extensions/String.swift; sourceTree = "<group>"; };
+		99F7F75375C6C53062F70A36 /* PlaintextView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = PlaintextView.swift; path = views/PlaintextView.swift; sourceTree = "<group>"; };
+		9C698A209DE28A17573144F4 /* AppError.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AppError.swift; path = models/AppError.swift; sourceTree = "<group>"; };
 		DD4AACE82B9832270077C541 /* libkage_core.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libkage_core.a; path = "kage-core/target/libkage_core.a"; sourceTree = "<group>"; };
 		DD4AACEA2B9832A50077C541 /* libkage_core.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libkage_core.a; path = "kage-core/dist/libkage_core.a"; sourceTree = "<group>"; };
 		DD728F752B9392DA00A4BC99 /* libiconv.2.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libiconv.2.tbd; path = usr/lib/libiconv.2.tbd; sourceTree = SDKROOT; };
@@ -43,8 +47,10 @@
 		DDA4B6292AFDF6A00046DFCE /* kage.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = kage.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DDA4B62C2AFDF6A00046DFCE /* kageApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = kageApp.swift; sourceTree = "<group>"; };
 		DDA4B6302AFDF6A10046DFCE /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		EF1D1F4B38B1606D697C7BE2 /* AppView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AppView.swift; path = views/AppView.swift; sourceTree = "<group>"; };
 		EF9E5D4DBC06BF413DE2010C /* AppState.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
 		F20324E04859C2C0DC3D8C62 /* G.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = G.swift; sourceTree = "<group>"; };
+		F3E1AE2EA2D1C8B61349B273 /* FileManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = FileManager.swift; path = extensions/FileManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -94,17 +100,20 @@
 				DDA4B62C2AFDF6A00046DFCE /* kageApp.swift */,
 				DDA4B6302AFDF6A10046DFCE /* Assets.xcassets */,
 				7589A15AC15B8628E6AF92B5 /* ffiApi.swift */,
-				716EF067A6DF8FB0447ACA87 /* AppView.swift */,
-				7F6A7900AD2C656E12312A42 /* SettingsView.swift */,
 				4F0D8E0ACE255FC38D0D6C8F /* Git.swift */,
-				C2337C17EA24226D839574D9 /* Util.swift */,
 				62E58D179FCD1B4C3F7BBE18 /* Age.swift */,
-				B388611AF2E940951CB91C83 /* PwNode.swift */,
 				EF9E5D4DBC06BF413DE2010C /* AppState.swift */,
 				F20324E04859C2C0DC3D8C62 /* G.swift */,
-				BEAD0321A747C92C4E85224A /* NewPasswordView.swift */,
-				84E73E35337CBF4D0047083D /* AuthenticationView.swift */,
-				279302FC130F95C1A6EAC721 /* PlaintextView.swift */,
+				8F7215AE713FACE43D49D54F /* AuthenticationView.swift */,
+				F3E1AE2EA2D1C8B61349B273 /* FileManager.swift */,
+				9145173DDBC56F12DB11C9AE /* String.swift */,
+				5318F2240B8EACFD17614D11 /* URL.swift */,
+				9C698A209DE28A17573144F4 /* AppError.swift */,
+				78AD88FC59CD039B63A7F5FC /* PwNode.swift */,
+				EF1D1F4B38B1606D697C7BE2 /* AppView.swift */,
+				487FBE1D6D8EF28C4AE7BAB1 /* NewPasswordView.swift */,
+				99F7F75375C6C53062F70A36 /* PlaintextView.swift */,
+				3E154AC3F5AE691FFEDC3EEB /* SettingsView.swift */,
 			);
 			path = ios;
 			sourceTree = "<group>";
@@ -203,17 +212,20 @@
 			files = (
 				DDA4B62D2AFDF6A00046DFCE /* kageApp.swift in Sources */,
 				24EC3A66C120BF7B757CAE3E /* ffiApi.swift in Sources */,
-				280C2456F83493EF0464D60B /* AppView.swift in Sources */,
-				B7ECE1F010341AE2D87160D8 /* SettingsView.swift in Sources */,
 				EDCD26E61496FE5E345B40CE /* Git.swift in Sources */,
-				248579D742348DE90B134793 /* Util.swift in Sources */,
 				9DBB65AD2437C02BA4AB5995 /* Age.swift in Sources */,
-				780ED3C778C8151F093DE84E /* PwNode.swift in Sources */,
 				488BC80BAAE8375F6CD6CAFF /* AppState.swift in Sources */,
 				E2B23155701BEA7113C3F4DB /* G.swift in Sources */,
-				577B57C07CECB04C2299C48B /* NewPasswordView.swift in Sources */,
-				F10E6B806AA5040B70BA775A /* AuthenticationView.swift in Sources */,
-				4FCA2999C1C4B6B9DE4C02F3 /* PlaintextView.swift in Sources */,
+				6F9CEFA5EA5B7215ADC18BF9 /* AuthenticationView.swift in Sources */,
+				5CE0BC8DBA2CC64C5104AC0A /* FileManager.swift in Sources */,
+				F1B6B33CA88CECACA9EADFB9 /* String.swift in Sources */,
+				865B9ACA97D8515B1A0A0184 /* URL.swift in Sources */,
+				AE8788ABAF80BD560599AECE /* AppError.swift in Sources */,
+				20B2962BC903165C1547B91D /* PwNode.swift in Sources */,
+				C7B5F27130F26C88BF968C7D /* AppView.swift in Sources */,
+				16A0CF8D7757B5AEA4CC2A24 /* NewPasswordView.swift in Sources */,
+				76EC9EE687663EEE0EF7148F /* PlaintextView.swift in Sources */,
+				FF484E4134D87C67A3283DCC /* SettingsView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -354,8 +366,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 17.2;
-				"IPHONEOS_DEPLOYMENT_TARGET[sdk=iphoneos*]" = 17.4;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.4;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
