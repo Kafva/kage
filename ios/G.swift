@@ -1,6 +1,7 @@
 import Foundation
 import OSLog
 import UIKit
+import SwiftUI
 
 /// Global constants
 struct G {
@@ -14,4 +15,6 @@ struct G {
 
     static let screenWidth = UIScreen.main.bounds.size.width
     static let screenHeight = UIScreen.main.bounds.size.height
+
+    static let textColor = Color(UIColor.label)
 }

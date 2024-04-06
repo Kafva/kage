@@ -7,7 +7,7 @@
 .compile
 buildServer.json
 
-/kage-core/target
+**/target/**
 
 # Xcode
 Pods
