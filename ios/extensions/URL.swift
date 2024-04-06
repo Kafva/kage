@@ -2,7 +2,10 @@ import Foundation
 
 extension URL {
     static func fromString(_ string: String) throws -> URL {
-        return try guardLet(URL(string: string), AppError.urlError(string))
+        guard let value = URL(string: string) else {
+            throw AppError.urlError(string)
+        }
+        return value
     }
 }
 

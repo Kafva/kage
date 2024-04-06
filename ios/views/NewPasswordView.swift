@@ -4,32 +4,14 @@ import OSLog
 struct NewPasswordView: View {
     @EnvironmentObject var appState: AppState
 
-    @Binding var targetNode: PwNode?
-
-    @State private var path = ""
+    @State private var selectedFolder = G.rootNodeName
+    @State private var selectedName = ""
     @State private var password = ""
     @State private var confirmPassword = ""
     @State private var generate = true
 
-
-    private var completion: String {
-        if path.isEmpty {
-            return " " // "Use '/' for folder paths"
-        }
-
-        let matches = appState.rootNode.findChildren(predicate: path, 
-                                                     onlyFolders: true)
-        let result = matches.map { $0.name }.joined(separator: ", ")
-
-        if result.isEmpty {
-            return " "
-        }
-
-        return result
-    }
-
     private var validPasswordPath: Bool {
-        return path.isPrintableASCII
+        return selectedFolder.isPrintableASCII
     }
 
     private var validPassword: Bool {
@@ -37,22 +19,27 @@ struct NewPasswordView: View {
             return true
         }
         return !password.isEmpty &&
-               path.isPrintableASCII &&
+               selectedFolder.isPrintableASCII &&
                password == confirmPassword
     }
 
-    var body: some View {
-        VStack(alignment: .leading, spacing: 20) {
-            Text("New password").font(.system(size: 20)).bold()
-            Text(completion).foregroundColor(.gray)
-            TextField("New password path", text: $path).textFieldStyle(.roundedBorder)
+    private var formBody: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Picker("Folder", selection: $selectedFolder) {
+                ForEach(appState.rootNode.flatFolders()) { node in
+                    Text(node.path).tag(node.path)
+                }
+            }
+            .pickerStyle(.menu)
+
+            TextField("Name", text: $selectedName).textFieldStyle(.roundedBorder)
 
             Toggle(isOn: $generate) {
                 Text("Autogenerate")
             }
 
             if !generate {
-                let underlineColor = !password.isEmpty && password == confirmPassword ? 
+                let underlineColor = !password.isEmpty && password == confirmPassword ?
                                       Color.green : Color.red
                 SecureField("Password", text: $password).textFieldStyle(.plain)
                 SecureField("Confirm password", text: $confirmPassword).textFieldStyle(.plain)
@@ -60,15 +47,21 @@ struct NewPasswordView: View {
                          .overlay(underlineColor)
             }
 
-            VStack(alignment: .center) {
-                Button(action: addPassword) {
-                    Image(systemName: "key.viewfinder").bold().font(.system(size: 34))
-                }
-                .padding([.top, .bottom], 20)
-                .disabled(!validPasswordPath || !validPassword)
+            Button(action: addPassword) {
+                Text("Confirm").bold().font(.system(size: 18))
+            }
+            .padding([.top, .bottom], 20)
+            .disabled(!validPasswordPath || !validPassword)
+        }
+    }
+
+    var body: some View {
+        Form {
+            Section(header: Text("New password").font(.system(size: 20)).bold()) {
+                formBody
             }
         }
-        .frame(width: 0.8 * G.screenWidth)
+        .formStyle(.grouped)
     }
 
     private func addPassword() {
@@ -78,7 +71,7 @@ struct NewPasswordView: View {
 
         do {
             let recipient = G.gitDir.appending(path: ".age-recipients")
-            let outpath = G.gitDir.appending(path: path)
+            let outpath = G.gitDir.appending(path: selectedName)
 
             try FileManager.default.mkdirp(outpath.deletingLastPathComponent())
 

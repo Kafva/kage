@@ -50,6 +50,10 @@ git_server_setup() {
 
     _age_generate_keys "$JAMES_KEY" "$JAMES_PUBKEY"
     _age_generate_files "$JAMES_REPO_CLIENT/red" "$JAMES_PUBKEY"
+    _age_generate_files "$JAMES_REPO_CLIENT/red/a" "$JAMES_PUBKEY"
+    _age_generate_files "$JAMES_REPO_CLIENT/green/a" "$JAMES_PUBKEY"
+    _age_generate_files "$JAMES_REPO_CLIENT/green/b" "$JAMES_PUBKEY"
+    _age_generate_files "$JAMES_REPO_CLIENT/blue/a" "$JAMES_PUBKEY"
 
     echo "Creating $JAMES_REPO_REMOTE"
     mkdir -p $JAMES_REPO_REMOTE
@@ -159,7 +163,7 @@ else
 fi
 
 
-echo "Launched git-daemon:"
+echo "Launched git-daemon 🚀"
 git_server_controls
 
 while read -n1 -rs ans; do

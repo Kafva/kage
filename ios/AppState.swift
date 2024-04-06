@@ -12,7 +12,7 @@ class AppState: ObservableObject {
 
     func unlockIdentity(passphrase: String) throws {
         let encryptedIdentity = G.gitDir.appending(path: ".age-identities")
-        try Age.unlockIdentity(encryptedIdentity, 
+        try Age.unlockIdentity(encryptedIdentity,
                                passphrase: passphrase)
         identityIsUnlocked = true
     }
@@ -21,5 +21,6 @@ class AppState: ObservableObject {
         try Age.lockIdentity()
         identityIsUnlocked = false
     }
+
 }
 

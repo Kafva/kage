@@ -26,6 +26,7 @@ struct AppView: View {
     @State private var showPlaintext: Bool = false
     @State private var showSettings = false
     @State private var showNewPassword = false
+    @State private var showNewFolder = false
 
     var body: some View {
         NavigationStack {
@@ -44,7 +45,10 @@ struct AppView: View {
                                 showPlaintext: $showPlaintext)
         })
         .popover(isPresented: $showNewPassword) {
-            NewPasswordView(targetNode: $targetNode)
+            NewPasswordView()
+        }
+        .popover(isPresented: $showNewFolder) {
+            NewFolderView()
         }
         .popover(isPresented: $showSettings) { SettingsView() }
 
@@ -114,8 +118,14 @@ struct AppView: View {
                 Button {
                     showNewPassword = true
                 } label: {
-                    Image(systemName: "plus.circle").bold()
+                    Image(systemName: "key").bold()
                 }
+                Button {
+                    showNewFolder = true
+                } label: {
+                    Image(systemName: "folder.badge.plus").bold()
+                }
+
                 Button {
                     showSettings = true
                 } label: {

@@ -22,6 +22,7 @@
 		DD728F762B9392EF00A4BC99 /* libiconv.2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = DD728F752B9392DA00A4BC99 /* libiconv.2.tbd */; };
 		DDA4B62D2AFDF6A00046DFCE /* kageApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDA4B62C2AFDF6A00046DFCE /* kageApp.swift */; };
 		DDA4B6312AFDF6A10046DFCE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DDA4B6302AFDF6A10046DFCE /* Assets.xcassets */; };
+		DEA81AF3D16FD42F2EE3F85B /* NewFolderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41A7570D86A8158793AEADA9 /* NewFolderView.swift */; };
 		E2B23155701BEA7113C3F4DB /* G.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20324E04859C2C0DC3D8C62 /* G.swift */; };
 		EDCD26E61496FE5E345B40CE /* Git.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F0D8E0ACE255FC38D0D6C8F /* Git.swift */; };
 		F1B6B33CA88CECACA9EADFB9 /* String.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9145173DDBC56F12DB11C9AE /* String.swift */; };
@@ -30,6 +31,7 @@
 
 /* Begin PBXFileReference section */
 		3E154AC3F5AE691FFEDC3EEB /* SettingsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SettingsView.swift; path = views/SettingsView.swift; sourceTree = "<group>"; };
+		41A7570D86A8158793AEADA9 /* NewFolderView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = NewFolderView.swift; path = views/NewFolderView.swift; sourceTree = "<group>"; };
 		487FBE1D6D8EF28C4AE7BAB1 /* NewPasswordView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = NewPasswordView.swift; path = views/NewPasswordView.swift; sourceTree = "<group>"; };
 		4F0D8E0ACE255FC38D0D6C8F /* Git.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Git.swift; sourceTree = "<group>"; };
 		5318F2240B8EACFD17614D11 /* URL.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = URL.swift; path = extensions/URL.swift; sourceTree = "<group>"; };
@@ -114,6 +116,7 @@
 				487FBE1D6D8EF28C4AE7BAB1 /* NewPasswordView.swift */,
 				99F7F75375C6C53062F70A36 /* PlaintextView.swift */,
 				3E154AC3F5AE691FFEDC3EEB /* SettingsView.swift */,
+				41A7570D86A8158793AEADA9 /* NewFolderView.swift */,
 			);
 			path = ios;
 			sourceTree = "<group>";
@@ -226,6 +229,7 @@
 				16A0CF8D7757B5AEA4CC2A24 /* NewPasswordView.swift in Sources */,
 				76EC9EE687663EEE0EF7148F /* PlaintextView.swift in Sources */,
 				FF484E4134D87C67A3283DCC /* SettingsView.swift in Sources */,
+				DEA81AF3D16FD42F2EE3F85B /* NewFolderView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -7,7 +7,20 @@ struct PwNode: Identifiable {
     let children: [PwNode]?
 
     var name: String {
-         return url.deletingPathExtension().lastPathComponent
+         let name = url.deletingPathExtension().lastPathComponent
+         // TODO: dissallow gitDir name
+         if name == G.gitDir.lastPathComponent {
+             return G.rootNodeName
+         }
+         return name
+    }
+
+    var path: String {
+        let s = url.path().deletingPrefix(G.gitDir.path())
+        if s.isEmpty {
+            return G.rootNodeName
+        }
+        return s.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
     }
 
     var isLeaf: Bool {
@@ -28,6 +41,23 @@ struct PwNode: Identifiable {
         return PwNode(url: fromDir, children: children)
     }
 
+
+    /// Retreive a list of all folder paths in the tree
+    func flatFolders() -> [PwNode] {
+        if self.isLeaf {
+            return []
+        }
+
+        let node = PwNode(url: self.url, children: [])
+        var folders: [PwNode] = [node]
+
+        for child in children ?? [] {
+            folders.append(contentsOf: child.flatFolders())
+        }
+
+        return folders
+    }
+
     /// Returns a subset of the tree with paths to every node that matches
     /// `predicate`.
     func findChildren(predicate: String, onlyFolders: Bool = false) -> [PwNode] {
@@ -45,7 +75,7 @@ struct PwNode: Identifiable {
             if childMatches.isEmpty {
                 // Append the child with all its children if it matches the
                 // predicate.
-                if child.name.lowercased().contains(predicate) {
+                if child.name.lowercased().contains(predicate) || predicate.isEmpty {
                     matches.append(child)
                 }
             } else {
