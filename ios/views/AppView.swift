@@ -45,10 +45,10 @@ struct AppView: View {
                                 showPlaintext: $showPlaintext)
         })
         .popover(isPresented: $showNewPassword) {
-            NewPasswordView()
+            PwNodeView(targetNode: $targetNode, forFolder: false)
         }
         .popover(isPresented: $showNewFolder) {
-            NewFolderView()
+            PwNodeView(targetNode: $targetNode, forFolder: true)
         }
         .popover(isPresented: $showSettings) { SettingsView() }
 

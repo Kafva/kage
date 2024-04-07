@@ -7,10 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		16A0CF8D7757B5AEA4CC2A24 /* NewPasswordView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 487FBE1D6D8EF28C4AE7BAB1 /* NewPasswordView.swift */; };
 		20B2962BC903165C1547B91D /* PwNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78AD88FC59CD039B63A7F5FC /* PwNode.swift */; };
 		488BC80BAAE8375F6CD6CAFF /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E5D4DBC06BF413DE2010C /* AppState.swift */; };
 		5CE0BC8DBA2CC64C5104AC0A /* FileManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3E1AE2EA2D1C8B61349B273 /* FileManager.swift */; };
+		69659EB9CE3BA6CE1167D5C9 /* PwNodeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 464305761F2EE3CCCFF2E227 /* PwNodeView.swift */; };
 		6F9CEFA5EA5B7215ADC18BF9 /* AuthenticationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F7215AE713FACE43D49D54F /* AuthenticationView.swift */; };
 		76EC9EE687663EEE0EF7148F /* PlaintextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99F7F75375C6C53062F70A36 /* PlaintextView.swift */; };
 		865B9ACA97D8515B1A0A0184 /* URL.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5318F2240B8EACFD17614D11 /* URL.swift */; };
@@ -21,7 +21,6 @@
 		DD728F762B9392EF00A4BC99 /* libiconv.2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = DD728F752B9392DA00A4BC99 /* libiconv.2.tbd */; };
 		DDA4B62D2AFDF6A00046DFCE /* kageApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDA4B62C2AFDF6A00046DFCE /* kageApp.swift */; };
 		DDA4B6312AFDF6A10046DFCE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DDA4B6302AFDF6A10046DFCE /* Assets.xcassets */; };
-		DEA81AF3D16FD42F2EE3F85B /* NewFolderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41A7570D86A8158793AEADA9 /* NewFolderView.swift */; };
 		E2B23155701BEA7113C3F4DB /* G.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20324E04859C2C0DC3D8C62 /* G.swift */; };
 		EDCD26E61496FE5E345B40CE /* Git.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F0D8E0ACE255FC38D0D6C8F /* Git.swift */; };
 		F1B6B33CA88CECACA9EADFB9 /* String.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9145173DDBC56F12DB11C9AE /* String.swift */; };
@@ -30,8 +29,7 @@
 
 /* Begin PBXFileReference section */
 		3E154AC3F5AE691FFEDC3EEB /* SettingsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SettingsView.swift; path = views/SettingsView.swift; sourceTree = "<group>"; };
-		41A7570D86A8158793AEADA9 /* NewFolderView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = NewFolderView.swift; path = views/NewFolderView.swift; sourceTree = "<group>"; };
-		487FBE1D6D8EF28C4AE7BAB1 /* NewPasswordView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = NewPasswordView.swift; path = views/NewPasswordView.swift; sourceTree = "<group>"; };
+		464305761F2EE3CCCFF2E227 /* PwNodeView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = PwNodeView.swift; path = views/PwNodeView.swift; sourceTree = "<group>"; };
 		4F0D8E0ACE255FC38D0D6C8F /* Git.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Git.swift; sourceTree = "<group>"; };
 		5318F2240B8EACFD17614D11 /* URL.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = URL.swift; path = extensions/URL.swift; sourceTree = "<group>"; };
 		62E58D179FCD1B4C3F7BBE18 /* Age.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Age.swift; sourceTree = "<group>"; };
@@ -110,10 +108,9 @@
 				9C698A209DE28A17573144F4 /* AppError.swift */,
 				78AD88FC59CD039B63A7F5FC /* PwNode.swift */,
 				EF1D1F4B38B1606D697C7BE2 /* AppView.swift */,
-				487FBE1D6D8EF28C4AE7BAB1 /* NewPasswordView.swift */,
 				99F7F75375C6C53062F70A36 /* PlaintextView.swift */,
 				3E154AC3F5AE691FFEDC3EEB /* SettingsView.swift */,
-				41A7570D86A8158793AEADA9 /* NewFolderView.swift */,
+				464305761F2EE3CCCFF2E227 /* PwNodeView.swift */,
 			);
 			path = ios;
 			sourceTree = "<group>";
@@ -222,10 +219,9 @@
 				AE8788ABAF80BD560599AECE /* AppError.swift in Sources */,
 				20B2962BC903165C1547B91D /* PwNode.swift in Sources */,
 				C7B5F27130F26C88BF968C7D /* AppView.swift in Sources */,
-				16A0CF8D7757B5AEA4CC2A24 /* NewPasswordView.swift in Sources */,
 				76EC9EE687663EEE0EF7148F /* PlaintextView.swift in Sources */,
 				FF484E4134D87C67A3283DCC /* SettingsView.swift in Sources */,
-				DEA81AF3D16FD42F2EE3F85B /* NewFolderView.swift in Sources */,
+				69659EB9CE3BA6CE1167D5C9 /* PwNodeView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
