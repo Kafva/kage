@@ -23,7 +23,7 @@ func ffi_age_decrypt(encryptedFilepath: UnsafePointer<CChar>,
 
 ////////////////////////////////////////////////////////////////////////////////
 
-struct Age {
+enum Age {
     static func unlockTimestamp() -> UInt64 {
         return ffi_age_unlock_timestamp()
     }

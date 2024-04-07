@@ -5,6 +5,7 @@ use git2::build::{CheckoutBuilder,RepoBuilder};
 
 use crate::*;
 
+const GIT_EMAIL: &'static str = "kafva.one";
 const GIT_REMOTE: &'static str = "origin";
 const GIT_BRANCH: &'static str = "main";
 const TRANSFER_STAGES: usize = 4;
@@ -163,6 +164,23 @@ pub fn git_index_has_local_changes(repo_path: &str) -> Result<bool, git2::Error>
     Ok(!is_clean || local_oid != remote_oid)
 }
 
+pub fn git_config_set_user(repo_path: &str, username: &str) -> Result<(), git2::Error> {
+    // https://github.com/rust-lang/git2-rs/issues/474
+    let config_path = Path::new(repo_path).join(".git").join("config");
+    let mut cfg = git2::Config::open(&config_path)?;
+
+    cfg.set_str("user.name", username)?;
+    cfg.set_str("user.email", &format!("{}@{}", username, GIT_EMAIL))?;
+    drop(cfg);
+
+    // let cfg = git2::Config::open(&config_path)?;
+    // let username = cfg.get_str("user.name")?;
+    // debug!("user.name {}", username);
+    // debug!("user.email {}", cfg.get_str("user.email")?);
+
+    Ok(())
+}
+
 fn remote_branch_oid(repo: &git2::Repository) -> Result<git2::Oid, git2::Error> {
     let spec = format!("{}/{}", GIT_REMOTE, GIT_BRANCH);
     let id = repo.revparse_single(&spec)?.id();
@@ -229,10 +247,11 @@ mod tests {
         }
 
         assert_ok(git_clone("git://127.0.0.1/james", path));
+        assert_ok(git_config_set_user(REPO_PATH, "james"));
     }
 
     /// Test: 
-    ///    1. Clone -> add -> commit -> push 
+    ///    1. Clone -> set config -> add -> commit -> push 
     ///    2. Pull in remote changes
     ///    3. Do local changes and reset
     #[test]

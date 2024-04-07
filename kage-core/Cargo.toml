@@ -27,7 +27,7 @@ age = { version = "0.10.0", features = ["armor"] }
 
 # Without https/ssh support
 # XXX: This depends on libiconv2, it needs to be included in the Xcode build
-git2 = { version = "0.18.1", default-features = false }
+git2 = { version = "0.18.3", default-features = false }
 
 [features]
 default = []

@@ -6,6 +6,9 @@ func ffi_git_clone(_ url: UnsafePointer<CChar>,
 @_silgen_name("ffi_git_reset")
 func ffi_git_reset(_ repo: UnsafePointer<CChar>) -> CInt
 
+@_silgen_name("ffi_git_config_set_user")
+func ffi_git_config_set_user(_ repo: UnsafePointer<CChar>, 
+                        username: UnsafePointer<CChar>) -> CInt
 
 @_silgen_name("ffi_git_stage")
 func ffi_git_stage(_ repo: UnsafePointer<CChar>,
@@ -27,12 +30,12 @@ func ffi_git_index_has_local_changes(_ repo: UnsafePointer<CChar>) -> CInt
 
 ////////////////////////////////////////////////////////////////////////////////
 
-struct Git {
-    static let repo = G.gitDir
+private let repo = G.gitDir
 
+enum Git {
     static func addCommit(node: PwNode) throws {
         try Git.stage(relativePath: node.relativePath, add: true)
-        try Git.commit(message: "Deleted '\(node.relativePath)'")
+        try Git.commit(message: "Added '\(node.relativePath)'")
     }
 
     static func rmCommit(node: PwNode) throws {
@@ -79,9 +82,18 @@ struct Git {
     }
 
     static func reset() throws {
-        G.logger.debug("Resetting to HEAD")
+        G.logger.warning("Resetting to remote HEAD")
         let repoC = try repo.path().toCString()
         let r = ffi_git_reset(repoC)
+        if r != 0 {
+            throw AppError.gitError(r)
+        }
+    }
+
+    static func configSetUser(username: String) throws {
+        let repoC = try repo.path().toCString()
+        let usernameC = try username.toCString()
+        let r = ffi_git_config_set_user(repoC, username: usernameC)
         if r != 0 {
             throw AppError.gitError(r)
         }

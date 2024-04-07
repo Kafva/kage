@@ -15,7 +15,8 @@ static AGE_STATE: Lazy<Mutex<AgeState>> = Lazy::new(|| {
 
 
 #[no_mangle]
-pub extern "C" fn ffi_age_unlock_identity(encrypted_identity: *const c_char,
+pub extern "C"
+fn ffi_age_unlock_identity(encrypted_identity: *const c_char,
                                           passphrase: *const c_char) -> c_int {
 
     let Some(mut age_state) = try_lock() else {
@@ -42,7 +43,8 @@ pub extern "C" fn ffi_age_unlock_identity(encrypted_identity: *const c_char,
 }
 
 #[no_mangle]
-pub extern "C" fn ffi_age_lock_identity() -> c_int {
+pub extern "C"
+fn ffi_age_lock_identity() -> c_int {
     let Some(mut age_state) = try_lock() else {
         return -1
     };
@@ -51,7 +53,8 @@ pub extern "C" fn ffi_age_lock_identity() -> c_int {
 }
 
 #[no_mangle]
-pub extern "C" fn ffi_age_unlock_timestamp() -> c_ulonglong {
+pub extern "C"
+fn ffi_age_unlock_timestamp() -> c_ulonglong {
     let Some(age_state) = try_lock() else {
         return 0
     };
@@ -67,7 +70,8 @@ pub extern "C" fn ffi_age_unlock_timestamp() -> c_ulonglong {
 
 /// Encrypt `plaintext` for `recipient`, writing the ciphertext to `outpath`.
 #[no_mangle]
-pub extern "C" fn ffi_age_encrypt(plaintext: *const c_char,
+pub extern "C"
+fn ffi_age_encrypt(plaintext: *const c_char,
                                   recipient: *const c_char,
                                   outpath: *const c_char) -> c_int {
 
@@ -109,7 +113,8 @@ pub extern "C" fn ffi_age_encrypt(plaintext: *const c_char,
 }
 
 #[no_mangle]
-pub extern "C" fn ffi_age_decrypt(encrypted_path: *const c_char,
+pub extern "C"
+fn ffi_age_decrypt(encrypted_path: *const c_char,
                                   out: &mut c_char,
                                   outsize: c_int) -> c_int {
 

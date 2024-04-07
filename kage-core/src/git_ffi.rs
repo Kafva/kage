@@ -17,7 +17,8 @@ macro_rules! ffi_git_call {
 }
 
 #[no_mangle]
-pub extern "C" fn ffi_git_clone(url: *const c_char,
+pub extern "C"
+fn ffi_git_clone(url: *const c_char,
                                 into: *const c_char) -> c_int {
     let url = unsafe { CStr::from_ptr(url).to_str() };
     let into = unsafe { CStr::from_ptr(into).to_str() };
@@ -30,7 +31,8 @@ pub extern "C" fn ffi_git_clone(url: *const c_char,
 }
 
 #[no_mangle]
-pub extern "C" fn ffi_git_pull(repo_path: *const c_char) -> c_int {
+pub extern "C"
+fn ffi_git_pull(repo_path: *const c_char) -> c_int {
     let repo_path = unsafe { CStr::from_ptr(repo_path).to_str() };
 
     let Ok(repo_path) = repo_path else {
@@ -41,7 +43,8 @@ pub extern "C" fn ffi_git_pull(repo_path: *const c_char) -> c_int {
 }
 
 #[no_mangle]
-pub extern "C" fn ffi_git_push(repo_path: *const c_char) -> c_int {
+pub extern "C"
+fn ffi_git_push(repo_path: *const c_char) -> c_int {
     let repo_path = unsafe { CStr::from_ptr(repo_path).to_str() };
 
     let Ok(repo_path) = repo_path else {
@@ -53,7 +56,8 @@ pub extern "C" fn ffi_git_push(repo_path: *const c_char) -> c_int {
 
 /// Stage an 'add' or a 'rm' operation
 #[no_mangle]
-pub extern "C" fn ffi_git_stage(repo_path: *const c_char,
+pub extern "C"
+fn ffi_git_stage(repo_path: *const c_char,
                                 relative_path: *const c_char,
                                 add: bool) -> c_int {
     let repo_path = unsafe { CStr::from_ptr(repo_path).to_str() };
@@ -67,7 +71,8 @@ pub extern "C" fn ffi_git_stage(repo_path: *const c_char,
 }
 
 #[no_mangle]
-pub extern "C" fn ffi_git_reset(repo_path: *const c_char) -> c_int {
+pub extern "C"
+fn ffi_git_reset(repo_path: *const c_char) -> c_int {
     let repo_path = unsafe { CStr::from_ptr(repo_path).to_str() };
 
     let Ok(repo_path) = repo_path else {
@@ -78,8 +83,9 @@ pub extern "C" fn ffi_git_reset(repo_path: *const c_char) -> c_int {
 }
 
 #[no_mangle]
-pub extern "C" fn ffi_git_commit(repo_path: *const c_char,
-                                 message: *const c_char) -> c_int {
+pub extern "C"
+fn ffi_git_commit(repo_path: *const c_char,
+                  message: *const c_char) -> c_int {
     let repo_path = unsafe { CStr::from_ptr(repo_path).to_str() };
     let message = unsafe { CStr::from_ptr(message).to_str() };
 
@@ -91,7 +97,22 @@ pub extern "C" fn ffi_git_commit(repo_path: *const c_char,
 }
 
 #[no_mangle]
-pub extern "C" fn ffi_git_index_has_local_changes(repo_path: *const c_char) -> c_int {
+pub extern "C"
+fn ffi_git_config_set_user(repo_path: *const c_char,
+                           username: *const c_char) -> c_int {
+    let repo_path = unsafe { CStr::from_ptr(repo_path).to_str() };
+    let username = unsafe { CStr::from_ptr(username).to_str() };
+
+    let (Ok(repo_path), Ok(username)) = (repo_path, username) else {
+        return -1
+    };
+
+    ffi_git_call!(git_config_set_user(repo_path, username))
+}
+
+#[no_mangle]
+pub extern "C"
+fn ffi_git_index_has_local_changes(repo_path: *const c_char) -> c_int {
     let repo_path = unsafe { CStr::from_ptr(repo_path).to_str() };
 
     let Ok(repo_path) = repo_path else {

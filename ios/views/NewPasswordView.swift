@@ -48,7 +48,8 @@ struct NewPasswordView: View {
 
             TextField("Name", text: $selectedName)
                 .textFieldStyle(.roundedBorder)
-                // TODO: https://forums.developer.apple.com/forums/thread/738755
+                // TODO: color is not updated
+                // https://forums.developer.apple.com/forums/thread/738755
                 .foregroundColor(validPwNode ? G.textColor : G.textColor)
 
             Toggle(isOn: $generate) {
@@ -64,11 +65,6 @@ struct NewPasswordView: View {
                          .overlay(underlineColor)
             }
 
-            Button(action: addPassword) {
-                Text("Confirm").bold().font(.system(size: 18))
-            }
-            .padding([.top, .bottom], 20)
-            .disabled(!validPwNode || !validPassword)
         }
     }
 
@@ -76,6 +72,14 @@ struct NewPasswordView: View {
         Form {
             Section(header: Text("New password").font(.system(size: 20)).bold()) {
                 formBody
+            }
+
+            Section {
+                Button(action: addPassword) {
+                    Text("Confirm").bold().font(.system(size: 18))
+                }
+                .padding([.top, .bottom], 20)
+                .disabled(!validPwNode || !validPassword)
             }
         }
         .formStyle(.grouped)
@@ -103,7 +107,6 @@ struct NewPasswordView: View {
 
         } catch {
             G.logger.error("\(error)")
-            G.logger.warning("Resetting to HEAD")
             try? Git.reset()
         }
     }

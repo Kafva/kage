@@ -4,7 +4,7 @@ import UIKit
 import SwiftUI
 
 /// Global constants
-struct G {
+enum G {
     static let logger = Logger(subsystem: Bundle.main.bundleIdentifier!,
                         category: "generic")
 

@@ -62,8 +62,10 @@ struct AppView: View {
                 try? FileManager.default.removeItem(at: G.gitDir)
                 do {
                     try Git.clone(remote: remote)
+                    try Git.configSetUser(username: "james")
                     try appState.reloadGitTree()
                 } catch {
+                    try? FileManager.default.removeItem(at: G.gitDir)
                     G.logger.error("\(error)")
                 }
             }
@@ -170,7 +172,6 @@ struct AppView: View {
 
         } catch {
             G.logger.error("\(error)")
-            G.logger.warning("Resetting to HEAD")
             try? Git.reset()
         }
     }
