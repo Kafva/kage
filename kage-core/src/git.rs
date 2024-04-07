@@ -102,7 +102,10 @@ pub fn git_commit(repo_path: &str, message: &str) -> Result<(),git2::Error> {
     // Retrieve the commit that HEAD points to so that we can replace
     // it with our new tree state.
     let head = repo.head()?;
-    let parent_commit = repo.find_commit(head.target().unwrap())?;
+    let Some(oid) = head.target() else {
+        return Err(internal_error("HEAD unwrap error"))
+    };
+    let parent_commit = repo.find_commit(oid)?;
 
     repo.commit(
         Some("HEAD"),
@@ -113,6 +116,18 @@ pub fn git_commit(repo_path: &str, message: &str) -> Result<(),git2::Error> {
         &[&parent_commit],
     )?;
     Ok(())
+}
+
+pub fn git_reset(repo_path: &str) -> Result<(),git2::Error> {
+    let repo = Repository::open(repo_path)?;
+    let head = repo.head()?;
+    let Some(oid) = head.target() else {
+        return Err(internal_error("HEAD unwrap error"))
+    };
+    let obj = repo.find_object(oid, None)?;
+
+    debug!("Reset HEAD to {}", oid);
+    repo.reset(&obj, git2::ResetType::Hard, None)
 }
 
 pub fn git_clone(url: &str, into: &str) -> Result<(), git2::Error> {
@@ -178,24 +193,22 @@ fn transfer_progress(progress: git2::Progress, label: &str) -> bool {
     true
 }
 
+fn internal_error(message: &str) -> git2::Error {
+    git2::Error::new(git2::ErrorCode::GenericError,
+                     git2::ErrorClass::None,
+                     message)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::error;
-    use std::fs::OpenOptions;
     use std::fs;
     use std::process::Command;
     use std::time::{SystemTime, UNIX_EPOCH};
 
     const REPO_PATH: &'static str = "../git/kage-client/james";
     const EXTERNAL_CHECKOUT: &'static str = "/tmp/james";
-
-    fn touch(path: &str) -> Result<fs::File, std::io::Error> {
-        OpenOptions::new()
-                    .write(true)
-                    .create(true)
-                    .open(path)
-    }
 
     fn assert_ok(result: Result<(), git2::Error>) {
         if let Some(err) = result.as_ref().err() {
@@ -216,18 +229,27 @@ mod tests {
         assert_ok(git_clone("git://127.0.0.1/james", path));
     }
 
+    /// Test: 
+    ///    1. Clone -> add -> commit -> push 
+    ///    2. Pull in remote changes
+    ///    3. Do local changes and reset
     #[test]
     fn git_clone_test() {
         let now = SystemTime::now().duration_since(UNIX_EPOCH).unwrap();
+        // File added by us
         let newfile = format!("newfile-{}", now.as_secs());
-        let externalfile = format!("externalfile-{}", now.as_secs());
+        let newfile_path = format!("{}/{}", REPO_PATH, newfile);
 
-        // Test: clone -> add -> commit -> push
+        // File added from another checkout and pulled down
+        let externalfile = format!("externalfile-{}", now.as_secs());
+        let externalfile_path = format!("{}/{}", EXTERNAL_CHECKOUT, externalfile);
+        let pulled_externalfile_path = format!("{}/{}", REPO_PATH, externalfile);
+
         clone(REPO_PATH);
 
         // Add
-        touch(format!("{}/{}", REPO_PATH, newfile).as_str()).expect("touch failed");
-        assert_ok(git_add(REPO_PATH, &newfile));
+        fs::write(&newfile_path, "Original content").expect("write file failed");
+        assert_ok(git_stage(REPO_PATH, &newfile, true));
         assert_eq!(git_index_has_local_changes(REPO_PATH).unwrap(), true);
 
         // Commit
@@ -244,7 +266,7 @@ mod tests {
         // Clone into a new location, add, commit and push from here
         clone(EXTERNAL_CHECKOUT);
 
-        touch(format!("{}/{}", EXTERNAL_CHECKOUT, externalfile).as_str()).expect("touch failed");
+        fs::write(&externalfile_path, "External content").expect("write file failed");
         let status = Command::new("git").arg("add")
                                         .arg(&externalfile)
                                         .current_dir(EXTERNAL_CHECKOUT)
@@ -272,5 +294,24 @@ mod tests {
 
         // Pull in external updates
         assert_ok(git_pull(REPO_PATH));
+
+        // Stage some changes
+        fs::remove_file(&pulled_externalfile_path).expect("remove file failed");
+        let original_data = fs::read(&newfile_path).expect("read file failed");
+        fs::write(&newfile_path, "Changed content").expect("write file failed");
+
+        assert_ok(git_stage(REPO_PATH, &externalfile, false));
+        assert_ok(git_stage(REPO_PATH, &newfile, true));
+
+        assert!(fs::metadata(&pulled_externalfile_path).is_err());
+        assert!(fs::metadata(&newfile_path).is_ok());
+
+        // Reset
+        assert_ok(git_reset(REPO_PATH));
+
+        // Verify that changes were restored
+        assert!(fs::metadata(&pulled_externalfile_path).is_ok());
+        let data = fs::read(&newfile_path).expect("read file failed");
+        assert_eq!(data, original_data)
     }
 }
