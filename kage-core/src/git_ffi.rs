@@ -67,6 +67,17 @@ pub extern "C" fn ffi_git_stage(repo_path: *const c_char,
 }
 
 #[no_mangle]
+pub extern "C" fn ffi_git_reset(repo_path: *const c_char) -> c_int {
+    let repo_path = unsafe { CStr::from_ptr(repo_path).to_str() };
+
+    let Ok(repo_path) = repo_path else {
+        return -1
+    };
+
+    ffi_git_call!(git_reset(repo_path))
+}
+
+#[no_mangle]
 pub extern "C" fn ffi_git_commit(repo_path: *const c_char,
                                  message: *const c_char) -> c_int {
     let repo_path = unsafe { CStr::from_ptr(repo_path).to_str() };

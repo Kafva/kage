@@ -107,7 +107,7 @@ pub fn git_commit(repo_path: &str, message: &str) -> Result<(),git2::Error> {
     };
     let parent_commit = repo.find_commit(oid)?;
 
-    repo.commit(
+    let oid = repo.commit(
         Some("HEAD"),
         &sig,
         &sig,
@@ -115,18 +115,20 @@ pub fn git_commit(repo_path: &str, message: &str) -> Result<(),git2::Error> {
         &tree,
         &[&parent_commit],
     )?;
+
+    debug!("[{} {:.7}] {}", GIT_BRANCH, oid, message);
     Ok(())
 }
 
+/// Hard reset to the remote HEAD, discarding local commits that have not 
+/// been pushed.
 pub fn git_reset(repo_path: &str) -> Result<(),git2::Error> {
     let repo = Repository::open(repo_path)?;
-    let head = repo.head()?;
-    let Some(oid) = head.target() else {
-        return Err(internal_error("HEAD unwrap error"))
-    };
-    let obj = repo.find_object(oid, None)?;
+    let remote_origin_head = remote_branch_oid(&repo)?;
 
-    debug!("Reset HEAD to {}", oid);
+    debug!("Resetting HEAD to {}/{} {}", GIT_REMOTE, GIT_BRANCH, remote_origin_head);
+
+    let obj = repo.find_object(remote_origin_head, None)?;
     repo.reset(&obj, git2::ResetType::Hard, None)
 }
 
@@ -302,6 +304,9 @@ mod tests {
 
         assert_ok(git_stage(REPO_PATH, &externalfile, false));
         assert_ok(git_stage(REPO_PATH, &newfile, true));
+
+        // Commit them
+        assert_ok(git_commit(REPO_PATH, "Commit to undo"));
 
         assert!(fs::metadata(&pulled_externalfile_path).is_err());
         assert!(fs::metadata(&newfile_path).is_ok());

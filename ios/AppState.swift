@@ -21,6 +21,5 @@ class AppState: ObservableObject {
         try Age.lockIdentity()
         identityIsUnlocked = false
     }
-
 }
 

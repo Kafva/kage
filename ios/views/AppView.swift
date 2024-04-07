@@ -165,14 +165,13 @@ struct AppView: View {
 
     private func handleGitRemove(node: PwNode) {
         do {
-            try Git.stage(relativePath: node.relativePath, add: false)
-            try FileManager.default.removeItem(at: node.url)
-            try Git.commit(message: "Deleted '\(node.relativePath)'")
-
+            try Git.rmCommit(node: node)
             try appState.reloadGitTree()
 
         } catch {
             G.logger.error("\(error)")
+            G.logger.warning("Resetting to HEAD")
+            try? Git.reset()
         }
     }
 }

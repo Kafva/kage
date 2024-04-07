@@ -96,14 +96,15 @@ struct NewPasswordView: View {
                             outpath: newPwNode.url,
                             plaintext: password)
 
-            try Git.stage(relativePath: newPwNode.relativePath, add: true)
-            try Git.commit(message: "Added '\(newPwNode.relativePath)'")
+            try Git.addCommit(node: newPwNode)
 
             // Reload git tree with new entry
             try appState.reloadGitTree()
 
         } catch {
             G.logger.error("\(error)")
+            G.logger.warning("Resetting to HEAD")
+            try? Git.reset()
         }
     }
 }

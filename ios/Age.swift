@@ -1,5 +1,27 @@
 import Foundation
 
+@_silgen_name("ffi_age_unlock_identity")
+func ffi_age_unlock_identity(encryptedIdentity: UnsafePointer<CChar>,
+                                    passphrase: UnsafePointer<CChar>) -> CInt
+
+@_silgen_name("ffi_age_lock_identity")
+func ffi_age_lock_identity() -> CInt
+
+@_silgen_name("ffi_age_unlock_timestamp")
+func ffi_age_unlock_timestamp() -> CUnsignedLongLong
+
+
+@_silgen_name("ffi_age_encrypt")
+func ffi_age_encrypt(plaintext: UnsafePointer<CChar>,
+                            recepient: UnsafePointer<CChar>,
+                            outpath: UnsafePointer<CChar>) -> CInt
+
+@_silgen_name("ffi_age_decrypt")
+func ffi_age_decrypt(encryptedFilepath: UnsafePointer<CChar>,
+                            out: UnsafeMutableRawPointer,
+                            outsize: CInt) -> CInt
+
+////////////////////////////////////////////////////////////////////////////////
 
 struct Age {
     static func unlockTimestamp() -> UInt64 {

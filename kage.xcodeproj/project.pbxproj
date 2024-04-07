@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		16A0CF8D7757B5AEA4CC2A24 /* NewPasswordView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 487FBE1D6D8EF28C4AE7BAB1 /* NewPasswordView.swift */; };
 		20B2962BC903165C1547B91D /* PwNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78AD88FC59CD039B63A7F5FC /* PwNode.swift */; };
-		24EC3A66C120BF7B757CAE3E /* ffiApi.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7589A15AC15B8628E6AF92B5 /* ffiApi.swift */; };
 		488BC80BAAE8375F6CD6CAFF /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E5D4DBC06BF413DE2010C /* AppState.swift */; };
 		5CE0BC8DBA2CC64C5104AC0A /* FileManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3E1AE2EA2D1C8B61349B273 /* FileManager.swift */; };
 		6F9CEFA5EA5B7215ADC18BF9 /* AuthenticationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F7215AE713FACE43D49D54F /* AuthenticationView.swift */; };
@@ -36,7 +35,6 @@
 		4F0D8E0ACE255FC38D0D6C8F /* Git.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Git.swift; sourceTree = "<group>"; };
 		5318F2240B8EACFD17614D11 /* URL.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = URL.swift; path = extensions/URL.swift; sourceTree = "<group>"; };
 		62E58D179FCD1B4C3F7BBE18 /* Age.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Age.swift; sourceTree = "<group>"; };
-		7589A15AC15B8628E6AF92B5 /* ffiApi.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ffiApi.swift; sourceTree = "<group>"; };
 		78AD88FC59CD039B63A7F5FC /* PwNode.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = PwNode.swift; path = models/PwNode.swift; sourceTree = "<group>"; };
 		8F7215AE713FACE43D49D54F /* AuthenticationView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AuthenticationView.swift; path = views/AuthenticationView.swift; sourceTree = "<group>"; };
 		9145173DDBC56F12DB11C9AE /* String.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = String.swift; path = extensions/String.swift; sourceTree = "<group>"; };
@@ -101,7 +99,6 @@
 			children = (
 				DDA4B62C2AFDF6A00046DFCE /* kageApp.swift */,
 				DDA4B6302AFDF6A10046DFCE /* Assets.xcassets */,
-				7589A15AC15B8628E6AF92B5 /* ffiApi.swift */,
 				4F0D8E0ACE255FC38D0D6C8F /* Git.swift */,
 				62E58D179FCD1B4C3F7BBE18 /* Age.swift */,
 				EF9E5D4DBC06BF413DE2010C /* AppState.swift */,
@@ -214,7 +211,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				DDA4B62D2AFDF6A00046DFCE /* kageApp.swift in Sources */,
-				24EC3A66C120BF7B757CAE3E /* ffiApi.swift in Sources */,
 				EDCD26E61496FE5E345B40CE /* Git.swift in Sources */,
 				9DBB65AD2437C02BA4AB5995 /* Age.swift in Sources */,
 				488BC80BAAE8375F6CD6CAFF /* AppState.swift in Sources */,
