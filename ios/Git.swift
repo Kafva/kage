@@ -8,7 +8,7 @@ func ffi_git_reset(_ repo: UnsafePointer<CChar>) -> CInt
 
 @_silgen_name("ffi_git_config_set_user")
 func ffi_git_config_set_user(_ repo: UnsafePointer<CChar>, 
-                        username: UnsafePointer<CChar>) -> CInt
+                             username: UnsafePointer<CChar>) -> CInt
 
 @_silgen_name("ffi_git_stage")
 func ffi_git_stage(_ repo: UnsafePointer<CChar>,
@@ -62,6 +62,7 @@ enum Git {
         if r != 0 {
             throw AppError.gitError(r)
         }
+        G.logger.debug("Pull successful")
     }
 
     static func push() throws {
@@ -70,6 +71,7 @@ enum Git {
         if r != 0 {
             throw AppError.gitError(r)
         }
+        G.logger.debug("Push successful")
     }
 
     static func indexHasLocalChanges() throws -> Bool {
@@ -113,10 +115,10 @@ enum Git {
         let repoC = try repo.path().toCString()
         let relativePathC = try relativePath.toCString()
 
-        G.logger.debug("\(add ? "Adding" : "Removing") '\(relativePath)'")
         let r = ffi_git_stage(repoC, relativePath: relativePathC, add: add)
         if r != 0 {
             throw AppError.gitError(r)
         }
+        G.logger.debug("\(add ? "Added" : "Removed") '\(relativePath)'")
     }
 }

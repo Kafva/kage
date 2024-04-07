@@ -60,15 +60,17 @@ pub fn git_push(repo_path: &str) -> Result<(),git2::Error> {
     let mut remote_callbacks = git2::RemoteCallbacks::new();
 
     remote_callbacks.push_transfer_progress(|current, total, _| {
+        if current == total {
+            debug!("Pushing: [{:4} / {:4}] Done", current, total);
+            return
+        }
+
         if total <= TRANSFER_STAGES {
             return
         }
 
         let increments = total / TRANSFER_STAGES;
-        if current == total {
-            debug!("Pushing: Done");
-        }
-        else if current % increments == 0 {
+        if current % increments == 0 {
             debug!("Pushing: [{:4} / {:4}]", current, total);
         }
     });
@@ -80,7 +82,9 @@ pub fn git_push(repo_path: &str) -> Result<(),git2::Error> {
     Ok(())
 }
 
-pub fn git_stage(repo_path: &str, relative_path: &str, add: bool) -> Result<(), git2::Error> {
+pub fn git_stage(repo_path: &str,
+                 relative_path: &str,
+                 add: bool) -> Result<(), git2::Error> {
     let repo = Repository::open(repo_path)?;
     let mut index = repo.index()?;
     let relative_path = Path::new(relative_path);
@@ -121,7 +125,7 @@ pub fn git_commit(repo_path: &str, message: &str) -> Result<(),git2::Error> {
     Ok(())
 }
 
-/// Hard reset to the remote HEAD, discarding local commits that have not 
+/// Hard reset to the remote HEAD, discarding local commits that have not
 /// been pushed.
 pub fn git_reset(repo_path: &str) -> Result<(),git2::Error> {
     let repo = Repository::open(repo_path)?;
@@ -165,19 +169,14 @@ pub fn git_index_has_local_changes(repo_path: &str) -> Result<bool, git2::Error>
 }
 
 pub fn git_config_set_user(repo_path: &str, username: &str) -> Result<(), git2::Error> {
-    // https://github.com/rust-lang/git2-rs/issues/474
     let config_path = Path::new(repo_path).join(".git").join("config");
     let mut cfg = git2::Config::open(&config_path)?;
 
     cfg.set_str("user.name", username)?;
     cfg.set_str("user.email", &format!("{}@{}", username, GIT_EMAIL))?;
-    drop(cfg);
 
-    // let cfg = git2::Config::open(&config_path)?;
-    // let username = cfg.get_str("user.name")?;
-    // debug!("user.name {}", username);
-    // debug!("user.email {}", cfg.get_str("user.email")?);
-
+    // Echoing back the config gives errors...
+    //  https://github.com/rust-lang/git2-rs/issues/474
     Ok(())
 }
 
@@ -207,7 +206,7 @@ fn transfer_progress(progress: git2::Progress, label: &str) -> bool {
         }
     }
     else if recv == total && indexed == total && deltas == total_deltas {
-        debug!("{}: Done", label);
+        debug!("{}: [{:4} / {:4}] Done", label, recv, total);
     }
 
     true
@@ -250,8 +249,8 @@ mod tests {
         assert_ok(git_config_set_user(REPO_PATH, "james"));
     }
 
-    /// Test: 
-    ///    1. Clone -> set config -> add -> commit -> push 
+    /// Test:
+    ///    1. Clone -> set config -> add -> commit -> push
     ///    2. Pull in remote changes
     ///    3. Do local changes and reset
     #[test]

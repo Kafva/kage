@@ -2,6 +2,7 @@ import SwiftUI
 import OSLog
 
 struct NewPasswordView: View {
+    @Environment(\.dismiss) var dismiss;
     @EnvironmentObject var appState: AppState
 
     @State private var selectedFolder = G.rootNodeName
@@ -18,7 +19,7 @@ struct NewPasswordView: View {
             return nil
         }
         let url = G.gitDir.appending(path: selectedFolder)
-                .appending(path: selectedName + ".age")
+                          .appending(path: selectedName + ".age")
 
         return PwNode(url: url, children: [])
     }
@@ -86,9 +87,10 @@ struct NewPasswordView: View {
     }
 
     private func addPassword() {
-        if !validPassword {
+        if !validPwNode || !validPassword {
             return
         }
+
         guard let newPwNode else {
             return
         }
@@ -104,6 +106,8 @@ struct NewPasswordView: View {
 
             // Reload git tree with new entry
             try appState.reloadGitTree()
+            // Dismiss the view
+            dismiss()
 
         } catch {
             G.logger.error("\(error)")

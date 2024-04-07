@@ -148,6 +148,7 @@ struct AppView: View {
     private func handleGitPush() {
         do {
             try Git.push()
+            try appState.reloadGitTree()
         } catch {
             G.logger.error("\(error)")
         }

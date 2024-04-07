@@ -84,20 +84,6 @@ fn ffi_git_reset(repo_path: *const c_char) -> c_int {
 
 #[no_mangle]
 pub extern "C"
-fn ffi_git_commit(repo_path: *const c_char,
-                  message: *const c_char) -> c_int {
-    let repo_path = unsafe { CStr::from_ptr(repo_path).to_str() };
-    let message = unsafe { CStr::from_ptr(message).to_str() };
-
-    let (Ok(repo_path), Ok(message)) = (repo_path, message) else {
-        return -1
-    };
-
-    ffi_git_call!(git_commit(repo_path, message))
-}
-
-#[no_mangle]
-pub extern "C"
 fn ffi_git_config_set_user(repo_path: *const c_char,
                            username: *const c_char) -> c_int {
     let repo_path = unsafe { CStr::from_ptr(repo_path).to_str() };
@@ -108,6 +94,20 @@ fn ffi_git_config_set_user(repo_path: *const c_char,
     };
 
     ffi_git_call!(git_config_set_user(repo_path, username))
+}
+
+#[no_mangle]
+pub extern "C"
+fn ffi_git_commit(repo_path: *const c_char,
+                  message: *const c_char) -> c_int {
+    let repo_path = unsafe { CStr::from_ptr(repo_path).to_str() };
+    let message = unsafe { CStr::from_ptr(message).to_str() };
+
+    let (Ok(repo_path), Ok(message)) = (repo_path, message) else {
+        return -1
+    };
+
+    ffi_git_call!(git_commit(repo_path, message))
 }
 
 #[no_mangle]
