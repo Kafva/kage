@@ -4,9 +4,10 @@ import Foundation
 public func ffi_git_clone(_ url: UnsafePointer<CChar>,
                           into: UnsafePointer<CChar>) -> CInt
 
-@_silgen_name("ffi_git_add")
-public func ffi_git_add(_ repo: UnsafePointer<CChar>,
-                        relativePath: UnsafePointer<CChar>) -> CInt
+@_silgen_name("ffi_git_stage")
+public func ffi_git_stage(_ repo: UnsafePointer<CChar>,
+                          relativePath: UnsafePointer<CChar>,
+                          add: Bool) -> CInt
 
 @_silgen_name("ffi_git_commit")
 public func ffi_git_commit(_ repo: UnsafePointer<CChar>,

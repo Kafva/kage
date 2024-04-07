@@ -25,12 +25,12 @@ struct Git {
         }
     }
 
-    static func add(relativePath: String) throws {
+    static func stage(relativePath: String, add: Bool) throws {
         let repoC = try repo.path().toCString()
         let relativePathC = try relativePath.toCString()
 
-        G.logger.debug("Adding '\(relativePath)'")
-        let r = ffi_git_add(repoC, relativePath: relativePathC)
+        G.logger.debug("\(add ? "Adding" : "Removing") '\(relativePath)'")
+        let r = ffi_git_stage(repoC, relativePath: relativePathC, add: add)
         if r != 0 {
             throw AppError.gitError(r)
         }

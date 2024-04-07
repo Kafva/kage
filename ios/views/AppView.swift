@@ -165,10 +165,9 @@ struct AppView: View {
 
     private func handleGitRemove(node: PwNode) {
         do {
+            try Git.stage(relativePath: node.relativePath, add: false)
             try FileManager.default.removeItem(at: node.url)
-            let relativePath = node.url.path()
-                                       .trimmingPrefix(G.gitDir.path() + "/")
-            try Git.add(relativePath: String(relativePath))
+            try Git.commit(message: "Deleted '\(node.relativePath)'")
 
             try appState.reloadGitTree()
 

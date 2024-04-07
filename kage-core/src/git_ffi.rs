@@ -51,9 +51,11 @@ pub extern "C" fn ffi_git_push(repo_path: *const c_char) -> c_int {
     ffi_git_call!(git_push(repo_path))
 }
 
+/// Stage an 'add' or a 'rm' operation
 #[no_mangle]
-pub extern "C" fn ffi_git_add(repo_path: *const c_char,
-                              relative_path: *const c_char) -> c_int {
+pub extern "C" fn ffi_git_stage(repo_path: *const c_char,
+                                relative_path: *const c_char,
+                                add: bool) -> c_int {
     let repo_path = unsafe { CStr::from_ptr(repo_path).to_str() };
     let relative_path = unsafe { CStr::from_ptr(relative_path).to_str() };
 
@@ -61,7 +63,7 @@ pub extern "C" fn ffi_git_add(repo_path: *const c_char,
         return -1
     };
 
-    ffi_git_call!(git_add(repo_path, relative_path))
+    ffi_git_call!(git_stage(repo_path, relative_path, add))
 }
 
 #[no_mangle]

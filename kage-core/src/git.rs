@@ -79,10 +79,15 @@ pub fn git_push(repo_path: &str) -> Result<(),git2::Error> {
     Ok(())
 }
 
-pub fn git_add(repo_path: &str, relative_path: &str) -> Result<(), git2::Error> {
+pub fn git_stage(repo_path: &str, relative_path: &str, add: bool) -> Result<(), git2::Error> {
     let repo = Repository::open(repo_path)?;
     let mut index = repo.index()?;
-    index.add_path(Path::new(relative_path))?;
+    let relative_path = Path::new(relative_path);
+    if add {
+        index.add_path(relative_path)?;
+    } else {
+        index.remove_path(relative_path)?;
+    }
     index.write()
 }
 

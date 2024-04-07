@@ -10,22 +10,24 @@ struct NewPasswordView: View {
     @State private var confirmPassword = ""
     @State private var generate = true
 
-    private var passwordURL: URL? {
+    private var newPwNode: PwNode? {
         if selectedFolder.isEmpty ||
            selectedName.isEmpty ||
            !selectedFolder.isPrintableASCII ||
            !selectedName.isPrintableASCII {
             return nil
         }
-        return G.gitDir.appending(path: selectedFolder)
-                       .appending(path: selectedName + ".age")
+        let url = G.gitDir.appending(path: selectedFolder)
+                .appending(path: selectedName + ".age")
+
+        return PwNode(url: url, children: [])
     }
 
-    private var validPasswordURL: Bool {
-       guard let passwordURL else {
+    private var validPwNode: Bool {
+       guard let newPwNode else {
            return false
        }
-       return !FileManager.default.isFile(passwordURL)
+       return !FileManager.default.isFile(newPwNode.url)
     }
 
     private var validPassword: Bool {
@@ -39,7 +41,7 @@ struct NewPasswordView: View {
         return VStack(alignment: .leading, spacing: 10) {
             Picker("Folder", selection: $selectedFolder) {
                 ForEach(appState.rootNode.flatFolders()) { node in
-                    Text(node.path).tag(node.path)
+                    Text(node.relativePath).tag(node.relativePath)
                 }
             }
             .pickerStyle(.menu)
@@ -47,7 +49,7 @@ struct NewPasswordView: View {
             TextField("Name", text: $selectedName)
                 .textFieldStyle(.roundedBorder)
                 // TODO: https://forums.developer.apple.com/forums/thread/738755
-                .foregroundColor(validPasswordURL ? G.textColor : G.textColor)
+                .foregroundColor(validPwNode ? G.textColor : G.textColor)
 
             Toggle(isOn: $generate) {
                 Text("Autogenerate")
@@ -66,7 +68,7 @@ struct NewPasswordView: View {
                 Text("Confirm").bold().font(.system(size: 18))
             }
             .padding([.top, .bottom], 20)
-            .disabled(!validPasswordURL || !validPassword)
+            .disabled(!validPwNode || !validPassword)
         }
     }
 
@@ -83,7 +85,7 @@ struct NewPasswordView: View {
         if !validPassword {
             return
         }
-        guard let outpath = passwordURL else {
+        guard let newPwNode else {
             return
         }
 
@@ -91,11 +93,11 @@ struct NewPasswordView: View {
             let recipient = G.gitDir.appending(path: ".age-recipients")
 
             try Age.encrypt(recipient: recipient,
-                            outpath: outpath,
+                            outpath: newPwNode.url,
                             plaintext: password)
 
-            // TODO git add .
-            // TODO git commit -m ""
+            try Git.stage(relativePath: newPwNode.relativePath, add: true)
+            try Git.commit(message: "Added '\(newPwNode.relativePath)'")
 
             // Reload git tree with new entry
             try appState.reloadGitTree()

@@ -1,8 +1,0 @@
-[package]
-name = "pw"
-version = "0.1.0"
-edition = "2021"
-authors = ["Kafva"]
-
-[dependencies]
-kage-core = { path = "../kage-core" }

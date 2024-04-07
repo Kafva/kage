@@ -9,7 +9,8 @@ struct G {
                         category: "generic")
 
     static let rootNodeName = "/"
-    static let gitDir = FileManager.default.appDataDirectory.appending(path: "git")
+    static let gitDirName = "git"
+    static let gitDir = FileManager.default.appDataDirectory.appending(path: G.gitDirName)
 
     static let ageDecryptOutSize: CInt = 2048
 
