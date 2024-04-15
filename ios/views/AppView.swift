@@ -25,8 +25,8 @@ struct AppView: View {
     @State private var showAuthentication: Bool = false
     @State private var showPlaintext: Bool = false
     @State private var showSettings = false
-    @State private var showNewPassword = false
-    @State private var showNewFolder = false
+    @State private var showPwNodePassword = false
+    @State private var showPwNodeFolder = false
 
     var body: some View {
         NavigationStack {
@@ -44,10 +44,10 @@ struct AppView: View {
              AuthenticationView(showAuthentication: $showAuthentication,
                                 showPlaintext: $showPlaintext)
         })
-        .popover(isPresented: $showNewPassword) {
+        .popover(isPresented: $showPwNodePassword) {
             PwNodeView(targetNode: $targetNode, forFolder: false)
         }
-        .popover(isPresented: $showNewFolder) {
+        .popover(isPresented: $showPwNodeFolder) {
             PwNodeView(targetNode: $targetNode, forFolder: true)
         }
         .popover(isPresented: $showSettings) { SettingsView() }
@@ -102,6 +102,18 @@ struct AppView: View {
                         Image(systemName: "xmark.circle")
                     }
                     .tint(.red)
+
+                    Button(action: {
+                        if node.isLeaf {
+                            showPwNodePassword = true
+                        } else {
+                            showPwNodeFolder = true
+                        }
+                    }) {
+                        Image(systemName: "pencil")
+                    }
+                    .tint(.blue)
+
                 }
         }
         .searchable(text: $searchText)
@@ -110,7 +122,7 @@ struct AppView: View {
             ToolbarItemGroup(placement: .bottomBar) {
                 // TODO: only show when index is dirty and can't connect to
                 // server
-                if appState.hasLocalChanges {
+                if appState.vpnActive && appState.hasLocalChanges {
                     Button {
                         handleGitPush()
                     } label: {
@@ -118,12 +130,12 @@ struct AppView: View {
                     }
                 }
                 Button {
-                    showNewPassword = true
+                    showPwNodePassword = true
                 } label: {
                     Image(systemName: "key").bold()
                 }
                 Button {
-                    showNewFolder = true
+                    showPwNodeFolder = true
                 } label: {
                     Image(systemName: "folder.badge.plus").bold()
                 }

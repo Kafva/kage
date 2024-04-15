@@ -15,6 +15,10 @@ struct PwNode: Identifiable {
          return name
     }
 
+    var parent: PwNode? {
+        return nil
+    }
+
     /// Path relative to git root
     var relativePath: String {
         let s = url.path().deletingPrefix(G.gitDir.path())

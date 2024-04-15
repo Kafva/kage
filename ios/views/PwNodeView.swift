@@ -76,7 +76,12 @@ struct PwNodeView: View {
         }
 
         return Form {
-            Section(header: Text(title).font(.system(size: 20)).bold()) {
+            let header = Text(title).font(.system(size: 20))
+                                    .bold()
+                                    .padding(.bottom, 10)
+                                    .padding(.top, 20)
+
+            Section(header: header) {
                 VStack(alignment: .leading, spacing: 10) {
                     if let targetNode {
                         /* Edit password */
@@ -110,6 +115,12 @@ struct PwNodeView: View {
                                          .overlay(underlineColor)
                             }
                         }
+                    }
+                }
+                .onAppear {
+                    if let targetNode {
+                        selectedName = targetNode.name
+                        selectedFolder = targetNode
                     }
                 }
             }
