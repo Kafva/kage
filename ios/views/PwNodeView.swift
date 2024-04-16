@@ -14,40 +14,13 @@ struct PwNodeView: View {
     @State private var confirmPassword = ""
     @State private var generate = true
 
-    /// Return the PwNode object that is about to be inserted into the tree
-    /// if valid values have been configured
     private var newPwNode: PwNode? {
-        if selectedFolder.isEmpty ||
-           selectedName.isEmpty ||
-           !selectedFolder.isPrintableASCII ||
-           !selectedName.isPrintableASCII {
-            return nil
-        }
-
-        let parentURL = G.gitDir.appending(path: selectedFolder)
-
-        // Parent must exist
-        if !FileManager.default.isDir(parentURL) {
-            return nil
-        }
-
-        let url = parentURL.appending(path: selectedName + (forFolder ? "" : ".age"))
-
-        return PwNode(url: url, children: [])
-    }
-
-    private var newPwNodeIsValid: Bool {
-       guard let newPwNode else {
-           return false
-       }
-       return !FileManager.default.isFile(newPwNode.url) &&
-              !FileManager.default.isDir(newPwNode.url)
+       return PwNode.loadNewFrom(name: selectedName,
+                                 relativeFolderPath: selectedFolder,
+                                 isDir: forFolder)
     }
 
     private var newPasswordIsValid: Bool {
-        if !newPwNodeIsValid {
-            return false
-        }
         if generate {
             return true
         }
@@ -61,18 +34,24 @@ struct PwNodeView: View {
 
         if let targetNode {
             title = "Edit \(targetNode.name)"
-            confirmAction = addPassword
-            confirmIsOk = newPasswordIsValid
+            confirmAction = forFolder ? renameFolder : changePassword
+
+            if forFolder {
+                confirmIsOk = newPwNode != nil
+            } else {
+                confirmIsOk = newPwNode != nil && (password.isEmpty ||
+                                                   password == confirmPassword)
+            }
 
         } else if forFolder {
             title = "New folder"
             confirmAction = addFolder
-            confirmIsOk = newPwNodeIsValid
+            confirmIsOk = newPwNode != nil
 
         } else {
             title = "New password"
             confirmAction = addPassword
-            confirmIsOk = newPasswordIsValid
+            confirmIsOk = newPwNode != nil && newPasswordIsValid
         }
 
         return Form {
@@ -83,44 +62,35 @@ struct PwNodeView: View {
 
             Section(header: header) {
                 VStack(alignment: .leading, spacing: 10) {
-                    if let targetNode {
-                        /* Edit password */
-                        Text(targetNode.name)
-                    } else {
-                        /* New password or folder */
-                        Picker(forFolder ? "Parent" : "Folder", selection: $selectedFolder) {
-                            ForEach(appState.rootNode.flatFolders()) { node in
-                                Text(node.relativePath).tag(node.relativePath)
-                            }
+                    /* New password or folder */
+                    Picker(forFolder ? "Parent" : "Folder", selection: $selectedFolder) {
+                        ForEach(appState.rootNode.flatFolders()) { node in
+                            Text(node.relativePath).tag(node.relativePath)
                         }
-                        .pickerStyle(.menu)
+                    }
+                    .pickerStyle(.menu)
 
-                        TextField("Name", text: $selectedName)
-                            .textFieldStyle(.roundedBorder)
-                            // TODO: color is not updated
-                            // https://forums.developer.apple.com/forums/thread/738755
-                            .foregroundColor(newPwNodeIsValid ? G.textColor : G.textColor)
+                    TextField("Name", text: $selectedName)
+                        .textFieldStyle(.roundedBorder)
+                        // TODO: color is not updated
+                        // https://forums.developer.apple.com/forums/thread/738755
+                        // .foregroundColor(newPwNode != nil ? G.textColor : Color.red)
 
-                        if !forFolder {
+                    if !forFolder {
+                        if targetNode == nil {
                             Toggle(isOn: $generate) {
                                 Text("Autogenerate")
                             }
-
-                            if !generate {
-                                let underlineColor = !password.isEmpty && password == confirmPassword ?
-                                                      Color.green : Color.red
-                                SecureField("Password", text: $password).textFieldStyle(.plain)
-                                SecureField("Confirm password", text: $confirmPassword).textFieldStyle(.plain)
-                                Divider().frame(height: 2)
-                                         .overlay(underlineColor)
-                            }
+                        }
+                        if targetNode != nil || !generate {
+                            passwordForm
                         }
                     }
                 }
                 .onAppear {
                     if let targetNode {
                         selectedName = targetNode.name
-                        selectedFolder = targetNode
+                        selectedFolder = targetNode.parentRelativePath
                     }
                 }
             }
@@ -134,6 +104,17 @@ struct PwNodeView: View {
             }
         }
         .formStyle(.grouped)
+    }
+
+    private var passwordForm: some View {
+        let underlineColor = !password.isEmpty && password == confirmPassword ?
+                              Color.green : Color.red
+        return Group {
+            SecureField("Password", text: $password).textFieldStyle(.plain)
+            SecureField("Confirm password", text: $confirmPassword).textFieldStyle(.plain)
+            Divider().frame(height: 2)
+                     .overlay(underlineColor)
+        }
     }
 
     private func addFolder() {
@@ -152,6 +133,52 @@ struct PwNodeView: View {
         }
     }
 
+    private func renameFolder() {
+        guard let newPwNode, let targetNode else {
+            return
+        }
+        do {
+            try Git.mvCommit(fromNode: targetNode, toNode: newPwNode)
+
+            try appState.reloadGitTree()
+            dismiss()
+
+        } catch {
+            G.logger.error("\(error)")
+        }
+    }
+
+    /// Seperate commits are created for moving a password and changing its value
+    private func changePassword() {
+        guard let newPwNode, let targetNode else {
+            return
+        }
+        do {
+            // Move the password node
+            if targetNode.url != newPwNode.url {
+                try Git.mvCommit(fromNode: targetNode, toNode: newPwNode)
+            }
+
+            // Change the password value
+            if !password.isEmpty && password == confirmPassword {
+                let recipient = G.gitDir.appending(path: ".age-recipients")
+
+                try Age.encrypt(recipient: recipient,
+                                outpath: newPwNode.url,
+                                plaintext: password)
+
+                try Git.addCommit(node: newPwNode, nodeIsNew: false)
+            }
+
+            try appState.reloadGitTree()
+            dismiss()
+
+        } catch {
+            G.logger.error("\(error)")
+        }
+
+    }
+
     private func addPassword() {
         if !newPasswordIsValid {
             return
@@ -166,7 +193,7 @@ struct PwNodeView: View {
                             outpath: newPwNode.url,
                             plaintext: password)
 
-            try Git.addCommit(node: newPwNode)
+            try Git.addCommit(node: newPwNode, nodeIsNew: true)
 
             // Reload git tree with new entry
             try appState.reloadGitTree()

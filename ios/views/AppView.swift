@@ -104,6 +104,7 @@ struct AppView: View {
                     .tint(.red)
 
                     Button(action: {
+                        targetNode = node
                         if node.isLeaf {
                             showPwNodePassword = true
                         } else {
@@ -132,12 +133,12 @@ struct AppView: View {
                 Button {
                     showPwNodePassword = true
                 } label: {
-                    Image(systemName: "key").bold()
+                    Image(systemName: "rectangle.badge.plus").bold()
                 }
                 Button {
                     showPwNodeFolder = true
                 } label: {
-                    Image(systemName: "folder.badge.plus").bold()
+                    Image(systemName: "rectangle.stack.badge.plus").bold()
                 }
 
                 Button {

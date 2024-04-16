@@ -8,15 +8,20 @@ struct PwNode: Identifiable {
 
     var name: String {
          let name = url.deletingPathExtension().lastPathComponent
-         // TODO: dissallow gitDir name
-         if name == G.gitDir.lastPathComponent {
+         if name == G.gitDirName {
              return G.rootNodeName
          }
          return name
     }
 
-    var parent: PwNode? {
-        return nil
+    var parentRelativePath: String {
+        if url.lastPathComponent == G.gitDirName ||
+           url.lastPathComponent == G.rootNodeName {
+            return G.rootNodeName
+        } else {
+            let parentURL = url.deletingLastPathComponent()
+            return PwNode(url: parentURL, children: []).relativePath
+        }
     }
 
     /// Path relative to git root
@@ -30,6 +35,42 @@ struct PwNode: Identifiable {
 
     var isLeaf: Bool {
         return (children ?? []).isEmpty
+    }
+
+    /// Create a new PwNode from a given name and folder path reletive to the
+    /// git root. Will return nil if the object already exists in the git
+    /// store.
+    static func loadNewFrom(name: String,
+                            relativeFolderPath: String,
+                            isDir: Bool) -> Self? {
+        if name == G.gitDirName ||
+           name.isEmpty ||
+           name.hasSuffix(".age") ||
+           !relativeFolderPath.isPrintableASCII ||
+           !name.isPrintableASCII {
+            return nil
+        }
+
+        let parentURL = G.gitDir.appending(path: relativeFolderPath)
+
+        // Parent must exist
+        if !FileManager.default.isDir(parentURL) {
+            G.logger.error("Missing parent path: '\(relativeFolderPath)'")
+            return nil
+        }
+
+        let urlFile = parentURL.appending(path: name + ".age")
+        let urlDir = parentURL.appending(path: name)
+
+        // New node is not allowed to already exist
+        if FileManager.default.isFile(urlFile) {
+            return nil
+        }
+        if FileManager.default.isDir(urlDir) {
+            return nil
+        }
+
+        return PwNode(url: isDir ? urlDir : urlFile, children: [])
     }
 
     static func loadFrom(_ fromDir: URL) throws -> Self {

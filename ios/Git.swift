@@ -7,7 +7,7 @@ func ffi_git_clone(_ url: UnsafePointer<CChar>,
 func ffi_git_reset(_ repo: UnsafePointer<CChar>) -> CInt
 
 @_silgen_name("ffi_git_config_set_user")
-func ffi_git_config_set_user(_ repo: UnsafePointer<CChar>, 
+func ffi_git_config_set_user(_ repo: UnsafePointer<CChar>,
                              username: UnsafePointer<CChar>) -> CInt
 
 @_silgen_name("ffi_git_stage")
@@ -33,15 +33,30 @@ func ffi_git_index_has_local_changes(_ repo: UnsafePointer<CChar>) -> CInt
 private let repo = G.gitDir
 
 enum Git {
-    static func addCommit(node: PwNode) throws {
+    /// Stage and commit a new file or folder
+    static func addCommit(node: PwNode, nodeIsNew: Bool) throws {
         try Git.stage(relativePath: node.relativePath, add: true)
-        try Git.commit(message: "Added '\(node.relativePath)'")
+        try Git.commit(message: "\(nodeIsNew ? "Added" : "Changed") '\(node.relativePath)'")
     }
 
+    /// Remove a file or folder and create a commit with the change
     static func rmCommit(node: PwNode) throws {
+        // TODO staging removes the file 'git rm'
         try Git.stage(relativePath: node.relativePath, add: false)
         try FileManager.default.removeItem(at: node.url)
         try Git.commit(message: "Deleted '\(node.relativePath)'")
+    }
+
+    /// Move a file or folder and create a commit with the change
+    static func mvCommit(fromNode: PwNode, toNode: PwNode) throws {
+        try Git.stage(relativePath: fromNode.relativePath, add: false)
+        try Git.stage(relativePath: toNode.relativePath, add: true)
+
+        try FileManager.default.moveItem(at: fromNode.url,
+                                         to: toNode.url)
+
+        let msg = "Renamed '\(fromNode.relativePath)' to '\(toNode.relativePath)'"
+        try Git.commit(message: msg)
     }
 
     static func clone(remote: String) throws {

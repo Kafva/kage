@@ -9,7 +9,7 @@ enum G {
                         category: "generic")
 
     static let rootNodeName = "/"
-    static let gitDirName = "git"
+    static let gitDirName = "git-adc83b19e"
     static let gitDir = FileManager.default.appDataDirectory.appending(path: G.gitDirName)
 
     static let ageDecryptOutSize: CInt = 2048
