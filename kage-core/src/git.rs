@@ -226,7 +226,8 @@ mod tests {
     use std::process::Command;
     use std::time::{SystemTime, UNIX_EPOCH};
 
-    const REPO_PATH: &'static str = "../git/kage-client/james";
+    const GIT_USERNAME: &'static str = "james";
+    const GIT_REMOTE_CLONE_URL: &'static str = "git://127.0.0.1/james";
     const EXTERNAL_CHECKOUT: &'static str = "/tmp/james";
 
     fn assert_ok(result: Result<(), git2::Error>) {
@@ -245,8 +246,62 @@ mod tests {
             }
         }
 
-        assert_ok(git_clone("git://127.0.0.1/james", path));
-        assert_ok(git_config_set_user(REPO_PATH, "james"));
+        assert_ok(git_clone(GIT_REMOTE_CLONE_URL, path));
+        assert_ok(git_config_set_user(path, GIT_USERNAME));
+    }
+
+    #[test]
+    fn git_directory_test() {
+
+    }
+
+    #[test]
+    fn git_reset_test() {
+        let repo_path = "../git/kage-client/reset_test";
+
+        let now = SystemTime::now().duration_since(UNIX_EPOCH).unwrap();
+
+        let file_to_keep = format!("file_to_keep-{}", now.as_secs());
+        let file_to_remove = format!("file_to_remove-{}", now.as_secs());
+        let file_to_modify = format!("file_to_modify-{}", now.as_secs());
+
+        let file_to_keep_path = format!("{}/{}", repo_path, file_to_keep);
+        let file_to_remove_path = format!("{}/{}", repo_path, file_to_remove);
+        let file_to_modify_path = format!("{}/{}", repo_path, file_to_modify);
+
+        let file_to_modify_data = "To modify";
+
+        clone(repo_path);
+
+        // Create a commit with all three files
+        fs::write(&file_to_keep_path, "To keep").expect("write file failed");
+        fs::write(&file_to_remove_path, "To remove").expect("write file failed");
+        fs::write(&file_to_modify_path, file_to_modify_data).expect("write file failed");
+        assert_ok(git_stage(repo_path, &file_to_keep, true));
+        assert_ok(git_stage(repo_path, &file_to_remove, true));
+        assert_ok(git_stage(repo_path, &file_to_modify, true));
+        assert_ok(git_commit(repo_path, "First commit"));
+
+        // Stage some changes to them and commit
+        fs::remove_file(&file_to_remove_path).expect("remove file failed");
+        fs::write(&file_to_modify_path, "Different content").expect("write file failed");
+
+        assert_ok(git_stage(repo_path, &file_to_remove, false));
+        assert_ok(git_stage(repo_path, &file_to_modify, true));
+        assert_ok(git_commit(repo_path, "Commit to undo"));
+
+        assert!(fs::metadata(&file_to_keep_path).is_ok());
+        assert!(fs::metadata(&file_to_remove_path).is_err());
+        assert!(fs::metadata(&file_to_modify_path).is_ok());
+
+        // Reset
+        assert_ok(git_reset(repo_path));
+
+        // Verify that changes were restored
+        assert!(fs::metadata(&file_to_keep_path).is_ok());
+        assert!(fs::metadata(&file_to_remove_path).is_ok());
+        let data = fs::read(&file_to_modify_path).expect("read file failed");
+        assert_eq!(data, file_to_modify_data.as_bytes())
     }
 
     /// Test:
@@ -255,33 +310,34 @@ mod tests {
     ///    3. Do local changes and reset
     #[test]
     fn git_clone_test() {
+        let repo_path = "../git/kage-client/git_clone_test";
+
         let now = SystemTime::now().duration_since(UNIX_EPOCH).unwrap();
         // File added by us
         let newfile = format!("newfile-{}", now.as_secs());
-        let newfile_path = format!("{}/{}", REPO_PATH, newfile);
+        let newfile_path = format!("{}/{}", repo_path, newfile);
 
         // File added from another checkout and pulled down
         let externalfile = format!("externalfile-{}", now.as_secs());
         let externalfile_path = format!("{}/{}", EXTERNAL_CHECKOUT, externalfile);
-        let pulled_externalfile_path = format!("{}/{}", REPO_PATH, externalfile);
 
-        clone(REPO_PATH);
+        clone(repo_path);
 
         // Add
         fs::write(&newfile_path, "Original content").expect("write file failed");
-        assert_ok(git_stage(REPO_PATH, &newfile, true));
-        assert_eq!(git_index_has_local_changes(REPO_PATH).unwrap(), true);
+        assert_ok(git_stage(repo_path, &newfile, true));
+        assert_eq!(git_index_has_local_changes(repo_path).unwrap(), true);
 
         // Commit
-        assert_ok(git_commit(REPO_PATH, format!("Adding {}", newfile).as_str()));
-        assert_eq!(git_index_has_local_changes(REPO_PATH).unwrap(), true);
+        assert_ok(git_commit(repo_path, format!("Adding {}", newfile).as_str()));
+        assert_eq!(git_index_has_local_changes(repo_path).unwrap(), true);
 
         // Push
-        assert_ok(git_push(REPO_PATH));
-        assert_eq!(git_index_has_local_changes(REPO_PATH).unwrap(), false);
+        assert_ok(git_push(repo_path));
+        assert_eq!(git_index_has_local_changes(repo_path).unwrap(), false);
 
         // Nothing to do
-        assert_ok(git_pull(REPO_PATH));
+        assert_ok(git_pull(repo_path));
 
         // Clone into a new location, add, commit and push from here
         clone(EXTERNAL_CHECKOUT);
@@ -313,28 +369,7 @@ mod tests {
         assert!(status.success());
 
         // Pull in external updates
-        assert_ok(git_pull(REPO_PATH));
-
-        // Stage some changes
-        fs::remove_file(&pulled_externalfile_path).expect("remove file failed");
-        let original_data = fs::read(&newfile_path).expect("read file failed");
-        fs::write(&newfile_path, "Changed content").expect("write file failed");
-
-        assert_ok(git_stage(REPO_PATH, &externalfile, false));
-        assert_ok(git_stage(REPO_PATH, &newfile, true));
-
-        // Commit them
-        assert_ok(git_commit(REPO_PATH, "Commit to undo"));
-
-        assert!(fs::metadata(&pulled_externalfile_path).is_err());
-        assert!(fs::metadata(&newfile_path).is_ok());
-
-        // Reset
-        assert_ok(git_reset(REPO_PATH));
-
-        // Verify that changes were restored
-        assert!(fs::metadata(&pulled_externalfile_path).is_ok());
-        let data = fs::read(&newfile_path).expect("read file failed");
-        assert_eq!(data, original_data)
+        assert_ok(git_pull(repo_path));
+        // TODO check that we got them
     }
 }
