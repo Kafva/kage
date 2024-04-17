@@ -41,19 +41,17 @@ enum Git {
 
     /// Remove a file or folder and create a commit with the change
     static func rmCommit(node: PwNode) throws {
-        // TODO staging removes the file 'git rm'
         try Git.stage(relativePath: node.relativePath, add: false)
-        try FileManager.default.removeItem(at: node.url)
         try Git.commit(message: "Deleted '\(node.relativePath)'")
     }
 
     /// Move a file or folder and create a commit with the change
     static func mvCommit(fromNode: PwNode, toNode: PwNode) throws {
-        try Git.stage(relativePath: fromNode.relativePath, add: false)
-        try Git.stage(relativePath: toNode.relativePath, add: true)
-
         try FileManager.default.moveItem(at: fromNode.url,
                                          to: toNode.url)
+
+        try Git.stage(relativePath: fromNode.relativePath, add: false)
+        try Git.stage(relativePath: toNode.relativePath, add: true)
 
         let msg = "Renamed '\(fromNode.relativePath)' to '\(toNode.relativePath)'"
         try Git.commit(message: msg)

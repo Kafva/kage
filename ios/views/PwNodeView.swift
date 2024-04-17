@@ -34,7 +34,7 @@ struct PwNodeView: View {
 
         if let targetNode {
             title = "Edit \(targetNode.name)"
-            confirmAction = forFolder ? renameFolder : changePassword
+            confirmAction = forFolder ? renameFolder : changeNode
 
             if forFolder {
                 confirmIsOk = newPwNode != nil
@@ -130,6 +130,7 @@ struct PwNodeView: View {
 
         } catch {
             G.logger.error("\(error)")
+            try? FileManager.default.removeItem(at: newPwNode.url)
         }
     }
 
@@ -145,11 +146,13 @@ struct PwNodeView: View {
 
         } catch {
             G.logger.error("\(error)")
+            try? FileManager.default.removeItem(at: newPwNode.url)
+            try? Git.reset()
         }
     }
 
     /// Seperate commits are created for moving a password and changing its value
-    private func changePassword() {
+    private func changeNode() {
         guard let newPwNode, let targetNode else {
             return
         }
@@ -175,6 +178,8 @@ struct PwNodeView: View {
 
         } catch {
             G.logger.error("\(error)")
+            try? FileManager.default.removeItem(at: newPwNode.url)
+            try? Git.reset()
         }
 
     }

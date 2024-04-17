@@ -37,9 +37,6 @@ struct PwNode: Identifiable {
         return (children ?? []).isEmpty
     }
 
-    /// Create a new PwNode from a given name and folder path reletive to the
-    /// git root. Will return nil if the object already exists in the git
-    /// store.
     static func loadNewFrom(name: String,
                             relativeFolderPath: String,
                             isDir: Bool) -> Self? {
