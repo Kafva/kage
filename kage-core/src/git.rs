@@ -224,7 +224,6 @@ mod tests {
     use crate::error;
     use std::fs;
     use std::process::Command;
-    use std::time::{SystemTime, UNIX_EPOCH};
 
     const GIT_USERNAME: &'static str = "james";
     const GIT_REMOTE_CLONE_URL: &'static str = "git://127.0.0.1/tests";
@@ -251,11 +250,13 @@ mod tests {
     }
 
     #[test]
+    /// Test that we can add a directory
     fn git_directory_test() {
 
     }
 
     #[test]
+    /// Test that we can reset to the remote head commit in a local checkout
     fn git_reset_test() {
         let remote_path = &format!("{}/reset_test", GIT_REMOTE_CLONE_URL);
         let repo_path = &format!("{}/reset_test", GIT_CLIENT_DIR);
@@ -304,72 +305,64 @@ mod tests {
         assert_eq!(data, original_data.as_bytes())
     }
 
-    /// Test:
-    ///    1. Clone -> set config -> add -> commit -> push
-    ///    2. Pull in remote changes
-    ///    3. Do local changes and reset
     #[test]
-    fn git_clone_test() {
-        // let repo_path = "../git/kage-client/git_clone_test";
+    /// Test that we can pull in new changes from our remote
+    fn git_pull_test() {
+        let remote_path = &format!("{}/pull_test", GIT_REMOTE_CLONE_URL);
+        let repo_path = &format!("{}/pull_test", GIT_CLIENT_DIR);
 
-        // let now = SystemTime::now().duration_since(UNIX_EPOCH).unwrap();
-        // // File added by us
-        // let newfile = format!("newfile-{}", now.as_secs());
-        // let newfile_path = format!("{}/{}", repo_path, newfile);
+        let file_to_keep = "our_file";
+        let file_to_keep_path = format!("{}/{}", repo_path, file_to_keep);
 
-        // // File added from another checkout and pulled down
-        // let externalfile = format!("externalfile-{}", now.as_secs());
-        // let externalfile_path = format!("{}/{}", EXTERNAL_CHECKOUT, externalfile);
+        clone(remote_path, repo_path);
 
-        // clone(repo_path);
+        // Create a commit with all three files
+        fs::write(&file_to_keep_path, "To keep").expect("write file failed");
+        assert_ok(git_stage(repo_path, &file_to_keep, true));
+        assert_ok(git_commit(repo_path, "Test commit"));
+        assert_ok(git_push(repo_path));
 
-        // // Add
-        // fs::write(&newfile_path, "Original content").expect("write file failed");
-        // assert_ok(git_stage(repo_path, &newfile, true));
-        // assert_eq!(git_index_has_local_changes(repo_path).unwrap(), true);
+        // Nothing to do
+        assert_ok(git_pull(repo_path));
 
-        // // Commit
-        // assert_ok(git_commit(repo_path, format!("Adding {}", newfile).as_str()));
-        // assert_eq!(git_index_has_local_changes(repo_path).unwrap(), true);
+        // Clone into a new location, add, commit and push from here
+        let external_client_path = "/tmp/.pull_test";
+        let externalfile = "externalfile";
+        let externalfile_client_path = &format!("{}/{}", external_client_path, externalfile);
+        let externalfile_pulled_path = &format!("{}/{}", repo_path, externalfile);
+        clone(remote_path, external_client_path);
 
-        // // Push
-        // assert_ok(git_push(repo_path));
-        // assert_eq!(git_index_has_local_changes(repo_path).unwrap(), false);
+        fs::write(&externalfile_client_path, "External content").expect("write file failed");
+        let status = Command::new("git").arg("add")
+                                        .arg(&externalfile)
+                                        .current_dir(external_client_path)
+                                        .status()
+                                        .expect("command failed");
+        assert!(status.success());
 
-        // // Nothing to do
-        // assert_ok(git_pull(repo_path));
+        let status = Command::new("git").arg("commit")
+                                        .arg("-q")
+                                        .arg("-m")
+                                        .arg(format!("Adding {}", &externalfile))
+                                        .current_dir(external_client_path)
+                                        .status()
+                                        .expect("command failed");
+        assert!(status.success());
 
-        // // Clone into a new location, add, commit and push from here
-        // clone(EXTERNAL_CHECKOUT);
+        let status = Command::new("git").arg("push")
+                                        .arg("-q")
+                                        .arg(GIT_REMOTE)
+                                        .arg(GIT_BRANCH)
+                                        .current_dir(external_client_path)
+                                        .status()
+                                        .expect("command failed");
+        assert!(status.success());
 
-        // fs::write(&externalfile_path, "External content").expect("write file failed");
-        // let status = Command::new("git").arg("add")
-        //                                 .arg(&externalfile)
-        //                                 .current_dir(EXTERNAL_CHECKOUT)
-        //                                 .status()
-        //                                 .expect("command failed");
-        // assert!(status.success());
+        // Pull in external updates
+        assert_ok(git_pull(repo_path));
 
-        // let status = Command::new("git").arg("commit")
-        //                                 .arg("-q")
-        //                                 .arg("-m")
-        //                                 .arg(format!("Adding {}", &externalfile))
-        //                                 .current_dir(EXTERNAL_CHECKOUT)
-        //                                 .status()
-        //                                 .expect("command failed");
-        // assert!(status.success());
-
-        // let status = Command::new("git").arg("push")
-        //                                 .arg("-q")
-        //                                 .arg(GIT_REMOTE)
-        //                                 .arg(GIT_BRANCH)
-        //                                 .current_dir(EXTERNAL_CHECKOUT)
-        //                                 .status()
-        //                                 .expect("command failed");
-        // assert!(status.success());
-
-        // // Pull in external updates
-        // assert_ok(git_pull(repo_path));
-        // // TODO check that we got them
+        // Check that we got them
+        let data = fs::read(&externalfile_pulled_path).expect("read file failed");
+        assert_eq!(data, "External content".as_bytes())
     }
 }
