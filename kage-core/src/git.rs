@@ -176,7 +176,7 @@ pub fn git_config_set_user(repo_path: &str, username: &str) -> Result<(), git2::
     cfg.set_str("user.email", &format!("{}@{}", username, GIT_EMAIL))?;
 
     // Echoing back the config gives errors...
-    //  https://github.com/rust-lang/git2-rs/issues/474
+    //  https://github.com/rust-lang/git-rs/issues/474
     Ok(())
 }
 
@@ -224,6 +224,7 @@ mod tests {
     use crate::error;
     use std::fs;
     use std::process::Command;
+    use std::time::{SystemTime, UNIX_EPOCH};
 
     const GIT_USERNAME: &'static str = "james";
     const GIT_REMOTE_CLONE_URL: &'static str = "git://127.0.0.1/tests";
@@ -236,14 +237,20 @@ mod tests {
         assert!(result.is_ok())
     }
 
+    fn rm_rf(path: &str) {
+        let Err(err) = fs::remove_dir_all(path) else {
+            return
+        };
+
+        match err.kind() {
+            std::io::ErrorKind::NotFound => (),
+            _ => panic!("{}", err)
+        }
+    }
+
     fn clone(url: &str, into: &str) {
         // Remove previous checkout if needed
-        if let Err(err) = fs::remove_dir_all(into) {
-            match err.kind() {
-                std::io::ErrorKind::NotFound => (),
-                _ => panic!("{}", err)
-            }
-        }
+        rm_rf(into);
 
         assert_ok(git_clone(url, into));
         assert_ok(git_config_set_user(into, GIT_USERNAME));
@@ -326,8 +333,11 @@ mod tests {
         assert_ok(git_pull(repo_path));
 
         // Clone into a new location, add, commit and push from here
-        let external_client_path = "/tmp/.pull_test";
-        let externalfile = "externalfile";
+        let now = SystemTime::now().duration_since(UNIX_EPOCH).unwrap();
+        let external_client_path = &format!("/tmp/.pull_test-{}", now.as_secs());
+        // Use the current time as a suffix for the new file to ensure that
+        // the test can be re-ran several times without failing.
+        let externalfile = &format!("externalfile-{}", now.as_secs());
         let externalfile_client_path = &format!("{}/{}", external_client_path, externalfile);
         let externalfile_pulled_path = &format!("{}/{}", repo_path, externalfile);
         clone(remote_path, external_client_path);
@@ -363,6 +373,9 @@ mod tests {
 
         // Check that we got them
         let data = fs::read(&externalfile_pulled_path).expect("read file failed");
-        assert_eq!(data, "External content".as_bytes())
+        assert_eq!(data, "External content".as_bytes());
+
+        // Clean up external checkout
+        rm_rf(external_client_path);
     }
 }

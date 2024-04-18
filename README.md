@@ -3,9 +3,8 @@ iOS password manager with age-encryption and git.
 
 
 ## Development notes
-A git-daemon server and repos for automated and manual testing can be setup
-with [scripts/serverdevel.sh](/scripts/serverdevel.sh). To run the automated
-tests:
+A git server for automated and manual testing can be setup with
+[scripts/serverdevel.sh](/scripts/serverdevel.sh). To run the automated tests:
 
 ```bash
 ./scripts/serverdevel.sh unit
