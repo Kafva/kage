@@ -8,6 +8,7 @@ JAMES_REPO_REMOTE="$TOP/git/kage-store/james"
 JAMES_REPO_CLIENT="$TOP/git/kage-client/james"
 JAMES_KEY="$TOP/git/kage-client/james/.age-identities"
 JAMES_PUBKEY="$TOP/git/kage-client/james/.age-recipients"
+UNIT_TESTS_MODE=false
 
 die() {
     printf "$1\n" >&2
@@ -74,6 +75,34 @@ git_server_setup() {
     git -C $JAMES_REPO_CLIENT push --set-upstream origin main
 }
 
+git_server_unit() {
+    mkdir -p $TOP/git/kage-store
+    mkdir -p $TOP/git/kage-client/tests
+    git_server_restart
+
+    # Create one git repo for each testcase in the git.rs module
+    local tmpdir=$(mktemp -d)
+    while read -r testcase; do
+        local testname=$(sed -nE 's/^git::tests::git_([_a-z]+):.*/\1/p' <<< "$testcase")
+        local test_remote="$TOP/git/kage-store/tests/$testname"
+
+        echo "Creating $test_remote"
+        mkdir -p $test_remote
+        git -C $test_remote init --bare
+
+        git clone "$REMOTE_ORIGIN/tests/$testname" $tmpdir
+
+        echo "$testname" > "$tmpdir/$testname"
+        git -C $tmpdir add .
+        git -C $tmpdir commit -m "First commit"
+        git -C $tmpdir push origin main
+        rm -rf $tmpdir
+
+    done < <(cd kage-core && cargo test -- -q --list 2> /dev/null | grep '^git::')
+
+    tree -L 1 "$TOP/git/kage-store/tests"
+}
+
 git_server_restart() {
     git_server_stop
     git daemon --base-path="$TOP/git/kage-store" \
@@ -133,8 +162,16 @@ git_server_mod() {
 }
 
 git_server_status() {
-    git -C $JAMES_REPO_CLIENT log --format='%C(auto) %h %s'
-    git -C $JAMES_REPO_CLIENT status
+    if $UNIT_TESTS_MODE; then
+        for d in "$TOP/git/kage-store/tests"/*; do
+            echo "+ $d"
+            git -C $d log --format='%C(auto) %h %s'
+        done
+        echo
+    else
+        git -C $JAMES_REPO_CLIENT log --format='%C(auto) %h %s'
+        git -C $JAMES_REPO_CLIENT status
+    fi
 }
 
 git_server_controls() {
@@ -156,12 +193,26 @@ EOF
 
 trap git_server_exit SIGINT
 
-if [[ ! -d "$JAMES_REPO_CLIENT" || ! -d "$JAMES_REPO_REMOTE" ]]; then
-    git_server_setup
-else
-    git_server_restart
-fi
+case "$1" in
+reset)
+    rm -rf "${TOP?}/git"
+    git_server_stop
+    exit $?
+;;
+unit)
+    UNIT_TESTS_MODE=true
 
+    rm -rf "${TOP?}/git"
+    git_server_unit
+;;
+*)
+    if [[ ! -d "$JAMES_REPO_CLIENT" || ! -d "$JAMES_REPO_REMOTE" ]]; then
+        git_server_setup
+    else
+        git_server_restart
+    fi
+;;
+esac
 
 echo "Launched git-daemon 🚀"
 git_server_controls
