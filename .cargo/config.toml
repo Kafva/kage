@@ -1,0 +1,4 @@
+[env]
+KAGE_GIT_EMAIL = "kafva.one"
+KAGE_GIT_REMOTE = "origin"
+KAGE_GIT_BRANCH = "main"
