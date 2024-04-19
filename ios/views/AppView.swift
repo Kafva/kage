@@ -121,14 +121,17 @@ struct AppView: View {
         .listStyle(.plain)
         .toolbar {
             ToolbarItemGroup(placement: .bottomBar) {
-                // TODO: only show when index is dirty and can't connect to
-                // server
-                if appState.vpnActive && appState.hasLocalChanges {
+                if appState.hasLocalChanges {
                     Button {
                         handleGitPush()
                     } label: {
-                        Image(systemName: "icloud.and.arrow.up.fill").bold().foregroundColor(.green)
+                        let systemName = appState.vpnActive ? "icloud.and.arrow.up.fill" :
+                                                              "exclamationmark.icloud"
+                        let color = appState.vpnActive ? Color.green :
+                                                         Color.gray
+                        Image(systemName: systemName).bold().foregroundColor(color)
                     }
+                    .disabled(!appState.vpnActive)
                 }
                 Button {
                     showPwNodePassword = true

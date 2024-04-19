@@ -40,9 +40,17 @@ struct PwNode: Identifiable {
     static func loadNewFrom(name: String,
                             relativeFolderPath: String,
                             isDir: Bool) -> Self? {
-        if name == G.gitDirName ||
-           name.isEmpty ||
-           name.hasSuffix(".age") ||
+        if name == G.gitDirName {
+            G.logger.debug("The root node name '\(G.gitDirName)' is dissallowed")
+            return nil
+        }
+
+        if name.hasSuffix(".age") {
+            G.logger.debug("The '.age' suffix is dissallowed")
+            return nil
+        }
+
+        if name.isEmpty ||
            !relativeFolderPath.isPrintableASCII ||
            !name.isPrintableASCII {
             return nil
@@ -85,7 +93,7 @@ struct PwNode: Identifiable {
     }
 
 
-    /// Retreive a list of all folder paths in the tree
+    /// Retrieve a list of all folder paths in the tree
     func flatFolders() -> [PwNode] {
         if self.isLeaf {
             return []

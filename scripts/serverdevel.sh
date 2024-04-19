@@ -94,7 +94,7 @@ git_server_unit() {
 
         echo "$testname" > "$tmpdir/$testname"
         git -C $tmpdir add .
-        git -C $tmpdir commit -m "First commit"
+        git -C $tmpdir commit --no-gpg-sign -m "First commit"
         git -C $tmpdir push origin main
         rm -rf $tmpdir
 
@@ -138,6 +138,10 @@ git_server_add() {
     git -C $JAMES_REPO_CLIENT log -n1
 }
 
+git_server_pull() {
+    git -C $JAMES_REPO_CLIENT pull origin main
+}
+
 git_server_del() {
     local file=$(find $JAMES_REPO_CLIENT -type f -name '*.age' | shuf | head -n1)
     [ -f "$file" ] || die "No files to delete"
@@ -179,6 +183,7 @@ git_server_controls() {
     cat << EOF
 R: Reinitialise git repo
 S: Status of $james
+P: Pull in changes for $james
 A: Add files to $james
 M: Modify files in $james
 D: Delete files in $james
@@ -221,6 +226,9 @@ while read -n1 -rs ans; do
     case "$ans" in
     [sS])
         git_server_status
+    ;;
+    [pP])
+        git_server_pull
     ;;
     [aA])
         git_server_add
