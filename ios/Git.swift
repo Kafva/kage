@@ -12,8 +12,7 @@ func ffi_git_config_set_user(_ repo: UnsafePointer<CChar>,
 
 @_silgen_name("ffi_git_stage")
 func ffi_git_stage(_ repo: UnsafePointer<CChar>,
-                          relativePath: UnsafePointer<CChar>,
-                          add: Bool) -> CInt
+                          relativePath: UnsafePointer<CChar>) -> CInt
 
 @_silgen_name("ffi_git_commit")
 func ffi_git_commit(_ repo: UnsafePointer<CChar>,
@@ -35,13 +34,13 @@ private let repo = G.gitDir
 enum Git {
     /// Stage and commit a new file or folder
     static func addCommit(node: PwNode, nodeIsNew: Bool) throws {
-        try Git.stage(relativePath: node.relativePath, add: true)
+        try Git.stage(relativePath: node.relativePath)
         try Git.commit(message: "\(nodeIsNew ? "Added" : "Changed") '\(node.relativePath)'")
     }
 
     /// Remove a file or folder and create a commit with the change
     static func rmCommit(node: PwNode) throws {
-        try Git.stage(relativePath: node.relativePath, add: false)
+        try Git.stage(relativePath: node.relativePath)
         try Git.commit(message: "Deleted '\(node.relativePath)'")
     }
 
@@ -50,8 +49,8 @@ enum Git {
         try FileManager.default.moveItem(at: fromNode.url,
                                          to: toNode.url)
 
-        try Git.stage(relativePath: fromNode.relativePath, add: false)
-        try Git.stage(relativePath: toNode.relativePath, add: true)
+        try Git.stage(relativePath: fromNode.relativePath)
+        try Git.stage(relativePath: toNode.relativePath)
 
         let msg = "Renamed '\(fromNode.relativePath)' to '\(toNode.relativePath)'"
         try Git.commit(message: msg)
@@ -124,14 +123,14 @@ enum Git {
         }
     }
 
-    static private func stage(relativePath: String, add: Bool) throws {
+    static private func stage(relativePath: String) throws {
         let repoC = try repo.path().toCString()
         let relativePathC = try relativePath.toCString()
 
-        let r = ffi_git_stage(repoC, relativePath: relativePathC, add: add)
+        let r = ffi_git_stage(repoC, relativePath: relativePathC)
         if r != 0 {
             throw AppError.gitError(r)
         }
-        G.logger.debug("\(add ? "Added" : "Removed") '\(relativePath)'")
+        G.logger.debug("Staged '\(relativePath)'")
     }
 }

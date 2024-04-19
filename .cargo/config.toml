@@ -1,4 +1,10 @@
 [env]
+# The git information to use in commits from kage-core
 KAGE_GIT_EMAIL = "kafva.one"
 KAGE_GIT_REMOTE = "origin"
 KAGE_GIT_BRANCH = "main"
+
+# Unit test variables
+KAGE_TEST_GIT_USERNAME = "james"
+KAGE_TEST_GIT_REMOTE_CLONE_URL = "git://127.0.0.1/tests"
+KAGE_TEST_GIT_CLIENT_DIR = "../git/kage-client/tests"
