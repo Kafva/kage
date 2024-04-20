@@ -21,6 +21,7 @@ enum G {
     static let textFieldBgColor = Color(UIColor.tertiarySystemFill)
 
     static let headerFont = Font.system(size: 20)
+    static let errorColor = Color(UIColor(named: "ErrorColor")!)
 
     static var gitVersion: String {
         let version = Bundle.main.infoDictionary?["GitVersion"] as? String

@@ -57,32 +57,29 @@ struct PwNodeView: View {
         return Form {
             let header = Text(title).font(G.headerFont)
                                     .padding(.bottom, 10)
-                                    .padding(.top, 30)
+                                    .textCase(nil)
 
             Section(header: header) {
                 VStack(alignment: .leading, spacing: 10) {
                     /* New password or folder */
-                    Picker("Parent folder", selection: $selectedFolder) {
-                        ForEach(appState.rootNode.flatFolders()) { node in
-                            Text(node.relativePath).tag(node.relativePath)
+                    TileView(iconName: "folder") {
+                        Picker("", selection: $selectedFolder) {
+                            ForEach(appState.rootNode.flatFolders()) { node in
+                                Text(node.relativePath).tag(node.relativePath)
+                            }
                         }
+                        .pickerStyle(.navigationLink)
                     }
-                    .pickerStyle(.navigationLink)
 
-                    HStack {
-                        Text("Name").frame(width: G.screenWidth*0.3, alignment: .leading)
-                        TextField("", text: $selectedName)
+                    TileView(iconName: "key") {
+                        TextField("Name", text: $selectedName)
                             .textFieldStyle(.roundedBorder)
-                            // TODO: color is not updated
-                            // https://forums.developer.apple.com/forums/thread/738755
-                            // .foregroundColor(newPwNode != nil ? G.textColor : Color.red)
                     }
-                    .padding(.bottom, 10)
 
                     if !forFolder {
                         if targetNode == nil {
-                            Toggle(isOn: $generate) {
-                                Text("Autogenerate")
+                            TileView(iconName: "dice", text: "Autogenerate") {
+                                Toggle(isOn: $generate) {}
                             }
                         }
                         if targetNode != nil || !generate {
@@ -99,21 +96,20 @@ struct PwNodeView: View {
             }
 
             Section {
-                Button(action: confirmAction) {
-                    Text("Save").bold().font(.system(size: 18))
-                }
-                .padding([.top, .bottom], 5)
-                .disabled(!confirmIsOk)
-            }
+                HStack {
+                    Button(action: confirmAction) {
+                        Text("Save").font(.system(size: 18))
+                    }
+                    .disabled(!confirmIsOk)
+                    Spacer()
 
-            Section {
-                Button(action: dismiss) {
-                    Text("Cancel").bold().font(.system(size: 18))
+                    Button(action: dismiss) {
+                        Text("Cancel").foregroundColor(G.errorColor).font(.system(size: 18))
+                    }
                 }
                 .padding([.top, .bottom], 5)
             }
         }
-        .textCase(nil)
         .formStyle(.grouped)
     }
 
@@ -128,14 +124,12 @@ struct PwNodeView: View {
         let underlineColor = password == confirmPassword ? Color.green : 
                                                            Color.red
         return Group {
-            HStack {
-                Text("Password").frame(width: G.screenWidth*0.3, alignment: .leading)
-                SecureField("", text: $password)
+            TileView(iconName: "rectangle.and.pencil.and.ellipsis") {
+                SecureField("Password", text: $password)
             }
             .padding(.bottom, 10)
-            HStack {
-                Text("Confirm").frame(width: G.screenWidth*0.3, alignment: .leading)
-                SecureField("", text: $confirmPassword)
+            TileView(iconName: nil) {
+                SecureField("Confirm", text: $confirmPassword)
             }
 
             Divider().frame(height: 2)
@@ -241,3 +235,22 @@ struct PwNodeView: View {
 }
 
 
+struct TileView<Content: View>: View {
+    let iconName: String?
+    var text: String? = nil
+    @ViewBuilder let content: Content
+
+    var body: some View {
+        let width = text != nil ? G.screenWidth*0.15 : G.screenWidth*0.1
+        return HStack {
+            Group {
+                Image(systemName: iconName ?? "globe").opacity(iconName != nil ? 1.0 : 0.0)
+                if let text {
+                    Text(text).font(.system(size: 14)).foregroundColor(.gray)
+                }
+            }
+            .frame(width: width, alignment: .leading)
+            content
+        }
+    }
+}

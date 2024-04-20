@@ -2,8 +2,6 @@ import SwiftUI
 import OSLog
 
 struct AppView: View {
-    @AppStorage("remote") private var remote: String = ""
-
     @EnvironmentObject var appState: AppState
 
     @State private var searchText = ""
@@ -36,24 +34,6 @@ struct AppView: View {
                     }
                 }
             )
-        }
-        .onAppear {
-#if DEBUG && targetEnvironment(simulator)
-            remote = "git://127.0.0.1/james"
-#elseif DEBUG
-            remote = "git://10.0.1.8/james"
-#endif
-            if !remote.isEmpty {
-                try? FileManager.default.removeItem(at: G.gitDir)
-                do {
-                    try Git.clone(remote: remote)
-                    try Git.configSetUser(username: "james")
-                    try appState.reloadGitTree()
-                } catch {
-                    try? FileManager.default.removeItem(at: G.gitDir)
-                    G.logger.error("\(error)")
-                }
-            }
         }
     }
 
@@ -147,7 +127,7 @@ struct AppView: View {
 
     private var listView: some View {
         List(searchResults, children: \.children) { node in
-            Text("\(node.name)")
+            Text(node.name)
                 .font(.system(size: 18))
                 .onTapGesture {
                     if !node.isLeaf {
@@ -187,15 +167,15 @@ struct AppView: View {
 
         if appState.hasLocalChanges {
             if appState.vpnActive {
-                syncIconName = "icloud.and.arrow.up.fill"
+                syncIconName = "square.and.arrow.up"
                 color = Color.green
 
             } else {
-                syncIconName = "exclamationmark.icloud"
+                syncIconName = "square.and.arrow.up.trianglebadge.exclamationmark"
                 color = Color.gray
             }
         } else {
-            syncIconName = "checkmark.icloud"
+            syncIconName = "checkmark.square"
             color = Color.gray
         }
 
