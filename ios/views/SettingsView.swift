@@ -56,8 +56,7 @@ struct SettingsView: View {
     private var syncTile: some View {
         let iconName: String
         let text: String
-        let isEmpty = (try? FileManager.default.ls(G.gitDir).isEmpty) ?? true
-        G.logger.debug("\((try? FileManager.default.ls(G.gitDir)) ?? [])")
+        let isEmpty = (try? FileManager.default.findFirstFile(G.gitDir) == nil) ?? true
 
         if isEmpty {
             iconName = "square.and.arrow.down"
@@ -83,6 +82,7 @@ struct SettingsView: View {
                     handleGitClone()
                 }
             }
+            .disabled(remote.isEmpty)
         }
     }
     private var versionTile: some View {
@@ -113,14 +113,17 @@ struct SettingsView: View {
             }
 
             Section {
-                Button(action: { withAnimation { showView = false } } ) {
-                    Text("Dismiss").bold().font(.system(size: 18))
+                Button(action: dismiss) {
+                    Text("Dismiss").font(.system(size: 18))
                 }
                 .padding([.top, .bottom], 5)
             }
         }
     }
 
+    private func dismiss() {
+        withAnimation { showView = false }
+    }
 
     private func handleGitClone() {
         #if targetEnvironment(simulator)

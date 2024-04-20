@@ -113,10 +113,6 @@ enum Git {
         }
     }
 
-    static func isEmpty() -> Bool {
-        return true
-    }
-
     static private func commit(message: String) throws {
         let repoC = try repo.path().toCString()
         let messageC = try message.toCString()

@@ -175,44 +175,51 @@ struct AppView: View {
                 color = Color.gray
             }
         } else {
-            syncIconName = "checkmark.square"
+            syncIconName = "checkmark.circle"
             color = Color.gray
         }
 
-        return HStack(spacing: 30) {
-            Button {
-                handleGitPush()
-            } label: {
-                Image(systemName: syncIconName).bold().foregroundColor(color)
-            }
-            .disabled(!appState.vpnActive || !appState.hasLocalChanges)
-
+        return HStack(spacing: 10) {
             Button {
                 forFolder = false
                 withAnimation { showPwNode = true }
             } label: {
-                Image(systemName: "rectangle.badge.plus").bold()
+                Image(systemName: "rectangle.badge.plus")
             }
+            .padding(.leading, 20)
+            .disabled(!FileManager.default.isDir(G.gitDir))
+
             Button {
                 forFolder = true
                 withAnimation { showPwNode = true }
             } label: {
-                Image(systemName: "rectangle.stack.badge.plus").bold()
+                Image(systemName: "rectangle.stack.badge.plus")
             }
+            .disabled(!FileManager.default.isDir(G.gitDir))
 
             Button {
               withAnimation { showSettings = true }
             } label: {
-                Image(systemName: "gearshape.circle").bold()
+                Image(systemName: "gearshape")
             }
+
+            Spacer()
 
             Button {
                 handleLockIdentity()
             } label: {
                 let systemName =  appState.identityIsUnlocked ?
-                                    "lock.open.fill" : "lock.fill"
-                Image(systemName: systemName).bold()
+                                    "lock.open" : "lock"
+                Image(systemName: systemName)
             }
+
+            Button {
+                handleGitPush()
+            } label: {
+                Image(systemName: syncIconName).foregroundColor(color)
+            }
+            .disabled(!appState.vpnActive || !appState.hasLocalChanges)
+            .padding(.trailing, 20)
         }
         .font(.system(size: 20))
 

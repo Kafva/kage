@@ -54,11 +54,11 @@ struct PwNodeView: View {
             confirmIsOk = newPwNode != nil && newPasswordIsValid
         }
 
-        return Form {
-            let header = Text(title).font(G.headerFont)
-                                    .padding(.bottom, 10)
-                                    .textCase(nil)
+        let header = Text(title).font(G.headerFont)
+                                .padding(.bottom, 10)
+                                .textCase(nil)
 
+        return Form {
             Section(header: header) {
                 VStack(alignment: .leading, spacing: 10) {
                     /* New password or folder */
@@ -97,15 +97,17 @@ struct PwNodeView: View {
 
             Section {
                 HStack {
+                    Button(action: dismiss) {
+                        Text("Cancel").foregroundColor(G.errorColor).font(.system(size: 18))
+                    }
+
+                    Spacer()
+
                     Button(action: confirmAction) {
                         Text("Save").font(.system(size: 18))
                     }
                     .disabled(!confirmIsOk)
-                    Spacer()
 
-                    Button(action: dismiss) {
-                        Text("Cancel").foregroundColor(G.errorColor).font(.system(size: 18))
-                    }
                 }
                 .padding([.top, .bottom], 5)
             }
