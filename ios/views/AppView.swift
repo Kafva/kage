@@ -29,7 +29,9 @@ struct AppView: View {
         NavigationStack {
             VStack {
                 searchView
-                listView
+                outlineGroupView
+                // PwNodeTreeView(searchText: $searchText)
+                // listView
                 toolbarView
             }
             .overlay(
@@ -149,10 +151,44 @@ struct AppView: View {
                         Image(systemName: "pencil")
                     }
                     .tint(.blue)
-
                 }
         }
         .listStyle(.plain)
+    }
+
+    // TODO: https://developer.apple.com/documentation/swiftui/disclosuregroupstyle
+    private var outlineGroupView: some View {
+        OutlineGroup(searchResults, children: \.children) { node in
+            Text(node.name)
+                .font(.system(size: 18))
+                .onTapGesture {
+                    if !node.isLeaf {
+                        return
+                    }
+                    targetNode = node
+                    withAnimation {
+                        showPlaintext = true
+                    }
+                }
+                .swipeActions(allowsFullSwipe: false) {
+                    Button(action: {
+                        handleGitRemove(node: node)
+                    }) {
+                        Image(systemName: "xmark.circle")
+                    }
+                    .tint(.red)
+
+                    Button(action: {
+                        targetNode = node
+                        withAnimation {
+                            showPwNode = true
+                        }
+                    }) {
+                        Image(systemName: "pencil")
+                    }
+                    .tint(.blue)
+                }
+        }
     }
 
     private var toolbarView: some View {
