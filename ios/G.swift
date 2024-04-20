@@ -18,6 +18,9 @@ enum G {
     static let screenHeight = UIScreen.main.bounds.size.height
 
     static let textColor = Color(UIColor.label)
+    static let textFieldBgColor = Color(UIColor.tertiarySystemFill)
+
+    static let headerFont = Font.system(size: 20)
 
     static var gitVersion: String {
         let version = Bundle.main.infoDictionary?["GitVersion"] as? String

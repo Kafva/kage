@@ -1,20 +1,25 @@
 import SwiftUI
 
 struct PlaintextView: View {
-    @Binding var showPlaintext: Bool
+    @Binding var showView: Bool
     @Binding var targetNode: PwNode?
     @State private var plaintext: String = ""
+    @State private var hidePlaintext = true
 
     var body: some View {
         VStack(alignment: .center, spacing: 10) {
             let title = "\(targetNode?.name ?? "Plaintext")"
-            Text(title)
-                       .font(.system(size: 22))
+            Text(title).font(.system(size: 22))
                        .underline(color: .accentColor)
+                       .padding(.bottom, 10)
 
-            Text(plaintext).bold().monospaced()
-            .padding(.bottom, 20)
-
+            let value = hidePlaintext ? "••••••••" : plaintext
+            Text(value).bold()
+                       .monospaced()
+                       .foregroundColor(.accentColor)
+                       .padding(.bottom, 20).onTapGesture {
+                            hidePlaintext.toggle()
+                       }
             Button {
                 UIPasteboard.general.string = plaintext
                 G.logger.debug("Copied '\(title)' to clipboard")
@@ -25,7 +30,7 @@ struct PlaintextView: View {
             .font(.system(size: 18))
 
             Button("Dismiss") {
-                showPlaintext = false
+                showView = false
             }
             .font(.system(size: 18))
         }

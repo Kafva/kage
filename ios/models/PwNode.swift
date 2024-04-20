@@ -37,6 +37,10 @@ struct PwNode: Identifiable {
         return (children ?? []).isEmpty
     }
 
+    var isDir: Bool {
+        return FileManager.default.isDir(url)
+    }
+
     static func loadNewFrom(name: String,
                             relativeFolderPath: String,
                             isDir: Bool) -> Self? {

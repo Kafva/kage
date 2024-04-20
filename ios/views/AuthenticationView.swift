@@ -3,8 +3,7 @@ import SwiftUI
 struct AuthenticationView: View {
     @EnvironmentObject var appState: AppState
 
-    @Binding var showAuthentication: Bool
-    @Binding var showPlaintext: Bool
+    @Binding var showView: Bool
     @State private var passphrase: String = ""
 
     var body: some View {
@@ -13,10 +12,10 @@ struct AuthenticationView: View {
             SecureField("Passphrase", text: $passphrase)
                 .textFieldStyle(.roundedBorder)
                 .onSubmit { submit() }
-            .padding(.bottom, 20)
+                .padding(.bottom, 20)
             HStack {
                 Button("Cancel") {
-                    showAuthentication = false
+                    showView = false
                 }
                 .padding(.leading, 10)
                 Spacer()
@@ -24,15 +23,14 @@ struct AuthenticationView: View {
                     submit()
                 }
                 .padding(.trailing, 10)
-            }.font(.system(size: 18))
+            }
+            .font(.system(size: 18))
         }
     }
 
     private func submit() {
         do {
             try appState.unlockIdentity(passphrase: passphrase)
-            showAuthentication = false
-            showPlaintext = true
         } catch {
             G.logger.debug("Incorrect password")
             return

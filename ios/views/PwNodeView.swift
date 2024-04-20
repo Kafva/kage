@@ -2,9 +2,9 @@ import SwiftUI
 import OSLog
 
 struct PwNodeView: View {
-    @Environment(\.dismiss) var dismiss;
     @EnvironmentObject var appState: AppState
 
+    @Binding var showView: Bool
     @Binding var targetNode: PwNode?
     let forFolder: Bool
 
@@ -55,26 +55,29 @@ struct PwNodeView: View {
         }
 
         return Form {
-            let header = Text(title).font(.system(size: 20))
-                                    .bold()
+            let header = Text(title).font(G.headerFont)
                                     .padding(.bottom, 10)
                                     .padding(.top, 20)
 
             Section(header: header) {
                 VStack(alignment: .leading, spacing: 10) {
                     /* New password or folder */
-                    Picker(forFolder ? "Parent" : "Folder", selection: $selectedFolder) {
+                    Picker("Parent folder", selection: $selectedFolder) {
                         ForEach(appState.rootNode.flatFolders()) { node in
                             Text(node.relativePath).tag(node.relativePath)
                         }
                     }
-                    .pickerStyle(.menu)
+                    .pickerStyle(.navigationLink)
 
-                    TextField("Name", text: $selectedName)
-                        .textFieldStyle(.roundedBorder)
-                        // TODO: color is not updated
-                        // https://forums.developer.apple.com/forums/thread/738755
-                        // .foregroundColor(newPwNode != nil ? G.textColor : Color.red)
+                    HStack {
+                        Text("Name").frame(width: G.screenWidth*0.3, alignment: .leading)
+                        TextField("", text: $selectedName)
+                            .textFieldStyle(.roundedBorder)
+                            // TODO: color is not updated
+                            // https://forums.developer.apple.com/forums/thread/738755
+                            // .foregroundColor(newPwNode != nil ? G.textColor : Color.red)
+                    }
+                    .padding(.bottom, 10)
 
                     if !forFolder {
                         if targetNode == nil {
@@ -99,22 +102,47 @@ struct PwNodeView: View {
                 Button(action: confirmAction) {
                     Text("Save").bold().font(.system(size: 18))
                 }
-                .padding([.top, .bottom], 20)
+                .padding([.top, .bottom], 5)
                 .disabled(!confirmIsOk)
             }
+
+            Section {
+                Button(action: dismiss) {
+                    Text("Cancel").bold().font(.system(size: 18))
+                }
+                .padding([.top, .bottom], 5)
+            }
         }
+        .textCase(nil)
         .formStyle(.grouped)
     }
 
+    private func dismiss() {
+        withAnimation { 
+            showView = false
+            self.targetNode = nil
+        }
+    }
+
     private var passwordForm: some View {
-        let underlineColor = !password.isEmpty && password == confirmPassword ?
-                              Color.green : Color.red
+        let underlineColor = password == confirmPassword ? Color.green : 
+                                                           Color.red
         return Group {
-            SecureField("Password", text: $password).textFieldStyle(.plain)
-            SecureField("Confirm password", text: $confirmPassword).textFieldStyle(.plain)
+            HStack {
+                Text("Password").frame(width: G.screenWidth*0.3, alignment: .leading)
+                SecureField("", text: $password)
+            }
+            .padding(.bottom, 10)
+            HStack {
+                Text("Confirm").frame(width: G.screenWidth*0.3, alignment: .leading)
+                SecureField("", text: $confirmPassword)
+            }
+
             Divider().frame(height: 2)
                      .overlay(underlineColor)
+                     .opacity(password.isEmpty ? 0.0 : 1.0)
         }
+        .textFieldStyle(.roundedBorder)
     }
 
     private func addFolder() {
@@ -173,7 +201,7 @@ struct PwNodeView: View {
                 try Git.addCommit(node: newPwNode, nodeIsNew: false)
             }
 
-            try appState.reloadGitTree()
+            try appState.reloadGitTree()            
             dismiss()
 
         } catch {
@@ -203,6 +231,7 @@ struct PwNodeView: View {
             // Reload git tree with new entry
             try appState.reloadGitTree()
             dismiss()
+            
 
         } catch {
             G.logger.error("\(error)")

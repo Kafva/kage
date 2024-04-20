@@ -1,18 +1,6 @@
 import SwiftUI
 import OSLog
 
-
-// The remote IP and path should be configurable.
-// The remote will control access to each repository based on the source IP
-// (assigned from Wireguard config).
-
-// Git repo for each user is initialized remote side with
-// .age-recipients and .age-identities already present
-// In iOS, we need to:
-//  * Clone it
-//  * Pull / Push
-//  * No conflict resolution, option to start over OR force push
-
 struct AppView: View {
     @AppStorage("remote") private var remote: String = ""
 
@@ -21,37 +9,34 @@ struct AppView: View {
     @State private var searchText = ""
 
     @State private var targetNode: PwNode?
+    @State private var forFolder = false
 
-    @State private var showAuthentication: Bool = false
-    @State private var showPlaintext: Bool = false
     @State private var showSettings = false
-    @State private var showPwNodePassword = false
-    @State private var showPwNodeFolder = false
+    @State private var showPwNode = false
+    @State private var showPlaintext = false
 
     var body: some View {
-        NavigationStack {
-            listView
-        }
-        .overlay(OverlayView(showView: $showPlaintext,
-                             contentWidth: 0.8 * G.screenWidth,
-                             contentHeight: 0.3 * G.screenHeight) {
-             PlaintextView(showPlaintext: $showPlaintext,
-                           targetNode: $targetNode)
-        })
-        .overlay(OverlayView(showView: $showAuthentication,
-                             contentWidth: 0.8 * G.screenWidth,
-                             contentHeight: G.screenHeight) {
-             AuthenticationView(showAuthentication: $showAuthentication,
-                                showPlaintext: $showPlaintext)
-        })
-        .popover(isPresented: $showPwNodePassword) {
-            PwNodeView(targetNode: $targetNode, forFolder: false)
-        }
-        .popover(isPresented: $showPwNodeFolder) {
-            PwNodeView(targetNode: $targetNode, forFolder: true)
-        }
-        .popover(isPresented: $showSettings) { SettingsView() }
+        let width = showPlaintext ? 0.8*G.screenWidth : G.screenWidth
+        let height = showPlaintext ? 0.3*G.screenHeight : G.screenHeight
+        let opacity = showPlaintext ? 0.9 : 1.0
 
+        NavigationStack {
+            VStack {
+                searchView
+                listView
+                toolbarView
+            }
+            .overlay(
+                Group {
+                    if showSettings || showPwNode || showPlaintext {
+                        Color(UIColor.systemBackground).opacity(opacity)
+                        overalyView
+                        .frame(width: width, height: height)
+                        .transition(.move(edge: .bottom))
+                    }
+                }
+            )
+        }
         .onAppear {
 #if DEBUG && targetEnvironment(simulator)
             remote = "git://127.0.0.1/james"
@@ -72,6 +57,69 @@ struct AppView: View {
         }
     }
 
+    private var searchView: some View {
+        let background = RoundedRectangle(cornerRadius: 5)
+                            .fill(G.textFieldBgColor)
+
+        return TextField("Search",
+                  text: $searchText)
+        .multilineTextAlignment(.center)
+        .font(.system(size: 18))
+        .frame(width: G.screenWidth*0.7)
+        // Padding inside the textbox
+        .padding([.leading, .trailing], 5)
+        .padding([.bottom, .top], 5)
+        .background(background)
+        // Padding outside the textbox
+        .overlay(Group {
+            // Clear content button
+            if !searchText.isEmpty {
+                HStack {
+                    Spacer()
+                    Button {
+                        searchText = ""
+                    } label: {
+                      Image(systemName: "multiply.circle.fill")
+                        .foregroundColor(.secondary)
+                        .font(.system(size: 15))
+                    }
+                    .padding(.bottom, 30)
+                }
+            }
+        })
+    }
+
+    private var overalyView: some View {
+         Group {
+             if showPwNode {
+                 if let targetNode {
+                    /* Edit view */
+                    PwNodeView(showView: $showPwNode,
+                               targetNode: $targetNode,
+                               forFolder: targetNode.isDir)
+                 }
+                 else {
+                    /* New password or folder view */
+                    PwNodeView(showView: $showPwNode,
+                               targetNode: $targetNode,
+                               forFolder: forFolder)
+                 }
+             }
+             else if showSettings {
+                 /* Settings view */
+                 SettingsView(showView: $showSettings)
+             }
+             else if appState.identityIsUnlocked {
+                 /* Password in plaintext */
+                 PlaintextView(showView: $showPlaintext,
+                               targetNode: $targetNode)
+             } else {
+                 /* Password entry */
+                 AuthenticationView(showView: $showPlaintext)
+             }
+         }
+    }
+
     private var searchResults: [PwNode] {
         if searchText.isEmpty {
             return appState.rootNode.children ?? []
@@ -89,9 +137,7 @@ struct AppView: View {
                         return
                     }
                     targetNode = node
-                    if !appState.identityIsUnlocked {
-                        showAuthentication = true
-                    } else {
+                    withAnimation {
                         showPlaintext = true
                     }
                 }
@@ -105,10 +151,8 @@ struct AppView: View {
 
                     Button(action: {
                         targetNode = node
-                        if node.isLeaf {
-                            showPwNodePassword = true
-                        } else {
-                            showPwNodeFolder = true
+                        withAnimation {
+                            showPwNode = true
                         }
                     }) {
                         Image(systemName: "pencil")
@@ -117,48 +161,52 @@ struct AppView: View {
 
                 }
         }
-        .searchable(text: $searchText)
         .listStyle(.plain)
-        .toolbar {
-            ToolbarItemGroup(placement: .bottomBar) {
-                if appState.hasLocalChanges {
-                    Button {
-                        handleGitPush()
-                    } label: {
-                        let systemName = appState.vpnActive ? "icloud.and.arrow.up.fill" :
-                                                              "exclamationmark.icloud"
-                        let color = appState.vpnActive ? Color.green :
-                                                         Color.gray
-                        Image(systemName: systemName).bold().foregroundColor(color)
-                    }
-                    .disabled(!appState.vpnActive)
-                }
-                Button {
-                    showPwNodePassword = true
-                } label: {
-                    Image(systemName: "rectangle.badge.plus").bold()
-                }
-                Button {
-                    showPwNodeFolder = true
-                } label: {
-                    Image(systemName: "rectangle.stack.badge.plus").bold()
-                }
+    }
 
+    private var toolbarView: some View {
+        HStack(spacing: 30) {
+            if appState.hasLocalChanges {
                 Button {
-                    showSettings = true
+                    handleGitPush()
                 } label: {
-                    Image(systemName: "gearshape.circle").bold()
+                    let systemName = appState.vpnActive ? "icloud.and.arrow.up.fill" :
+                                                          "exclamationmark.icloud"
+                    let color = appState.vpnActive ? Color.green :
+                                                     Color.gray
+                    Image(systemName: systemName).bold().foregroundColor(color)
                 }
+                .disabled(!appState.vpnActive)
+            }
+            Button {
+                forFolder = false
+                withAnimation { showPwNode = true }
+            } label: {
+                Image(systemName: "rectangle.badge.plus").bold()
+            }
+            Button {
+                forFolder = true
+                withAnimation { showPwNode = true }
+            } label: {
+                Image(systemName: "rectangle.stack.badge.plus").bold()
+            }
 
-                Button {
-                    handleUnlockIdentity()
-                } label: {
-                    let systemName =  appState.identityIsUnlocked ?
-                                        "lock.open.fill" : "lock.fill"
-                    Image(systemName: systemName).bold()
-                }
+            Button {
+              withAnimation { showSettings = true }
+            } label: {
+                Image(systemName: "gearshape.circle").bold()
+            }
+
+            Button {
+                handleLockIdentity()
+            } label: {
+                let systemName =  appState.identityIsUnlocked ?
+                                    "lock.open.fill" : "lock.fill"
+                Image(systemName: systemName).bold()
             }
         }
+        .font(.system(size: 20))
+
     }
 
     private func handleGitPush() {
@@ -170,15 +218,14 @@ struct AppView: View {
         }
     }
 
-    private func handleUnlockIdentity() {
-        if appState.identityIsUnlocked {
-            do {
-                try appState.lockIdentity()
-            } catch {
-                G.logger.error("\(error)")
-            }
-        } else {
-            showAuthentication = true
+    private func handleLockIdentity() {
+        if !appState.identityIsUnlocked {
+            return
+        }
+        do {
+            try appState.lockIdentity()
+        } catch {
+            G.logger.error("\(error)")
         }
     }
 
@@ -191,23 +238,5 @@ struct AppView: View {
             G.logger.error("\(error)")
             try? Git.reset()
         }
-    }
-}
-
-private struct OverlayView<Content: View>: View {
-    @Binding var showView: Bool
-    let contentWidth: CGFloat
-    let contentHeight: CGFloat
-    @ViewBuilder let content: Content
-
-    var body: some View {
-        ZStack {
-            if showView {
-                Color(UIColor.systemBackground).opacity(0.8)
-                content
-                .frame(width: contentWidth, height: contentHeight)
-            }
-        }
-        .ignoresSafeArea()
     }
 }
