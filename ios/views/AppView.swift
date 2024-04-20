@@ -13,6 +13,14 @@ struct AppView: View {
     @State private var showPwNode = false
     @State private var showPlaintext = false
 
+    private var searchResults: [PwNode] {
+        if searchText.isEmpty {
+            return appState.rootNode.children ?? []
+        } else {
+            return appState.rootNode.findChildren(predicate: searchText)
+        }
+    }
+
     var body: some View {
         let width = showPlaintext ? 0.8*G.screenWidth : G.screenWidth
         let height = showPlaintext ? 0.3*G.screenHeight : G.screenHeight
@@ -109,24 +117,6 @@ struct AppView: View {
                  }
              }
         )
-    }
-
-    private func dismiss() {
-        withAnimation { 
-            self.forFolder = false
-            self.showSettings = false
-            self.showPwNode = false
-            self.showPlaintext = false
-            self.targetNode = nil
-        }
-    }
-
-    private var searchResults: [PwNode] {
-        if searchText.isEmpty {
-            return appState.rootNode.children ?? []
-        } else {
-            return appState.rootNode.findChildren(predicate: searchText)
-        }
     }
 
     private var listView: some View {
@@ -226,7 +216,16 @@ struct AppView: View {
             .padding(.trailing, 20)
         }
         .font(.system(size: 20))
+    }
 
+    private func dismiss() {
+        withAnimation { 
+            self.forFolder = false
+            self.showSettings = false
+            self.showPwNode = false
+            self.showPlaintext = false
+            self.targetNode = nil
+        }
     }
 
     private func handleGitPush() {

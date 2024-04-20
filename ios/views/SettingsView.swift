@@ -32,6 +32,11 @@ struct SettingsView: View {
             }
         }
         .onAppear {
+            #if targetEnvironment(simulator)
+                remote = "git://127.0.0.1/james"
+            #else
+                remote = "git://10.0.1.8/james"
+            #endif
             loadCurrentRemote()
         }
     }
@@ -137,11 +142,6 @@ struct SettingsView: View {
     }
 
     private func handleGitClone() {
-        #if targetEnvironment(simulator)
-            remote = "git://127.0.0.1/james"
-        #else
-            remote = "git://10.0.1.8/james"
-        #endif
         if !remote.isEmpty {
             try? FileManager.default.removeItem(at: G.gitDir)
             do {
