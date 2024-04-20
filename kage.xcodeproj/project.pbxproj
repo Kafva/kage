@@ -122,6 +122,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = DDA4B6372AFDF6A10046DFCE /* Build configuration list for PBXNativeTarget "kage" */;
 			buildPhases = (
+				DD65F7532BD3954000D91387 /* Add version string to Info.plist */,
 				DD56D7E32B936D7A006C43CE /* Compile kage-core */,
 				DDA4B6252AFDF6A00046DFCE /* Sources */,
 				DDA4B6262AFDF6A00046DFCE /* Frameworks */,
@@ -199,6 +200,26 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/bash;
 			shellScript = "$SRCROOT/scripts/build-core.sh\n";
+		};
+		DD65F7532BD3954000D91387 /* Add version string to Info.plist */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Add version string to Info.plist";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(SRCDIR)/ios/Info.plist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/bash;
+			shellScript = "./scripts/setversion.sh\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -357,6 +378,7 @@
 				DEVELOPMENT_TEAM = R394CK45KY;
 				ENABLE_PREVIEWS = NO;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = ios/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -371,7 +393,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/kage-core/dist",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 0.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = kafva.kage;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -394,6 +416,7 @@
 				DEVELOPMENT_TEAM = R394CK45KY;
 				ENABLE_PREVIEWS = NO;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = ios/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -408,7 +431,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/kage-core/dist",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 0.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = kafva.kage;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";

@@ -11,7 +11,7 @@ struct SettingsView: View {
     // debugging: force offline/online
     var body: some View {
         VStack {
-
+            Text(G.gitVersion)
         }
     }
 }

@@ -18,4 +18,15 @@ enum G {
     static let screenHeight = UIScreen.main.bounds.size.height
 
     static let textColor = Color(UIColor.label)
+
+    static var gitVersion: String {
+        let version = Bundle.main.infoDictionary?["GitVersion"] as? String
+            ?? "Unknown"
+        #if DEBUG
+            return "\(version) (debug)"
+        #else
+            return "\(version) (release)"
+        #endif
+    }
+
 }
