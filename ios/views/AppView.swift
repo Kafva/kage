@@ -69,7 +69,7 @@ struct AppView: View {
     }
 
     private var overlayView: some View {
-         Group {
+         VStack {
              if showPwNode {
                  if let targetNode {
                     /* Edit view */
@@ -97,6 +97,10 @@ struct AppView: View {
                  AuthenticationView(showView: $showPlaintext)
              }
          }
+         // Disable default background for `Form`
+         .scrollContentBackground(.hidden)
+         .padding([.top, .bottom], 100)
+
          .gesture(DragGesture(minimumDistance: 3.0, coordinateSpace: .local)
              .onEnded { value in
                  // Dismiss on downward swipe motion

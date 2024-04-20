@@ -78,8 +78,13 @@ struct PwNodeView: View {
 
                     if !forFolder {
                         if targetNode == nil {
-                            TileView(iconName: "dice", text: "Autogenerate") {
-                                Toggle(isOn: $generate) {}
+                            TileView(iconName: "dice") {
+                                HStack {
+                                    Text("Autogenerate").font(.system(size: 14))
+                                                        .foregroundColor(.gray)
+                                    Toggle(isOn: $generate) {}
+                                }
+                                .frame(alignment: .leading)
                             }
                         }
                         if targetNode != nil || !generate {
@@ -239,19 +244,13 @@ struct PwNodeView: View {
 
 struct TileView<Content: View>: View {
     let iconName: String?
-    var text: String? = nil
     @ViewBuilder let content: Content
 
     var body: some View {
-        let width = text != nil ? G.screenWidth*0.15 : G.screenWidth*0.1
+        let width = G.screenWidth*0.1
         return HStack {
-            Group {
-                Image(systemName: iconName ?? "globe").opacity(iconName != nil ? 1.0 : 0.0)
-                if let text {
-                    Text(text).font(.system(size: 14)).foregroundColor(.gray)
-                }
-            }
-            .frame(width: width, alignment: .leading)
+            Image(systemName: iconName ?? "globe").opacity(iconName != nil ? 1.0 : 0.0)
+                                                  .frame(width: width, alignment: .leading)
             content
         }
     }

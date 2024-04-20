@@ -22,10 +22,13 @@ struct SettingsView: View {
                 TextField("Username", text: $name)
             }
         }
-        .textFieldStyle(.roundedBorder)
+        .textFieldStyle(.plain)
         .onSubmit {
-            if !origin.isEmpty && !name.isEmpty {
+            if validRemote {
                 remote = "git://\(origin)/\(name)"
+                G.logger.info("Updated remote: \(remote)")
+            } else {
+                G.logger.info("Invalid remote: git://\(origin)/\(name)")
             }
         }
         .onAppear {
@@ -82,15 +85,22 @@ struct SettingsView: View {
                     handleGitClone()
                 }
             }
-            .disabled(remote.isEmpty)
+            .disabled(!validRemote)
         }
     }
-    private var versionTile: some View {
-        TileView(iconName: nil, text: "Version") {
-            Text(G.gitVersion).font(.system(size: 12))
-                              .foregroundColor(.gray)
-        }
 
+    private var validRemote: Bool {
+        let regex = /[-_.a-z0-9]{5,64}/
+        return (try? regex.firstMatch(in: origin) != nil) ?? false &&
+               (try? regex.firstMatch(in: name) != nil) ?? false
+    }
+
+    private var versionTile: some View {
+        TileView(iconName: nil) {
+            Text("Version \(G.gitVersion)").font(.system(size: 12))
+                                           .foregroundColor(.gray)
+                                           .frame(alignment: .leading)
+        }
     }
 
     // remote address
@@ -119,6 +129,7 @@ struct SettingsView: View {
                 .padding([.top, .bottom], 5)
             }
         }
+        .formStyle(.grouped)
     }
 
     private func dismiss() {
