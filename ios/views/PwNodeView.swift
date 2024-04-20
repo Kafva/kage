@@ -57,7 +57,7 @@ struct PwNodeView: View {
         return Form {
             let header = Text(title).font(G.headerFont)
                                     .padding(.bottom, 10)
-                                    .padding(.top, 20)
+                                    .padding(.top, 30)
 
             Section(header: header) {
                 VStack(alignment: .leading, spacing: 10) {

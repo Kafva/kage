@@ -30,7 +30,7 @@ struct AppView: View {
                 Group {
                     if showSettings || showPwNode || showPlaintext {
                         Color(UIColor.systemBackground).opacity(opacity)
-                        overalyView
+                        overlayView
                         .frame(width: width, height: height)
                         .transition(.move(edge: .bottom))
                     }
@@ -61,8 +61,7 @@ struct AppView: View {
         let background = RoundedRectangle(cornerRadius: 5)
                             .fill(G.textFieldBgColor)
 
-        return TextField("Search",
-                  text: $searchText)
+        return TextField("Search", text: $searchText)
         .multilineTextAlignment(.center)
         .font(.system(size: 18))
         .frame(width: G.screenWidth*0.7)
@@ -82,14 +81,14 @@ struct AppView: View {
                       Image(systemName: "multiply.circle.fill")
                         .foregroundColor(.secondary)
                         .font(.system(size: 15))
+                        .padding(.trailing, 5)
                     }
-                    .padding(.bottom, 30)
                 }
             }
         })
     }
 
-    private var overalyView: some View {
+    private var overlayView: some View {
          Group {
              if showPwNode {
                  if let targetNode {
@@ -118,6 +117,24 @@ struct AppView: View {
                  AuthenticationView(showView: $showPlaintext)
              }
          }
+         .gesture(DragGesture(minimumDistance: 3.0, coordinateSpace: .local)
+             .onEnded { value in
+                 // Dismiss on downward swipe motion
+                 if value.translation.height  > 0 {
+                     dismiss()
+                 }
+             }
+        )
+    }
+
+    private func dismiss() {
+        withAnimation { 
+            self.forFolder = false
+            self.showSettings = false
+            self.showPwNode = false
+            self.showPlaintext = false
+            self.targetNode = nil
+        }
     }
 
     private var searchResults: [PwNode] {
@@ -165,19 +182,31 @@ struct AppView: View {
     }
 
     private var toolbarView: some View {
-        HStack(spacing: 30) {
-            if appState.hasLocalChanges {
-                Button {
-                    handleGitPush()
-                } label: {
-                    let systemName = appState.vpnActive ? "icloud.and.arrow.up.fill" :
-                                                          "exclamationmark.icloud"
-                    let color = appState.vpnActive ? Color.green :
-                                                     Color.gray
-                    Image(systemName: systemName).bold().foregroundColor(color)
-                }
-                .disabled(!appState.vpnActive)
+        let syncIconName: String
+        let color: Color
+
+        if appState.hasLocalChanges {
+            if appState.vpnActive {
+                syncIconName = "icloud.and.arrow.up.fill"
+                color = Color.green
+
+            } else {
+                syncIconName = "exclamationmark.icloud"
+                color = Color.gray
             }
+        } else {
+            syncIconName = "checkmark.icloud"
+            color = Color.gray
+        }
+
+        return HStack(spacing: 30) {
+            Button {
+                handleGitPush()
+            } label: {
+                Image(systemName: syncIconName).bold().foregroundColor(color)
+            }
+            .disabled(!appState.vpnActive || !appState.hasLocalChanges)
+
             Button {
                 forFolder = false
                 withAnimation { showPwNode = true }

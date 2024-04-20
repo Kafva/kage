@@ -62,7 +62,10 @@ struct SettingsView: View {
             let settingsHeader = Text("Settings").font(G.headerFont)
                                                  .padding(.bottom, 10)
                                                  .padding(.top, 20)
+                                                 .textCase(nil)
             let versionHeader = Text("Version").font(G.headerFont)
+                                               .textCase(nil)
+
 
             Section(header: settingsHeader) {
                 contentView
@@ -78,7 +81,6 @@ struct SettingsView: View {
                 .padding([.top, .bottom], 5)
             }
         }
-        .textCase(nil)
     }
 }
 
