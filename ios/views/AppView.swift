@@ -89,10 +89,11 @@ struct AppView: View {
          .scrollContentBackground(.hidden)
          .padding([.top, .bottom], 100)
 
-         .gesture(DragGesture(minimumDistance: 3.0, coordinateSpace: .local)
+         .gesture(DragGesture(minimumDistance: 10.0, coordinateSpace: .local)
              .onEnded { value in
                  // Dismiss on downward swipe motion
                  if value.translation.height  > 0 {
+                     G.logger.debug("Dismissing overlay based on drag gesture")
                      dismiss()
                  }
              }

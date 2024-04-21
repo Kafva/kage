@@ -51,6 +51,17 @@ struct PwNodeView: View {
         .textFieldStyle(.roundedBorder)
     }
 
+    private var alternativeParentFolders: [PwNode] {
+        if let targetNode {
+            // We cannot move a folder to a path beneath itself,
+            // exclude items beneath the current folder
+            return appState.rootNode.flatFolders().filter {
+                !$0.relativePath.starts(with: targetNode.relativePath)
+            }
+        }
+        return appState.rootNode.flatFolders()
+    }
+
     var body: some View {
         let title: String
         let confirmAction: () -> ()
@@ -90,7 +101,7 @@ struct PwNodeView: View {
                     /* New password or folder */
                     TileView(iconName: "folder") {
                         Picker("", selection: $selectedFolder) {
-                            ForEach(appState.rootNode.flatFolders()) { node in
+                            ForEach(alternativeParentFolders) { node in
                                 Text(node.relativePath).tag(node.relativePath)
                             }
                         }
@@ -123,7 +134,8 @@ struct PwNodeView: View {
             Section {
                 HStack {
                     Button(action: dismiss) {
-                        Text("Cancel").foregroundColor(G.errorColor).font(.system(size: 18))
+                        Text("Cancel").foregroundColor(G.errorColor)
+                                      .font(.system(size: 18))
                     }
 
                     Spacer()
@@ -132,28 +144,33 @@ struct PwNodeView: View {
                         Text("Save").font(.system(size: 18))
                     }
                     .disabled(!confirmIsOk)
-
                 }
                 .padding([.top, .bottom], 5)
+                // Both buttons are triggered when one is pressed without this...
+                // https://www.hackingwithswift.com/forums/swiftui/buttons-in-a-form-section/6175
+                .buttonStyle(BorderlessButtonStyle())
             }
         }
         .formStyle(.grouped)
         .onAppear {
+            // .onAppear is triggered anew when we navigate back from the
+            // folder selection
             if let targetNode {
-                // .onAppear is triggered anew when we navigate back from the
-                // folder selection
+                G.logger.debug("Selected: '\(targetNode.relativePath)'")
                 if selectedName.isEmpty {
                     selectedName = targetNode.name
                 }
                 if selectedFolder.isEmpty {
                     selectedFolder = targetNode.parentRelativePath
                 }
+            } else {
+                G.logger.debug("No target node selected")
             }
         }
-
     }
 
     private func dismiss() {
+        G.logger.debug("Dismissing overlay")
         withAnimation {
             showView = false
             self.targetNode = nil
@@ -162,6 +179,7 @@ struct PwNodeView: View {
 
     private func addFolder() {
         guard let newPwNode else {
+            G.logger.error("Invalid path selected: '\(selectedFolder)/\(selectedName)'")
             return
         }
         do {
@@ -178,9 +196,15 @@ struct PwNodeView: View {
     }
 
     private func renameFolder() {
-        guard let newPwNode, let targetNode else {
+        guard let newPwNode else {
+            G.logger.error("Invalid path selected: '\(selectedFolder)/\(selectedName)'")
             return
         }
+        guard let targetNode = self.targetNode else {
+            G.logger.error("No target path selected")
+            return
+        }
+
         do {
             try Git.mvCommit(fromNode: targetNode, toNode: newPwNode)
 
@@ -197,11 +221,13 @@ struct PwNodeView: View {
     /// Separate commits are created for moving a password and changing its value
     private func changeNode() {
         guard let targetNode else {
+            G.logger.error("No target path selected")
             return
         }
 
         if newPwNode == nil && !nodePathUnchanged {
             // Path has been changed to an invalid value
+            G.logger.error("Invalid path selected: '\(selectedFolder)/\(selectedName)'")
             return
         }
 
@@ -241,9 +267,11 @@ struct PwNodeView: View {
 
     private func addPassword() {
         if !newPasswordIsValid {
+            G.logger.error("passwords do not match")
             return
         }
         guard let newPwNode else {
+            G.logger.error("Invalid path selected: '\(selectedFolder)/\(selectedName)'")
             return
         }
         do {
