@@ -115,8 +115,8 @@ fn ffi_age_encrypt(plaintext: *const c_char,
 #[no_mangle]
 pub extern "C"
 fn ffi_age_decrypt(encrypted_path: *const c_char,
-                                  out: &mut c_char,
-                                  outsize: c_int) -> c_int {
+                   out: &mut c_char,
+                   outsize: c_int) -> c_int {
 
     let Some(age_state) = try_lock() else {
         return -1

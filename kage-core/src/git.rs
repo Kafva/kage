@@ -175,6 +175,10 @@ pub fn git_clone(url: &str, into: &str) -> Result<(), git2::Error> {
     Ok(())
 }
 
+pub fn git_log(repo_path: &str) -> Result<Vec<&str>, git2::Error> {
+    Ok(vec![])
+}
+
 /// Returns true if there are no uncommitted changes and nothing to push
 pub fn git_index_has_local_changes(repo_path: &str) -> Result<bool, git2::Error> {
     let repo = Repository::open(repo_path)?;

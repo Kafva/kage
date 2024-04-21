@@ -40,6 +40,7 @@ enum Git {
 
     /// Remove a file or folder and create a commit with the change
     static func rmCommit(node: PwNode) throws {
+        try FileManager.default.removeItem(at: node.url)
         try Git.stage(relativePath: node.relativePath)
         try Git.commit(message: "Deleted '\(node.relativePath)'")
     }

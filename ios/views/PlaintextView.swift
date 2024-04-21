@@ -30,7 +30,7 @@ struct PlaintextView: View {
             .font(.system(size: 18))
 
             Button("Dismiss") {
-                showView = false
+                dismiss()
             }
             .font(.system(size: 18))
         }
@@ -39,6 +39,12 @@ struct PlaintextView: View {
         }
     }
 
+    private func dismiss() {
+        withAnimation {
+            targetNode = nil
+            showView = false
+        }
+    }
 
     private func handleShowPlaintext() {
         do {

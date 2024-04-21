@@ -46,7 +46,7 @@ struct SettingsView: View {
         let isEmpty = Git.repoIsEmpty()
 
         if let cloneError {
-            iconName = isEmpty ? "square.and.arrow.down" : 
+            iconName = isEmpty ? "square.and.arrow.down" :
                                  "exclamationmark.arrow.triangle.2.circlepath"
             text = cloneError
             iconColor = G.errorColor
@@ -163,7 +163,7 @@ struct SettingsView: View {
             if remote == newRemote {
                 return
             }
-            remote = newRemote 
+            remote = newRemote
             G.logger.debug("Updated remote: \(remote)")
         } else {
             G.logger.debug("Invalid remote: \(newRemote)")
@@ -182,7 +182,7 @@ struct SettingsView: View {
             return
         }
 
-        let originStart = remote.index(remote.startIndex, offsetBy: "git://".count) 
+        let originStart = remote.index(remote.startIndex, offsetBy: "git://".count)
         let originEnd = remote.index(before: idx)
         let nameStart = remote.index(after: idx)
 
@@ -206,7 +206,7 @@ struct SettingsView: View {
         } catch {
             try? FileManager.default.removeItem(at: G.gitDir)
             G.logger.error("\(error)")
-            cloneError = error.localizedDescription 
+            cloneError = error.localizedDescription
         }
         inProgress = false
     }

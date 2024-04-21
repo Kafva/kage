@@ -224,10 +224,11 @@ struct PwNodeView: View {
         }
         do {
             let recipient = G.gitDir.appending(path: ".age-recipients")
+            let plaintext = generate ? String.random(18) : password
 
             try Age.encrypt(recipient: recipient,
                             outpath: newPwNode.url,
-                            plaintext: password)
+                            plaintext: plaintext)
 
             try Git.addCommit(node: newPwNode, nodeIsNew: true)
 
