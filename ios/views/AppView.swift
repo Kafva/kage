@@ -12,6 +12,7 @@ struct AppView: View {
     @State private var showSettings = false
     @State private var showPwNode = false
     @State private var showPlaintext = false
+    @State private var expandTree = false
 
     private var searchResults: [PwNode] {
         if searchText.isEmpty {
@@ -24,14 +25,19 @@ struct AppView: View {
     var body: some View {
         let width = showPlaintext ? 0.8*G.screenWidth : G.screenWidth
         let height = showPlaintext ? 0.3*G.screenHeight : G.screenHeight
-        let opacity = showPlaintext ? 0.9 : 1.0
+        let opacity = 1.0
 
         NavigationStack {
             VStack {
                 searchView
-                outlineGroupView
-                // PwNodeTreeView(searchText: $searchText)
-                // listView
+                Spacer()
+                if Git.repoIsEmpty() {
+                    MessageView(type: .empty)
+
+                } else {
+                    PwNodeTreeView(searchText: $searchText)
+                }
+                Spacer()
                 toolbarView
             }
             .overlay(
@@ -121,76 +127,6 @@ struct AppView: View {
         )
     }
 
-    private var listView: some View {
-        List(searchResults, children: \.children) { node in
-            Text(node.name)
-                .font(.system(size: 18))
-                .onTapGesture {
-                    if !node.isLeaf {
-                        return
-                    }
-                    targetNode = node
-                    withAnimation {
-                        showPlaintext = true
-                    }
-                }
-                .swipeActions(allowsFullSwipe: false) {
-                    Button(action: {
-                        handleGitRemove(node: node)
-                    }) {
-                        Image(systemName: "xmark.circle")
-                    }
-                    .tint(.red)
-
-                    Button(action: {
-                        targetNode = node
-                        withAnimation {
-                            showPwNode = true
-                        }
-                    }) {
-                        Image(systemName: "pencil")
-                    }
-                    .tint(.blue)
-                }
-        }
-        .listStyle(.plain)
-    }
-
-    // TODO: https://developer.apple.com/documentation/swiftui/disclosuregroupstyle
-    private var outlineGroupView: some View {
-        OutlineGroup(searchResults, children: \.children) { node in
-            Text(node.name)
-                .font(.system(size: 18))
-                .onTapGesture {
-                    if !node.isLeaf {
-                        return
-                    }
-                    targetNode = node
-                    withAnimation {
-                        showPlaintext = true
-                    }
-                }
-                .swipeActions(allowsFullSwipe: false) {
-                    Button(action: {
-                        handleGitRemove(node: node)
-                    }) {
-                        Image(systemName: "xmark.circle")
-                    }
-                    .tint(.red)
-
-                    Button(action: {
-                        targetNode = node
-                        withAnimation {
-                            showPwNode = true
-                        }
-                    }) {
-                        Image(systemName: "pencil")
-                    }
-                    .tint(.blue)
-                }
-        }
-    }
-
     private var toolbarView: some View {
         let syncIconName: String
         let color: Color
@@ -210,15 +146,15 @@ struct AppView: View {
         }
 
         return HStack(spacing: 10) {
+            /* Settings */
             Button {
-                forFolder = false
-                withAnimation { showPwNode = true }
+              withAnimation { showSettings = true }
             } label: {
-                Image(systemName: "rectangle.badge.plus")
+                Image(systemName: "gearshape")
             }
             .padding(.leading, 20)
-            .disabled(!FileManager.default.isDir(G.gitDir))
 
+            /* New folder */
             Button {
                 forFolder = true
                 withAnimation { showPwNode = true }
@@ -227,14 +163,27 @@ struct AppView: View {
             }
             .disabled(!FileManager.default.isDir(G.gitDir))
 
+            /* New password */
             Button {
-              withAnimation { showSettings = true }
+                forFolder = false
+                withAnimation { showPwNode = true }
             } label: {
-                Image(systemName: "gearshape")
+                Image(systemName: "rectangle.badge.plus")
             }
+            .disabled(!FileManager.default.isDir(G.gitDir))
 
             Spacer()
 
+            /* Expand/collapse tree */
+            Button {
+                expandTree.toggle() 
+            } label: {
+                let expandIconName = expandTree ? "rectangle.compress.vertical" :
+                                                  "rectangle.expand.vertical"
+                Image(systemName: expandIconName)
+            }
+
+            /* Lock indicator */
             Button {
                 handleLockIdentity()
             } label: {
@@ -243,6 +192,7 @@ struct AppView: View {
                 Image(systemName: systemName)
             }
 
+            /* Sync status indicator */
             Button {
                 handleGitPush()
             } label: {
@@ -255,7 +205,7 @@ struct AppView: View {
     }
 
     private func dismiss() {
-        withAnimation { 
+        withAnimation {
             self.forFolder = false
             self.showSettings = false
             self.showPwNode = false

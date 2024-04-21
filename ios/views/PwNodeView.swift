@@ -71,7 +71,7 @@ struct PwNodeView: View {
                         .pickerStyle(.navigationLink)
                     }
 
-                    TileView(iconName: "key") {
+                    TileView(iconName: forFolder ? "folder" : "key") {
                         TextField("Name", text: $selectedName)
                             .textFieldStyle(.roundedBorder)
                     }

@@ -1,36 +1,33 @@
 import SwiftUI
 import OSLog
 
-
 struct SettingsView: View {
     @EnvironmentObject var appState: AppState
     @Binding var showView: Bool
 
     @AppStorage("remote") private var remote: String = ""
     @State private var origin: String = ""
-    @State private var name: String = ""
+    @State private var username: String = ""
     @State private var showAlert: Bool = false
-
+    @State private var inProgress: Bool = false
 
     private var remoteInfoTile: some View {
         Group {
             TileView(iconName: "server.rack") {
                 TextField("Remote origin", text: $origin)
+                .onChange(of: origin, initial: false) { (_, _) in
+                    submitRemote()
+                }
             }
 
             TileView(iconName: "person.crop.circle") {
-                TextField("Username", text: $name)
+                TextField("Username", text: $username)
+                .onChange(of: username, initial: false) { (_, _) in
+                    submitRemote()
+                }
             }
         }
         .textFieldStyle(.plain)
-        .onSubmit {
-            if validRemote {
-                remote = "git://\(origin)/\(name)"
-                G.logger.info("Updated remote: \(remote)")
-            } else {
-                G.logger.info("Invalid remote: git://\(origin)/\(name)")
-            }
-        }
         .onAppear {
             #if targetEnvironment(simulator)
                 remote = "git://127.0.0.1/james"
@@ -41,30 +38,10 @@ struct SettingsView: View {
         }
     }
 
-    private func loadCurrentRemote() {
-        if remote.isEmpty {
-            return
-        }
-        guard let idx = remote.lastIndex(of: "/") else {
-            return
-        }
-        if idx == remote.startIndex || idx == remote.endIndex {
-            G.logger.debug("invalid remote origin: \(remote)")
-            return
-        }
-
-        let originStart = remote.index(remote.startIndex, offsetBy: "git://".count) 
-        let originEnd = remote.index(before: idx)
-        let nameStart = remote.index(after: idx)
-
-        origin = String(remote[originStart...originEnd])
-        name = String(remote[nameStart...])
-    }
-
     private var syncTile: some View {
         let iconName: String
         let text: String
-        let isEmpty = (try? FileManager.default.findFirstFile(G.gitDir) == nil) ?? true
+        let isEmpty = Git.repoIsEmpty()
 
         if isEmpty {
             iconName = "square.and.arrow.down"
@@ -94,12 +71,6 @@ struct SettingsView: View {
         }
     }
 
-    private var validRemote: Bool {
-        let regex = /[-_.a-z0-9]{5,64}/
-        return (try? regex.firstMatch(in: origin) != nil) ?? false &&
-               (try? regex.firstMatch(in: name) != nil) ?? false
-    }
-
     private var versionTile: some View {
         TileView(iconName: nil) {
             Text("Version \(G.gitVersion)").font(.system(size: 12))
@@ -108,11 +79,6 @@ struct SettingsView: View {
         }
     }
 
-    // remote address
-    // re-sync from scratch
-    // version
-    // debugging: force offline/online
-    // History (git log) view
     var body: some View {
         Form {
             let settingsHeader = Text("Settings").font(G.headerFont)
@@ -124,7 +90,12 @@ struct SettingsView: View {
             Section(header: settingsHeader) {
                 remoteInfoTile
                 syncTile
-
+                TileView(iconName: "app.connected.to.app.below.fill") {
+                    NavigationLink(destination: HistoryView()) {
+                        Text("History").foregroundColor(.accentColor)
+                    }
+                    .disabled(Git.repoIsEmpty())
+                }
             }
 
             Section {
@@ -141,17 +112,60 @@ struct SettingsView: View {
         withAnimation { showView = false }
     }
 
-    private func handleGitClone() {
-        if !remote.isEmpty {
-            try? FileManager.default.removeItem(at: G.gitDir)
-            do {
-                try Git.clone(remote: remote)
-                try Git.configSetUser(username: "james")
-                try appState.reloadGitTree()
-            } catch {
-                try? FileManager.default.removeItem(at: G.gitDir)
-                G.logger.error("\(error)")
+    private var validRemote: Bool {
+        let regex = /[-_.a-z0-9]{5,64}/
+        return (try? regex.firstMatch(in: origin) != nil) ?? false &&
+               (try? regex.firstMatch(in: username) != nil) ?? false
+    }
+
+    private func submitRemote() {
+        let newRemote = "git://\(origin)/\(username)"
+        if validRemote {
+            if remote == newRemote {
+                return
             }
+            remote = newRemote 
+            G.logger.debug("Updated remote: \(remote)")
+        } else {
+            G.logger.debug("Invalid remote: \(newRemote)")
+        }
+    }
+
+    private func loadCurrentRemote() {
+        if remote.isEmpty {
+            return
+        }
+        guard let idx = remote.lastIndex(of: "/") else {
+            return
+        }
+        if idx == remote.startIndex || idx == remote.endIndex {
+            G.logger.debug("invalid remote origin: \(remote)")
+            return
+        }
+
+        let originStart = remote.index(remote.startIndex, offsetBy: "git://".count) 
+        let originEnd = remote.index(before: idx)
+        let nameStart = remote.index(after: idx)
+
+        origin = String(remote[originStart...originEnd])
+        username = String(remote[nameStart...])
+        G.logger.debug("Loaded remote: git://\(origin)/\(username)")
+    }
+
+    private func handleGitClone() {
+        if !validRemote {
+            G.logger.error("Refusing to clone from invalid remote: \(remote)")
+            return
+        }
+
+        try? FileManager.default.removeItem(at: G.gitDir)
+        do {
+            try Git.clone(remote: remote)
+            try Git.configSetUser(username: username)
+            try appState.reloadGitTree()
+        } catch {
+            try? FileManager.default.removeItem(at: G.gitDir)
+            G.logger.error("\(error)")
         }
     }
 }

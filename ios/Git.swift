@@ -113,6 +113,10 @@ enum Git {
         }
     }
 
+    static func repoIsEmpty() -> Bool {
+         return (try? FileManager.default.findFirstFile(repo) == nil) ?? true
+    }
+
     static private func commit(message: String) throws {
         let repoC = try repo.path().toCString()
         let messageC = try message.toCString()
