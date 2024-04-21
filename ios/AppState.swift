@@ -5,11 +5,11 @@ class AppState: ObservableObject {
     @Published var identityIsUnlocked: Bool = false
     @Published var rootNode: PwNode = PwNode(url: G.gitDir, children: [])
     @Published var hasLocalChanges: Bool = false
+    /// Is there a VPN interface active?
+    @Published var vpnActive: Bool = false
 
     let monitor = NWPathMonitor()
 
-    /// Is there a VPN interface active?
-    @Published var vpnActive: Bool = false
 
     init() {
         monitor.start(queue: DispatchQueue.global(qos: .background))

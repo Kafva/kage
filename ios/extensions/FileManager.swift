@@ -22,6 +22,19 @@ extension FileManager {
                                             options: .skipsHiddenFiles)
     }
 
+    func findFiles(_ at: URL) throws -> [URL] {
+        var files: [URL] = []
+        for entry in try FileManager.default.ls(at) {
+            if FileManager.default.isFile(entry) {
+                files.append(entry)
+            } else {
+                let fileUrls = try findFiles(entry)
+                files.append(contentsOf: fileUrls)
+            }
+        }
+        return files
+    }
+
     func findFirstFile(_ at: URL) throws -> URL? {
         for entry in try FileManager.default.ls(at) {
             if FileManager.default.isFile(entry) {

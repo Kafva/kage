@@ -14,14 +14,6 @@ struct AppView: View {
     @State private var showPlaintext = false
     @State private var expandTree = false
 
-    private var searchResults: [PwNode] {
-        if searchText.isEmpty {
-            return appState.rootNode.children ?? []
-        } else {
-            return appState.rootNode.findChildren(predicate: searchText)
-        }
-    }
-
     var body: some View {
         let width = showPlaintext ? 0.8*G.screenWidth : G.screenWidth
         let height = showPlaintext ? 0.3*G.screenHeight : G.screenHeight
@@ -29,13 +21,13 @@ struct AppView: View {
 
         NavigationStack {
             VStack {
-                searchView
+                SearchView(searchText: $searchText)
                 Spacer()
                 if Git.repoIsEmpty() {
                     MessageView(type: .empty)
 
                 } else {
-                    PwNodeTreeView(searchText: $searchText)
+                    TreeView()
                 }
                 Spacer()
                 toolbarView
@@ -50,39 +42,12 @@ struct AppView: View {
                     }
                 }
             )
+            .onAppear {
+                G.logger.debug("\(appState.rootNode.children??[])")
+            }
         }
     }
 
-    private var searchView: some View {
-        let background = RoundedRectangle(cornerRadius: 5)
-                            .fill(G.textFieldBgColor)
-
-        return TextField("Search", text: $searchText)
-        .multilineTextAlignment(.center)
-        .font(.system(size: 18))
-        .frame(width: G.screenWidth*0.7)
-        // Padding inside the textbox
-        .padding([.leading, .trailing], 5)
-        .padding([.bottom, .top], 5)
-        .background(background)
-        // Padding outside the textbox
-        .overlay(Group {
-            // Clear content button
-            if !searchText.isEmpty {
-                HStack {
-                    Spacer()
-                    Button {
-                        searchText = ""
-                    } label: {
-                      Image(systemName: "multiply.circle.fill")
-                        .foregroundColor(.secondary)
-                        .font(.system(size: 15))
-                        .padding(.trailing, 5)
-                    }
-                }
-            }
-        })
-    }
 
     private var overlayView: some View {
          VStack {
@@ -234,14 +199,4 @@ struct AppView: View {
         }
     }
 
-    private func handleGitRemove(node: PwNode) {
-        do {
-            try Git.rmCommit(node: node)
-            try appState.reloadGitTree()
-
-        } catch {
-            G.logger.error("\(error)")
-            try? Git.reset()
-        }
-    }
 }

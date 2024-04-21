@@ -52,50 +52,73 @@ struct SettingsView: View {
             text = "Reset password repository"
         }
 
-        return TileView(iconName: iconName) {
-            Button {
-                if isEmpty {
-                    handleGitClone()
-                } else {
-                    showAlert = true
+        return Group {
+            if inProgress {
+                ProgressView()
+            } else {
+                TileView(iconName: iconName) {
+                    Button {
+                        if isEmpty {
+                            handleGitClone()
+                        } else {
+                            showAlert = true
+                        }
+                    } label: {
+                        Text(text)
+                    }
+                    .alert("Replace all local data?", isPresented: $showAlert) {
+                        Button("Yes", role: .destructive) {
+                            handleGitClone()
+                        }
+                    }
+                    .disabled(!validRemote)
                 }
-            } label: {
-                Text(text)
             }
-            .alert("Replace all local data?", isPresented: $showAlert) {
-                Button("Yes", role: .destructive) {
-                    handleGitClone()
-                }
-            }
-            .disabled(!validRemote)
         }
     }
 
     private var versionTile: some View {
         TileView(iconName: nil) {
-            Text("Version \(G.gitVersion)").font(.system(size: 12))
-                                           .foregroundColor(.gray)
-                                           .frame(alignment: .leading)
+            Text(G.gitVersion).font(.system(size: 12))
+                              .foregroundColor(.gray)
+                              .frame(alignment: .leading)
+        }
+    }
+
+    private var historyTile: some View {
+        TileView(iconName: "app.connected.to.app.below.fill") {
+            NavigationLink(destination: HistoryView()) {
+                Text("History").foregroundColor(.accentColor)
+            }
+            .disabled(Git.repoIsEmpty())
+        }
+    }
+
+    private var passwordCountTile: some View {
+        let passwords = try? FileManager.default.findFiles(G.gitDir)
+        return TileView(iconName: nil) {
+            if let passwords {
+                Text("Storage: \(passwords.count) password(s)").font(.system(size: 12))
+                                                               .foregroundColor(.gray)
+                                                               .frame(alignment: .leading)
+            } else {
+                EmptyView()
+            }
         }
     }
 
     var body: some View {
+        let settingsHeader = Text("Settings").font(G.headerFont)
+                                             .padding(.bottom, 10)
+                                             .padding(.top, 20)
+                                             .textCase(nil)
         Form {
-            let settingsHeader = Text("Settings").font(G.headerFont)
-                                                 .padding(.bottom, 10)
-                                                 .padding(.top, 20)
-                                                 .textCase(nil)
-
-
             Section(header: settingsHeader) {
                 remoteInfoTile
                 syncTile
-                TileView(iconName: "app.connected.to.app.below.fill") {
-                    NavigationLink(destination: HistoryView()) {
-                        Text("History").foregroundColor(.accentColor)
-                    }
-                    .disabled(Git.repoIsEmpty())
-                }
+                historyTile
+                passwordCountTile
+                versionTile
             }
 
             Section {
@@ -158,6 +181,7 @@ struct SettingsView: View {
             return
         }
 
+        inProgress = true
         try? FileManager.default.removeItem(at: G.gitDir)
         do {
             try Git.clone(remote: remote)
@@ -167,6 +191,7 @@ struct SettingsView: View {
             try? FileManager.default.removeItem(at: G.gitDir)
             G.logger.error("\(error)")
         }
+        inProgress = false
     }
 }
 
