@@ -89,7 +89,7 @@ struct AppView: View {
          .scrollContentBackground(.hidden)
          .padding([.top, .bottom], 100)
 
-         .gesture(DragGesture(minimumDistance: 10.0, coordinateSpace: .local)
+         .gesture(DragGesture(minimumDistance: 7.0, coordinateSpace: .local)
              .onEnded { value in
                  // Dismiss on downward swipe motion
                  if value.translation.height  > 0 {
