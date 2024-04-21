@@ -15,7 +15,7 @@ enum AppError: Error, LocalizedError {
         case .ageError:
             return "Cryptographic operation error"
         case .gitError(let code):
-            return "Git error: \(code)"
+            return "Git operation error (code \(code))"
         }
     }
 }

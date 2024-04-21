@@ -10,6 +10,7 @@ struct SettingsView: View {
     @State private var username: String = ""
     @State private var showAlert: Bool = false
     @State private var inProgress: Bool = false
+    @State private var cloneError: String?
 
     private var remoteInfoTile: some View {
         Group {
@@ -41,15 +42,25 @@ struct SettingsView: View {
     private var syncTile: some View {
         let iconName: String
         let text: String
+        let iconColor: Color
         let isEmpty = Git.repoIsEmpty()
 
-        if isEmpty {
+        if let cloneError {
+            iconName = isEmpty ? "square.and.arrow.down" : 
+                                 "exclamationmark.arrow.triangle.2.circlepath"
+            text = cloneError
+            iconColor = G.errorColor
+
+        }
+        else if isEmpty {
             iconName = "square.and.arrow.down"
             text = "Fetch password repository"
+            iconColor = .accentColor
 
         } else {
             iconName = "exclamationmark.arrow.triangle.2.circlepath"
             text = "Reset password repository"
+            iconColor = .accentColor
         }
 
         return Group {
@@ -58,13 +69,18 @@ struct SettingsView: View {
             } else {
                 TileView(iconName: iconName) {
                     Button {
-                        if isEmpty {
+                        if cloneError != nil {
+                            // Dismiss error
+                            self.cloneError = nil
+                        }
+                        else if isEmpty {
                             handleGitClone()
                         } else {
                             showAlert = true
                         }
                     } label: {
-                        Text(text)
+                        Text(text).lineLimit(1)
+                                  .foregroundColor(iconColor)
                     }
                     .alert("Replace all local data?", isPresented: $showAlert) {
                         Button("Yes", role: .destructive) {
@@ -190,6 +206,7 @@ struct SettingsView: View {
         } catch {
             try? FileManager.default.removeItem(at: G.gitDir)
             G.logger.error("\(error)")
+            cloneError = error.localizedDescription 
         }
         inProgress = false
     }
