@@ -6,20 +6,24 @@ struct TreeView: View {
 
     @Binding var searchText: String
     @Binding var targetNode: PwNode?
-    @Binding var forFolder: Bool
     @Binding var showPwNode: Bool
     @Binding var showPlaintext: Bool
-
+    @Binding var expandTree: Bool
 
     var body: some View {
-        VStack {
+        List {
             ForEach(searchResults, id: \.id) { child in
                 let parentMatchesSearch = child.name.localizedCaseInsensitiveContains(searchText)
                 TreeNodeView(node: child,
-                                   parentMatchesSearch: parentMatchesSearch,
-                                   searchText: $searchText)
+                             parentMatchesSearch: parentMatchesSearch,
+                             searchText: $searchText,
+                             targetNode: $targetNode,
+                             showPwNode: $showPwNode, 
+                             showPlaintext: $showPlaintext,
+                             expandTree: $expandTree)
             }
         }
+        .listStyle(.plain)
         .frame(width: 0.9*G.screenWidth,
                alignment: .top)
     }
@@ -37,7 +41,12 @@ struct TreeView: View {
 private struct TreeNodeView: View {
     let node: PwNode
     let parentMatchesSearch: Bool
+
     @Binding var searchText: String
+    @Binding var targetNode: PwNode?
+    @Binding var showPwNode: Bool
+    @Binding var showPlaintext: Bool
+    @Binding var expandTree: Bool
 
     @State private var isExpanded: Bool = false
 
@@ -46,18 +55,36 @@ private struct TreeNodeView: View {
             if searchText.isEmpty ||
                parentMatchesSearch ||
                node.name.localizedCaseInsensitiveContains(searchText) {
-                PwNodeTreeItemView(node: node)
+                PwNodeTreeItemView(node: node,
+                                   targetNode: $targetNode,
+                                   showPwNode: $showPwNode, 
+                                   showPlaintext: $showPlaintext)
 
             }
         } else {
-            DisclosureGroup(isExpanded: searchText.isEmpty ? $isExpanded : Binding.constant(true)) {
+            // Force all nodes into their expanded state when there is a search query
+            // or the 'expand all' switch is active.
+            let isExpanded = (!searchText.isEmpty || expandTree) ? 
+                                        Binding.constant(true) :
+                                        $isExpanded
+            DisclosureGroup(isExpanded: isExpanded) {
                 ForEach(node.children ?? [], id: \.id) { child in
                     TreeNodeView(node: child,
-                                       parentMatchesSearch: true,
-                                       searchText: $searchText)
+                                 parentMatchesSearch: parentMatchesSearch,
+                                 searchText: $searchText,
+                                 targetNode: $targetNode,
+                                 showPwNode: $showPwNode, 
+                                 showPlaintext: $showPlaintext,
+                                 expandTree: $expandTree)
+    
+
                 }
             } label: {
-                PwNodeTreeItemView(node: node)
+                PwNodeTreeItemView(node: node,
+                                   targetNode: $targetNode,
+                                   showPwNode: $showPwNode, 
+                                   showPlaintext: $showPlaintext)
+
             }
         }
     }
@@ -67,6 +94,9 @@ private struct PwNodeTreeItemView: View {
     @EnvironmentObject var appState: AppState
 
     let node: PwNode
+    @Binding var targetNode: PwNode?
+    @Binding var showPwNode: Bool
+    @Binding var showPlaintext: Bool
 
     var body: some View {
         return Text(node.name).font(.system(size: 18))

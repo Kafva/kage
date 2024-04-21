@@ -27,7 +27,11 @@ struct AppView: View {
                     MessageView(type: .empty)
 
                 } else {
-                    TreeView()
+                    TreeView(searchText: $searchText, 
+                             targetNode: $targetNode,
+                             showPwNode: $showPwNode, 
+                             showPlaintext: $showPlaintext,
+                             expandTree: $expandTree)
                 }
                 Spacer()
                 toolbarView
@@ -43,11 +47,14 @@ struct AppView: View {
                 }
             )
             .onAppear {
-                G.logger.debug("\(appState.rootNode.children??[])")
+                do {
+                    try appState.reloadGitTree()
+                } catch {
+                    G.logger.error("\(error)")
+                }
             }
         }
     }
-
 
     private var overlayView: some View {
          VStack {
@@ -198,5 +205,4 @@ struct AppView: View {
             G.logger.error("\(error)")
         }
     }
-
 }

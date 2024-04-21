@@ -39,8 +39,9 @@ struct PwNodeView: View {
             if forFolder {
                 confirmIsOk = newPwNode != nil
             } else {
-                confirmIsOk = newPwNode != nil && (password.isEmpty ||
-                                                   password == confirmPassword)
+                // OK to keep the same name when editing a password
+                confirmIsOk = (newPwNode != nil || targetNode.name == selectedName) && 
+                              (password.isEmpty || password == confirmPassword)
             }
 
         } else if forFolder {
@@ -180,8 +181,9 @@ struct PwNodeView: View {
         }
     }
 
-    /// Seperate commits are created for moving a password and changing its value
+    /// Separate commits are created for moving a password and changing its value
     private func changeNode() {
+        // TODO handle renaming the same node
         guard let newPwNode, let targetNode else {
             return
         }
