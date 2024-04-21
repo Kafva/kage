@@ -37,7 +37,6 @@ struct TreeView: View {
     }
 }
 
-
 private struct TreeNodeView: View {
     let node: PwNode
     let parentMatchesSearch: Bool
@@ -139,5 +138,4 @@ private struct PwNodeTreeItemView: View {
             try? Git.reset()
         }
     }
-
 }

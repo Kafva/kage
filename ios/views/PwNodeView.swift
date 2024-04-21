@@ -15,9 +15,9 @@ struct PwNodeView: View {
     @State private var generate = true
 
     private var newPwNode: PwNode? {
-       return PwNode.loadNewFrom(name: selectedName,
-                                 relativeFolderPath: selectedFolder,
-                                 isDir: forFolder)
+        return PwNode.loadNewFrom(name: selectedName,
+                                  relativeFolderPath: selectedFolder,
+                                  isDir: forFolder)
     }
 
     private var newPasswordIsValid: Bool {
@@ -25,6 +25,30 @@ struct PwNodeView: View {
             return true
         }
         return !password.isEmpty && password == confirmPassword
+    }
+
+    private var nodePathUnchanged: Bool {
+        return targetNode?.parentName == selectedFolder &&
+               targetNode?.name == selectedName
+    }
+
+    private var passwordForm: some View {
+        let underlineColor = password == confirmPassword ? Color.green :
+                                                           Color.red
+        return Group {
+            TileView(iconName: "rectangle.and.pencil.and.ellipsis") {
+                SecureField("Password", text: $password)
+            }
+            .padding(.bottom, 10)
+            TileView(iconName: nil) {
+                SecureField("Confirm", text: $confirmPassword)
+            }
+
+            Divider().frame(height: 2)
+                     .overlay(underlineColor)
+                     .opacity(password.isEmpty ? 0.0 : 1.0)
+        }
+        .textFieldStyle(.roundedBorder)
     }
 
     var body: some View {
@@ -39,8 +63,9 @@ struct PwNodeView: View {
             if forFolder {
                 confirmIsOk = newPwNode != nil
             } else {
-                // OK to keep the same name when editing a password
-                confirmIsOk = (newPwNode != nil || targetNode.name == selectedName) && 
+                // OK to keep the same name or password (empty)
+                // when editing a password node
+                confirmIsOk = (newPwNode != nil || nodePathUnchanged) &&
                               (password.isEmpty || password == confirmPassword)
             }
 
@@ -93,12 +118,6 @@ struct PwNodeView: View {
                         }
                     }
                 }
-                .onAppear {
-                    if let targetNode {
-                        selectedName = targetNode.name
-                        selectedFolder = targetNode.parentRelativePath
-                    }
-                }
             }
 
             Section {
@@ -119,32 +138,26 @@ struct PwNodeView: View {
             }
         }
         .formStyle(.grouped)
+        .onAppear {
+            if let targetNode {
+                // .onAppear is triggered anew when we navigate back from the
+                // folder selection
+                if selectedName.isEmpty {
+                    selectedName = targetNode.name
+                }
+                if selectedFolder.isEmpty {
+                    selectedFolder = targetNode.parentRelativePath
+                }
+            }
+        }
+
     }
 
     private func dismiss() {
-        withAnimation { 
+        withAnimation {
             showView = false
             self.targetNode = nil
         }
-    }
-
-    private var passwordForm: some View {
-        let underlineColor = password == confirmPassword ? Color.green : 
-                                                           Color.red
-        return Group {
-            TileView(iconName: "rectangle.and.pencil.and.ellipsis") {
-                SecureField("Password", text: $password)
-            }
-            .padding(.bottom, 10)
-            TileView(iconName: nil) {
-                SecureField("Confirm", text: $confirmPassword)
-            }
-
-            Divider().frame(height: 2)
-                     .overlay(underlineColor)
-                     .opacity(password.isEmpty ? 0.0 : 1.0)
-        }
-        .textFieldStyle(.roundedBorder)
     }
 
     private func addFolder() {
@@ -183,14 +196,24 @@ struct PwNodeView: View {
 
     /// Separate commits are created for moving a password and changing its value
     private func changeNode() {
-        // TODO handle renaming the same node
-        guard let newPwNode, let targetNode else {
+        guard let targetNode else {
             return
         }
+
+        if newPwNode == nil && !nodePathUnchanged {
+            // Path has been changed to an invalid value
+            return
+        }
+
+        // Select the new node if it will be moved, otherwise use the selected node
+        let pwNode = newPwNode ?? targetNode
+
         do {
-            // Move the password node
-            if targetNode.url != newPwNode.url {
-                try Git.mvCommit(fromNode: targetNode, toNode: newPwNode)
+            if let newPwNode {
+                // Move the password node
+                if targetNode.url != newPwNode.url {
+                    try Git.mvCommit(fromNode: targetNode, toNode: newPwNode)
+                }
             }
 
             // Change the password value
@@ -198,21 +221,22 @@ struct PwNodeView: View {
                 let recipient = G.gitDir.appending(path: ".age-recipients")
 
                 try Age.encrypt(recipient: recipient,
-                                outpath: newPwNode.url,
+                                outpath: pwNode.url,
                                 plaintext: password)
 
-                try Git.addCommit(node: newPwNode, nodeIsNew: false)
+                try Git.addCommit(node: pwNode, nodeIsNew: !nodePathUnchanged)
             }
 
-            try appState.reloadGitTree()            
+            try appState.reloadGitTree()
             dismiss()
 
         } catch {
             G.logger.error("\(error)")
-            try? FileManager.default.removeItem(at: newPwNode.url)
+            if let newPwNode {
+                try? FileManager.default.removeItem(at: newPwNode.url)
+            }
             try? Git.reset()
         }
-
     }
 
     private func addPassword() {
@@ -235,26 +259,10 @@ struct PwNodeView: View {
             // Reload git tree with new entry
             try appState.reloadGitTree()
             dismiss()
-            
 
         } catch {
             G.logger.error("\(error)")
             try? Git.reset()
-        }
-    }
-}
-
-
-struct TileView<Content: View>: View {
-    let iconName: String?
-    @ViewBuilder let content: Content
-
-    var body: some View {
-        let width = G.screenWidth*0.1
-        return HStack {
-            Image(systemName: iconName ?? "globe").opacity(iconName != nil ? 1.0 : 0.0)
-                                                  .frame(width: width, alignment: .leading)
-            content
         }
     }
 }

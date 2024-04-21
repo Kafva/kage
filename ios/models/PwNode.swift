@@ -14,6 +14,13 @@ struct PwNode: Identifiable {
          return name
     }
 
+    var parentName: String {
+        if self.name == G.gitDirName {
+            return G.rootNodeName
+        }
+        return url.deletingLastPathComponent().lastPathComponent
+    }
+
     var parentRelativePath: String {
         if url.lastPathComponent == G.gitDirName ||
            url.lastPathComponent == G.rootNodeName {
