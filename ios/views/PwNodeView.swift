@@ -14,12 +14,6 @@ struct PwNodeView: View {
     @State private var confirmPassword = ""
     @State private var generate = true
 
-    private var newPwNode: PwNode? {
-        return PwNode.loadNewFrom(name: selectedName,
-                                  relativeFolderPath: selectedFolder,
-                                  isDir: forFolder)
-    }
-
     private var newPasswordIsValid: Bool {
         if generate {
             return true
@@ -64,16 +58,17 @@ struct PwNodeView: View {
 
     var body: some View {
         let title: String
-        let confirmAction: () -> ()
         let confirmIsOk: Bool
+        let newPwNode = PwNode.loadNewFrom(name: selectedName,
+                                           relativeFolderPath: selectedFolder,
+                                           isDir: forFolder)
 
         if let targetNode {
-            title = "Edit \(targetNode.name)"
-            confirmAction = forFolder ? renameFolder : changeNode
-
             if forFolder {
+                title = "Edit folder '\(targetNode.name)'"
                 confirmIsOk = newPwNode != nil
             } else {
+                title = "Edit password '\(targetNode.name)'"
                 // OK to keep the same name or password (empty)
                 // when editing a password node
                 confirmIsOk = (newPwNode != nil || nodePathUnchanged) &&
@@ -82,12 +77,10 @@ struct PwNodeView: View {
 
         } else if forFolder {
             title = "New folder"
-            confirmAction = addFolder
             confirmIsOk = newPwNode != nil
 
         } else {
             title = "New password"
-            confirmAction = addPassword
             confirmIsOk = newPwNode != nil && newPasswordIsValid
         }
 
@@ -133,21 +126,6 @@ struct PwNodeView: View {
                 }
             }
             .formStyle(.grouped)
-            .onAppear {
-                // .onAppear is triggered anew when we navigate back from the
-                // folder selection
-                if let targetNode {
-                    G.logger.debug("Selected: '\(targetNode.relativePath)'")
-                    if selectedName.isEmpty {
-                        selectedName = targetNode.name
-                    }
-                    if selectedFolder.isEmpty {
-                        selectedFolder = targetNode.parentRelativePath
-                    }
-                } else {
-                    G.logger.debug("No target node selected")
-                }
-            }
 
             HStack {
                 Button(action: dismiss) {
@@ -157,7 +135,7 @@ struct PwNodeView: View {
 
                 Spacer()
 
-                Button(action: confirmAction) {
+                Button(action: { handleSubmit(newPwNode: newPwNode) }) {
                     Text("Save").font(.system(size: 18))
                 }
                 .disabled(!confirmIsOk)
@@ -166,6 +144,49 @@ struct PwNodeView: View {
             // Both buttons are triggered when one is pressed without this...
             // https://www.hackingwithswift.com/forums/swiftui/buttons-in-a-form-section/6175
             .buttonStyle(BorderlessButtonStyle())
+        }
+        .onAppear {
+            // .on Appear is triggered anew when we navigate back from the
+            // folder selection
+            if let targetNode {
+                G.logger.debug("Selected: '\(targetNode.relativePath)'")
+                if selectedName.isEmpty {
+                    selectedName = targetNode.name
+                }
+                if selectedFolder.isEmpty {
+                    selectedFolder = targetNode.parentRelativePath
+                }
+            } else {
+                G.logger.debug("No target node selected")
+            }
+        }
+
+    }
+
+    private func handleSubmit(newPwNode: PwNode?) {
+        // The new PwNode must always be valid except for when we are changing
+        // the password value of an existing node.
+        if let targetNode, !forFolder {
+            changePasswordNode(currentPwNode: targetNode,
+                               newPwNode: newPwNode)
+            return
+        }
+
+        guard let newPwNode else {
+            G.logger.error("Invalid path selected: '\(selectedFolder)/\(selectedName)'")
+            return
+        }
+
+        if let targetNode, forFolder {
+            renameFolder(currentPwNode: targetNode,
+                         newPwNode: newPwNode)
+            return
+        }
+
+        if forFolder {
+            addFolder(newPwNode: newPwNode)
+        } else {
+            addPassword(newPwNode: newPwNode)
         }
     }
 
@@ -177,11 +198,7 @@ struct PwNodeView: View {
         }
     }
 
-    private func addFolder() {
-        guard let newPwNode else {
-            G.logger.error("Invalid path selected: '\(selectedFolder)/\(selectedName)'")
-            return
-        }
+    private func addFolder(newPwNode: PwNode) {
         do {
             try FileManager.default.createDirectory(at: newPwNode.url,
                                                     withIntermediateDirectories: false)
@@ -195,18 +212,10 @@ struct PwNodeView: View {
         }
     }
 
-    private func renameFolder() {
-        guard let newPwNode else {
-            G.logger.error("Invalid path selected: '\(selectedFolder)/\(selectedName)'")
-            return
-        }
-        guard let targetNode = self.targetNode else {
-            G.logger.error("No target path selected")
-            return
-        }
-
+    private func renameFolder(currentPwNode: PwNode,
+                              newPwNode: PwNode) {
         do {
-            try Git.mvCommit(fromNode: targetNode, toNode: newPwNode)
+            try Git.mvCommit(fromNode: currentPwNode, toNode: newPwNode)
 
             try appState.reloadGitTree()
             dismiss()
@@ -219,27 +228,14 @@ struct PwNodeView: View {
     }
 
     /// Separate commits are created for moving a password and changing its value
-    private func changeNode() {
-        guard let targetNode else {
-            G.logger.error("No target path selected")
-            return
-        }
-
-        if newPwNode == nil && !nodePathUnchanged {
-            // Path has been changed to an invalid value
-            G.logger.error("Invalid path selected: '\(selectedFolder)/\(selectedName)'")
-            return
-        }
-
+    private func changePasswordNode(currentPwNode: PwNode,
+                            newPwNode: PwNode?) {
         // Select the new node if it will be moved, otherwise use the selected node
-        let pwNode = newPwNode ?? targetNode
-
+        let pwNode = newPwNode ?? currentPwNode
         do {
-            if let newPwNode {
-                // Move the password node
-                if targetNode.url != newPwNode.url {
-                    try Git.mvCommit(fromNode: targetNode, toNode: newPwNode)
-                }
+            // Move the password node if the current and new node are different
+            if let newPwNode, currentPwNode.url != newPwNode.url {
+                try Git.mvCommit(fromNode: currentPwNode, toNode: newPwNode)
             }
 
             // Change the password value
@@ -265,13 +261,9 @@ struct PwNodeView: View {
         }
     }
 
-    private func addPassword() {
+    private func addPassword(newPwNode: PwNode) {
         if !newPasswordIsValid {
             G.logger.error("passwords do not match")
-            return
-        }
-        guard let newPwNode else {
-            G.logger.error("Invalid path selected: '\(selectedFolder)/\(selectedName)'")
             return
         }
         do {

@@ -1,4 +1,6 @@
 use std::path::Path;
+use std::net::TcpStream;
+use std::time::Duration;
 
 use git2::{RemoteCallbacks,FetchOptions,Repository};
 use git2::build::{CheckoutBuilder,RepoBuilder};
@@ -165,6 +167,11 @@ pub fn git_reset(repo_path: &str) -> Result<(),git2::Error> {
 }
 
 pub fn git_clone(url: &str, into: &str) -> Result<(), git2::Error> {
+    if let Err(err) = try_tcp_connect(url, Duration::from_secs(5)) {
+       debug!("{}", err);
+       return Err(err)
+    };
+
     let mut cb = RemoteCallbacks::new();
     cb.transfer_progress(|progress| transfer_progress(progress, "Cloning"));
 
@@ -173,10 +180,6 @@ pub fn git_clone(url: &str, into: &str) -> Result<(), git2::Error> {
 
     RepoBuilder::new().fetch_options(fopts).clone(url, Path::new(into))?;
     Ok(())
-}
-
-pub fn git_log(repo_path: &str) -> Result<Vec<&str>, git2::Error> {
-    Ok(vec![])
 }
 
 /// Returns true if there are no uncommitted changes and nothing to push
@@ -243,6 +246,25 @@ fn transfer_progress(progress: git2::Progress, label: &str) -> bool {
     true
 }
 
+fn try_tcp_connect(url: &str, timeout: Duration) -> Result<(), git2::Error> {
+    // TODO assume 9418 if no port in address
+    let (address, _) = url.strip_prefix("git://").unwrap().split_once("/").unwrap();
+
+    let Ok(sockaddr) = address.parse() else {
+        return Err(internal_error("Error parsing remote address"))
+    };
+
+    match TcpStream::connect_timeout(&sockaddr, timeout) {
+        Ok(_) => {
+            Ok(())
+        }
+        Err(err) => {
+            let msg = &format!("Error connecting to remote address: {}", err);
+            Err(internal_error(msg))
+        }
+    }
+}
+
 fn internal_error(message: &str) -> git2::Error {
     git2::Error::new(git2::ErrorCode::GenericError,
                      git2::ErrorClass::None,
@@ -267,6 +289,13 @@ mod tests {
         assert!(result.is_ok())
     }
 
+    fn assert_err(result: Result<(), git2::Error>) {
+        if let Some(_) = result.as_ref().ok() {
+            error!("Unexpected successful result");
+        }
+        assert!(result.is_err())
+    }
+
     fn rm_rf(path: &str) {
         let Err(err) = fs::remove_dir_all(path) else {
             return
@@ -289,6 +318,16 @@ mod tests {
     fn current_time() -> u64 {
         use std::time::{SystemTime, UNIX_EPOCH};
         SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs()
+    }
+
+    #[test]
+    /// Test that a clone operation times out when the remote host is unreachable
+    fn git_clone_bad_host_test() {
+        let remote_path = "git://169.254.111.111:9418/bad_host";
+        let repo_path = &format!("{}/bad_remote", GIT_CLIENT_DIR);
+
+        rm_rf(repo_path);
+        assert_err(git_clone(remote_path, repo_path));
     }
 
     #[test]

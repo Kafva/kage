@@ -51,22 +51,9 @@ struct PwNode: Identifiable {
     static func loadNewFrom(name: String,
                             relativeFolderPath: String,
                             isDir: Bool) -> Self? {
-        if name == G.gitDirName {
-            G.logger.debug("The root node name '\(G.gitDirName)' is dissallowed")
+        if !validName(name: name) {
             return nil
         }
-
-        if name.hasSuffix(".age") {
-            G.logger.debug("The '.age' suffix is dissallowed")
-            return nil
-        }
-
-        if name.isEmpty ||
-           !relativeFolderPath.isPrintableASCII ||
-           !name.isPrintableASCII {
-            return nil
-        }
-
         let parentURL = G.gitDir.appending(path: relativeFolderPath)
 
         // Parent must exist
@@ -150,5 +137,27 @@ struct PwNode: Identifiable {
 
         return matches
     }
+
+    static private func validName(name: String) -> Bool {
+        if name == G.gitDirName {
+            G.logger.debug("The root node name '\(G.gitDirName)' is dissallowed")
+            return false
+        }
+
+        if name.hasSuffix(".age") {
+            G.logger.debug("The '.age' suffix is dissallowed")
+            return false
+        }
+
+        let regex = /^[-_.@\/a-zA-Z0-9+]{1,64}/
+
+        if (try? regex.wholeMatch(in: name)) == nil {
+            G.logger.debug("invalid node name: \(name)")
+            return false
+        }
+
+        return true
+    }
+
 }
 

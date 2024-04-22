@@ -80,7 +80,7 @@ git_server_unit() {
     mkdir -p $TOP/git/kage-client/tests
     git_server_restart
 
-    # Create one git repo for each testcase in the git.rs module
+    # Create one git repo for each test case in the git.rs module
     local tmpdir=$(mktemp -d)
     while read -r testcase; do
         local testname=$(sed -nE 's/^git::tests::git_([_a-z]+):.*/\1/p' <<< "$testcase")
