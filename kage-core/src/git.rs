@@ -247,8 +247,20 @@ fn transfer_progress(progress: git2::Progress, label: &str) -> bool {
 }
 
 fn try_tcp_connect(url: &str, timeout: Duration) -> Result<(), git2::Error> {
-    // TODO assume 9418 if no port in address
-    let (address, _) = url.strip_prefix("git://").unwrap().split_once("/").unwrap();
+    let Some(address) = url.strip_prefix("git://") else {
+        return Err(internal_error("Error parsing remote address"))
+    };
+
+    let Some(spl) = address.split_once("/") else {
+        return Err(internal_error("Error parsing remote address"))
+    };
+
+    // Fallback to default git daemon port
+    // XXX: this does not work for IPv6
+    let mut address = spl.0.to_string();
+    if !address.contains(":") {
+        address.push_str(":9418")
+    }
 
     let Ok(sockaddr) = address.parse() else {
         return Err(internal_error("Error parsing remote address"))
