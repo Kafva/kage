@@ -65,6 +65,7 @@ struct SettingsView: View {
 
         return Group {
             if inProgress {
+                // TODO does not work?
                 ProgressView()
             } else {
                 TileView(iconName: iconName) {
@@ -205,7 +206,7 @@ struct SettingsView: View {
             try appState.reloadGitTree()
         } catch {
             try? FileManager.default.removeItem(at: G.gitDir)
-            G.logger.error("\(error)")
+            G.logger.error("\(error.localizedDescription)")
             cloneError = error.localizedDescription
         }
         inProgress = false

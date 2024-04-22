@@ -95,77 +95,77 @@ struct PwNodeView: View {
                                 .padding(.bottom, 10)
                                 .textCase(nil)
 
-        return Form {
-            Section(header: header) {
-                VStack(alignment: .leading, spacing: 10) {
-                    /* New password or folder */
-                    TileView(iconName: "folder") {
-                        Picker("", selection: $selectedFolder) {
-                            ForEach(alternativeParentFolders) { node in
-                                Text(node.relativePath).tag(node.relativePath)
-                            }
-                        }
-                        .pickerStyle(.navigationLink)
-                    }
-
-                    TileView(iconName: forFolder ? "folder" : "key") {
-                        TextField("Name", text: $selectedName)
-                            .textFieldStyle(.roundedBorder)
-                    }
-
-                    if !forFolder {
-                        if targetNode == nil {
-                            TileView(iconName: "dice") {
-                                HStack {
-                                    Text("Autogenerate").font(.system(size: 14))
-                                                        .foregroundColor(.gray)
-                                    Toggle(isOn: $generate) {}
+        return VStack {
+            Form {
+                Section(header: header) {
+                    VStack(alignment: .leading, spacing: 10) {
+                        /* New password or folder */
+                        TileView(iconName: "folder") {
+                            Picker("", selection: $selectedFolder) {
+                                ForEach(alternativeParentFolders) { node in
+                                    Text(node.relativePath).tag(node.relativePath)
                                 }
-                                .frame(alignment: .leading)
+                            }
+                            .pickerStyle(.navigationLink)
+                        }
+
+                        TileView(iconName: forFolder ? "folder" : "key") {
+                            TextField("Name", text: $selectedName)
+                                .textFieldStyle(.roundedBorder)
+                        }
+
+                        if !forFolder {
+                            if targetNode == nil {
+                                TileView(iconName: "dice") {
+                                    HStack {
+                                        Text("Autogenerate").font(.system(size: 14))
+                                                            .foregroundColor(.gray)
+                                        Toggle(isOn: $generate) {}
+                                    }
+                                    .frame(alignment: .leading)
+                                }
+                            }
+                            if targetNode != nil || !generate {
+                                passwordForm
                             }
                         }
-                        if targetNode != nil || !generate {
-                            passwordForm
-                        }
                     }
                 }
             }
-
-            Section {
-                HStack {
-                    Button(action: dismiss) {
-                        Text("Cancel").foregroundColor(G.errorColor)
-                                      .font(.system(size: 18))
+            .formStyle(.grouped)
+            .onAppear {
+                // .onAppear is triggered anew when we navigate back from the
+                // folder selection
+                if let targetNode {
+                    G.logger.debug("Selected: '\(targetNode.relativePath)'")
+                    if selectedName.isEmpty {
+                        selectedName = targetNode.name
                     }
-
-                    Spacer()
-
-                    Button(action: confirmAction) {
-                        Text("Save").font(.system(size: 18))
+                    if selectedFolder.isEmpty {
+                        selectedFolder = targetNode.parentRelativePath
                     }
-                    .disabled(!confirmIsOk)
+                } else {
+                    G.logger.debug("No target node selected")
                 }
-                .padding([.top, .bottom], 5)
-                // Both buttons are triggered when one is pressed without this...
-                // https://www.hackingwithswift.com/forums/swiftui/buttons-in-a-form-section/6175
-                .buttonStyle(BorderlessButtonStyle())
             }
-        }
-        .formStyle(.grouped)
-        .onAppear {
-            // .onAppear is triggered anew when we navigate back from the
-            // folder selection
-            if let targetNode {
-                G.logger.debug("Selected: '\(targetNode.relativePath)'")
-                if selectedName.isEmpty {
-                    selectedName = targetNode.name
+
+            HStack {
+                Button(action: dismiss) {
+                    Text("Cancel").foregroundColor(G.errorColor)
+                                  .font(.system(size: 18))
                 }
-                if selectedFolder.isEmpty {
-                    selectedFolder = targetNode.parentRelativePath
+
+                Spacer()
+
+                Button(action: confirmAction) {
+                    Text("Save").font(.system(size: 18))
                 }
-            } else {
-                G.logger.debug("No target node selected")
+                .disabled(!confirmIsOk)
             }
+            .padding([.top, .bottom], 5)
+            // Both buttons are triggered when one is pressed without this...
+            // https://www.hackingwithswift.com/forums/swiftui/buttons-in-a-form-section/6175
+            .buttonStyle(BorderlessButtonStyle())
         }
     }
 
@@ -190,7 +190,7 @@ struct PwNodeView: View {
             dismiss()
 
         } catch {
-            G.logger.error("\(error)")
+            G.logger.error("\(error.localizedDescription)")
             try? FileManager.default.removeItem(at: newPwNode.url)
         }
     }
@@ -212,7 +212,7 @@ struct PwNodeView: View {
             dismiss()
 
         } catch {
-            G.logger.error("\(error)")
+            G.logger.error("\(error.localizedDescription)")
             try? FileManager.default.removeItem(at: newPwNode.url)
             try? Git.reset()
         }
@@ -257,7 +257,7 @@ struct PwNodeView: View {
             dismiss()
 
         } catch {
-            G.logger.error("\(error)")
+            G.logger.error("\(error.localizedDescription)")
             if let newPwNode {
                 try? FileManager.default.removeItem(at: newPwNode.url)
             }
@@ -289,7 +289,7 @@ struct PwNodeView: View {
             dismiss()
 
         } catch {
-            G.logger.error("\(error)")
+            G.logger.error("\(error.localizedDescription)")
             try? Git.reset()
         }
     }

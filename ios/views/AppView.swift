@@ -50,7 +50,7 @@ struct AppView: View {
                 do {
                     try appState.reloadGitTree()
                 } catch {
-                    G.logger.error("\(error)")
+                    G.logger.error("\(error.localizedDescription)")
                 }
             }
         }
@@ -88,16 +88,6 @@ struct AppView: View {
          // Disable default background for `Form`
          .scrollContentBackground(.hidden)
          .padding([.top, .bottom], 100)
-
-         .gesture(DragGesture(minimumDistance: 7.0, coordinateSpace: .local)
-             .onEnded { value in
-                 // Dismiss on downward swipe motion
-                 if value.translation.height  > 0 {
-                     G.logger.debug("Dismissing overlay based on drag gesture")
-                     dismiss()
-                 }
-             }
-        )
     }
 
     private var toolbarView: some View {
@@ -118,7 +108,7 @@ struct AppView: View {
             color = Color.gray
         }
 
-        return HStack(spacing: 10) {
+        return HStack(spacing: 15) {
             /* Settings */
             Button {
               withAnimation { showSettings = true }
@@ -174,7 +164,7 @@ struct AppView: View {
             .disabled(!appState.vpnActive || !appState.hasLocalChanges)
             .padding(.trailing, 20)
         }
-        .font(.system(size: 20))
+        .font(.system(size: 24))
     }
 
     private func dismiss() {
@@ -192,7 +182,7 @@ struct AppView: View {
             try Git.push()
             try appState.reloadGitTree()
         } catch {
-            G.logger.error("\(error)")
+            G.logger.error("\(error.localizedDescription)")
         }
     }
 
@@ -203,7 +193,7 @@ struct AppView: View {
         do {
             try appState.lockIdentity()
         } catch {
-            G.logger.error("\(error)")
+            G.logger.error("\(error.localizedDescription)")
         }
     }
 }

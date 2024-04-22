@@ -59,7 +59,7 @@ struct PlaintextView: View {
             plaintext = try Age.decrypt(targetNode.url)
 
         } catch {
-            G.logger.error("\(error)")
+            G.logger.error("\(error.localizedDescription)")
         }
     }
 

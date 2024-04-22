@@ -134,7 +134,7 @@ private struct PwNodeTreeItemView: View {
             try appState.reloadGitTree()
 
         } catch {
-            G.logger.error("\(error)")
+            G.logger.error("\(error.localizedDescription)")
             try? Git.reset()
         }
     }
