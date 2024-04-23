@@ -4,6 +4,12 @@ use std::os::raw::{c_char,c_int};
 use crate::git::*;
 use crate::*;
 
+
+// Persistent library state
+// static GIT_ERROR: Lazy<Mutex<git2::Error>> = Lazy::new(|| {
+//     Mutex::new(git2::Error::last_error)
+// });
+
 macro_rules! ffi_git_call {
     ($result:expr) => (
         match $result {
@@ -19,7 +25,7 @@ macro_rules! ffi_git_call {
 #[no_mangle]
 pub extern "C"
 fn ffi_git_clone(url: *const c_char,
-                                into: *const c_char) -> c_int {
+                 into: *const c_char) -> c_int {
     let url = unsafe { CStr::from_ptr(url).to_str() };
     let into = unsafe { CStr::from_ptr(into).to_str() };
 
@@ -126,4 +132,10 @@ fn ffi_git_index_has_local_changes(repo_path: *const c_char) -> c_int {
         }
     }
 }
+
+// #[no_mangle]
+// pub extern "C"
+// fn ffi_git_strerror() -> Vec<u8> {
+//     err.message().as_bytes().to_vec()
+// }
 

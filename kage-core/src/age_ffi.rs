@@ -17,7 +17,7 @@ static AGE_STATE: Lazy<Mutex<AgeState>> = Lazy::new(|| {
 #[no_mangle]
 pub extern "C"
 fn ffi_age_unlock_identity(encrypted_identity: *const c_char,
-                                          passphrase: *const c_char) -> c_int {
+                           passphrase: *const c_char) -> c_int {
 
     let Some(mut age_state) = try_lock() else {
         return -1
@@ -72,8 +72,8 @@ fn ffi_age_unlock_timestamp() -> c_ulonglong {
 #[no_mangle]
 pub extern "C"
 fn ffi_age_encrypt(plaintext: *const c_char,
-                                  recipient: *const c_char,
-                                  outpath: *const c_char) -> c_int {
+                   recipient: *const c_char,
+                   outpath: *const c_char) -> c_int {
 
     let Some(age_state) = try_lock() else {
         return -1

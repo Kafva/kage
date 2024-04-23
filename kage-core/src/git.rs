@@ -10,6 +10,12 @@ use crate::*;
 const GIT_EMAIL: &'static str = env!("KAGE_GIT_EMAIL");
 const GIT_REMOTE: &'static str = env!("KAGE_GIT_REMOTE");
 const GIT_BRANCH: &'static str = env!("KAGE_GIT_BRANCH");
+#[cfg(not(test))]
+const GIT_CLONE_TIMEOUT: u64 = env!("KAGE_GIT_CLONE_TIMEOUT");
+
+#[cfg(test)]
+const GIT_CLONE_TIMEOUT: u64 = 1;
+
 const TRANSFER_STAGES: usize = 4;
 
 pub fn git_pull(repo_path: &str) -> Result<(),git2::Error> {
@@ -167,8 +173,8 @@ pub fn git_reset(repo_path: &str) -> Result<(),git2::Error> {
 }
 
 pub fn git_clone(url: &str, into: &str) -> Result<(), git2::Error> {
-    if let Err(err) = try_tcp_connect(url, Duration::from_secs(5)) {
-       debug!("{}", err);
+    if let Err(err) = try_tcp_connect(url, Duration::from_secs(GIT_CLONE_TIMEOUT)) {
+       error!("{}", err);
        return Err(err)
     };
 
@@ -248,7 +254,7 @@ fn transfer_progress(progress: git2::Progress, label: &str) -> bool {
 
 fn try_tcp_connect(url: &str, timeout: Duration) -> Result<(), git2::Error> {
     let Some(address) = url.strip_prefix("git://") else {
-        return Err(internal_error("Error parsing remote address"))
+        return Err(internal_error("Invalid protocol for remote address"))
     };
 
     let Some(spl) = address.split_once("/") else {
@@ -256,10 +262,17 @@ fn try_tcp_connect(url: &str, timeout: Duration) -> Result<(), git2::Error> {
     };
 
     // Fallback to default git daemon port
-    // XXX: this does not work for IPv6
-    let mut address = spl.0.to_string();
-    if !address.contains(":") {
-        address.push_str(":9418")
+    let address: String;
+    let colon_count = spl.0.chars().filter( |c| { *c == ':' }).count();
+
+    if colon_count == 0 {
+        address = spl.0.to_string() + ":9418";
+    }
+    else if colon_count == 1 {
+        address = spl.0.to_string()
+    }
+    else {
+        return Err(internal_error("Error parsing remote address"))
     }
 
     let Ok(sockaddr) = address.parse() else {
@@ -332,14 +345,83 @@ mod tests {
         SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs()
     }
 
+    fn external_push_file(repo_path: &str, filepath: &str) {
+        let status = Command::new("git").arg("add")
+                                        .arg(&filepath)
+                                        .current_dir(repo_path)
+                                        .status()
+                                        .expect("command failed");
+        assert!(status.success());
+
+        let status = Command::new("git").arg("commit")
+                                        .arg("-q")
+                                        .arg("-m")
+                                        .arg(format!("Adding {}", &filepath))
+                                        .current_dir(repo_path)
+                                        .status()
+                                        .expect("command failed");
+        assert!(status.success());
+
+        let status = Command::new("git").arg("push")
+                                        .arg("-q")
+                                        .arg(GIT_REMOTE)
+                                        .arg(GIT_BRANCH)
+                                        .current_dir(repo_path)
+                                        .status()
+                                        .expect("command failed");
+        assert!(status.success());
+    }
+
+    #[test]
+    /// Test we get expected errors when trying to:
+    ///   1. Push to a remote that has external changes
+    ///   2. Pull from a remote that has conflicting changes
+    fn git_conflict_test() {
+        let remote_path = &format!("{}/conflict_test", GIT_REMOTE_CLONE_URL);
+        let repo_path = &format!("{}/conflict_test", GIT_CLIENT_DIR);
+        let now = current_time();
+        let external_client_path = &format!("/tmp/.pull_test-{}", now);
+
+        let file = "conflict_file";
+        let file_external_client_path = &format!("{}/{}", external_client_path, file);
+        let file_our_path = &format!("{}/{}", repo_path, file);
+
+        // Clone into two locations
+        clone(remote_path, repo_path);
+        clone(remote_path, external_client_path);
+
+        // Create conflicting commits in each checkout
+        fs::write(&file_our_path, "My content").expect("write file failed");
+        assert_ok(git_stage(repo_path, &file));
+        assert_ok(git_commit(repo_path, "My commit"));
+
+        fs::write(&file_external_client_path, "External content").expect("write file failed");
+        external_push_file(external_client_path, file);
+
+        // Try to push/pull after the external update has occured
+        assert_err(git_push(repo_path));
+        assert_err(git_pull(repo_path));
+
+        // Clean up external checkout
+        rm_rf(external_client_path);
+    }
+
     #[test]
     /// Test that a clone operation times out when the remote host is unreachable
     fn git_clone_bad_host_test() {
-        let remote_path = "git://169.254.111.111:9418/bad_host";
         let repo_path = &format!("{}/bad_remote", GIT_CLIENT_DIR);
 
+        // Unsupported protocol
         rm_rf(repo_path);
-        assert_err(git_clone(remote_path, repo_path));
+        assert_err(git_clone("https://127.0.0.1/bad_host", repo_path));
+
+        // Unreachable host, with port
+        rm_rf(repo_path);
+        assert_err(git_clone("git://169.254.111.111:9988/bad_host", repo_path));
+
+        // Unreachable host, no port
+        rm_rf(repo_path);
+        assert_err(git_clone("git://169.254.111.111/bad_host", repo_path));
     }
 
     #[test]
@@ -453,7 +535,7 @@ mod tests {
 
         clone(remote_path, repo_path);
 
-        // Create a commit with all three files
+        // Create a commit
         fs::write(&file_to_keep_path, "To keep").expect("write file failed");
         assert_ok(git_stage(repo_path, &file_to_keep));
         assert_ok(git_commit(repo_path, "Test commit"));
@@ -473,30 +555,7 @@ mod tests {
         clone(remote_path, external_client_path);
 
         fs::write(&externalfile_client_path, "External content").expect("write file failed");
-        let status = Command::new("git").arg("add")
-                                        .arg(&externalfile)
-                                        .current_dir(external_client_path)
-                                        .status()
-                                        .expect("command failed");
-        assert!(status.success());
-
-        let status = Command::new("git").arg("commit")
-                                        .arg("-q")
-                                        .arg("-m")
-                                        .arg(format!("Adding {}", &externalfile))
-                                        .current_dir(external_client_path)
-                                        .status()
-                                        .expect("command failed");
-        assert!(status.success());
-
-        let status = Command::new("git").arg("push")
-                                        .arg("-q")
-                                        .arg(GIT_REMOTE)
-                                        .arg(GIT_BRANCH)
-                                        .current_dir(external_client_path)
-                                        .status()
-                                        .expect("command failed");
-        assert!(status.success());
+        external_push_file(externalfile_client_path, externalfile);
 
         // Pull in external updates
         assert_ok(git_pull(repo_path));
