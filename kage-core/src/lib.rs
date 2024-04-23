@@ -7,3 +7,6 @@ mod age_ffi;
 
 #[macro_use]
 mod log;
+
+#[cfg(test)]
+mod git_test;

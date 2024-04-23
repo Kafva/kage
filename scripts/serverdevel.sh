@@ -83,7 +83,7 @@ git_server_unit() {
     # Create one git repo for each test case in the git.rs module
     local tmpdir=$(mktemp -d)
     while read -r testcase; do
-        local testname=$(sed -nE 's/^git::tests::git_([_a-z]+):.*/\1/p' <<< "$testcase")
+        local testname=$(sed -nE 's/^git_test::git_([_a-z]+):.*/\1/p' <<< "$testcase")
         local test_remote="$TOP/git/kage-store/tests/$testname"
 
         echo "Creating $test_remote"
@@ -98,7 +98,7 @@ git_server_unit() {
         git -C $tmpdir push origin main
         rm -rf $tmpdir
 
-    done < <(cd kage-core && cargo test -- -q --list 2> /dev/null | grep '^git::')
+    done < <(cd $TOP/kage-core && cargo test -- -q --list 2> /dev/null | grep '^git_test::')
 
     tree -L 1 "$TOP/git/kage-store/tests"
 }
