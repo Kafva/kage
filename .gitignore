@@ -9,6 +9,12 @@ buildServer.json
 
 **/target/**
 
+# Android
+/.idea
+kls_database.db
+.gradle
+
+
 # Xcode
 Pods
 xcuserdata
