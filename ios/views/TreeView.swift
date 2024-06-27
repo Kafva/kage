@@ -18,7 +18,7 @@ struct TreeView: View {
                              parentMatchesSearch: parentMatchesSearch,
                              searchText: $searchText,
                              targetNode: $targetNode,
-                             showPwNode: $showPwNode, 
+                             showPwNode: $showPwNode,
                              showPlaintext: $showPlaintext,
                              expandTree: $expandTree)
             }
@@ -56,14 +56,14 @@ private struct TreeNodeView: View {
                node.name.localizedCaseInsensitiveContains(searchText) {
                 PwNodeTreeItemView(node: node,
                                    targetNode: $targetNode,
-                                   showPwNode: $showPwNode, 
+                                   showPwNode: $showPwNode,
                                    showPlaintext: $showPlaintext)
 
             }
         } else {
             // Force all nodes into their expanded state when there is a search query
             // or the 'expand all' switch is active.
-            let isExpanded = (!searchText.isEmpty || expandTree) ? 
+            let isExpanded = (!searchText.isEmpty || expandTree) ?
                                         Binding.constant(true) :
                                         $isExpanded
             DisclosureGroup(isExpanded: isExpanded) {
@@ -72,16 +72,16 @@ private struct TreeNodeView: View {
                                  parentMatchesSearch: parentMatchesSearch,
                                  searchText: $searchText,
                                  targetNode: $targetNode,
-                                 showPwNode: $showPwNode, 
+                                 showPwNode: $showPwNode,
                                  showPlaintext: $showPlaintext,
                                  expandTree: $expandTree)
-    
+
 
                 }
             } label: {
                 PwNodeTreeItemView(node: node,
                                    targetNode: $targetNode,
-                                   showPwNode: $showPwNode, 
+                                   showPwNode: $showPwNode,
                                    showPlaintext: $showPlaintext)
 
             }

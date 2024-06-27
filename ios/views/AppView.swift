@@ -27,9 +27,9 @@ struct AppView: View {
                     MessageView(type: .empty)
 
                 } else {
-                    TreeView(searchText: $searchText, 
+                    TreeView(searchText: $searchText,
                              targetNode: $targetNode,
-                             showPwNode: $showPwNode, 
+                             showPwNode: $showPwNode,
                              showPlaintext: $showPlaintext,
                              expandTree: $expandTree)
                 }
@@ -139,7 +139,7 @@ struct AppView: View {
 
             /* Expand/collapse tree */
             Button {
-                expandTree.toggle() 
+                expandTree.toggle()
             } label: {
                 let expandIconName = expandTree ? "rectangle.compress.vertical" :
                                                   "rectangle.expand.vertical"

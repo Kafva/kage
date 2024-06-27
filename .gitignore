@@ -5,6 +5,7 @@
 /.bundle
 /.bundle.xcresult
 .compile
+.tags
 buildServer.json
 
 **/target/**
