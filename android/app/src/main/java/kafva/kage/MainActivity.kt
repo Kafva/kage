@@ -2,6 +2,8 @@ package kafva.kage
 
 import android.os.Bundle
 import android.util.Log
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -9,9 +11,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.Button
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.unit.dp
 import kafva.kage.ui.theme.KageTheme
 
 class MainActivity : ComponentActivity() {
@@ -24,19 +28,31 @@ class MainActivity : ComponentActivity() {
 
         // TODO: kls-classpath...
         val classLoader = Thread.currentThread().contextClassLoader
-        Log.i("kage", "THIS ${g.add("xd")}")
+        Log.i("kage", "THIS ${classLoader}")
 
         setContent {
             KageTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                Column(modifier = Modifier.fillMaxSize(),
+                       verticalArrangement = Arrangement.spacedBy(10.dp),
+                       horizontalAlignment = Alignment.CenterHorizontally) {
                     Greeting(
-                        name = "XDDD",
-                        modifier = Modifier.padding(innerPadding)
+                        name = "Android",
+                        modifier = Modifier.padding(0.dp, 20.dp)
                     )
+                    Button(onClick = { testFunc() }) {
+                        Text("Click me")
+                    } 
                 }
             }
         }
     }
+
+    fun testFunc(): Int {
+        val x = 1
+        val y = 1
+        return x + y
+    }
+
 }
 
 /**
@@ -49,14 +65,6 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
         text = "Hello $name!",
         modifier = modifier
     )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    KageTheme {
-        Greeting("Android")
-    }
 }
 
 

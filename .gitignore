@@ -12,6 +12,7 @@ buildServer.json
 
 # Android
 kls_database.db
+kls_classpath
 *.iml
 .gradle
 /local.properties
@@ -25,6 +26,7 @@ kls_database.db
 .externalNativeBuild
 .cxx
 local.properties
+.jdbrc
 
 
 # Xcode
