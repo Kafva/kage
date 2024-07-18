@@ -12,7 +12,7 @@ buildServer.json
 
 # Android
 kls_database.db
-kls_classpath
+kls-classpath
 *.iml
 .gradle
 /local.properties
