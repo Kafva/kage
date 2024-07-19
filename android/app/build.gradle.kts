@@ -60,6 +60,17 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     testImplementation(libs.junit)
+    // You can declare dependencies in gradle scripts like this:
+    //
+    //                             <group>          :<name>:<version>
+    //  androidTestImplementation("androidx.test.ext:junit:1.1.5")
+    //  <=>
+    //  (libs.version.toml) +
+    //  androidTestImplementation(libs.androidx.junit)
+    //
+    // However, the syntax with a version catalog reference 'libs'
+    // is preferred, the <group>, <name> and <version> are in this case instead
+    // defined gradle/*libs*.version.toml.
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
