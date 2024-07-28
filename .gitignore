@@ -1,6 +1,6 @@
 # vi: ft=gitignore
 /build
-/git
+/.testenv
 /log
 /.bundle
 /.bundle.xcresult

@@ -4,10 +4,10 @@ set -o pipefail
 
 REMOTE_ORIGIN="git://127.0.0.1"
 TOP="$(cd "$(dirname "$0")/.." && pwd)"
-JAMES_REPO_REMOTE="$TOP/git/kage-store/james"
-JAMES_REPO_CLIENT="$TOP/git/kage-client/james"
-JAMES_KEY="$TOP/git/kage-client/james/.age-identities"
-JAMES_PUBKEY="$TOP/git/kage-client/james/.age-recipients"
+JAMES_REPO_REMOTE="$TOP/.testenv/kage-store/james"
+JAMES_REPO_CLIENT="$TOP/.testenv/kage-client/james"
+JAMES_KEY="$TOP/.testenv/kage-client/james/.age-identities"
+JAMES_PUBKEY="$TOP/.testenv/kage-client/james/.age-recipients"
 UNIT_TESTS_MODE=false
 
 die() {
@@ -76,15 +76,15 @@ git_server_setup() {
 }
 
 git_server_unit() {
-    mkdir -p $TOP/git/kage-store
-    mkdir -p $TOP/git/kage-client/tests
+    mkdir -p $TOP/.testenv/kage-store
+    mkdir -p $TOP/.testenv/kage-client/tests
     git_server_restart
 
     # Create one git repo for each test case in the git.rs module
     local tmpdir=$(mktemp -d)
     while read -r testcase; do
         local testname=$(sed -nE 's/^git_test::git_([_a-z]+):.*/\1/p' <<< "$testcase")
-        local test_remote="$TOP/git/kage-store/tests/$testname"
+        local test_remote="$TOP/.testenv/kage-store/tests/$testname"
 
         echo "Creating $test_remote"
         mkdir -p $test_remote
@@ -100,14 +100,14 @@ git_server_unit() {
 
     done < <(cd $TOP/kage-core && cargo test -- -q --list 2> /dev/null | grep '^git_test::')
 
-    tree -L 1 "$TOP/git/kage-store/tests"
+    tree -L 1 "$TOP/.testenv/kage-store/tests"
 }
 
 git_server_restart() {
     git_server_stop
-    git daemon --base-path="$TOP/git/kage-store" \
+    git daemon --base-path="$TOP/.testenv/kage-store" \
                --enable=receive-pack \
-               --access-hook="$TOP/scripts/ip-auth" \
+               --access-hook="$TOP/tools/ip-auth" \
                --export-all \
                --reuseaddr \
                --informative-errors &
@@ -133,7 +133,7 @@ git_server_add() {
     _age_generate_files "$JAMES_REPO_CLIENT/$folder" "$JAMES_PUBKEY" 1
 
     git -C $JAMES_REPO_CLIENT add .
-    git -C $JAMES_REPO_CLIENT commit -m "Added ${folder##"$TOP/git/"}"
+    git -C $JAMES_REPO_CLIENT commit -m "Added ${folder##"$TOP/.testenv/"}"
     git -C $JAMES_REPO_CLIENT push -q
     git -C $JAMES_REPO_CLIENT log -n1
 }
@@ -148,7 +148,7 @@ git_server_del() {
 
     rm "$file"
     git -C $JAMES_REPO_CLIENT rm "$file"
-    git -C $JAMES_REPO_CLIENT commit -m "Removed ${file##"$TOP/git/"}"
+    git -C $JAMES_REPO_CLIENT commit -m "Removed ${file##"$TOP/.testenv/"}"
     git -C $JAMES_REPO_CLIENT push -q
     git -C $JAMES_REPO_CLIENT log -n1
 }
@@ -160,14 +160,14 @@ git_server_mod() {
     age -r "$(cat $JAMES_PUBKEY)" -o "$file" - <<< "password-modified"
 
     git -C $JAMES_REPO_CLIENT add "$file"
-    git -C $JAMES_REPO_CLIENT commit -m "Modified ${file##"$TOP/git/"}"
+    git -C $JAMES_REPO_CLIENT commit -m "Modified ${file##"$TOP/.testenv/"}"
     git -C $JAMES_REPO_CLIENT push -q
     git -C $JAMES_REPO_CLIENT log -n1
 }
 
 git_server_status() {
     if $UNIT_TESTS_MODE; then
-        for d in "$TOP/git/kage-store/tests"/*; do
+        for d in "$TOP/.testenv/kage-store/tests"/*; do
             echo "+ $d"
             git -C $d log --format='%C(auto) %h %s'
         done
@@ -242,8 +242,8 @@ while read -n1 -rs ans; do
     [rR])
         git_server_stop
 
-        echo "Clearing $TOP/git"
-        rm -rf "$TOP/git"
+        echo "Clearing $TOP/.testenv"
+        rm -rf "$TOP/.testenv"
         git_server_setup
         git_server_restart
     ;;
