@@ -40,6 +40,7 @@ esac
 (cd $SOURCE_ROOT/kage-core &&
     cargo build ${CARGO_FLAGS} --target ${CARGO_TARGET})
 
+# Always copy the output for the current platform to dist
 mkdir -p "$SOURCE_ROOT/kage-core/dist"
 cp "$SOURCE_ROOT/kage-core/target/${CARGO_TARGET}/${CARGO_BUILDTYPE}/$LIB" \
    "$SOURCE_ROOT/kage-core/dist/$LIB"

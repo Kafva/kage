@@ -26,7 +26,11 @@ once_cell = "1.19.0"
 age = { version = "0.10.0", features = ["armor"] }
 
 # Without https/ssh support
-# XXX: This depends on libiconv2, it needs to be included in the Xcode build
+# XXX: This depends on:
+#    - libiconv2
+#    - libz
+# Text-Based Stub Libraries (.tbd) need to be included for these in Xcode:
+#   Build Phases > Link Binary with Libraries
 git2 = { version = "0.18.3", default-features = false }
 
 [features]
