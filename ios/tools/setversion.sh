@@ -4,9 +4,9 @@ set -ex
 # This script runs automatically with each build and updates the Info.plist with
 # every new commit, exclude local changes to it with:
 #
-# git update-index --assume-unchanged ios/Info.plist
+# git update-index --assume-unchanged src/Info.plist
 #
-INFO_PLIST="${SOURCE_ROOT?}/ios/Info.plist"
+INFO_PLIST="${SOURCE_ROOT?}/src/Info.plist"
 KEY="GitVersion"
 DIRTY=
 

@@ -3,71 +3,62 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 56;
+	objectVersion = 70;
 	objects = {
 
 /* Begin PBXBuildFile section */
-		12175786F0CB0370719FFE57 /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76152D05D5A7FD42EEB5EE9A /* HistoryView.swift */; };
-		195E89A223D7C256DB25342C /* MessageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 095DF827234012B40081EA8E /* MessageView.swift */; };
-		20B2962BC903165C1547B91D /* PwNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78AD88FC59CD039B63A7F5FC /* PwNode.swift */; };
-		488BC80BAAE8375F6CD6CAFF /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E5D4DBC06BF413DE2010C /* AppState.swift */; };
-		5CE0BC8DBA2CC64C5104AC0A /* FileManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3E1AE2EA2D1C8B61349B273 /* FileManager.swift */; };
-		69659EB9CE3BA6CE1167D5C9 /* PwNodeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 464305761F2EE3CCCFF2E227 /* PwNodeView.swift */; };
-		6F9CEFA5EA5B7215ADC18BF9 /* AuthenticationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F7215AE713FACE43D49D54F /* AuthenticationView.swift */; };
-		76EC9EE687663EEE0EF7148F /* PlaintextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99F7F75375C6C53062F70A36 /* PlaintextView.swift */; };
-		865B9ACA97D8515B1A0A0184 /* URL.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5318F2240B8EACFD17614D11 /* URL.swift */; };
-		8BE7EA8EF4C3F2FB5D8F997F /* TreeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BAE9F71ED15055DA2944B3D /* TreeView.swift */; };
-		9B64E89ECEC344CC8FCAD4C9 /* TileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4ED89258460B8C11498B188E /* TileView.swift */; };
-		9DBB65AD2437C02BA4AB5995 /* Age.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62E58D179FCD1B4C3F7BBE18 /* Age.swift */; };
-		A0EF6E5878059B29BD644B3A /* SearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C695B9DE40A9A0152611668 /* SearchView.swift */; };
-		AE8788ABAF80BD560599AECE /* AppError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C698A209DE28A17573144F4 /* AppError.swift */; };
-		C7B5F27130F26C88BF968C7D /* AppView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF1D1F4B38B1606D697C7BE2 /* AppView.swift */; };
-		DD4AACEB2B9832AE0077C541 /* libkage_core.a in Frameworks */ = {isa = PBXBuildFile; fileRef = DD4AACEA2B9832A50077C541 /* libkage_core.a */; };
 		DD728F762B9392EF00A4BC99 /* libiconv.2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = DD728F752B9392DA00A4BC99 /* libiconv.2.tbd */; };
-		DDA4B62D2AFDF6A00046DFCE /* kageApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDA4B62C2AFDF6A00046DFCE /* kageApp.swift */; };
-		DDA4B6312AFDF6A10046DFCE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DDA4B6302AFDF6A10046DFCE /* Assets.xcassets */; };
 		DDE56F8D2C569F210072C726 /* libz.1.2.12.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = DDE56F8C2C569F210072C726 /* libz.1.2.12.tbd */; };
-		E2B23155701BEA7113C3F4DB /* G.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20324E04859C2C0DC3D8C62 /* G.swift */; };
-		EDCD26E61496FE5E345B40CE /* Git.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F0D8E0ACE255FC38D0D6C8F /* Git.swift */; };
-		F1B6B33CA88CECACA9EADFB9 /* String.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9145173DDBC56F12DB11C9AE /* String.swift */; };
-		FF484E4134D87C67A3283DCC /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E154AC3F5AE691FFEDC3EEB /* SettingsView.swift */; };
+		DDFB7FA92C56A43A00972D43 /* libkage_core.a in Frameworks */ = {isa = PBXBuildFile; fileRef = DDFB7FA82C56A43A00972D43 /* libkage_core.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		095DF827234012B40081EA8E /* MessageView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MessageView.swift; path = views/MessageView.swift; sourceTree = "<group>"; };
-		3E154AC3F5AE691FFEDC3EEB /* SettingsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SettingsView.swift; path = views/SettingsView.swift; sourceTree = "<group>"; };
-		464305761F2EE3CCCFF2E227 /* PwNodeView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = PwNodeView.swift; path = views/PwNodeView.swift; sourceTree = "<group>"; };
-		4ED89258460B8C11498B188E /* TileView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TileView.swift; path = views/TileView.swift; sourceTree = "<group>"; };
-		4F0D8E0ACE255FC38D0D6C8F /* Git.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Git.swift; sourceTree = "<group>"; };
-		5318F2240B8EACFD17614D11 /* URL.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = URL.swift; path = extensions/URL.swift; sourceTree = "<group>"; };
-		62E58D179FCD1B4C3F7BBE18 /* Age.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Age.swift; sourceTree = "<group>"; };
-		76152D05D5A7FD42EEB5EE9A /* HistoryView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = HistoryView.swift; path = views/HistoryView.swift; sourceTree = "<group>"; };
-		78AD88FC59CD039B63A7F5FC /* PwNode.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = PwNode.swift; path = models/PwNode.swift; sourceTree = "<group>"; };
-		7BAE9F71ED15055DA2944B3D /* TreeView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TreeView.swift; path = views/TreeView.swift; sourceTree = "<group>"; };
-		7C695B9DE40A9A0152611668 /* SearchView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SearchView.swift; path = views/SearchView.swift; sourceTree = "<group>"; };
-		8F7215AE713FACE43D49D54F /* AuthenticationView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AuthenticationView.swift; path = views/AuthenticationView.swift; sourceTree = "<group>"; };
-		9145173DDBC56F12DB11C9AE /* String.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = String.swift; path = extensions/String.swift; sourceTree = "<group>"; };
-		99F7F75375C6C53062F70A36 /* PlaintextView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = PlaintextView.swift; path = views/PlaintextView.swift; sourceTree = "<group>"; };
-		9C698A209DE28A17573144F4 /* AppError.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AppError.swift; path = models/AppError.swift; sourceTree = "<group>"; };
-		DD4AACEA2B9832A50077C541 /* libkage_core.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libkage_core.a; path = "kage-core/dist/libkage_core.a"; sourceTree = "<group>"; };
 		DD728F752B9392DA00A4BC99 /* libiconv.2.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libiconv.2.tbd; path = usr/lib/libiconv.2.tbd; sourceTree = SDKROOT; };
 		DDA4B6292AFDF6A00046DFCE /* kage.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = kage.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		DDA4B62C2AFDF6A00046DFCE /* kageApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = kageApp.swift; sourceTree = "<group>"; };
-		DDA4B6302AFDF6A10046DFCE /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		DDE56F8C2C569F210072C726 /* libz.1.2.12.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.1.2.12.tbd; path = usr/lib/libz.1.2.12.tbd; sourceTree = SDKROOT; };
-		EF1D1F4B38B1606D697C7BE2 /* AppView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AppView.swift; path = views/AppView.swift; sourceTree = "<group>"; };
-		EF9E5D4DBC06BF413DE2010C /* AppState.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
-		F20324E04859C2C0DC3D8C62 /* G.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = G.swift; sourceTree = "<group>"; };
-		F3E1AE2EA2D1C8B61349B273 /* FileManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = FileManager.swift; path = extensions/FileManager.swift; sourceTree = "<group>"; };
+		DDFB7FA82C56A43A00972D43 /* libkage_core.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libkage_core.a; path = dist/libkage_core.a; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		DDFB7FBB2C56A6D700972D43 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Age.swift,
+				AppState.swift,
+				extensions/FileManager.swift,
+				extensions/String.swift,
+				extensions/URL.swift,
+				G.swift,
+				Git.swift,
+				kageApp.swift,
+				types/AppError.swift,
+				types/PwNode.swift,
+				views/AppView.swift,
+				views/AuthenticationView.swift,
+				views/HistoryView.swift,
+				views/MessageView.swift,
+				views/PlaintextView.swift,
+				views/PwNodeView.swift,
+				views/SearchView.swift,
+				views/SettingsView.swift,
+				views/TileView.swift,
+				views/TreeView.swift,
+			);
+			target = DDA4B6282AFDF6A00046DFCE /* kage */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		DDFB7F8E2C56A23800972D43 /* src */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (DDFB7FBB2C56A6D700972D43 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = src; sourceTree = "<group>"; };
+/* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		DDA4B6262AFDF6A00046DFCE /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DDFB7FA92C56A43A00972D43 /* libkage_core.a in Frameworks */,
 				DDE56F8D2C569F210072C726 /* libz.1.2.12.tbd in Frameworks */,
-				DD4AACEB2B9832AE0077C541 /* libkage_core.a in Frameworks */,
 				DD728F762B9392EF00A4BC99 /* libiconv.2.tbd in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -78,8 +69,8 @@
 		0637CFE505AED851B4CE663F /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				DDFB7FA82C56A43A00972D43 /* libkage_core.a */,
 				DDE56F8C2C569F210072C726 /* libz.1.2.12.tbd */,
-				DD4AACEA2B9832A50077C541 /* libkage_core.a */,
 				DD728F752B9392DA00A4BC99 /* libiconv.2.tbd */,
 			);
 			name = Frameworks;
@@ -88,7 +79,7 @@
 		DDA4B6202AFDF6A00046DFCE = {
 			isa = PBXGroup;
 			children = (
-				DDA4B62B2AFDF6A00046DFCE /* ios */,
+				DDFB7F8E2C56A23800972D43 /* src */,
 				DDA4B62A2AFDF6A00046DFCE /* Products */,
 				0637CFE505AED851B4CE663F /* Frameworks */,
 			);
@@ -100,34 +91,6 @@
 				DDA4B6292AFDF6A00046DFCE /* kage.app */,
 			);
 			name = Products;
-			sourceTree = "<group>";
-		};
-		DDA4B62B2AFDF6A00046DFCE /* ios */ = {
-			isa = PBXGroup;
-			children = (
-				DDA4B62C2AFDF6A00046DFCE /* kageApp.swift */,
-				DDA4B6302AFDF6A10046DFCE /* Assets.xcassets */,
-				4F0D8E0ACE255FC38D0D6C8F /* Git.swift */,
-				62E58D179FCD1B4C3F7BBE18 /* Age.swift */,
-				EF9E5D4DBC06BF413DE2010C /* AppState.swift */,
-				F20324E04859C2C0DC3D8C62 /* G.swift */,
-				8F7215AE713FACE43D49D54F /* AuthenticationView.swift */,
-				F3E1AE2EA2D1C8B61349B273 /* FileManager.swift */,
-				9145173DDBC56F12DB11C9AE /* String.swift */,
-				5318F2240B8EACFD17614D11 /* URL.swift */,
-				9C698A209DE28A17573144F4 /* AppError.swift */,
-				78AD88FC59CD039B63A7F5FC /* PwNode.swift */,
-				EF1D1F4B38B1606D697C7BE2 /* AppView.swift */,
-				99F7F75375C6C53062F70A36 /* PlaintextView.swift */,
-				3E154AC3F5AE691FFEDC3EEB /* SettingsView.swift */,
-				464305761F2EE3CCCFF2E227 /* PwNodeView.swift */,
-				095DF827234012B40081EA8E /* MessageView.swift */,
-				76152D05D5A7FD42EEB5EE9A /* HistoryView.swift */,
-				7C695B9DE40A9A0152611668 /* SearchView.swift */,
-				7BAE9F71ED15055DA2944B3D /* TreeView.swift */,
-				4ED89258460B8C11498B188E /* TileView.swift */,
-			);
-			path = ios;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -190,7 +153,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DDA4B6312AFDF6A10046DFCE /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -214,7 +176,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/bash;
-			shellScript = "$SRCROOT/scripts/build-core.sh\n";
+			shellScript = "$SRCROOT/../kage-core/build.sh\n";
 		};
 		DD65F7532BD3954000D91387 /* Add version string to Info.plist */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -230,11 +192,11 @@
 			outputFileListPaths = (
 			);
 			outputPaths = (
-				"$(SRCDIR)/ios/Info.plist",
+				"$(SRCDIR)/src/Info.plist",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/bash;
-			shellScript = "./scripts/setversion.sh\n";
+			shellScript = "./tools/setversion.sh\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -243,26 +205,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DDA4B62D2AFDF6A00046DFCE /* kageApp.swift in Sources */,
-				EDCD26E61496FE5E345B40CE /* Git.swift in Sources */,
-				9DBB65AD2437C02BA4AB5995 /* Age.swift in Sources */,
-				488BC80BAAE8375F6CD6CAFF /* AppState.swift in Sources */,
-				E2B23155701BEA7113C3F4DB /* G.swift in Sources */,
-				6F9CEFA5EA5B7215ADC18BF9 /* AuthenticationView.swift in Sources */,
-				5CE0BC8DBA2CC64C5104AC0A /* FileManager.swift in Sources */,
-				F1B6B33CA88CECACA9EADFB9 /* String.swift in Sources */,
-				865B9ACA97D8515B1A0A0184 /* URL.swift in Sources */,
-				AE8788ABAF80BD560599AECE /* AppError.swift in Sources */,
-				20B2962BC903165C1547B91D /* PwNode.swift in Sources */,
-				C7B5F27130F26C88BF968C7D /* AppView.swift in Sources */,
-				76EC9EE687663EEE0EF7148F /* PlaintextView.swift in Sources */,
-				FF484E4134D87C67A3283DCC /* SettingsView.swift in Sources */,
-				69659EB9CE3BA6CE1167D5C9 /* PwNodeView.swift in Sources */,
-				195E89A223D7C256DB25342C /* MessageView.swift in Sources */,
-				12175786F0CB0370719FFE57 /* HistoryView.swift in Sources */,
-				A0EF6E5878059B29BD644B3A /* SearchView.swift in Sources */,
-				8BE7EA8EF4C3F2FB5D8F997F /* TreeView.swift in Sources */,
-				9B64E89ECEC344CC8FCAD4C9 /* TileView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -398,7 +340,8 @@
 				DEVELOPMENT_TEAM = R394CK45KY;
 				ENABLE_PREVIEWS = NO;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = ios/Info.plist;
+				INFOPLIST_FILE = src/Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -411,7 +354,7 @@
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(PROJECT_DIR)/kage-core/dist",
+					"$(PROJECT_DIR)/dist",
 				);
 				MARKETING_VERSION = 0.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = kafva.kage;
@@ -436,7 +379,8 @@
 				DEVELOPMENT_TEAM = R394CK45KY;
 				ENABLE_PREVIEWS = NO;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = ios/Info.plist;
+				INFOPLIST_FILE = src/Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -449,7 +393,7 @@
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(PROJECT_DIR)/kage-core/dist",
+					"$(PROJECT_DIR)/dist",
 				);
 				MARKETING_VERSION = 0.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = kafva.kage;
