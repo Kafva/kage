@@ -26,10 +26,6 @@ class MainActivity : ComponentActivity() {
         val g = Group<String>("xd")
         g.add("mem")
 
-        // TODO: kls-classpath...
-        val classLoader = Thread.currentThread().contextClassLoader
-        Log.i("kage", "THIS ${classLoader}")
-
         setContent {
             KageTheme {
                 Column(modifier = Modifier.fillMaxSize(),
@@ -40,7 +36,7 @@ class MainActivity : ComponentActivity() {
                         modifier = Modifier.padding(0.dp, 20.dp)
                     )
                     Button(onClick = { testFunc() }) {
-                        Text("Click me")
+                        Text("Bury me")
                     } 
                 }
             }
@@ -50,7 +46,8 @@ class MainActivity : ComponentActivity() {
     fun testFunc(): Int {
         val x = 1
         val y = 1
-        return x + y
+        val z = 2
+        return x + y + z
     }
 
 }
