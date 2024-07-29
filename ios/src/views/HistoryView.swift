@@ -1,5 +1,5 @@
-import SwiftUI
 import OSLog
+import SwiftUI
 
 struct HistoryView: View {
     @EnvironmentObject var appState: AppState
@@ -10,4 +10,3 @@ struct HistoryView: View {
         }
     }
 }
-

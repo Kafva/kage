@@ -1,7 +1,7 @@
 import Foundation
 import OSLog
-import UIKit
 import SwiftUI
+import UIKit
 
 /// Global constants
 enum G {
@@ -9,7 +9,8 @@ enum G {
 
     static let rootNodeName = "/"
     static let gitDirName = "git-adc83b19e"
-    static let gitDir = FileManager.default.appDataDirectory.appending(path: G.gitDirName)
+    static let gitDir = FileManager.default.appDataDirectory.appending(
+        path: G.gitDirName)
 
     static let ageDecryptOutSize: CInt = 2048
 
@@ -23,7 +24,8 @@ enum G {
     static let errorColor = Color(UIColor(named: "ErrorColor")!)
 
     static var gitVersion: String {
-        let version = Bundle.main.infoDictionary?["GitVersion"] as? String
+        let version =
+            Bundle.main.infoDictionary?["GitVersion"] as? String
             ?? "Unknown"
         #if DEBUG
             return "\(version) (debug)"

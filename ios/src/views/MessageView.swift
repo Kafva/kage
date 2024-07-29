@@ -10,10 +10,10 @@ struct MessageView: View {
 
     private var iconSystemName: String {
         switch type {
-            case .noSearchMatches:
-                return "rays"
-            case .empty:
-                return "rays"
+        case .noSearchMatches:
+            return "rays"
+        case .empty:
+            return "rays"
         }
     }
 
@@ -30,4 +30,3 @@ struct MessageView: View {
         .frame(width: 0.8 * G.screenWidth)
     }
 }
-

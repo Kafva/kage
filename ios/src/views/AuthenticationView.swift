@@ -31,7 +31,8 @@ struct AuthenticationView: View {
     private func submit() {
         do {
             try appState.unlockIdentity(passphrase: passphrase)
-        } catch {
+        }
+        catch {
             G.logger.debug("Incorrect password")
             return
         }

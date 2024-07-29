@@ -10,16 +10,16 @@ struct PlaintextView: View {
         VStack(alignment: .center, spacing: 10) {
             let title = "\(targetNode?.name ?? "Plaintext")"
             Text(title).font(.system(size: 22))
-                       .underline(color: .accentColor)
-                       .padding(.bottom, 10)
+                .underline(color: .accentColor)
+                .padding(.bottom, 10)
 
             let value = hidePlaintext ? "••••••••" : plaintext
             Text(value).bold()
-                       .monospaced()
-                       .foregroundColor(.accentColor)
-                       .padding(.bottom, 20).onTapGesture {
-                            hidePlaintext.toggle()
-                       }
+                .monospaced()
+                .foregroundColor(.accentColor)
+                .padding(.bottom, 20).onTapGesture {
+                    hidePlaintext.toggle()
+                }
             Button {
                 UIPasteboard.general.string = plaintext
                 G.logger.debug("Copied '\(title)' to clipboard")
@@ -58,7 +58,8 @@ struct PlaintextView: View {
 
             plaintext = try Age.decrypt(targetNode.url)
 
-        } catch {
+        }
+        catch {
             G.logger.error("\(error.localizedDescription)")
         }
     }

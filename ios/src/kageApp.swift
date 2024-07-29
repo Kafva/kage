@@ -1,5 +1,5 @@
-import SwiftUI
 import OSLog
+import SwiftUI
 
 @main
 struct kageApp: App {
@@ -9,15 +9,15 @@ struct kageApp: App {
     var body: some Scene {
         WindowGroup {
             AppView()
-            .ignoresSafeArea()
-            .autocorrectionDisabled()
-            .autocapitalization(.none)
-            // Default keyboard layout
-            .keyboardType(.asciiCapable)
-            // Avoid extra spacing below the toolbar
-            .navigationBarTitle("")
-            .navigationBarTitleDisplayMode(.inline)
-            .environmentObject(appState)
+                .ignoresSafeArea()
+                .autocorrectionDisabled()
+                .autocapitalization(.none)
+                // Default keyboard layout
+                .keyboardType(.asciiCapable)
+                // Avoid extra spacing below the toolbar
+                .navigationBarTitle("")
+                .navigationBarTitleDisplayMode(.inline)
+                .environmentObject(appState)
         }
     }
 }

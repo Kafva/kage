@@ -1,5 +1,5 @@
-import SwiftUI
 import Network
+import SwiftUI
 
 class AppState: ObservableObject {
     @Published var identityIsUnlocked: Bool = false
@@ -10,7 +10,6 @@ class AppState: ObservableObject {
 
     let monitor = NWPathMonitor()
 
-
     init() {
         monitor.start(queue: DispatchQueue.global(qos: .background))
 
@@ -18,16 +17,17 @@ class AppState: ObservableObject {
         monitor.pathUpdateHandler = { [self] networkPath in
             DispatchQueue.main.async { [self] in
                 if networkPath.status == .satisfied {
-#if targetEnvironment(simulator)
-                    vpnActive = true
-#else
-                    // We consider ourselves online if there is an 'other' (VPN)
-                    // interface available.
-                    vpnActive = networkPath.availableInterfaces
-                                        .contains(where: { $0.type == .other })
-#endif
+                    #if targetEnvironment(simulator)
+                        vpnActive = true
+                    #else
+                        // We consider ourselves online if there is an 'other' (VPN)
+                        // interface available.
+                        vpnActive = networkPath.availableInterfaces
+                            .contains(where: { $0.type == .other })
+                    #endif
                 }
-                G.logger.debug("VPN interface active: \(self.vpnActive ? "yes" : "no")")
+                G.logger.debug(
+                    "VPN interface active: \(self.vpnActive ? "yes" : "no")")
             }
         }
     }
@@ -43,8 +43,9 @@ class AppState: ObservableObject {
 
     func unlockIdentity(passphrase: String) throws {
         let encryptedIdentity = G.gitDir.appending(path: ".age-identities")
-        try Age.unlockIdentity(encryptedIdentity,
-                               passphrase: passphrase)
+        try Age.unlockIdentity(
+            encryptedIdentity,
+            passphrase: passphrase)
         identityIsUnlocked = true
     }
 
@@ -53,4 +54,3 @@ class AppState: ObservableObject {
         identityIsUnlocked = false
     }
 }
-

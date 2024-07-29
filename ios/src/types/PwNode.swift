@@ -7,11 +7,11 @@ struct PwNode: Identifiable {
     let children: [PwNode]?
 
     var name: String {
-         let name = url.deletingPathExtension().lastPathComponent
-         if name == G.gitDirName {
-             return G.rootNodeName
-         }
-         return name
+        let name = url.deletingPathExtension().lastPathComponent
+        if name == G.gitDirName {
+            return G.rootNodeName
+        }
+        return name
     }
 
     var parentName: String {
@@ -22,10 +22,12 @@ struct PwNode: Identifiable {
     }
 
     var parentRelativePath: String {
-        if url.lastPathComponent == G.gitDirName ||
-           url.lastPathComponent == G.rootNodeName {
+        if url.lastPathComponent == G.gitDirName
+            || url.lastPathComponent == G.rootNodeName
+        {
             return G.rootNodeName
-        } else {
+        }
+        else {
             let parentURL = url.deletingLastPathComponent()
             return PwNode(url: parentURL, children: []).relativePath
         }
@@ -48,9 +50,11 @@ struct PwNode: Identifiable {
         return FileManager.default.isDir(url)
     }
 
-    static func loadNewFrom(name: String,
-                            relativeFolderPath: String,
-                            isDir: Bool) -> Self? {
+    static func loadNewFrom(
+        name: String,
+        relativeFolderPath: String,
+        isDir: Bool
+    ) -> Self? {
         if !validName(name: name) {
             return nil
         }
@@ -80,16 +84,15 @@ struct PwNode: Identifiable {
         var children: [Self] = []
 
         for url in try FileManager.default.ls(fromDir) {
-            let node = FileManager.default.isDir(url) ?
-                                try loadFrom(url) :
-                                PwNode(url: url, children: nil)
+            let node =
+                FileManager.default.isDir(url)
+                ? try loadFrom(url) : PwNode(url: url, children: nil)
 
             children.append(node)
         }
 
         return PwNode(url: fromDir, children: children)
     }
-
 
     /// Retrieve a list of all folder paths in the tree
     func flatFolders() -> [PwNode] {
@@ -109,7 +112,8 @@ struct PwNode: Identifiable {
 
     /// Returns a subset of the tree with paths to every node that matches
     /// `predicate`.
-    func findChildren(predicate: String, onlyFolders: Bool = false) -> [PwNode] {
+    func findChildren(predicate: String, onlyFolders: Bool = false) -> [PwNode]
+    {
         var matches: [PwNode] = []
         let predicate = predicate.lowercased()
 
@@ -118,16 +122,20 @@ struct PwNode: Identifiable {
                 continue
             }
 
-            let childMatches = child.findChildren(predicate: predicate,
-                                                  onlyFolders: onlyFolders)
+            let childMatches = child.findChildren(
+                predicate: predicate,
+                onlyFolders: onlyFolders)
 
             if childMatches.isEmpty {
                 // Append the child with all its children if it matches the
                 // predicate.
-                if child.name.lowercased().contains(predicate) || predicate.isEmpty {
+                if child.name.lowercased().contains(predicate)
+                    || predicate.isEmpty
+                {
                     matches.append(child)
                 }
-            } else {
+            }
+            else {
                 // Append the child with a subset of its own children if one of
                 // its children matched the predicate.
                 let subsetChild = PwNode(url: child.url, children: childMatches)
@@ -140,7 +148,8 @@ struct PwNode: Identifiable {
 
     static private func validName(name: String) -> Bool {
         if name == G.gitDirName {
-            G.logger.debug("The root node name '\(G.gitDirName)' is dissallowed")
+            G.logger.debug(
+                "The root node name '\(G.gitDirName)' is dissallowed")
             return false
         }
 
@@ -160,4 +169,3 @@ struct PwNode: Identifiable {
     }
 
 }
-

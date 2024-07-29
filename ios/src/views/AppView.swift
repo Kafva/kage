@@ -1,5 +1,5 @@
-import SwiftUI
 import OSLog
+import SwiftUI
 
 struct AppView: View {
     @EnvironmentObject var appState: AppState
@@ -15,8 +15,8 @@ struct AppView: View {
     @State private var expandTree = false
 
     var body: some View {
-        let width = showPlaintext ? 0.8*G.screenWidth : G.screenWidth
-        let height = showPlaintext ? 0.3*G.screenHeight : G.screenHeight
+        let width = showPlaintext ? 0.8 * G.screenWidth : G.screenWidth
+        let height = showPlaintext ? 0.3 * G.screenHeight : G.screenHeight
         let opacity = 1.0
 
         NavigationStack {
@@ -26,12 +26,14 @@ struct AppView: View {
                 if Git.repoIsEmpty() {
                     MessageView(type: .empty)
 
-                } else {
-                    TreeView(searchText: $searchText,
-                             targetNode: $targetNode,
-                             showPwNode: $showPwNode,
-                             showPlaintext: $showPlaintext,
-                             expandTree: $expandTree)
+                }
+                else {
+                    TreeView(
+                        searchText: $searchText,
+                        targetNode: $targetNode,
+                        showPwNode: $showPwNode,
+                        showPlaintext: $showPlaintext,
+                        expandTree: $expandTree)
                 }
                 Spacer()
                 toolbarView
@@ -41,15 +43,16 @@ struct AppView: View {
                     if showSettings || showPwNode || showPlaintext {
                         Color(UIColor.systemBackground).opacity(opacity)
                         overlayView
-                        .frame(width: width, height: height)
-                        .transition(.move(edge: .bottom))
+                            .frame(width: width, height: height)
+                            .transition(.move(edge: .bottom))
                     }
                 }
             )
             .onAppear {
                 do {
                     try appState.reloadGitTree()
-                } catch {
+                }
+                catch {
                     G.logger.error("\(error.localizedDescription)")
                 }
             }
@@ -57,37 +60,41 @@ struct AppView: View {
     }
 
     private var overlayView: some View {
-         VStack {
-             if showPwNode {
-                 if let targetNode {
+        VStack {
+            if showPwNode {
+                if let targetNode {
                     /* Edit view */
-                    PwNodeView(showView: $showPwNode,
-                               targetNode: $targetNode,
-                               forFolder: targetNode.isDir)
-                 }
-                 else {
+                    PwNodeView(
+                        showView: $showPwNode,
+                        targetNode: $targetNode,
+                        forFolder: targetNode.isDir)
+                }
+                else {
                     /* New password or folder view */
-                    PwNodeView(showView: $showPwNode,
-                               targetNode: $targetNode,
-                               forFolder: forFolder)
-                 }
-             }
-             else if showSettings {
-                 /* Settings view */
-                 SettingsView(showView: $showSettings)
-             }
-             else if appState.identityIsUnlocked {
-                 /* Password in plaintext */
-                 PlaintextView(showView: $showPlaintext,
-                               targetNode: $targetNode)
-             } else {
-                 /* Password entry */
-                 AuthenticationView(showView: $showPlaintext)
-             }
-         }
-         // Disable default background for `Form`
-         .scrollContentBackground(.hidden)
-         .padding([.top, .bottom], 100)
+                    PwNodeView(
+                        showView: $showPwNode,
+                        targetNode: $targetNode,
+                        forFolder: forFolder)
+                }
+            }
+            else if showSettings {
+                /* Settings view */
+                SettingsView(showView: $showSettings)
+            }
+            else if appState.identityIsUnlocked {
+                /* Password in plaintext */
+                PlaintextView(
+                    showView: $showPlaintext,
+                    targetNode: $targetNode)
+            }
+            else {
+                /* Password entry */
+                AuthenticationView(showView: $showPlaintext)
+            }
+        }
+        // Disable default background for `Form`
+        .scrollContentBackground(.hidden)
+        .padding([.top, .bottom], 100)
     }
 
     private var toolbarView: some View {
@@ -99,11 +106,14 @@ struct AppView: View {
                 syncIconName = "square.and.arrow.up"
                 color = Color.green
 
-            } else {
-                syncIconName = "square.and.arrow.up.trianglebadge.exclamationmark"
+            }
+            else {
+                syncIconName =
+                    "square.and.arrow.up.trianglebadge.exclamationmark"
                 color = Color.gray
             }
-        } else {
+        }
+        else {
             syncIconName = "checkmark.circle"
             color = Color.gray
         }
@@ -111,7 +121,7 @@ struct AppView: View {
         return HStack(spacing: 15) {
             /* Settings */
             Button {
-              withAnimation { showSettings = true }
+                withAnimation { showSettings = true }
             } label: {
                 Image(systemName: "gearshape")
             }
@@ -141,8 +151,10 @@ struct AppView: View {
             Button {
                 expandTree.toggle()
             } label: {
-                let expandIconName = expandTree ? "rectangle.compress.vertical" :
-                                                  "rectangle.expand.vertical"
+                let expandIconName =
+                    expandTree
+                    ? "rectangle.compress.vertical"
+                    : "rectangle.expand.vertical"
                 Image(systemName: expandIconName)
             }
 
@@ -150,8 +162,8 @@ struct AppView: View {
             Button {
                 handleLockIdentity()
             } label: {
-                let systemName =  appState.identityIsUnlocked ?
-                                    "lock.open" : "lock"
+                let systemName =
+                    appState.identityIsUnlocked ? "lock.open" : "lock"
                 Image(systemName: systemName)
             }
 
@@ -181,7 +193,8 @@ struct AppView: View {
         do {
             try Git.push()
             try appState.reloadGitTree()
-        } catch {
+        }
+        catch {
             G.logger.error("\(error.localizedDescription)")
         }
     }
@@ -192,7 +205,8 @@ struct AppView: View {
         }
         do {
             try appState.lockIdentity()
-        } catch {
+        }
+        catch {
             G.logger.error("\(error.localizedDescription)")
         }
     }

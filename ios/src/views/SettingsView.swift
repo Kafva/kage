@@ -1,5 +1,5 @@
-import SwiftUI
 import OSLog
+import SwiftUI
 
 struct SettingsView: View {
     @EnvironmentObject var appState: AppState
@@ -16,16 +16,16 @@ struct SettingsView: View {
         Group {
             TileView(iconName: "server.rack") {
                 TextField("Remote origin", text: $origin)
-                .onChange(of: origin, initial: false) { (_, _) in
-                    submitRemote()
-                }
+                    .onChange(of: origin, initial: false) { (_, _) in
+                        submitRemote()
+                    }
             }
 
             TileView(iconName: "person.crop.circle") {
                 TextField("Username", text: $username)
-                .onChange(of: username, initial: false) { (_, _) in
-                    submitRemote()
-                }
+                    .onChange(of: username, initial: false) { (_, _) in
+                        submitRemote()
+                    }
             }
         }
         .textFieldStyle(.plain)
@@ -46,8 +46,10 @@ struct SettingsView: View {
         let isEmpty = Git.repoIsEmpty()
 
         if let cloneError {
-            iconName = isEmpty ? "square.and.arrow.down" :
-                                 "exclamationmark.arrow.triangle.2.circlepath"
+            iconName =
+                isEmpty
+                ? "square.and.arrow.down"
+                : "exclamationmark.arrow.triangle.2.circlepath"
             text = cloneError
             iconColor = G.errorColor
 
@@ -57,7 +59,8 @@ struct SettingsView: View {
             text = "Fetch password repository"
             iconColor = .accentColor
 
-        } else {
+        }
+        else {
             iconName = "exclamationmark.arrow.triangle.2.circlepath"
             text = "Reset password repository"
             iconColor = .accentColor
@@ -67,7 +70,8 @@ struct SettingsView: View {
             if inProgress {
                 // TODO does not work?
                 ProgressView()
-            } else {
+            }
+            else {
                 TileView(iconName: iconName) {
                     Button {
                         if cloneError != nil {
@@ -76,12 +80,13 @@ struct SettingsView: View {
                         }
                         else if isEmpty {
                             handleGitClone()
-                        } else {
+                        }
+                        else {
                             showAlert = true
                         }
                     } label: {
                         Text(text).lineLimit(1)
-                                  .foregroundColor(iconColor)
+                            .foregroundColor(iconColor)
                     }
                     .alert("Replace all local data?", isPresented: $showAlert) {
                         Button("Yes", role: .destructive) {
@@ -97,8 +102,8 @@ struct SettingsView: View {
     private var versionTile: some View {
         TileView(iconName: nil) {
             Text(G.gitVersion).font(.system(size: 12))
-                              .foregroundColor(.gray)
-                              .frame(alignment: .leading)
+                .foregroundColor(.gray)
+                .frame(alignment: .leading)
         }
     }
 
@@ -115,10 +120,13 @@ struct SettingsView: View {
         let passwords = try? FileManager.default.findFiles(G.gitDir)
         return TileView(iconName: nil) {
             if let passwords {
-                Text("Storage: \(passwords.count) password(s)").font(.system(size: 12))
-                                                               .foregroundColor(.gray)
-                                                               .frame(alignment: .leading)
-            } else {
+                Text("Storage: \(passwords.count) password(s)").font(
+                    .system(size: 12)
+                )
+                .foregroundColor(.gray)
+                .frame(alignment: .leading)
+            }
+            else {
                 EmptyView()
             }
         }
@@ -126,9 +134,9 @@ struct SettingsView: View {
 
     var body: some View {
         let settingsHeader = Text("Settings").font(G.headerFont)
-                                             .padding(.bottom, 10)
-                                             .padding(.top, 20)
-                                             .textCase(nil)
+            .padding(.bottom, 10)
+            .padding(.top, 20)
+            .textCase(nil)
         Form {
             Section(header: settingsHeader) {
                 remoteInfoTile
@@ -154,8 +162,8 @@ struct SettingsView: View {
 
     private var validRemote: Bool {
         let regex = /[-_.a-z0-9]{5,64}/
-        return (try? regex.firstMatch(in: origin) != nil) ?? false &&
-               (try? regex.firstMatch(in: username) != nil) ?? false
+        return (try? regex.firstMatch(in: origin) != nil) ?? false
+            && (try? regex.firstMatch(in: username) != nil) ?? false
     }
 
     private func submitRemote() {
@@ -166,7 +174,8 @@ struct SettingsView: View {
             }
             remote = newRemote
             G.logger.debug("Updated remote: \(remote)")
-        } else {
+        }
+        else {
             G.logger.debug("Invalid remote: \(newRemote)")
         }
     }
@@ -183,7 +192,8 @@ struct SettingsView: View {
             return
         }
 
-        let originStart = remote.index(remote.startIndex, offsetBy: "git://".count)
+        let originStart = remote.index(
+            remote.startIndex, offsetBy: "git://".count)
         let originEnd = remote.index(before: idx)
         let nameStart = remote.index(after: idx)
 
@@ -204,7 +214,8 @@ struct SettingsView: View {
             try Git.clone(remote: remote)
             try Git.configSetUser(username: username)
             try appState.reloadGitTree()
-        } catch {
+        }
+        catch {
             try? FileManager.default.removeItem(at: G.gitDir)
             G.logger.error("\(error.localizedDescription)")
             cloneError = error.localizedDescription
@@ -212,4 +223,3 @@ struct SettingsView: View {
         inProgress = false
     }
 }
-

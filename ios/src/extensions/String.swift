@@ -17,9 +17,11 @@ extension String {
     }
 
     static func random(_ length: Int) -> String {
-        return String((0..<length).map { _ in
-            "\"!#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~".randomElement()!
-        })
+        return String(
+            (0..<length).map { _ in
+                "\"!#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~"
+                    .randomElement()!
+            })
     }
 
     var isPrintableASCII: Bool {

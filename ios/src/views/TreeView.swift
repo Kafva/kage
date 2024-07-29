@@ -1,5 +1,5 @@
-import SwiftUI
 import OSLog
+import SwiftUI
 
 struct TreeView: View {
     @EnvironmentObject var appState: AppState
@@ -13,25 +13,29 @@ struct TreeView: View {
     var body: some View {
         List {
             ForEach(searchResults, id: \.id) { child in
-                let parentMatchesSearch = child.name.localizedCaseInsensitiveContains(searchText)
-                TreeNodeView(node: child,
-                             parentMatchesSearch: parentMatchesSearch,
-                             searchText: $searchText,
-                             targetNode: $targetNode,
-                             showPwNode: $showPwNode,
-                             showPlaintext: $showPlaintext,
-                             expandTree: $expandTree)
+                let parentMatchesSearch = child.name
+                    .localizedCaseInsensitiveContains(searchText)
+                TreeNodeView(
+                    node: child,
+                    parentMatchesSearch: parentMatchesSearch,
+                    searchText: $searchText,
+                    targetNode: $targetNode,
+                    showPwNode: $showPwNode,
+                    showPlaintext: $showPlaintext,
+                    expandTree: $expandTree)
             }
         }
         .listStyle(.plain)
-        .frame(width: 0.9*G.screenWidth,
-               alignment: .top)
+        .frame(
+            width: 0.9 * G.screenWidth,
+            alignment: .top)
     }
 
     private var searchResults: [PwNode] {
         if searchText.isEmpty {
             return appState.rootNode.children ?? []
-        } else {
+        }
+        else {
             return appState.rootNode.findChildren(predicate: searchText)
         }
     }
@@ -51,38 +55,41 @@ private struct TreeNodeView: View {
 
     var body: some View {
         if node.isLeaf {
-            if searchText.isEmpty ||
-               parentMatchesSearch ||
-               node.name.localizedCaseInsensitiveContains(searchText) {
-                PwNodeTreeItemView(node: node,
-                                   targetNode: $targetNode,
-                                   showPwNode: $showPwNode,
-                                   showPlaintext: $showPlaintext)
+            if searchText.isEmpty || parentMatchesSearch
+                || node.name.localizedCaseInsensitiveContains(searchText)
+            {
+                PwNodeTreeItemView(
+                    node: node,
+                    targetNode: $targetNode,
+                    showPwNode: $showPwNode,
+                    showPlaintext: $showPlaintext)
 
             }
-        } else {
+        }
+        else {
             // Force all nodes into their expanded state when there is a search query
             // or the 'expand all' switch is active.
-            let isExpanded = (!searchText.isEmpty || expandTree) ?
-                                        Binding.constant(true) :
-                                        $isExpanded
+            let isExpanded =
+                (!searchText.isEmpty || expandTree)
+                ? Binding.constant(true) : $isExpanded
             DisclosureGroup(isExpanded: isExpanded) {
                 ForEach(node.children ?? [], id: \.id) { child in
-                    TreeNodeView(node: child,
-                                 parentMatchesSearch: parentMatchesSearch,
-                                 searchText: $searchText,
-                                 targetNode: $targetNode,
-                                 showPwNode: $showPwNode,
-                                 showPlaintext: $showPlaintext,
-                                 expandTree: $expandTree)
-
+                    TreeNodeView(
+                        node: child,
+                        parentMatchesSearch: parentMatchesSearch,
+                        searchText: $searchText,
+                        targetNode: $targetNode,
+                        showPwNode: $showPwNode,
+                        showPlaintext: $showPlaintext,
+                        expandTree: $expandTree)
 
                 }
             } label: {
-                PwNodeTreeItemView(node: node,
-                                   targetNode: $targetNode,
-                                   showPwNode: $showPwNode,
-                                   showPlaintext: $showPlaintext)
+                PwNodeTreeItemView(
+                    node: node,
+                    targetNode: $targetNode,
+                    showPwNode: $showPwNode,
+                    showPlaintext: $showPlaintext)
 
             }
         }
@@ -99,33 +106,33 @@ private struct PwNodeTreeItemView: View {
 
     var body: some View {
         return Text(node.name).font(.system(size: 18))
-        .onTapGesture {
-            if !node.isLeaf {
-                return
-            }
-            targetNode = node
-            withAnimation {
-                showPlaintext = true
-            }
-        }
-        .swipeActions(allowsFullSwipe: false) {
-            Button(action: {
-                handleGitRemove(node: node)
-            }) {
-                Image(systemName: "xmark.circle")
-            }
-            .tint(.red)
-
-            Button(action: {
+            .onTapGesture {
+                if !node.isLeaf {
+                    return
+                }
                 targetNode = node
                 withAnimation {
-                    showPwNode = true
+                    showPlaintext = true
                 }
-            }) {
-                Image(systemName: "pencil")
             }
-            .tint(.blue)
-        }
+            .swipeActions(allowsFullSwipe: false) {
+                Button(action: {
+                    handleGitRemove(node: node)
+                }) {
+                    Image(systemName: "xmark.circle")
+                }
+                .tint(.red)
+
+                Button(action: {
+                    targetNode = node
+                    withAnimation {
+                        showPwNode = true
+                    }
+                }) {
+                    Image(systemName: "pencil")
+                }
+                .tint(.blue)
+            }
     }
 
     private func handleGitRemove(node: PwNode) {
@@ -133,7 +140,8 @@ private struct PwNodeTreeItemView: View {
             try Git.rmCommit(node: node)
             try appState.reloadGitTree()
 
-        } catch {
+        }
+        catch {
             G.logger.error("\(error.localizedDescription)")
             try? Git.reset()
         }
