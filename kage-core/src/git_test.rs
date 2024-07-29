@@ -1,11 +1,12 @@
 use super::*;
-use crate::git::*;
 use crate::error;
+use crate::git::*;
 use std::fs;
 use std::process::Command;
 
 const GIT_USERNAME: &'static str = env!("KAGE_TEST_GIT_USERNAME");
-const GIT_REMOTE_CLONE_URL: &'static str = env!("KAGE_TEST_GIT_REMOTE_CLONE_URL");
+const GIT_REMOTE_CLONE_URL: &'static str =
+    env!("KAGE_TEST_GIT_REMOTE_CLONE_URL");
 const GIT_CLIENT_DIR: &'static str = env!("KAGE_TEST_GIT_CLIENT_DIR");
 
 #[test]
@@ -19,7 +20,8 @@ fn git_conflict_test() {
     let external_client_path = &format!("/tmp/.conflict_test-{}", now);
 
     let file = &format!("conflict_file-{}", now);
-    let file_external_client_path = &format!("{}/{}", external_client_path, file);
+    let file_external_client_path =
+        &format!("{}/{}", external_client_path, file);
     let file_our_path = &format!("{}/{}", repo_path, file);
 
     // Clone into two locations
@@ -31,7 +33,8 @@ fn git_conflict_test() {
     assert_ok(git_stage(repo_path, &file));
     assert_ok(git_commit(repo_path, "My commit"));
 
-    fs::write(&file_external_client_path, "External content").expect("write file failed");
+    fs::write(&file_external_client_path, "External content")
+        .expect("write file failed");
     external_push_file(external_client_path, file);
 
     // Try to push/pull after the external update has occured
@@ -100,7 +103,10 @@ fn git_stage_test() {
     fs::write(&file4_path, "Fourth").expect("write file failed");
 
     assert_ok(git_stage(repo_path, &folder1));
-    assert_ok(git_commit(repo_path, &format!("Remove '{}' and add '{}'", folder2, file4)));
+    assert_ok(git_commit(
+        repo_path,
+        &format!("Remove '{}' and add '{}'", folder2, file4),
+    ));
     assert_ok(git_push(repo_path));
 
     // Remove folder1
@@ -141,7 +147,8 @@ fn git_reset_test() {
 
     // Stage some changes to them and commit
     fs::remove_file(&file_to_remove_path).expect("remove file failed");
-    fs::write(&file_to_modify_path, "Different content").expect("write file failed");
+    fs::write(&file_to_modify_path, "Different content")
+        .expect("write file failed");
 
     assert_ok(git_stage(repo_path, &file_to_remove));
     assert_ok(git_stage(repo_path, &file_to_modify));
@@ -187,11 +194,13 @@ fn git_pull_test() {
     // Use the current time as a suffix for the new file to ensure that
     // the test can be re-ran several times without failing.
     let externalfile = &format!("externalfile-{}", now);
-    let externalfile_client_path = &format!("{}/{}", external_client_path, externalfile);
+    let externalfile_client_path =
+        &format!("{}/{}", external_client_path, externalfile);
     let externalfile_pulled_path = &format!("{}/{}", repo_path, externalfile);
     clone(remote_path, external_client_path);
 
-    fs::write(&externalfile_client_path, "External content").expect("write file failed");
+    fs::write(&externalfile_client_path, "External content")
+        .expect("write file failed");
     external_push_file(external_client_path, externalfile);
 
     // Pull in external updates
@@ -221,12 +230,12 @@ fn assert_err(result: Result<(), git2::Error>) {
 
 fn rm_rf(path: &str) {
     let Err(err) = fs::remove_dir_all(path) else {
-        return
+        return;
     };
 
     match err.kind() {
         std::io::ErrorKind::NotFound => (),
-        _ => panic!("{}", err)
+        _ => panic!("{}", err),
     }
 }
 
@@ -240,32 +249,38 @@ fn clone(url: &str, into: &str) {
 
 fn current_time() -> u64 {
     use std::time::{SystemTime, UNIX_EPOCH};
-    SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs()
+    SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_secs()
 }
 
 fn external_push_file(repo_path: &str, filepath: &str) {
-    let status = Command::new("git").arg("add")
-                                    .arg(&filepath)
-                                    .current_dir(repo_path)
-                                    .status()
-                                    .expect("command failed");
+    let status = Command::new("git")
+        .arg("add")
+        .arg(&filepath)
+        .current_dir(repo_path)
+        .status()
+        .expect("command failed");
     assert!(status.success());
 
-    let status = Command::new("git").arg("commit")
-                                    .arg("-q")
-                                    .arg("-m")
-                                    .arg(format!("Adding {}", &filepath))
-                                    .current_dir(repo_path)
-                                    .status()
-                                    .expect("command failed");
+    let status = Command::new("git")
+        .arg("commit")
+        .arg("-q")
+        .arg("-m")
+        .arg(format!("Adding {}", &filepath))
+        .current_dir(repo_path)
+        .status()
+        .expect("command failed");
     assert!(status.success());
 
-    let status = Command::new("git").arg("push")
-                                    .arg("-q")
-                                    .arg(GIT_REMOTE)
-                                    .arg(GIT_BRANCH)
-                                    .current_dir(repo_path)
-                                    .status()
-                                    .expect("command failed");
+    let status = Command::new("git")
+        .arg("push")
+        .arg("-q")
+        .arg(GIT_REMOTE)
+        .arg(GIT_BRANCH)
+        .current_dir(repo_path)
+        .status()
+        .expect("command failed");
     assert!(status.success());
 }

@@ -1,12 +1,24 @@
 #[macro_export]
-macro_rules! log_prefix { () => { "[kage-core] " } }
+macro_rules! log_prefix {
+    () => {
+        "[kage-core] "
+    };
+}
 
 #[macro_export]
 macro_rules! level_to_color {
-    ("DEBUG") => { "94" };
-    ("INFO") => { "92" };
-    ("WARN") => { "93" };
-    ("ERROR") => { "91" };
+    ("DEBUG") => {
+        "94"
+    };
+    ("INFO") => {
+        "92"
+    };
+    ("WARN") => {
+        "93"
+    };
+    ("ERROR") => {
+        "91"
+    };
 }
 
 #[macro_export]

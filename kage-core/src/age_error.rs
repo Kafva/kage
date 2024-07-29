@@ -1,4 +1,3 @@
-
 /// Common error type for all age operations, allows us to use `?` for
 /// different types of operations in the same function
 /// A conversion from each error type into an `AgeError` needs to be defined,
@@ -42,16 +41,16 @@ impl From<std::string::FromUtf8Error> for AgeError {
 
 impl std::fmt::Display for AgeError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-         use AgeError::*;
-         match self {
-             BadRecepient => f.write_str("Bad recepient format"),
-             BadCipherInput => f.write_str("Bad ciphertext format"),
-             BadKey => f.write_str("Bad key format"),
-             NoIdentity => f.write_str("No identity loaded"),
-             EncryptError(err) => err.fmt(f),
-             DecryptError(err) => err.fmt(f),
-             IoError(err) => err.fmt(f),
-             Utf8Error(err) => err.fmt(f),
-         }
+        use AgeError::*;
+        match self {
+            BadRecepient => f.write_str("Bad recepient format"),
+            BadCipherInput => f.write_str("Bad ciphertext format"),
+            BadKey => f.write_str("Bad key format"),
+            NoIdentity => f.write_str("No identity loaded"),
+            EncryptError(err) => err.fmt(f),
+            DecryptError(err) => err.fmt(f),
+            IoError(err) => err.fmt(f),
+            Utf8Error(err) => err.fmt(f),
+        }
     }
 }

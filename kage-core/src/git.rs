@@ -1,9 +1,9 @@
-use std::path::Path;
 use std::net::TcpStream;
+use std::path::Path;
 use std::time::Duration;
 
-use git2::{RemoteCallbacks,FetchOptions,Repository};
-use git2::build::{CheckoutBuilder,RepoBuilder};
+use git2::build::{CheckoutBuilder, RepoBuilder};
+use git2::{FetchOptions, RemoteCallbacks, Repository};
 
 use crate::*;
 
@@ -25,8 +25,7 @@ const GIT_CLONE_TIMEOUT: u64 = 5;
 #[cfg(test)]
 const GIT_CLONE_TIMEOUT: u64 = 1;
 
-
-pub fn git_pull(repo_path: &str) -> Result<(),git2::Error> {
+pub fn git_pull(repo_path: &str) -> Result<(), git2::Error> {
     let repo = Repository::open(repo_path)?;
     let mut remote = repo.find_remote(GIT_REMOTE)?;
 
@@ -46,29 +45,31 @@ pub fn git_pull(repo_path: &str) -> Result<(),git2::Error> {
 
     if analysis.0.is_up_to_date() {
         debug!("Already up to date.");
-
     } else if analysis.0.is_fast_forward() {
         let head_ref_name = format!("refs/heads/{}", GIT_BRANCH);
         let mut head_reference = repo.find_reference(&head_ref_name)?;
 
-        let reflog_message = format!("Fast-Forward: {} -> {}",
-                                      head_ref_name,
-                                      remote_origin_head.id());
+        let reflog_message = format!(
+            "Fast-Forward: {} -> {}",
+            head_ref_name,
+            remote_origin_head.id()
+        );
         debug!("{}", reflog_message);
         head_reference.set_target(remote_origin_head.id(), &reflog_message)?;
         repo.set_head(&head_ref_name)?;
         repo.checkout_head(Some(CheckoutBuilder::default().force()))?;
-
     } else {
         debug!("Cannot fast-forward");
-        return Err(git2::Error::new(git2::ErrorCode::NotFastForward,
-                                    git2::ErrorClass::None,
-                                    "Cannot fast-forward"))
+        return Err(git2::Error::new(
+            git2::ErrorCode::NotFastForward,
+            git2::ErrorClass::None,
+            "Cannot fast-forward",
+        ));
     }
     Ok(())
 }
 
-pub fn git_push(repo_path: &str) -> Result<(),git2::Error> {
+pub fn git_push(repo_path: &str) -> Result<(), git2::Error> {
     let repo = Repository::open(repo_path)?;
     let mut remote = repo.find_remote(GIT_REMOTE)?;
 
@@ -78,11 +79,11 @@ pub fn git_push(repo_path: &str) -> Result<(),git2::Error> {
     remote_callbacks.push_transfer_progress(|current, total, _| {
         if current == total {
             debug!("Pushing: [{:4} / {:4}] Done", current, total);
-            return
+            return;
         }
 
         if total <= TRANSFER_STAGES {
-            return
+            return;
         }
 
         let increments = total / TRANSFER_STAGES;
@@ -98,48 +99,54 @@ pub fn git_push(repo_path: &str) -> Result<(),git2::Error> {
     Ok(())
 }
 
-pub fn git_stage(repo_path: &str,
-                 relative_path: &str) -> Result<(), git2::Error> {
+pub fn git_stage(
+    repo_path: &str,
+    relative_path: &str,
+) -> Result<(), git2::Error> {
     let repo = Repository::open(repo_path)?;
     let mut index = repo.index()?;
 
     let cb = &mut |path: &Path, _matched_spec: &[u8]| -> i32 {
         let Some(path_str) = path.to_str() else {
             error!("Empty path encountered in '{}'", relative_path);
-            return 1
+            return 1;
         };
 
         let Ok(status) = repo.status_file(path) else {
             warn!("Unknown status: '{}'", path_str);
-            return 1
+            return 1;
         };
 
         match status {
-            git2::Status::WT_MODIFIED =>  {
+            git2::Status::WT_MODIFIED => {
                 debug!("Modified: '{}'", path_str);
                 0
-            },
-            git2::Status::WT_NEW =>  {
+            }
+            git2::Status::WT_NEW => {
                 debug!("Added: '{}'", path_str);
                 0
-            },
-            git2::Status::WT_DELETED =>  {
+            }
+            git2::Status::WT_DELETED => {
                 debug!("Deleted: '{}'", path_str);
                 0
-            },
-            git2::Status::WT_RENAMED =>  {
+            }
+            git2::Status::WT_RENAMED => {
                 debug!("Renamed: '{:?}'", path_str);
                 0
-            },
-            _ => 1
+            }
+            _ => 1,
         }
     };
 
-    index.add_all(Some(relative_path), git2::IndexAddOption::DEFAULT, Some(cb))?;
+    index.add_all(
+        Some(relative_path),
+        git2::IndexAddOption::DEFAULT,
+        Some(cb),
+    )?;
     index.write()
 }
 
-pub fn git_commit(repo_path: &str, message: &str) -> Result<(),git2::Error> {
+pub fn git_commit(repo_path: &str, message: &str) -> Result<(), git2::Error> {
     let repo = Repository::open(repo_path)?;
     let sig = repo.signature()?;
 
@@ -151,7 +158,7 @@ pub fn git_commit(repo_path: &str, message: &str) -> Result<(),git2::Error> {
     // it with our new tree state.
     let head = repo.head()?;
     let Some(oid) = head.target() else {
-        return Err(internal_error("HEAD unwrap error"))
+        return Err(internal_error("HEAD unwrap error"));
     };
     let parent_commit = repo.find_commit(oid)?;
 
@@ -170,20 +177,25 @@ pub fn git_commit(repo_path: &str, message: &str) -> Result<(),git2::Error> {
 
 /// Hard reset to the remote HEAD, discarding local commits that have not
 /// been pushed.
-pub fn git_reset(repo_path: &str) -> Result<(),git2::Error> {
+pub fn git_reset(repo_path: &str) -> Result<(), git2::Error> {
     let repo = Repository::open(repo_path)?;
     let remote_origin_head = remote_branch_oid(&repo)?;
 
-    debug!("Resetting HEAD to {}/{} {}", GIT_REMOTE, GIT_BRANCH, remote_origin_head);
+    debug!(
+        "Resetting HEAD to {}/{} {}",
+        GIT_REMOTE, GIT_BRANCH, remote_origin_head
+    );
 
     let obj = repo.find_object(remote_origin_head, None)?;
     repo.reset(&obj, git2::ResetType::Hard, None)
 }
 
 pub fn git_clone(url: &str, into: &str) -> Result<(), git2::Error> {
-    if let Err(err) = try_tcp_connect(url, Duration::from_secs(GIT_CLONE_TIMEOUT)) {
-       error!("{}", err);
-       return Err(err)
+    if let Err(err) =
+        try_tcp_connect(url, Duration::from_secs(GIT_CLONE_TIMEOUT))
+    {
+        error!("{}", err);
+        return Err(err);
     };
 
     let mut cb = RemoteCallbacks::new();
@@ -192,12 +204,16 @@ pub fn git_clone(url: &str, into: &str) -> Result<(), git2::Error> {
     let mut fopts = FetchOptions::new();
     fopts.remote_callbacks(cb);
 
-    RepoBuilder::new().fetch_options(fopts).clone(url, Path::new(into))?;
+    RepoBuilder::new()
+        .fetch_options(fopts)
+        .clone(url, Path::new(into))?;
     Ok(())
 }
 
 /// Returns true if there are no uncommitted changes and nothing to push
-pub fn git_index_has_local_changes(repo_path: &str) -> Result<bool, git2::Error> {
+pub fn git_index_has_local_changes(
+    repo_path: &str,
+) -> Result<bool, git2::Error> {
     let repo = Repository::open(repo_path)?;
     let head = repo.head()?;
     let statuses = repo.statuses(None)?;
@@ -210,13 +226,16 @@ pub fn git_index_has_local_changes(repo_path: &str) -> Result<bool, git2::Error>
     let remote_oid = remote_branch_oid(&repo)?;
     let Some(local_oid) = head.target() else {
         warn!("Could not determine local HEAD");
-        return Ok(false)
+        return Ok(false);
     };
 
     Ok(!is_clean || local_oid != remote_oid)
 }
 
-pub fn git_config_set_user(repo_path: &str, username: &str) -> Result<(), git2::Error> {
+pub fn git_config_set_user(
+    repo_path: &str,
+    username: &str,
+) -> Result<(), git2::Error> {
     let config_path = Path::new(repo_path).join(".git").join("config");
     let mut cfg = git2::Config::open(&config_path)?;
 
@@ -228,7 +247,9 @@ pub fn git_config_set_user(repo_path: &str, username: &str) -> Result<(), git2::
     Ok(())
 }
 
-fn remote_branch_oid(repo: &git2::Repository) -> Result<git2::Oid, git2::Error> {
+fn remote_branch_oid(
+    repo: &git2::Repository,
+) -> Result<git2::Oid, git2::Error> {
     let spec = format!("{}/{}", GIT_REMOTE, GIT_BRANCH);
     let id = repo.revparse_single(&spec)?.id();
     Ok(id)
@@ -238,7 +259,7 @@ fn transfer_progress(progress: git2::Progress, label: &str) -> bool {
     let total = progress.total_objects();
     let total_deltas = progress.total_deltas();
     if total <= TRANSFER_STAGES {
-        return true
+        return true;
     }
 
     let indexed = progress.indexed_objects();
@@ -252,8 +273,7 @@ fn transfer_progress(progress: git2::Progress, label: &str) -> bool {
         } else {
             debug!("{}: [{:4} / {:4}]", label, recv, total);
         }
-    }
-    else if recv == total && indexed == total && deltas == total_deltas {
+    } else if recv == total && indexed == total && deltas == total_deltas {
         debug!("{}: [{:4} / {:4}] Done", label, recv, total);
     }
 
@@ -262,35 +282,31 @@ fn transfer_progress(progress: git2::Progress, label: &str) -> bool {
 
 fn try_tcp_connect(url: &str, timeout: Duration) -> Result<(), git2::Error> {
     let Some(address) = url.strip_prefix("git://") else {
-        return Err(internal_error("Invalid protocol for remote address"))
+        return Err(internal_error("Invalid protocol for remote address"));
     };
 
     let Some(spl) = address.split_once("/") else {
-        return Err(internal_error("Error parsing remote address"))
+        return Err(internal_error("Error parsing remote address"));
     };
 
     // Fallback to default git daemon port
     let address: String;
-    let colon_count = spl.0.chars().filter( |c| { *c == ':' }).count();
+    let colon_count = spl.0.chars().filter(|c| *c == ':').count();
 
     if colon_count == 0 {
         address = spl.0.to_string() + ":9418";
-    }
-    else if colon_count == 1 {
+    } else if colon_count == 1 {
         address = spl.0.to_string()
-    }
-    else {
-        return Err(internal_error("Error parsing remote address"))
+    } else {
+        return Err(internal_error("Error parsing remote address"));
     }
 
     let Ok(sockaddr) = address.parse() else {
-        return Err(internal_error("Error parsing remote address"))
+        return Err(internal_error("Error parsing remote address"));
     };
 
     match TcpStream::connect_timeout(&sockaddr, timeout) {
-        Ok(_) => {
-            Ok(())
-        }
+        Ok(_) => Ok(()),
         Err(err) => {
             let msg = &format!("Error connecting to remote address: {}", err);
             Err(internal_error(msg))
@@ -299,7 +315,9 @@ fn try_tcp_connect(url: &str, timeout: Duration) -> Result<(), git2::Error> {
 }
 
 fn internal_error(message: &str) -> git2::Error {
-    git2::Error::new(git2::ErrorCode::GenericError,
-                     git2::ErrorClass::None,
-                     message)
+    git2::Error::new(
+        git2::ErrorCode::GenericError,
+        git2::ErrorClass::None,
+        message,
+    )
 }
