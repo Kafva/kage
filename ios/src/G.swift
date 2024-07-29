@@ -5,8 +5,7 @@ import SwiftUI
 
 /// Global constants
 enum G {
-    static let logger = Logger(subsystem: Bundle.main.bundleIdentifier!,
-                        category: "generic")
+    static let logger = DeviceLogger()
 
     static let rootNodeName = "/"
     static let gitDirName = "git-adc83b19e"
