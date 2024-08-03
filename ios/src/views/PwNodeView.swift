@@ -89,7 +89,7 @@ struct PwNodeView: View {
             confirmIsOk = newPwNode != nil && newPasswordIsValid
         }
 
-        let header = Text(title).font(G.headerFont)
+        let header = Text(title).font(G.title3Font)
             .padding(.bottom, 10)
             .textCase(nil)
 

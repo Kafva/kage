@@ -22,6 +22,8 @@ struct AppView: View {
         NavigationStack {
             VStack {
                 SearchView(searchText: $searchText)
+                    .padding(.top, 40)
+                    .padding(.bottom, 10)
                 Spacer()
                 if Git.repoIsEmpty() {
                     MessageView(type: .empty)
