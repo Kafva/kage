@@ -10,5 +10,5 @@ A git server for automated and manual testing can be setup with
 ./scripts/serverdevel.sh unit
 
 # To show stdout/stderr: cargo test -- --nocapture
-(cd kage-core && cargo test)
+(cd core && cargo test)
 ```

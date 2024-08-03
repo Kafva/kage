@@ -98,7 +98,7 @@ git_server_unit() {
         git -C $tmpdir push origin main
         rm -rf $tmpdir
 
-    done < <(cd $TOP/kage-core && cargo test -- -q --list 2> /dev/null | grep '^git_test::')
+    done < <(cd $TOP/core && cargo test -- -q --list 2> /dev/null | grep '^git_test::')
 
     tree -L 1 "$TOP/.testenv/kage-store/tests"
 }

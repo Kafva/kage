@@ -41,10 +41,10 @@ case "$PLATFORM_DISPLAY_NAME" in
 ;;
 esac
 
-(cd $SOURCE_ROOT/../kage-core &&
+(cd $SOURCE_ROOT/../core &&
     cargo build ${CARGO_FLAGS} --target ${CARGO_TARGET})
 
 # Always copy the output for the current platform to dist
 mkdir -p "$SOURCE_ROOT/dist"
-cp "$SOURCE_ROOT/../kage-core/target/${CARGO_TARGET}/${CARGO_BUILDTYPE}/$LIB" \
+cp "$SOURCE_ROOT/../core/target/${CARGO_TARGET}/${CARGO_BUILDTYPE}/$LIB" \
    "$SOURCE_ROOT/dist/$LIB"
