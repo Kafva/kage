@@ -179,7 +179,7 @@ git_server_status() {
 }
 
 git_server_controls() {
-    local james=${JAMES_REPO_CLIENT##"${TOP}/git/"}
+    local james=${JAMES_REPO_CLIENT##"${TOP}/.testenv/"}
     cat << EOF
 R: Reinitialise git repo
 S: Status of $james
@@ -200,14 +200,14 @@ trap git_server_exit SIGINT
 
 case "$1" in
 reset)
-    rm -rf "${TOP?}/git"
+    rm -rf "${TOP?}/.testenv"
     git_server_stop
     exit $?
 ;;
 unit)
     UNIT_TESTS_MODE=true
 
-    rm -rf "${TOP?}/git"
+    rm -rf "${TOP?}/.testenv"
     git_server_unit
 ;;
 *)
