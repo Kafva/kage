@@ -10,6 +10,7 @@ struct AppView: View {
     @State private var forFolder = false
 
     @State private var showSettings = false
+    @State private var showErrors = false
     @State private var showPwNode = false
     @State private var showPlaintext = false
     @State private var expandTree = false
@@ -27,7 +28,6 @@ struct AppView: View {
                 Spacer()
                 if Git.repoIsEmpty() {
                     MessageView(type: .empty)
-
                 }
                 else {
                     TreeView(
@@ -42,7 +42,8 @@ struct AppView: View {
             }
             .overlay(
                 Group {
-                    if showSettings || showPwNode || showPlaintext {
+                    if showSettings || showErrors || showPwNode || showPlaintext
+                    {
                         Color(UIColor.systemBackground).opacity(opacity)
                         overlayView
                             .frame(width: width, height: height)
@@ -51,11 +52,19 @@ struct AppView: View {
                 }
             )
             .onAppear {
+                // TODO: tmp
+                appState.uiError(
+                    "If you display text that’s associated with a point in space, such as a label for a 3D object, you generally want to use billboarding"
+                )
+                if !FileManager.default.isDir(G.gitDir) {
+                    return
+                }
+
                 do {
                     try appState.reloadGitTree()
                 }
                 catch {
-                    G.logger.error("\(error.localizedDescription)")
+                    appState.uiError("\(error.localizedDescription)")
                 }
             }
         }
@@ -83,6 +92,10 @@ struct AppView: View {
                 /* Settings view */
                 SettingsView(showView: $showSettings)
             }
+            else if showErrors {
+                /* Error description view */
+                ErrorView(showView: $showErrors)
+            }
             else if appState.identityIsUnlocked {
                 /* Password in plaintext */
                 PlaintextView(
@@ -100,25 +113,7 @@ struct AppView: View {
     }
 
     private var toolbarView: some View {
-        let syncIconName: String
-        let color: Color
-
-        if appState.hasLocalChanges {
-            if appState.vpnActive {
-                syncIconName = "square.and.arrow.up"
-                color = Color.green
-
-            }
-            else {
-                syncIconName =
-                    "square.and.arrow.up.trianglebadge.exclamationmark"
-                color = Color.gray
-            }
-        }
-        else {
-            syncIconName = "checkmark.circle"
-            color = Color.gray
-        }
+        let edgesSpacing = 20.0
 
         return HStack(spacing: 15) {
             /* Settings */
@@ -127,14 +122,14 @@ struct AppView: View {
             } label: {
                 Image(systemName: "gearshape")
             }
-            .padding(.leading, 20)
+            .padding(.leading, edgesSpacing)
 
             /* New folder */
             Button {
                 forFolder = true
                 withAnimation { showPwNode = true }
             } label: {
-                Image(systemName: "rectangle.stack.badge.plus")
+                Image(systemName: "folder.badge.plus")
             }
             .disabled(!FileManager.default.isDir(G.gitDir))
 
@@ -143,7 +138,7 @@ struct AppView: View {
                 forFolder = false
                 withAnimation { showPwNode = true }
             } label: {
-                Image(systemName: "rectangle.badge.plus")
+                Image(systemName: "at.badge.plus")
             }
             .disabled(!FileManager.default.isDir(G.gitDir))
 
@@ -159,6 +154,7 @@ struct AppView: View {
                     : "rectangle.expand.vertical"
                 Image(systemName: expandIconName)
             }
+            .disabled(Git.repoIsEmpty())
 
             /* Lock indicator */
             Button {
@@ -168,23 +164,42 @@ struct AppView: View {
                     appState.identityIsUnlocked ? "lock.open" : "lock"
                 Image(systemName: systemName)
             }
+            .disabled(Git.repoIsEmpty())
+            // Add trailing padding if both sync and error are hidden
+            .padding(
+                .trailing,
+                !appState.hasLocalChanges && appState.currentError == nil
+                    ? edgesSpacing : 0)
 
-            /* Sync status indicator */
-            Button {
-                handleGitPush()
-            } label: {
-                Image(systemName: syncIconName).foregroundColor(color)
+            if appState.hasLocalChanges {
+                /* Sync status indicator */
+                Button {
+                    handleGitPush()
+                } label: {
+                    Image(systemName: "square.and.arrow.up").foregroundColor(
+                        .green)
+                }
+                .padding(.trailing, edgesSpacing)
             }
-            .disabled(!appState.vpnActive || !appState.hasLocalChanges)
-            .padding(.trailing, 20)
+            else if appState.currentError != nil {
+                /* Error status indicator */
+                Button {
+                    withAnimation { showErrors = true }
+                } label: {
+                    Image(systemName: "exclamationmark.circle").foregroundColor(
+                        G.errorColor)
+                }
+                .padding(.trailing, edgesSpacing)
+            }
         }
-        .font(.system(size: 24))
+        .font(G.toolbarIconFont)
     }
 
     private func dismiss() {
         withAnimation {
             self.forFolder = false
             self.showSettings = false
+            self.showErrors = false
             self.showPwNode = false
             self.showPlaintext = false
             self.targetNode = nil
@@ -197,7 +212,7 @@ struct AppView: View {
             try appState.reloadGitTree()
         }
         catch {
-            G.logger.error("\(error.localizedDescription)")
+            appState.uiError("\(error.localizedDescription)")
         }
     }
 
@@ -209,7 +224,7 @@ struct AppView: View {
             try appState.lockIdentity()
         }
         catch {
-            G.logger.error("\(error.localizedDescription)")
+            appState.uiError("\(error.localizedDescription)")
         }
     }
 }

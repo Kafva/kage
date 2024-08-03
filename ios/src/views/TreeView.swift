@@ -105,7 +105,7 @@ private struct PwNodeTreeItemView: View {
     @Binding var showPlaintext: Bool
 
     var body: some View {
-        return Text(node.name).font(.system(size: 18))
+        return Text(node.name).font(G.bodyFont)
             .onTapGesture {
                 if !node.isLeaf {
                     return
@@ -142,7 +142,7 @@ private struct PwNodeTreeItemView: View {
 
         }
         catch {
-            G.logger.error("\(error.localizedDescription)")
+            appState.uiError("\(error.localizedDescription)")
             try? Git.reset()
         }
     }

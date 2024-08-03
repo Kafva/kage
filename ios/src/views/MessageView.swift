@@ -20,11 +20,10 @@ struct MessageView: View {
     var body: some View {
         return VStack(alignment: .center, spacing: 5) {
             Image(systemName: iconSystemName)
-                .font(.system(size: 20.0))
+                .font(.title2)  // Scaling size
 
             Text(self.type.rawValue)
-                .font(.system(size: 16.0))
-                .bold()
+                .font(.body)  // Scaling size
         }
         .foregroundColor(.gray)
         .frame(width: 0.8 * G.screenWidth)

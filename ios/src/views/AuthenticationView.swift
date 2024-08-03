@@ -24,7 +24,7 @@ struct AuthenticationView: View {
                 }
                 .padding(.trailing, 10)
             }
-            .font(.system(size: 18))
+            .font(G.bodyFont)
         }
     }
 

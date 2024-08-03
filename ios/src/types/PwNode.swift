@@ -161,7 +161,7 @@ struct PwNode: Identifiable {
         let regex = /^[-_.@\/a-zA-Z0-9+]{1,64}/
 
         if (try? regex.wholeMatch(in: name)) == nil {
-            G.logger.debug("invalid node name: \(name)")
+            G.logger.debug("Invalid node name: '\(name)'")
             return false
         }
 

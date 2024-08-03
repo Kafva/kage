@@ -101,7 +101,7 @@ struct SettingsView: View {
 
     private var versionTile: some View {
         TileView(iconName: nil) {
-            Text(G.gitVersion).font(.system(size: 12))
+            Text(G.gitVersion).font(G.captionFont)
                 .foregroundColor(.gray)
                 .frame(alignment: .leading)
         }
@@ -120,11 +120,10 @@ struct SettingsView: View {
         let passwords = try? FileManager.default.findFiles(G.gitDir)
         return TileView(iconName: nil) {
             if let passwords {
-                Text("Storage: \(passwords.count) password(s)").font(
-                    .system(size: 12)
-                )
-                .foregroundColor(.gray)
-                .frame(alignment: .leading)
+                Text("Storage: \(passwords.count) password(s)")
+                    .font(G.captionFont)
+                    .foregroundColor(.gray)
+                    .frame(alignment: .leading)
             }
             else {
                 EmptyView()
@@ -148,7 +147,7 @@ struct SettingsView: View {
 
             Section {
                 Button(action: dismiss) {
-                    Text("Dismiss").font(.system(size: 18))
+                    Text("Dismiss").font(G.bodyFont)
                 }
                 .padding([.top, .bottom], 5)
             }
@@ -188,7 +187,7 @@ struct SettingsView: View {
             return
         }
         if idx == remote.startIndex || idx == remote.endIndex {
-            G.logger.debug("invalid remote origin: \(remote)")
+            G.logger.debug("Invalid remote origin: \(remote)")
             return
         }
 
@@ -204,7 +203,7 @@ struct SettingsView: View {
 
     private func handleGitClone() {
         if !validRemote {
-            G.logger.error("Refusing to clone from invalid remote: \(remote)")
+            appState.uiError("Refusing to clone from invalid remote: \(remote)")
             return
         }
 
@@ -217,7 +216,7 @@ struct SettingsView: View {
         }
         catch {
             try? FileManager.default.removeItem(at: G.gitDir)
-            G.logger.error("\(error.localizedDescription)")
+            appState.uiError("\(error.localizedDescription)")
             cloneError = error.localizedDescription
         }
         inProgress = false

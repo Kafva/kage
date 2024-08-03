@@ -12,6 +12,7 @@
 		22F2C5963E18B5A86816740C /* AppView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B56BBAAFA1CAE547B46EBC3 /* AppView.swift */; };
 		2C0D6D025D0DFEBB1F73D489 /* TreeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE695AFABD7183E95F01C7E0 /* TreeView.swift */; };
 		2F2AB49962B9B00B0C5DAFC6 /* Age.swift in Sources */ = {isa = PBXBuildFile; fileRef = B83214380B3D83D1D6622731 /* Age.swift */; };
+		3F1CC9B2E60771104CCD4A7D /* ErrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1AC5455F9011E92EC973934 /* ErrorView.swift */; };
 		4ECF16A48B281796EE6CB4D2 /* G.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FE20EC6ADD9E74FF57F4C3 /* G.swift */; };
 		60FEED2554CF7715B5ECB59D /* AuthenticationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D1B4443C32473991D6FF753 /* AuthenticationView.swift */; };
 		661147213382961306BC8DED /* SearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5AC568B469A535777B34A514 /* SearchView.swift */; };
@@ -23,6 +24,7 @@
 		C34C3F9FFEC40500376B27B6 /* String.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCD57CC8EEE4290B3C5ED21D /* String.swift */; };
 		C471F825A6F62A062C99DD51 /* Git.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89F6D64008ADA8F9053DDBA /* Git.swift */; };
 		D01503049DD6310B8F8E5640 /* PwNodeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5AD9E33A1B0C03156A54DC9 /* PwNodeView.swift */; };
+		DD6D27002C5E5C5700B8089C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DD6D26FF2C5E5C5700B8089C /* Assets.xcassets */; };
 		DD728F762B9392EF00A4BC99 /* libiconv.2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = DD728F752B9392DA00A4BC99 /* libiconv.2.tbd */; };
 		DDE56F8D2C569F210072C726 /* libz.1.2.12.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = DDE56F8C2C569F210072C726 /* libz.1.2.12.tbd */; };
 		DDFB7FA92C56A43A00972D43 /* libkage_core.a in Frameworks */ = {isa = PBXBuildFile; fileRef = DDFB7FA82C56A43A00972D43 /* libkage_core.a */; };
@@ -52,10 +54,12 @@
 		B83214380B3D83D1D6622731 /* Age.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Age.swift; sourceTree = "<group>"; };
 		BE695AFABD7183E95F01C7E0 /* TreeView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TreeView.swift; path = views/TreeView.swift; sourceTree = "<group>"; };
 		D89F6D64008ADA8F9053DDBA /* Git.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Git.swift; sourceTree = "<group>"; };
+		DD6D26FF2C5E5C5700B8089C /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		DD728F752B9392DA00A4BC99 /* libiconv.2.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libiconv.2.tbd; path = usr/lib/libiconv.2.tbd; sourceTree = SDKROOT; };
 		DDA4B6292AFDF6A00046DFCE /* kage.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = kage.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DDE56F8C2C569F210072C726 /* libz.1.2.12.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.1.2.12.tbd; path = usr/lib/libz.1.2.12.tbd; sourceTree = SDKROOT; };
 		DDFB7FA82C56A43A00972D43 /* libkage_core.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libkage_core.a; path = dist/libkage_core.a; sourceTree = "<group>"; };
+		E1AC5455F9011E92EC973934 /* ErrorView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ErrorView.swift; path = views/ErrorView.swift; sourceTree = "<group>"; };
 		F3C62CB04243765AF854D04D /* MessageView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MessageView.swift; path = views/MessageView.swift; sourceTree = "<group>"; };
 		FCD57CC8EEE4290B3C5ED21D /* String.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = String.swift; path = extensions/String.swift; sourceTree = "<group>"; };
 		FDA32EA556C590828725DDA5 /* TileView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TileView.swift; path = views/TileView.swift; sourceTree = "<group>"; };
@@ -88,6 +92,7 @@
 		DD0ADA602C57580E0006B2E8 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				DD6D26FF2C5E5C5700B8089C /* Assets.xcassets */,
 				B83214380B3D83D1D6622731 /* Age.swift */,
 				3F64EF6F53B5743A7C3BC877 /* AppState.swift */,
 				75617912BD64DF14C3F57F2B /* kageApp.swift */,
@@ -109,6 +114,7 @@
 				7B8E529A5DE0C7D99D72FD11 /* HistoryView.swift */,
 				F3C62CB04243765AF854D04D /* MessageView.swift */,
 				58FE20EC6ADD9E74FF57F4C3 /* G.swift */,
+				E1AC5455F9011E92EC973934 /* ErrorView.swift */,
 			);
 			path = src;
 			sourceTree = "<group>";
@@ -190,6 +196,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DD6D27002C5E5C5700B8089C /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -263,6 +270,7 @@
 				A13220ADDD6F04ED791D7A79 /* HistoryView.swift in Sources */,
 				E7A862E957BA61F7992DD364 /* MessageView.swift in Sources */,
 				4ECF16A48B281796EE6CB4D2 /* G.swift in Sources */,
+				3F1CC9B2E60771104CCD4A7D /* ErrorView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

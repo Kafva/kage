@@ -88,7 +88,9 @@ struct PwNodeView: View {
             title = "New password"
             confirmIsOk = newPwNode != nil && newPasswordIsValid
         }
-
+        let formHeight =
+            (generate || forFolder)
+            ? 0.25 * G.screenHeight : 0.4 * G.screenHeight
         let header = Text(title).font(G.title3Font)
             .padding(.bottom, 10)
             .textCase(nil)
@@ -133,25 +135,31 @@ struct PwNodeView: View {
                     }
                 }
             }
+            .frame(width: G.screenWidth, height: formHeight)
+            // .border(.red, width: 1)
             .formStyle(.grouped)
 
+            // Both buttons are triggered when one is pressed if they are placed
+            // inside the form...
+            // https://www.hackingwithswift.com/forums/swiftui/buttons-in-a-form-section/6175
             HStack {
                 Button(action: dismiss) {
                     Text("Cancel").foregroundColor(G.errorColor)
-                        .font(.system(size: 18))
+                        .font(G.bodyFont)
                 }
+                .padding(.leading, 30)
 
                 Spacer()
 
                 Button(action: { handleSubmit(newPwNode: newPwNode) }) {
-                    Text("Save").font(.system(size: 18))
+                    Text("Save").font(G.bodyFont)
                 }
                 .disabled(!confirmIsOk)
+                .padding(.trailing, 30)
             }
-            .padding([.top, .bottom], 5)
-            // Both buttons are triggered when one is pressed without this...
-            // https://www.hackingwithswift.com/forums/swiftui/buttons-in-a-form-section/6175
             .buttonStyle(BorderlessButtonStyle())
+
+            Spacer()
         }
         .onAppear {
             // .on Appear is triggered anew when we navigate back from the
@@ -183,7 +191,7 @@ struct PwNodeView: View {
         }
 
         guard let newPwNode else {
-            G.logger.error(
+            appState.uiError(
                 "Invalid path selected: '\(selectedFolder)/\(selectedName)'")
             return
         }
@@ -222,7 +230,7 @@ struct PwNodeView: View {
 
         }
         catch {
-            G.logger.error("\(error.localizedDescription)")
+            appState.uiError("\(error.localizedDescription)")
             try? FileManager.default.removeItem(at: newPwNode.url)
         }
     }
@@ -239,7 +247,7 @@ struct PwNodeView: View {
 
         }
         catch {
-            G.logger.error("\(error.localizedDescription)")
+            appState.uiError("\(error.localizedDescription)")
             try? FileManager.default.removeItem(at: newPwNode.url)
             try? Git.reset()
         }
@@ -275,7 +283,7 @@ struct PwNodeView: View {
 
         }
         catch {
-            G.logger.error("\(error.localizedDescription)")
+            appState.uiError("\(error.localizedDescription)")
             if let newPwNode {
                 try? FileManager.default.removeItem(at: newPwNode.url)
             }
@@ -285,7 +293,7 @@ struct PwNodeView: View {
 
     private func addPassword(newPwNode: PwNode) {
         if !newPasswordIsValid {
-            G.logger.error("passwords do not match")
+            appState.uiError("passwords do not match")
             return
         }
         do {
@@ -305,7 +313,7 @@ struct PwNodeView: View {
 
         }
         catch {
-            G.logger.error("\(error.localizedDescription)")
+            appState.uiError("\(error.localizedDescription)")
             try? Git.reset()
         }
     }

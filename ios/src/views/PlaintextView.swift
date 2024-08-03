@@ -1,6 +1,8 @@
 import SwiftUI
 
 struct PlaintextView: View {
+    @EnvironmentObject var appState: AppState
+
     @Binding var showView: Bool
     @Binding var targetNode: PwNode?
     @State private var plaintext: String = ""
@@ -9,30 +11,38 @@ struct PlaintextView: View {
     var body: some View {
         VStack(alignment: .center, spacing: 10) {
             let title = "\(targetNode?.name ?? "Plaintext")"
-            Text(title).font(.system(size: 22))
+            Text(title).font(.title2)  // Scaling
                 .underline(color: .accentColor)
                 .padding(.bottom, 10)
 
             let value = hidePlaintext ? "••••••••" : plaintext
-            Text(value).bold()
+            Text(value)
+                .font(.body)  // Scaling
+                .bold()
                 .monospaced()
                 .foregroundColor(.accentColor)
-                .padding(.bottom, 20).onTapGesture {
+                .padding(.bottom, 30)
+                .onTapGesture {
                     hidePlaintext.toggle()
                 }
-            Button {
-                UIPasteboard.general.string = plaintext
-                G.logger.debug("Copied '\(title)' to clipboard")
-            } label: {
-                Image(systemName: "doc.on.clipboard").bold()
-            }
-            .padding(.bottom, 10)
-            .font(.system(size: 18))
 
-            Button("Dismiss") {
-                dismiss()
+            HStack {
+                Button(action: dismiss) {
+                    Label("Close", systemImage: "")
+                }
+                .padding(.leading, 20)
+
+                Spacer()
+
+                Button {
+                    UIPasteboard.general.string = plaintext
+                    G.logger.debug("Copied '\(title)' to clipboard")
+                } label: {
+                    Label("", systemImage: "doc.on.clipboard")
+                }
+                .padding(.trailing, 20)
             }
-            .font(.system(size: 18))
+            .font(.body)  // Scaling
         }
         .onAppear {
             handleShowPlaintext()
@@ -60,7 +70,7 @@ struct PlaintextView: View {
 
         }
         catch {
-            G.logger.error("\(error.localizedDescription)")
+            appState.uiError("\(error.localizedDescription)")
         }
     }
 

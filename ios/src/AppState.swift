@@ -5,40 +5,19 @@ class AppState: ObservableObject {
     @Published var identityIsUnlocked: Bool = false
     @Published var rootNode: PwNode = PwNode(url: G.gitDir, children: [])
     @Published var hasLocalChanges: Bool = false
-    /// Is there a VPN interface active?
-    @Published var vpnActive: Bool = false
 
-    let monitor = NWPathMonitor()
-
-    init() {
-        monitor.start(queue: DispatchQueue.global(qos: .background))
-
-        // Triggered whenever the connectivity state changes
-        monitor.pathUpdateHandler = { [self] networkPath in
-            DispatchQueue.main.async { [self] in
-                if networkPath.status == .satisfied {
-                    #if targetEnvironment(simulator)
-                        vpnActive = true
-                    #else
-                        // We consider ourselves online if there is an 'other' (VPN)
-                        // interface available.
-                        vpnActive = networkPath.availableInterfaces
-                            .contains(where: { $0.type == .other })
-                    #endif
-                }
-                G.logger.debug(
-                    "VPN interface active: \(self.vpnActive ? "yes" : "no")")
-            }
-        }
-    }
-
-    deinit {
-        monitor.cancel()
-    }
+    /// Description of last high-level error that occured
+    @Published var currentError: String?
 
     func reloadGitTree() throws {
         rootNode = try PwNode.loadFrom(G.gitDir)
         hasLocalChanges = try Git.indexHasLocalChanges()
+    }
+
+    func uiError(_ message: String, line: Int = #line, fileID: String = #fileID)
+    {
+        G.logger.error(message, line: line, fileID: fileID)
+        currentError = message
     }
 
     func unlockIdentity(passphrase: String) throws {
