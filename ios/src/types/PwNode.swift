@@ -169,3 +169,8 @@ struct PwNode: Identifiable {
     }
 
 }
+
+enum PwNodeType: String, CaseIterable, Identifiable {
+    case password, folder
+    var id: Self { self }
+}

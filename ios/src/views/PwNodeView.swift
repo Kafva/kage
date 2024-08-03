@@ -6,8 +6,8 @@ struct PwNodeView: View {
 
     @Binding var showView: Bool
     @Binding var targetNode: PwNode?
-    let forFolder: Bool
 
+    @State private var nodeType: PwNodeType = .folder
     @State private var selectedFolder = G.rootNodeName
     @State private var selectedName = ""
     @State private var password = ""
@@ -62,10 +62,10 @@ struct PwNodeView: View {
         let newPwNode = PwNode.loadNewFrom(
             name: selectedName,
             relativeFolderPath: selectedFolder,
-            isDir: forFolder)
+            isDir: nodeType == .folder)
 
         if let targetNode {
-            if forFolder {
+            if nodeType == .folder {
                 title = "Edit folder '\(targetNode.name)'"
                 confirmIsOk = newPwNode != nil
             }
@@ -77,25 +77,35 @@ struct PwNodeView: View {
                     (newPwNode != nil || nodePathUnchanged)
                     && (password.isEmpty || password == confirmPassword)
             }
-
         }
-        else if forFolder {
-            title = "New folder"
+        else if nodeType == .folder {
+            title = ""
             confirmIsOk = newPwNode != nil
-
         }
         else {
-            title = "New password"
+            title = ""
             confirmIsOk = newPwNode != nil && newPasswordIsValid
         }
+
         let formHeight =
-            (generate || forFolder)
+            (generate || nodeType == .folder)
             ? 0.25 * G.screenHeight : 0.4 * G.screenHeight
         let header = Text(title).font(G.title3Font)
             .padding(.bottom, 10)
             .textCase(nil)
 
         return VStack {
+            if targetNode == nil {
+                Picker("", selection: $nodeType) {
+                    ForEach(PwNodeType.allCases) { p in
+                        Text(p.rawValue.capitalized)
+                    }
+                }
+                .pickerStyle(.segmented)
+                .frame(width: 0.8 * G.screenWidth)
+                .padding([.top, .bottom], 20)
+            }
+
             Form {
                 Section(header: header) {
                     VStack(alignment: .leading, spacing: 10) {
@@ -110,12 +120,14 @@ struct PwNodeView: View {
                             .pickerStyle(.navigationLink)
                         }
 
-                        TileView(iconName: forFolder ? "folder" : "key") {
+                        TileView(
+                            iconName: nodeType == .folder ? "folder" : "key"
+                        ) {
                             TextField("Name", text: $selectedName)
                                 .textFieldStyle(.roundedBorder)
                         }
 
-                        if !forFolder {
+                        if nodeType == .password {
                             if targetNode == nil {
                                 TileView(iconName: "dice") {
                                     HStack {
@@ -183,7 +195,7 @@ struct PwNodeView: View {
     private func handleSubmit(newPwNode: PwNode?) {
         // The new PwNode must always be valid except for when we are changing
         // the password value of an existing node.
-        if let targetNode, !forFolder {
+        if let targetNode, nodeType == .password {
             changePasswordNode(
                 currentPwNode: targetNode,
                 newPwNode: newPwNode)
@@ -196,14 +208,14 @@ struct PwNodeView: View {
             return
         }
 
-        if let targetNode, forFolder {
+        if let targetNode, nodeType == .folder {
             renameFolder(
                 currentPwNode: targetNode,
                 newPwNode: newPwNode)
             return
         }
 
-        if forFolder {
+        if nodeType == .folder {
             addFolder(newPwNode: newPwNode)
         }
         else {

@@ -7,7 +7,6 @@ struct AppView: View {
     @State private var searchText = ""
 
     @State private var targetNode: PwNode?
-    @State private var forFolder = false
 
     @State private var showSettings = false
     @State private var showErrors = false
@@ -18,7 +17,7 @@ struct AppView: View {
     var body: some View {
         let width = showPlaintext ? 0.8 * G.screenWidth : G.screenWidth
         let height = showPlaintext ? 0.3 * G.screenHeight : G.screenHeight
-        let opacity = 1.0
+        let opacity = 0.97
 
         NavigationStack {
             VStack {
@@ -73,19 +72,17 @@ struct AppView: View {
     private var overlayView: some View {
         VStack {
             if showPwNode {
-                if let targetNode {
+                if targetNode != nil {
                     /* Edit view */
                     PwNodeView(
                         showView: $showPwNode,
-                        targetNode: $targetNode,
-                        forFolder: targetNode.isDir)
+                        targetNode: $targetNode)
                 }
                 else {
                     /* New password or folder view */
                     PwNodeView(
                         showView: $showPwNode,
-                        targetNode: $targetNode,
-                        forFolder: forFolder)
+                        targetNode: $targetNode)
                 }
             }
             else if showSettings {
@@ -124,21 +121,11 @@ struct AppView: View {
             }
             .padding(.leading, edgesSpacing)
 
-            /* New folder */
+            /* New password or folder */
             Button {
-                forFolder = true
                 withAnimation { showPwNode = true }
             } label: {
-                Image(systemName: "folder.badge.plus")
-            }
-            .disabled(!FileManager.default.isDir(G.gitDir))
-
-            /* New password */
-            Button {
-                forFolder = false
-                withAnimation { showPwNode = true }
-            } label: {
-                Image(systemName: "at.badge.plus")
+                Image(systemName: "plus.rectangle.portrait")
             }
             .disabled(!FileManager.default.isDir(G.gitDir))
 
@@ -197,7 +184,6 @@ struct AppView: View {
 
     private func dismiss() {
         withAnimation {
-            self.forFolder = false
             self.showSettings = false
             self.showErrors = false
             self.showPwNode = false
