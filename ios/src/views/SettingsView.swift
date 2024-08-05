@@ -10,7 +10,6 @@ struct SettingsView: View {
     @State private var reponame: String = ""
     @State private var showAlert: Bool = false
     @State private var inProgress: Bool = false
-    @State private var cloneError: String?
 
     private var remoteInfoTile: some View {
         Group {
@@ -42,60 +41,54 @@ struct SettingsView: View {
     private var syncTile: some View {
         let iconName: String
         let text: String
-        let iconColor: Color
         let isEmpty = Git.repoIsEmpty()
 
-        if let cloneError {
-            iconName =
-                isEmpty
-                ? "square.and.arrow.down"
-                : "exclamationmark.arrow.triangle.2.circlepath"
-            text = cloneError
-            iconColor = G.errorColor
-
-        }
-        else if isEmpty {
+        if isEmpty {
             iconName = "square.and.arrow.down"
             text = "Fetch password repository"
-            iconColor = .accentColor
-
         }
         else {
-            iconName = "exclamationmark.arrow.triangle.2.circlepath"
+            iconName = "arrow.triangle.2.circlepath"
             text = "Reset password repository"
-            iconColor = .accentColor
         }
 
-        return Group {
-            if inProgress {
-                // TODO does not work?
-                ProgressView()
-            }
-            else {
-                TileView(iconName: iconName) {
-                    Button {
-                        if cloneError != nil {
-                            // Dismiss error
-                            self.cloneError = nil
-                        }
-                        else if isEmpty {
-                            handleGitClone()
-                        }
-                        else {
-                            showAlert = true
-                        }
-                    } label: {
-                        Text(text).lineLimit(1)
-                            .foregroundColor(iconColor)
+        return TileView(iconName: iconName) {
+            Button {
+                if isEmpty {
+                    inProgress = true
+                    Task {
+                        #if targetEnvironment(simulator)
+                            try? await Task.sleep(nanoseconds: 2000_000_000)
+                        #endif
+                        handleGitClone()
+                        inProgress = false
                     }
-                    .alert("Replace all local data?", isPresented: $showAlert) {
-                        Button("Yes", role: .destructive) {
-                            handleGitClone()
-                        }
-                    }
-                    .disabled(!validRemote)
+                }
+                else {
+                    showAlert = true
+                }
+            } label: {
+                if inProgress {
+                    ProgressView().tint(G.accentColor)
+                }
+                else {
+                    Text(text).lineLimit(1)
+                        .foregroundColor(G.accentColor)
                 }
             }
+            .alert("Replace all local data?", isPresented: $showAlert) {
+                Button("Yes", role: .destructive) {
+                    inProgress = true
+                    Task {
+                        #if targetEnvironment(simulator)
+                            try? await Task.sleep(nanoseconds: 2000_000_000)
+                        #endif
+                        handleGitClone()
+                        inProgress = false
+                    }
+                }
+            }
+            .disabled(!validRemote || inProgress)
         }
     }
 
@@ -105,6 +98,15 @@ struct SettingsView: View {
                 .foregroundColor(.gray)
                 .frame(alignment: .leading)
         }
+    }
+
+    private var errorTile: some View {
+        TileView(iconName: "exclamationmark.circle") {
+            Text(appState.currentError ?? "Unknown error").font(G.captionFont)
+                .foregroundColor(G.errorColor)
+                .frame(alignment: .leading)
+        }
+        .onTapGesture { appState.currentError = nil }
     }
 
     private var historyTile: some View {
@@ -143,6 +145,9 @@ struct SettingsView: View {
                 historyTile
                 passwordCountTile
                 versionTile
+                if appState.currentError != nil {
+                    errorTile
+                }
             }
 
             Section {
@@ -207,7 +212,6 @@ struct SettingsView: View {
             return
         }
 
-        inProgress = true
         try? FileManager.default.removeItem(at: G.gitDir)
         do {
             try Git.clone(remote: remote)
@@ -217,8 +221,6 @@ struct SettingsView: View {
         catch {
             try? FileManager.default.removeItem(at: G.gitDir)
             appState.uiError("\(error.localizedDescription)")
-            cloneError = error.localizedDescription
         }
-        inProgress = false
     }
 }

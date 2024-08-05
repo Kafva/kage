@@ -59,13 +59,14 @@ struct PwNodeView: View {
     var body: some View {
         let title: String
         let confirmIsOk: Bool
+        let isDir = targetNode?.isDir ?? (nodeType == .folder)
         let newPwNode = PwNode.loadNewFrom(
             name: selectedName,
             relativeFolderPath: selectedFolder,
-            isDir: nodeType == .folder)
+            isDir: isDir)
 
         if let targetNode {
-            if nodeType == .folder {
+            if targetNode.isDir {
                 title = "Edit folder '\(targetNode.name)'"
                 confirmIsOk = newPwNode != nil
             }
@@ -88,8 +89,7 @@ struct PwNodeView: View {
         }
 
         let formHeight =
-            (generate || nodeType == .folder)
-            ? 0.25 * G.screenHeight : 0.4 * G.screenHeight
+            (generate || isDir) ? 0.3 * G.screenHeight : 0.4 * G.screenHeight
         let header = Text(title).font(G.title3Font)
             .padding(.bottom, 10)
             .textCase(nil)
@@ -120,14 +120,12 @@ struct PwNodeView: View {
                             .pickerStyle(.navigationLink)
                         }
 
-                        TileView(
-                            iconName: nodeType == .folder ? "folder" : "key"
-                        ) {
+                        TileView(iconName: isDir ? "folder" : "key") {
                             TextField("Name", text: $selectedName)
                                 .textFieldStyle(.roundedBorder)
                         }
 
-                        if nodeType == .password {
+                        if !isDir {
                             if targetNode == nil {
                                 TileView(iconName: "dice") {
                                     HStack {
@@ -195,7 +193,7 @@ struct PwNodeView: View {
     private func handleSubmit(newPwNode: PwNode?) {
         // The new PwNode must always be valid except for when we are changing
         // the password value of an existing node.
-        if let targetNode, nodeType == .password {
+        if let targetNode, !targetNode.isDir {
             changePasswordNode(
                 currentPwNode: targetNode,
                 newPwNode: newPwNode)
@@ -208,7 +206,7 @@ struct PwNodeView: View {
             return
         }
 
-        if let targetNode, nodeType == .folder {
+        if let targetNode, targetNode.isDir {
             renameFolder(
                 currentPwNode: targetNode,
                 newPwNode: newPwNode)
@@ -292,7 +290,6 @@ struct PwNodeView: View {
 
             try appState.reloadGitTree()
             dismiss()
-
         }
         catch {
             appState.uiError("\(error.localizedDescription)")

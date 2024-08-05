@@ -167,7 +167,6 @@ struct PwNode: Identifiable {
 
         return true
     }
-
 }
 
 enum PwNodeType: String, CaseIterable, Identifiable {

@@ -31,6 +31,7 @@ enum G {
 
     // Defined in: Assets.xcassets
     static let errorColor = Color(UIColor(named: "ErrorColor")!)
+    static let accentColor = Color(UIColor(named: "AccentColor")!)
 
     static var gitVersion: String {
         let version =
