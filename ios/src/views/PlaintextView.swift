@@ -9,43 +9,48 @@ struct PlaintextView: View {
     @State private var hidePlaintext = true
 
     var body: some View {
-        VStack(alignment: .center, spacing: 10) {
-            let title = "\(targetNode?.name ?? "Plaintext")"
-            Text(title).font(.title2)  // Scaling
-                .underline(color: .accentColor)
-                .padding(.bottom, 10)
+        if let targetNode {
+            VStack(alignment: .center, spacing: 10) {
+                let title = targetNode.name
+                Text(title).font(.title2)  // Scaling
+                    .underline(color: .accentColor)
+                    .padding(.bottom, 10)
 
-            let value = hidePlaintext ? "••••••••" : plaintext
-            Text(value)
+                let value = hidePlaintext ? "••••••••" : plaintext
+                Text(value)
+                    .font(.body)  // Scaling
+                    .bold()
+                    .monospaced()
+                    .foregroundColor(.accentColor)
+                    .padding(.bottom, 30)
+                    .onTapGesture {
+                        hidePlaintext.toggle()
+                    }
+
+                HStack {
+                    Button(action: dismiss) {
+                        Label("Close", systemImage: "")
+                    }
+                    .padding(.leading, 20)
+
+                    Spacer()
+
+                    Button {
+                        UIPasteboard.general.string = plaintext
+                        G.logger.debug("Copied '\(title)' to clipboard")
+                    } label: {
+                        Label("", systemImage: "doc.on.clipboard")
+                    }
+                    .padding(.trailing, 20)
+                }
                 .font(.body)  // Scaling
-                .bold()
-                .monospaced()
-                .foregroundColor(.accentColor)
-                .padding(.bottom, 30)
-                .onTapGesture {
-                    hidePlaintext.toggle()
-                }
-
-            HStack {
-                Button(action: dismiss) {
-                    Label("Close", systemImage: "")
-                }
-                .padding(.leading, 20)
-
-                Spacer()
-
-                Button {
-                    UIPasteboard.general.string = plaintext
-                    G.logger.debug("Copied '\(title)' to clipboard")
-                } label: {
-                    Label("", systemImage: "doc.on.clipboard")
-                }
-                .padding(.trailing, 20)
             }
-            .font(.body)  // Scaling
+            .onAppear {
+                handleShowPlaintext()
+            }
         }
-        .onAppear {
-            handleShowPlaintext()
+        else {
+            EmptyView()
         }
     }
 
