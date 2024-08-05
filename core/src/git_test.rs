@@ -4,7 +4,7 @@ use crate::git::*;
 use std::fs;
 use std::process::Command;
 
-const GIT_USERNAME: &'static str = env!("KAGE_TEST_GIT_USERNAME");
+const GIT_USERNAME: &'static str = env!("KAGE_TEST_GIT_REPONAME");
 const GIT_REMOTE_CLONE_URL: &'static str =
     env!("KAGE_TEST_GIT_REMOTE_CLONE_URL");
 const GIT_CLIENT_DIR: &'static str = env!("KAGE_TEST_GIT_CLIENT_DIR");

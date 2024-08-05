@@ -4,7 +4,7 @@ set -o pipefail
 
 REMOTE_ORIGIN="git://127.0.0.1"
 TOP="$(cd "$(dirname "$0")/.." && pwd)"
-JAMES_REPO_REMOTE="$TOP/.testenv/kage-store/james"
+JAMES_REPO_REMOTE="$TOP/.testenv/kage-store/james.git"
 JAMES_REPO_CLIENT="$TOP/.testenv/kage-client/james"
 JAMES_KEY="$TOP/.testenv/kage-client/james/.age-identities"
 JAMES_PUBKEY="$TOP/.testenv/kage-client/james/.age-recipients"
@@ -66,7 +66,7 @@ git_server_setup() {
     git -C $JAMES_REPO_CLIENT config commit.gpgsign false
     git -C $JAMES_REPO_CLIENT add .
     git -C $JAMES_REPO_CLIENT commit -m "First commit"
-    git -C $JAMES_REPO_CLIENT remote add origin "$REMOTE_ORIGIN/james"
+    git -C $JAMES_REPO_CLIENT remote add origin "$REMOTE_ORIGIN/james.git"
 
     git_server_restart
     sleep 1
@@ -110,6 +110,7 @@ git_server_restart() {
                --access-hook="$TOP/tools/ip-auth" \
                --export-all \
                --reuseaddr \
+               --verbose \
                --informative-errors &
     GIT_SERVER_PID=$!
 }

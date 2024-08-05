@@ -52,9 +52,9 @@ struct AppView: View {
             )
             .onAppear {
                 // TODO: tmp
-                appState.uiError(
-                    "If you display text that’s associated with a point in space, such as a label for a 3D object, you generally want to use billboarding"
-                )
+                // appState.uiError(
+                //     "If you display text that’s associated with a point in space, such as a label for a 3D object, you generally want to use billboarding"
+                // )
                 if !FileManager.default.isDir(G.gitDir) {
                     return
                 }
@@ -106,7 +106,8 @@ struct AppView: View {
         }
         // Disable default background for `Form`
         .scrollContentBackground(.hidden)
-        .padding([.top, .bottom], 100)
+        .padding(.top, 150)
+        .padding(.bottom, 100)
     }
 
     private var toolbarView: some View {
