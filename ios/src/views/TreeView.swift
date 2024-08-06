@@ -105,34 +105,50 @@ private struct PwNodeTreeItemView: View {
     @Binding var showPlaintext: Bool
 
     var body: some View {
-        return Text(node.name).font(G.bodyFont)
-            .onTapGesture {
-                if !node.isLeaf {
-                    return
+        Group {
+            if node.isLeaf {
+                HStack {
+                    Text(node.name)
+                    Spacer()
                 }
-                targetNode = node
-                withAnimation {
-                    showPlaintext = true
-                }
-            }
-            .swipeActions(allowsFullSwipe: false) {
-                Button(action: {
-                    handleGitRemove(node: node)
-                }) {
-                    Image(systemName: "xmark.circle")
-                }
-                .tint(.red)
+                // XXX: A contentShape() is  needed for the Spacer() to take
+                // effect and make the hitbox take up the entire row.
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    G.logger.debug("Tapped '\(node.name)'")
 
-                Button(action: {
+                    if !node.isLeaf {
+                        return
+                    }
                     targetNode = node
                     withAnimation {
-                        showPwNode = true
+                        showPlaintext = true
                     }
-                }) {
-                    Image(systemName: "pencil")
                 }
-                .tint(.blue)
             }
+            else {
+                Text(node.name)
+            }
+        }
+        .font(G.bodyFont)
+        .swipeActions(allowsFullSwipe: false) {
+            Button(action: {
+                handleGitRemove(node: node)
+            }) {
+                Image(systemName: "xmark.circle")
+            }
+            .tint(.red)
+
+            Button(action: {
+                targetNode = node
+                withAnimation {
+                    showPwNode = true
+                }
+            }) {
+                Image(systemName: "pencil")
+            }
+            .tint(.blue)
+        }
     }
 
     private func handleGitRemove(node: PwNode) {

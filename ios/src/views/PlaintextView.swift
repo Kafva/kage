@@ -39,11 +39,11 @@ struct PlaintextView: View {
                         UIPasteboard.general.string = plaintext
                         G.logger.debug("Copied '\(title)' to clipboard")
                     } label: {
-                        Label("", systemImage: "doc.on.clipboard")
+                        Label("Copy...", systemImage: "")
                     }
                     .padding(.trailing, 20)
                 }
-                .font(.body)  // Scaling
+                .font(.subheadline)  // Scaling
             }
             .onAppear {
                 handleShowPlaintext()

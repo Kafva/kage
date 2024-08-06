@@ -12,7 +12,7 @@ struct SearchView: View {
             .font(G.title3Font)
             .frame(width: G.screenWidth * 0.7)
             // Padding inside the textbox
-            .padding(.all, 15)
+            .padding(.all, 10)
             .background(background)
             .overlay(
                 Group {

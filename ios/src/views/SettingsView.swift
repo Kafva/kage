@@ -55,8 +55,8 @@ struct SettingsView: View {
         return TileView(iconName: iconName) {
             Button {
                 if isEmpty {
-                    inProgress = true
                     Task {
+                        inProgress = true
                         #if targetEnvironment(simulator)
                             try? await Task.sleep(nanoseconds: 2000_000_000)
                         #endif
@@ -69,7 +69,7 @@ struct SettingsView: View {
                 }
             } label: {
                 if inProgress {
-                    ProgressView().tint(G.accentColor)
+                    Text("Loading...")
                 }
                 else {
                     Text(text).lineLimit(1)
@@ -78,8 +78,8 @@ struct SettingsView: View {
             }
             .alert("Replace all local data?", isPresented: $showAlert) {
                 Button("Yes", role: .destructive) {
-                    inProgress = true
                     Task {
+                        inProgress = true
                         #if targetEnvironment(simulator)
                             try? await Task.sleep(nanoseconds: 2000_000_000)
                         #endif
