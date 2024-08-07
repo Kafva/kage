@@ -7,8 +7,14 @@ A git server for automated and manual testing can be setup with
 [scripts/serverdevel.sh](scripts/serverdevel.sh). To run the automated tests:
 
 ```bash
-./scripts/serverdevel.sh unit
+# Start git-daemon for unit tests
+./tools/serverdevel.sh unit
 
 # To show stdout/stderr: cargo test -- --nocapture
 (cd core && cargo test)
+
+# Run tests with coverage information
+cargo install cargo-llvm-cov
+rustup component add llvm-tools-preview
+(cd core && cargo llvm-cov --html)
 ```

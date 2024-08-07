@@ -9,6 +9,16 @@ const GIT_REMOTE_CLONE_URL: &'static str =
     env!("KAGE_TEST_GIT_REMOTE_CLONE_URL");
 const GIT_CLIENT_DIR: &'static str = env!("KAGE_TEST_GIT_CLIENT_DIR");
 
+// Test cases:
+//      * Add and commit
+//      * Change existing and commit
+//      * Remove and commit
+//      * Reset to remote head
+//
+//  Error cases:
+//      * Pull with conflict
+//      * Clone with bad host
+
 #[test]
 /// Test we get expected errors when trying to:
 ///   1. Push to a remote that has external changes
@@ -213,6 +223,8 @@ fn git_pull_test() {
     // Clean up external checkout
     rm_rf(external_client_path);
 }
+
+////////////////////////////////////////////////////////////////////////////////
 
 fn assert_ok(result: Result<(), git2::Error>) {
     if let Some(err) = result.as_ref().err() {

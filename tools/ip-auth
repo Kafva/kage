@@ -7,15 +7,9 @@ REQUEST_PATH="$2"
 
 case "$(basename $REQUEST_PATH)" in
 james.git)
-    case "$REMOTE_ADDR" in
-    127.0.0.1) exit 0 ;;
-    10.0.2.*)  exit 0 ;;
-    10.0.1.*)  exit 0 ;;
-    *)         exit 1 ;;
-    esac
+    [ "$REMOTE_ADDR" = 127.0.0.1 ]
 ;;
-*_test)
-    # Unit tests
+*_test) # Unit tests
     case "$REMOTE_ADDR" in
     127.0.0.1) exit 0 ;;
     *)         exit 1 ;;

@@ -2,13 +2,19 @@
 set -e
 set -o pipefail
 
-REMOTE_ORIGIN="git://127.0.0.1"
-TOP="$(cd "$(dirname "$0")/.." && pwd)"
-JAMES_REPO_REMOTE="$TOP/.testenv/kage-store/james.git"
-JAMES_REPO_CLIENT="$TOP/.testenv/kage-client/james"
-JAMES_KEY="$TOP/.testenv/kage-client/james/.age-identities"
-JAMES_PUBKEY="$TOP/.testenv/kage-client/james/.age-recipients"
-UNIT_TESTS_MODE=false
+echox () { echo "+ $*" && $@; }
+
+info() { printf "\033[32m*\033[0m $1\n" >&2; }
+
+usage() {
+    cat << EOF >&2
+Usage: $(basename $0)
+    run             Run git-daemon server for development
+    unit            Setup git-daemon for unit tests
+    stop            Stop git-daemon and cleanup
+EOF
+    exit 1
+}
 
 die() {
     printf "$1\n" >&2
@@ -46,7 +52,7 @@ _age_generate_keys() {
 }
 
 git_server_setup() {
-    echo "Creating $JAMES_REPO_CLIENT"
+    info "Creating $JAMES_REPO_CLIENT"
     mkdir -p $JAMES_REPO_CLIENT
 
     _age_generate_keys "$JAMES_KEY" "$JAMES_PUBKEY"
@@ -56,7 +62,7 @@ git_server_setup() {
     _age_generate_files "$JAMES_REPO_CLIENT/green/b" "$JAMES_PUBKEY"
     _age_generate_files "$JAMES_REPO_CLIENT/blue/a" "$JAMES_PUBKEY"
 
-    echo "Creating $JAMES_REPO_REMOTE"
+    info "Creating $JAMES_REPO_REMOTE"
     mkdir -p $JAMES_REPO_REMOTE
     git -C $JAMES_REPO_REMOTE init --bare
 
@@ -71,26 +77,26 @@ git_server_setup() {
     git_server_restart
     sleep 1
 
-    echo "Pushing first commit"
+    info "Pushing first commit"
     git -C $JAMES_REPO_CLIENT push --set-upstream origin main
 }
 
 git_server_unit() {
     mkdir -p $TOP/.testenv/kage-store
-    mkdir -p $TOP/.testenv/kage-client/tests
+    mkdir -p $TOP/.testenv/kage-client
     git_server_restart
 
     # Create one git repo for each test case in the git.rs module
     local tmpdir=$(mktemp -d)
     while read -r testcase; do
         local testname=$(sed -nE 's/^git_test::git_([_a-z]+):.*/\1/p' <<< "$testcase")
-        local test_remote="$TOP/.testenv/kage-store/tests/$testname"
+        local test_remote="$TOP/.testenv/kage-store/$testname"
 
-        echo "Creating $test_remote"
+        info "Creating $test_remote"
         mkdir -p $test_remote
         git -C $test_remote init --bare
 
-        git clone "$REMOTE_ORIGIN/tests/$testname" $tmpdir
+        git clone "$REMOTE_ORIGIN/$testname" $tmpdir
 
         echo "$testname" > "$tmpdir/$testname"
         git -C $tmpdir add .
@@ -100,7 +106,7 @@ git_server_unit() {
 
     done < <(cd $TOP/core && cargo test -- -q --list 2> /dev/null | grep '^git_test::')
 
-    tree -L 1 "$TOP/.testenv/kage-store/tests"
+    tree -L 1 "$TOP/.testenv/kage-store"
 }
 
 git_server_restart() {
@@ -110,9 +116,7 @@ git_server_restart() {
                --access-hook="$TOP/tools/ip-auth" \
                --export-all \
                --reuseaddr \
-               --verbose \
                --informative-errors &
-    GIT_SERVER_PID=$!
 }
 
 git_server_exit() {
@@ -122,11 +126,7 @@ git_server_exit() {
 }
 
 git_server_stop() {
-    if [ -n "$GIT_SERVER_PID" ]; then
-        kill $GIT_SERVER_PID &> /dev/null || :
-    fi
-
-    killall -SIGTERM git-daemon &> /dev/null || :
+    echox killall -SIGTERM git-daemon || :
 }
 
 git_server_add() {
@@ -167,61 +167,58 @@ git_server_mod() {
 }
 
 git_server_status() {
-    if $UNIT_TESTS_MODE; then
-        for d in "$TOP/.testenv/kage-store/tests"/*; do
-            echo "+ $d"
-            git -C $d log --format='%C(auto) %h %s'
-        done
-        echo
-    else
-        git -C $JAMES_REPO_CLIENT log --format='%C(auto) %h %s'
-        git -C $JAMES_REPO_CLIENT status
-    fi
+    for d in "$TOP/.testenv/kage-store"/*; do
+        echo "+ $d" >&2
+        git -C $d log --format='%C(auto) %h %s'
+    done
+    echo
 }
 
-git_server_controls() {
-    local james=${JAMES_REPO_CLIENT##"${TOP}/.testenv/"}
-    cat << EOF
-R: Reinitialise git repo
-S: Status of $james
-P: Pull in changes for $james
-A: Add files to $james
-M: Modify files in $james
-D: Delete files in $james
-H: Show controls
-Q: Quit
+################################################################################
 
-EOF
-}
-
-#==============================================================================#
-
+REMOTE_ORIGIN="git://127.0.0.1"
+TOP="$(cd "$(dirname "$0")/.." && pwd)"
+JAMES_REPO_REMOTE="$TOP/.testenv/kage-store/james.git"
+JAMES_REPO_CLIENT="$TOP/.testenv/kage-client/james"
+JAMES_KEY="$TOP/.testenv/kage-client/james/.age-identities"
+JAMES_PUBKEY="$TOP/.testenv/kage-client/james/.age-recipients"
 
 trap git_server_exit SIGINT
 
 case "$1" in
-reset)
-    rm -rf "${TOP?}/.testenv"
-    git_server_stop
-    exit $?
-;;
-unit)
-    UNIT_TESTS_MODE=true
-
-    rm -rf "${TOP?}/.testenv"
-    git_server_unit
-;;
-*)
+run)
     if [[ ! -d "$JAMES_REPO_CLIENT" || ! -d "$JAMES_REPO_REMOTE" ]]; then
         git_server_setup
     else
         git_server_restart
     fi
 ;;
+unit)
+    rm -rf "${TOP?}/.testenv"
+    git_server_unit
+;;
+stop)
+    echox rm -rf "${TOP?}/.testenv"
+    git_server_stop
+    exit $?
+;;
+*)
+    usage
+;;
 esac
 
-echo "Launched git-daemon 🚀"
-git_server_controls
+NAME=${JAMES_REPO_CLIENT##"${TOP}/.testenv/"}
+info "Launched git-daemon 🚀"
+cat << EOF
+R: Reinitialise git repo
+S: Status of $NAME
+P: Pull in changes for $NAME
+A: Add files to $NAME
+M: Modify files in $NAME
+D: Delete files in $NAME
+Q: Quit
+
+EOF
 
 while read -n1 -rs ans; do
     case "$ans" in
@@ -243,16 +240,13 @@ while read -n1 -rs ans; do
     [rR])
         git_server_stop
 
-        echo "Clearing $TOP/.testenv"
+        info "Clearing $TOP/.testenv"
         rm -rf "$TOP/.testenv"
         git_server_setup
         git_server_restart
     ;;
     [qQ])
         git_server_exit
-    ;;
-    [hH])
-        git_server_controls
     ;;
     esac
 done

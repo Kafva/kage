@@ -39,6 +39,7 @@ struct AppView: View {
                 Spacer()
                 toolbarView
             }
+            .ignoresSafeArea(.keyboard)
             .overlay(
                 Group {
                     if showSettings || showErrors || showPwNode || showPlaintext
