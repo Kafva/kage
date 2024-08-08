@@ -4,6 +4,7 @@
 /log
 /.bundle
 /.bundle.xcresult
+.lldbinit
 .compile
 .tags
 buildServer.json

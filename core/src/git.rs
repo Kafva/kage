@@ -1,3 +1,4 @@
+use std::fs;
 use std::net::TcpStream;
 use std::path::Path;
 use std::time::Duration;
@@ -137,6 +138,19 @@ pub fn git_stage(
             _ => 1,
         }
     };
+
+    // The callback is only invoked for filepaths (leafs), not directories.
+    // An empty directory will not give any errors
+    //
+    // Maybe we should just make sure that no commit is created instead of raising an error for this
+    //
+    // let Ok(mut entries) = fs::read_dir(relative_path) else {
+    //     return Err(internal_error("Error reading directory"));
+    // };
+
+    // if entries.next().is_none() {
+    //     return Err(internal_error("Refusing to stage an empty directory"));
+    // }
 
     index.add_all(
         Some(relative_path),

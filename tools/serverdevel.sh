@@ -82,6 +82,8 @@ git_server_setup() {
 }
 
 git_server_unit() {
+    (cd $TOP/core && cargo test --no-run -- -q --list) || die "Error compiling tests"
+
     mkdir -p $TOP/.testenv/kage-store
     mkdir -p $TOP/.testenv/kage-client
     git_server_restart
@@ -90,13 +92,13 @@ git_server_unit() {
     local tmpdir=$(mktemp -d)
     while read -r testcase; do
         local testname=$(sed -nE 's/^git_test::git_([_a-z]+):.*/\1/p' <<< "$testcase")
-        local test_remote="$TOP/.testenv/kage-store/$testname"
+        local test_remote="$TOP/.testenv/kage-store/$testname.git"
 
         info "Creating $test_remote"
         mkdir -p $test_remote
         git -C $test_remote init --bare
 
-        git clone "$REMOTE_ORIGIN/$testname" $tmpdir
+        git clone "$REMOTE_ORIGIN/$testname.git" $tmpdir
 
         echo "$testname" > "$tmpdir/$testname"
         git -C $tmpdir add .
@@ -195,6 +197,7 @@ run)
 ;;
 unit)
     rm -rf "${TOP?}/.testenv"
+
     git_server_unit
 ;;
 stop)
