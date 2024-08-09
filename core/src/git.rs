@@ -1,4 +1,3 @@
-use std::fs;
 use std::net::TcpStream;
 use std::path::Path;
 use std::time::Duration;
@@ -141,17 +140,6 @@ pub fn git_stage(
 
     // The callback is only invoked for filepaths (leafs), not directories.
     // An empty directory will not give any errors
-    //
-    // Maybe we should just make sure that no commit is created instead of raising an error for this
-    //
-    // let Ok(mut entries) = fs::read_dir(relative_path) else {
-    //     return Err(internal_error("Error reading directory"));
-    // };
-
-    // if entries.next().is_none() {
-    //     return Err(internal_error("Refusing to stage an empty directory"));
-    // }
-
     index.add_all(
         Some(relative_path),
         git2::IndexAddOption::DEFAULT,
@@ -162,15 +150,26 @@ pub fn git_stage(
 
 pub fn git_commit(repo_path: &str, message: &str) -> Result<(), git2::Error> {
     let repo = Repository::open(repo_path)?;
-    let sig = repo.signature()?;
+    // Retrieve the commit that HEAD points to so that we can replace
+    // it with our new tree state.
+    let head = repo.head()?;
+    let statuses = repo.statuses(None)?;
 
+    // TODO
+    let is_clean = statuses.iter().all(|entry| {
+        let status = entry.status();
+        status.is_empty()
+    });
+
+    if is_clean {
+        return Err(internal_error("Refusing to create empty commit"))
+    }
+
+    let sig = repo.signature()?;
     let mut index = repo.index()?;
     let tree_id = index.write_tree()?;
     let tree = repo.find_tree(tree_id)?;
 
-    // Retrieve the commit that HEAD points to so that we can replace
-    // it with our new tree state.
-    let head = repo.head()?;
     let Some(oid) = head.target() else {
         return Err(internal_error("HEAD unwrap error"));
     };

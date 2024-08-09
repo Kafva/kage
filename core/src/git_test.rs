@@ -161,7 +161,7 @@ fn git_reset_test() {
     assert_ok(git_stage(repo_path, &file_to_keep));
     assert_ok(git_stage(repo_path, &file_to_remove));
     assert_ok(git_stage(repo_path, &file_to_modify));
-    assert_ok(git_commit(repo_path, "Test commit"));
+    assert_ok(git_commit(repo_path, "Test commit")); // FAIL
     assert_ok(git_push(repo_path));
 
     // Stage some changes to them and commit
@@ -288,7 +288,8 @@ fn git_bad_commit_folder_test() {
     let folder = &format!("folder-{}", now);
     let folder_path = format!("{}/{}", repo_path, folder);
 
-    assert_err(git_stage(repo_path, &folder_path));
+    assert_ok(git_stage(repo_path, &folder_path));     // NOOP
+    assert_err(git_commit(repo_path, "Empty commit")); // Do not allow empty commits
 }
 
 #[test]
