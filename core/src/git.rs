@@ -1,3 +1,4 @@
+use std::io::{Read, Write};
 use std::net::TcpStream;
 use std::path::Path;
 use std::time::Duration;
@@ -153,20 +154,14 @@ pub fn git_commit(repo_path: &str, message: &str) -> Result<(), git2::Error> {
     // Retrieve the commit that HEAD points to so that we can replace
     // it with our new tree state.
     let head = repo.head()?;
-    let statuses = repo.statuses(None)?;
+    let mut index = repo.index()?;
 
-    // TODO
-    let is_clean = statuses.iter().all(|entry| {
-        let status = entry.status();
-        status.is_empty()
-    });
-
-    if is_clean {
-        return Err(internal_error("Refusing to create empty commit"))
-    }
+    // // TODO
+    // if index.is_empty() {
+    //     return Err(internal_error("Refusing to create empty commit"))
+    // }
 
     let sig = repo.signature()?;
-    let mut index = repo.index()?;
     let tree_id = index.write_tree()?;
     let tree = repo.find_tree(tree_id)?;
 
@@ -211,16 +206,18 @@ pub fn git_clone(url: &str, into: &str) -> Result<(), git2::Error> {
         return Err(err);
     };
 
-    let mut cb = RemoteCallbacks::new();
-    cb.transfer_progress(|progress| transfer_progress(progress, "Cloning"));
-
-    let mut fopts = FetchOptions::new();
-    fopts.remote_callbacks(cb);
-
-    RepoBuilder::new()
-        .fetch_options(fopts)
-        .clone(url, Path::new(into))?;
     Ok(())
+
+    // let mut cb = RemoteCallbacks::new();
+    // cb.transfer_progress(|progress| transfer_progress(progress, "Cloning"));
+
+    // let mut fopts = FetchOptions::new();
+    // fopts.remote_callbacks(cb);
+
+    // RepoBuilder::new()
+    //     .fetch_options(fopts)
+    //     .clone(url, Path::new(into))?;
+    // Ok(())
 }
 
 /// Returns true if there are no uncommitted changes and nothing to push
@@ -319,7 +316,20 @@ fn try_tcp_connect(url: &str, timeout: Duration) -> Result<(), git2::Error> {
     };
 
     match TcpStream::connect_timeout(&sockaddr, timeout) {
-        Ok(_) => Ok(()),
+        Ok(mut stream) => {
+            // If we do not send any data the server will get a 'fatal: the remote end hung up unexpectedly'
+            // error. Lets be kind and hang up properly.
+            let request = b"0040git-upload-pack /commit_file_test\x00host=127.0.0.1\x00\x00version=2\x00";
+            if let Err(e) = stream.write_all(request) {
+                error!("Error writing to stream: {}", e);
+            }
+            //stream.read();
+
+            if let Err(e) = stream.shutdown(std::net::Shutdown::Both) {
+                error!("Error shutting down stream: {}", e);
+            };
+            Ok(())
+        }
         Err(err) => {
             let msg = &format!("Error connecting to remote address: {}", err);
             Err(internal_error(msg))

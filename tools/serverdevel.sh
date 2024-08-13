@@ -82,6 +82,8 @@ git_server_setup() {
 }
 
 git_server_unit() {
+    rm -rf "${TOP?}/.testenv"
+
     (cd $TOP/core && cargo test --no-run -- -q --list) || die "Error compiling tests"
 
     mkdir -p $TOP/.testenv/kage-store
@@ -100,7 +102,7 @@ git_server_unit() {
 
         git clone "$REMOTE_ORIGIN/$testname.git" $tmpdir
 
-        echo "$testname" > "$tmpdir/$testname"
+        echo "File for first commit" > "$tmpdir/.$testname"
         git -C $tmpdir add .
         git -C $tmpdir commit --no-gpg-sign -m "First commit"
         git -C $tmpdir push origin main
@@ -118,6 +120,7 @@ git_server_restart() {
                --access-hook="$TOP/tools/ip-auth" \
                --export-all \
                --reuseaddr \
+               --verbose \
                --informative-errors &
 }
 
@@ -184,10 +187,11 @@ JAMES_REPO_REMOTE="$TOP/.testenv/kage-store/james.git"
 JAMES_REPO_CLIENT="$TOP/.testenv/kage-client/james"
 JAMES_KEY="$TOP/.testenv/kage-client/james/.age-identities"
 JAMES_PUBKEY="$TOP/.testenv/kage-client/james/.age-recipients"
+CMD="$1"
 
 trap git_server_exit SIGINT
 
-case "$1" in
+case "$CMD" in
 run)
     if [[ ! -d "$JAMES_REPO_CLIENT" || ! -d "$JAMES_REPO_REMOTE" ]]; then
         git_server_setup
@@ -196,8 +200,6 @@ run)
     fi
 ;;
 unit)
-    rm -rf "${TOP?}/.testenv"
-
     git_server_unit
 ;;
 stop)
@@ -241,12 +243,15 @@ while read -n1 -rs ans; do
         git_server_del
     ;;
     [rR])
-        git_server_stop
-
-        info "Clearing $TOP/.testenv"
-        rm -rf "$TOP/.testenv"
-        git_server_setup
-        git_server_restart
+        if [ "$CMD" = unit ]; then
+            git_server_unit
+        else
+            git_server_stop
+            info "Clearing $TOP/.testenv"
+            rm -rf "$TOP/.testenv"
+            git_server_setup
+            git_server_restart
+        fi
     ;;
     [qQ])
         git_server_exit
