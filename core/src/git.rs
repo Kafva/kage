@@ -1,9 +1,12 @@
-use std::io::{Read, Write};
-use std::net::TcpStream;
 use std::path::Path;
-use std::time::Duration;
 
 use git2::build::{CheckoutBuilder, RepoBuilder};
+use git2::opts::{
+    get_server_connect_timeout_in_milliseconds,
+    get_server_timeout_in_milliseconds,
+    set_server_connect_timeout_in_milliseconds,
+    set_server_timeout_in_milliseconds,
+};
 use git2::{FetchOptions, RemoteCallbacks, Repository};
 
 use crate::*;
@@ -21,10 +24,29 @@ const GIT_BRANCH: &'static str = env!("KAGE_GIT_BRANCH");
 #[cfg(test)]
 pub const GIT_BRANCH: &'static str = env!("KAGE_GIT_BRANCH");
 
-#[cfg(not(test))]
-const GIT_CLONE_TIMEOUT: u64 = 5;
-#[cfg(test)]
-const GIT_CLONE_TIMEOUT: u64 = 1;
+/// Initialize global options in the underlying library
+pub fn git_init_opts() -> Result<(), git2::Error> {
+    unsafe {
+        #[cfg(not(test))]
+        {
+            set_server_timeout_in_milliseconds(5000)?;
+            set_server_connect_timeout_in_milliseconds(5000)?;
+        }
+
+        #[cfg(test)]
+        {
+            set_server_timeout_in_milliseconds(1000)?;
+            set_server_connect_timeout_in_milliseconds(1000)?;
+        }
+
+        let timeout = get_server_timeout_in_milliseconds()?;
+        let connect_timeout = get_server_connect_timeout_in_milliseconds()?;
+
+        debug!("Configured read/write timeout: {} ms", timeout);
+        debug!("Configured connect timeout: {} ms", connect_timeout);
+    };
+    Ok(())
+}
 
 pub fn git_pull(repo_path: &str) -> Result<(), git2::Error> {
     let repo = Repository::open(repo_path)?;
@@ -156,7 +178,7 @@ pub fn git_commit(repo_path: &str, message: &str) -> Result<(), git2::Error> {
     let head = repo.head()?;
     let mut index = repo.index()?;
 
-    // // TODO
+    // TODO
     // if index.is_empty() {
     //     return Err(internal_error("Refusing to create empty commit"))
     // }
@@ -199,25 +221,16 @@ pub fn git_reset(repo_path: &str) -> Result<(), git2::Error> {
 }
 
 pub fn git_clone(url: &str, into: &str) -> Result<(), git2::Error> {
-    if let Err(err) =
-        try_tcp_connect(url, Duration::from_secs(GIT_CLONE_TIMEOUT))
-    {
-        error!("{}", err);
-        return Err(err);
-    };
+    let mut cb = RemoteCallbacks::new();
+    cb.transfer_progress(|progress| transfer_progress(progress, "Cloning"));
 
+    let mut fopts = FetchOptions::new();
+    fopts.remote_callbacks(cb);
+
+    RepoBuilder::new()
+        .fetch_options(fopts)
+        .clone(url, Path::new(into))?;
     Ok(())
-
-    // let mut cb = RemoteCallbacks::new();
-    // cb.transfer_progress(|progress| transfer_progress(progress, "Cloning"));
-
-    // let mut fopts = FetchOptions::new();
-    // fopts.remote_callbacks(cb);
-
-    // RepoBuilder::new()
-    //     .fetch_options(fopts)
-    //     .clone(url, Path::new(into))?;
-    // Ok(())
 }
 
 /// Returns true if there are no uncommitted changes and nothing to push
@@ -288,53 +301,6 @@ fn transfer_progress(progress: git2::Progress, label: &str) -> bool {
     }
 
     true
-}
-
-fn try_tcp_connect(url: &str, timeout: Duration) -> Result<(), git2::Error> {
-    let Some(address) = url.strip_prefix("git://") else {
-        return Err(internal_error("Invalid protocol for remote address"));
-    };
-
-    let Some(spl) = address.split_once("/") else {
-        return Err(internal_error("Error parsing remote address"));
-    };
-
-    // Fallback to default git daemon port
-    let address: String;
-    let colon_count = spl.0.chars().filter(|c| *c == ':').count();
-
-    if colon_count == 0 {
-        address = spl.0.to_string() + ":9418";
-    } else if colon_count == 1 {
-        address = spl.0.to_string()
-    } else {
-        return Err(internal_error("Error parsing remote address"));
-    }
-
-    let Ok(sockaddr) = address.parse() else {
-        return Err(internal_error("Error parsing remote address"));
-    };
-
-    match TcpStream::connect_timeout(&sockaddr, timeout) {
-        Ok(mut stream) => {
-            // If we do not send any data the server will get a 'fatal: the remote end hung up unexpectedly'
-            // error. Lets be kind and hang up properly.
-            let request = b"0040git-upload-pack /commit_file_test\x00host=127.0.0.1\x00\x00version=2\x00";
-            if let Err(e) = stream.write_all(request) {
-                error!("Error writing to stream: {}", e);
-            }
-            //stream.read();
-
-            if let Err(e) = stream.shutdown(std::net::Shutdown::Both) {
-                error!("Error shutting down stream: {}", e);
-            };
-            Ok(())
-        }
-        Err(err) => {
-            let msg = &format!("Error connecting to remote address: {}", err);
-            Err(internal_error(msg))
-        }
-    }
 }
 
 fn internal_error(message: &str) -> git2::Error {

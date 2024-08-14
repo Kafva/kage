@@ -31,7 +31,7 @@ age = { version = "0.10.0", features = ["armor"] }
 # Text-Based Stub Libraries (.tbd) need to be included for these in Xcode:
 #   Build Phases > Link Binary with Libraries
 # Without https/ssh support
-git2 = { version = "0.18.3", default-features = false }
+git2 = { version = "0.19.0", default-features = false }
 
 [features]
 default = []

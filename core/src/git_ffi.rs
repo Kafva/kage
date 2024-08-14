@@ -1,13 +1,28 @@
+use once_cell::sync::Lazy;
 use std::ffi::CStr;
 use std::os::raw::{c_char, c_int};
+use std::sync::Mutex;
 
 use crate::git::*;
 use crate::*;
 
+pub struct GitState {
+    initialized: bool,
+    last_error: Option<git2::Error>,
+}
+
+impl GitState {
+    pub fn default() -> Self {
+        Self {
+            initialized: false,
+            last_error: None,
+        }
+    }
+}
+
 // Persistent library state
-// static GIT_ERROR: Lazy<Mutex<git2::Error>> = Lazy::new(|| {
-//     Mutex::new(git2::Error::last_error)
-// });
+pub static GIT_STATE: Lazy<Mutex<GitState>> =
+    Lazy::new(|| Mutex::new(GitState::default()));
 
 macro_rules! ffi_git_call {
     ($result:expr) => {

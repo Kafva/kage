@@ -3,17 +3,21 @@ use crate::error;
 use crate::git::*;
 use std::fs;
 use std::process::Command;
+use std::sync::Once;
 
 const GIT_USERNAME: &'static str = env!("KAGE_TEST_GIT_REPONAME");
 const GIT_REMOTE_CLONE_URL: &'static str =
     env!("KAGE_TEST_GIT_REMOTE_CLONE_URL");
 const GIT_CLIENT_DIR: &'static str = env!("KAGE_TEST_GIT_CLIENT_DIR");
 
+static ONCE: Once = Once::new();
+
 ////////////////////////////////////////////////////////////////////////////////
 
 #[test]
 /// Test that we can add, commit and push a new file and changes to it
 fn git_commit_file_test() {
+    setup();
     let remote_path = &format!("{}/commit_file_test.git", GIT_REMOTE_CLONE_URL);
     let repo_path = &format!("{}/commit_file_test", GIT_CLIENT_DIR);
     let now = current_time();
@@ -22,23 +26,24 @@ fn git_commit_file_test() {
 
     clone(remote_path, repo_path);
 
-    // fs::write(&file_path, "Content").expect("write file failed");
+    fs::write(&file_path, "Content").expect("write file failed");
 
-    // // Commit the file
-    // assert_ok(git_stage(repo_path, &filename));
-    // assert_ok(git_commit(repo_path, &format!("Add '{}'", filename)));
-    // assert_ok(git_push(repo_path));
+    // Commit the file
+    assert_ok(git_stage(repo_path, &filename));
+    assert_ok(git_commit(repo_path, &format!("Add '{}'", filename)));
+    assert_ok(git_push(repo_path));
 
-    // fs::write(&file_path, "Modified").expect("write file failed");
+    fs::write(&file_path, "Modified").expect("write file failed");
 
-    // assert_ok(git_stage(repo_path, &filename));
-    // assert_ok(git_commit(repo_path, &format!("Modified '{}'", filename)));
-    // assert_ok(git_push(repo_path));
+    assert_ok(git_stage(repo_path, &filename));
+    assert_ok(git_commit(repo_path, &format!("Modified '{}'", filename)));
+    assert_ok(git_push(repo_path));
 }
 
 #[test]
 /// Test that we can add, commit and push a multilevel folder with two files
 fn git_commit_folder_test() {
+    setup();
     let remote_path =
         &format!("{}/commit_folder_test.git", GIT_REMOTE_CLONE_URL);
     let repo_path = &format!("{}/commit_folder_test", GIT_CLIENT_DIR);
@@ -67,6 +72,7 @@ fn git_commit_folder_test() {
 #[test]
 /// Test that we can (add, commit) delete a file and push the changes
 fn git_delete_file_test() {
+    setup();
     let remote_path = &format!("{}/delete_file_test.git", GIT_REMOTE_CLONE_URL);
     let repo_path = &format!("{}/delete_file_test", GIT_CLIENT_DIR);
     let now = current_time();
@@ -92,6 +98,7 @@ fn git_delete_file_test() {
 #[test]
 /// Test that we can pull in external changes (with a local non-conflicting commit)
 fn git_pull_test() {
+    setup();
     let remote_path = &format!("{}/pull_test.git", GIT_REMOTE_CLONE_URL);
     let repo_path = &format!("{}/pull_test", GIT_CLIENT_DIR);
     let now = current_time();
@@ -140,6 +147,7 @@ fn git_pull_test() {
 #[test]
 /// Test that we can reset to the remote head commit in a local checkout
 fn git_reset_test() {
+    setup();
     let remote_path = &format!("{}/reset_test.git", GIT_REMOTE_CLONE_URL);
     let repo_path = &format!("{}/reset_test", GIT_CLIENT_DIR);
 
@@ -191,6 +199,7 @@ fn git_reset_test() {
 #[test]
 /// Test that we can remove folder and add file in the same commit.
 fn git_stage_multiple_test() {
+    setup();
     let remote_path =
         &format!("{}/stage_multiple_test.git", GIT_REMOTE_CLONE_URL);
     let repo_path = &format!("{}/stage_multiple_test", GIT_CLIENT_DIR);
@@ -247,6 +256,7 @@ fn git_stage_multiple_test() {
 #[test]
 // Push/pull to a remote with untracked changes fails with expected errors
 fn git_bad_conflict_test() {
+    setup();
     let remote_path =
         &format!("{}/bad_conflict_test.git", GIT_REMOTE_CLONE_URL);
     let repo_path = &format!("{}/bad_conflict_test", GIT_CLIENT_DIR);
@@ -282,6 +292,7 @@ fn git_bad_conflict_test() {
 #[test]
 // Trying to create a commit from an empty folder fails with expected errors
 fn git_bad_commit_folder_test() {
+    setup();
     let remote_path =
         &format!("{}/bad_commit_folder_test.git", GIT_REMOTE_CLONE_URL);
     let repo_path = &format!("{}/bad_commit_folder_test", GIT_CLIENT_DIR);
@@ -300,6 +311,7 @@ fn git_bad_commit_folder_test() {
 #[test]
 /// Test that a clone operation times out when the remote host is unreachable
 fn git_bad_clone_test() {
+    setup();
     let repo_path = &format!("{}/bad_remote", GIT_CLIENT_DIR);
 
     // Unsupported protocol
@@ -316,6 +328,11 @@ fn git_bad_clone_test() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+
+fn setup() {
+    // One-time initialization of the underlying library
+    ONCE.call_once(|| git_init_opts().expect("Error initializing libgit2"));
+}
 
 fn assert_ok(result: Result<(), git2::Error>) {
     if let Some(err) = result.as_ref().err() {
