@@ -26,6 +26,12 @@ func ffi_age_decrypt(
     outsize: CInt
 ) -> CInt
 
+@_silgen_name("ffi_age_strerror")
+func ffi_age_strerror() -> UnsafeMutablePointer<CChar>?
+
+@_silgen_name("ffi_free_cstring")
+func ffi_free_cstring(_ ptr: UnsafeMutablePointer<CChar>?)
+
 ////////////////////////////////////////////////////////////////////////////////
 
 enum Age {
@@ -51,6 +57,14 @@ enum Age {
             throw AppError.ageError
         }
         G.logger.debug("OK: identity unlocked")
+
+        let s = ffi_age_strerror()
+        guard let s else {
+            return
+        }
+        let msg = String(cString: s)
+        G.logger.debug("Age library error: \(msg)")
+        ffi_free_cstring(s)
     }
 
     static func lockIdentity() throws {

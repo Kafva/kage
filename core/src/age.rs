@@ -22,6 +22,7 @@ pub struct AgeState {
     pub identity: Option<age::x25519::Identity>,
     /// Timestamp when the identity was unlocked
     pub unlock_timestamp: Option<SystemTime>,
+    pub last_error: Option<AgeError>,
 }
 
 impl AgeState {
@@ -29,6 +30,7 @@ impl AgeState {
         Self {
             identity: None,
             unlock_timestamp: None,
+            last_error: None,
         }
     }
 

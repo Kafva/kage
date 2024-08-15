@@ -41,6 +41,9 @@ pub extern "C" fn ffi_git_clone(
     url: *const c_char,
     into: *const c_char,
 ) -> c_int {
+    // let Some(mut git_state) = try_lock() else {
+    //     return -1;
+    // };
     let url = unsafe { CStr::from_ptr(url).to_str() };
     let into = unsafe { CStr::from_ptr(into).to_str() };
 
@@ -140,6 +143,14 @@ pub extern "C" fn ffi_git_index_has_local_changes(
         }
     }
 }
+
+// fn try_lock() -> Option<MutexGuard<'static, GitState>> {
+//     let Ok(age_state) = GIT_STATE.try_lock() else {
+//         error!("mutex lock already taken");
+//         return None;
+//     };
+//     Some(age_state)
+// }
 
 // #[no_mangle]
 // pub extern "C"

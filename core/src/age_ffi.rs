@@ -1,4 +1,4 @@
-use std::ffi::CStr;
+use std::ffi::{CStr, CString};
 use std::os::raw::{c_char, c_int, c_ulonglong};
 use std::sync::{Mutex, MutexGuard};
 use std::time::SystemTime;
@@ -34,9 +34,14 @@ pub extern "C" fn ffi_age_unlock_identity(
     match age_state.unlock_identity(encrypted_identity, passphrase) {
         Err(err) => {
             error!("{}", err);
+            age_state.last_error = Some(err);
             -1
         }
-        _ => 0,
+        _ => {
+            // TODO: TMP
+            age_state.last_error = Some(age_error::AgeError::NoIdentity);
+            0
+        }
     }
 }
 
@@ -71,7 +76,7 @@ pub extern "C" fn ffi_age_encrypt(
     recipient: *const c_char,
     outpath: *const c_char,
 ) -> c_int {
-    let Some(age_state) = try_lock() else {
+    let Some(mut age_state) = try_lock() else {
         return -1;
     };
 
@@ -101,6 +106,7 @@ pub extern "C" fn ffi_age_encrypt(
         },
         Err(err) => {
             error!("{}: {}", outfile, err);
+            age_state.last_error = Some(err);
         }
     }
     -1
@@ -112,7 +118,7 @@ pub extern "C" fn ffi_age_decrypt(
     out: &mut c_char,
     outsize: c_int,
 ) -> c_int {
-    let Some(age_state) = try_lock() else {
+    let Some(mut age_state) = try_lock() else {
         return -1;
     };
 
@@ -140,12 +146,13 @@ pub extern "C" fn ffi_age_decrypt(
                     return datalen as c_int;
                 }
                 warn!(
-                    "{}: decryption output buffer to small: {} < {}",
+                    "{}: Decryption output buffer to small: {} < {}",
                     filename, datalen, outsize
                 );
             }
             Err(err) => {
                 error!("{}: {}", filename, err);
+                age_state.last_error = Some(err)
             }
         },
         Err(err) => {
@@ -155,9 +162,37 @@ pub extern "C" fn ffi_age_decrypt(
     -1
 }
 
+// Return a dynamically allocated string describing the last error that occurred if any.
+// The string must be passed back to rust and freed!
+#[no_mangle]
+pub extern "C" fn ffi_age_strerror() -> *const c_char {
+    let Some(age_state) = try_lock() else {
+        return std::ptr::null();
+    };
+    let Some(ref err) = age_state.last_error else {
+        return std::ptr::null();
+    };
+    let Ok(s) = CString::new(err.to_string()) else {
+        return std::ptr::null();
+    };
+    s.into_raw()
+}
+
+#[no_mangle]
+pub extern "C" fn ffi_free_cstring(ptr: *mut c_char) {
+    unsafe {
+        if ptr.is_null() {
+            return;
+        }
+        debug!("Freeing memory at {:#?}", ptr);
+        let cstr = CString::from_raw(ptr);
+        drop(cstr)
+    }
+}
+
 fn try_lock() -> Option<MutexGuard<'static, AgeState>> {
     let Ok(age_state) = AGE_STATE.try_lock() else {
-        error!("mutex lock already taken");
+        error!("Mutex lock already taken");
         return None;
     };
     Some(age_state)
