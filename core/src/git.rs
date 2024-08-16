@@ -179,6 +179,8 @@ pub fn git_commit(repo_path: &str, message: &str) -> Result<(), git2::Error> {
     let mut index = repo.index()?;
 
     // TODO
+    // println!("empty {:#?}", index.is_empty());
+    // println!("len {:#?}", index.len());
     // if index.is_empty() {
     //     return Err(internal_error("Refusing to create empty commit"))
     // }
