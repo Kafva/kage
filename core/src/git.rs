@@ -177,13 +177,18 @@ pub fn git_commit(repo_path: &str, message: &str) -> Result<(), git2::Error> {
     // it with our new tree state.
     let head = repo.head()?;
     let mut index = repo.index()?;
+    let statuses = repo.statuses(None)?;
 
-    // TODO
-    // println!("empty {:#?}", index.is_empty());
-    // println!("len {:#?}", index.len());
-    // if index.is_empty() {
-    //     return Err(internal_error("Refusing to create empty commit"))
-    // }
+    let is_clean = statuses.iter().all(|entry| {
+        let status = entry.status();
+        status.is_empty()
+    });
+
+    if is_clean {
+        let emsg = "Refusing to create empty commit";
+        error!("{}", emsg);
+        return Err(internal_error(emsg));
+    }
 
     let sig = repo.signature()?;
     let tree_id = index.write_tree()?;

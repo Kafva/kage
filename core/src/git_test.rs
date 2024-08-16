@@ -150,10 +150,11 @@ fn git_reset_test() {
     setup();
     let remote_path = &format!("{}/reset_test.git", GIT_REMOTE_CLONE_URL);
     let repo_path = &format!("{}/reset_test", GIT_CLIENT_DIR);
+    let now = current_time();
 
-    let file_to_keep = "file_to_keep";
-    let file_to_remove = "file_to_remove";
-    let file_to_modify = "file_to_modify";
+    let file_to_keep = format!("file_to_keep-{}", now);
+    let file_to_remove = format!("file_to_remove-{}", now);
+    let file_to_modify = format!("file_to_modify-{}", now);
 
     let file_to_keep_path = format!("{}/{}", repo_path, file_to_keep);
     let file_to_remove_path = format!("{}/{}", repo_path, file_to_remove);
@@ -304,7 +305,7 @@ fn git_bad_commit_folder_test() {
     let folder_path = format!("{}/{}", repo_path, folder);
 
     assert_ok(git_stage(repo_path, &folder_path)); // NOOP
-    assert_ok(git_commit(repo_path, "Empty commit")); // Do not allow empty commits
+    assert_err(git_commit(repo_path, "Empty commit")); // Do not allow empty commits
     assert_ok(git_push(repo_path));
 }
 
