@@ -28,13 +28,6 @@ pub const GIT_BRANCH: &'static str = env!("KAGE_GIT_BRANCH");
 
 static ONCE: Once = Once::new();
 
-pub struct CommitInfo {
-    pub summary: String,
-    /// Summary size is needed for ffi
-    summary_size: usize,
-    timestamp: i64,
-}
-
 macro_rules! internal_error {
     () => {
         git2::Error::new(
@@ -279,8 +272,9 @@ pub fn git_config_set_user(
     Ok(())
 }
 
+/// Returns an array of "<timestamp>\n<summary>" strings for all commits.
 /// The first commit will be the last entry in the array
-pub fn git_log(repo_path: &str) -> Result<Vec<CommitInfo>, git2::Error> {
+pub fn git_log(repo_path: &str) -> Result<Vec<String>, git2::Error> {
     let repo = Repository::open(repo_path)?;
     let mut revwalk = repo.revwalk()?;
 
@@ -294,11 +288,11 @@ pub fn git_log(repo_path: &str) -> Result<Vec<CommitInfo>, git2::Error> {
         let Some(summary) = commit.summary() else {
             break;
         };
-        let commit_info = CommitInfo {
-            summary: summary.to_string(),
-            summary_size: summary.len(),
-            timestamp: commit.time().seconds(),
-        };
+
+        let commit_info = format!("{}\n{}", 
+            commit.time().seconds(),
+            summary.to_string(),
+        );
         arr.push(commit_info)
     }
     Ok(arr)

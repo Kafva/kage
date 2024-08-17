@@ -8,5 +8,13 @@ struct HistoryView: View {
         VStack {
             Text("TODO")
         }
+        .onAppear {
+            do {
+                try Git.log()
+            }
+            catch {
+                G.logger.error("\(error.localizedDescription)")
+            }
+        }
     }
 }

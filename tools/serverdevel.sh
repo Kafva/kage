@@ -189,7 +189,7 @@ GIT_SERVER_ARGS=(
     --enable=receive-pack
     --access-hook="$TOP/tools/ip-auth"
     --export-all
-    --reuseaddr 
+    --reuseaddr
     --informative-errors
 )
 CMD="$1"

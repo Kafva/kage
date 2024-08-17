@@ -283,8 +283,8 @@ fn git_log_test() {
     let arr = r.unwrap();
     let len = arr.len();
     assert!(len >= 2);
-    assert_eq!(arr[0].summary.as_str(), msg2);
-    assert_eq!(arr[1].summary.as_str(), msg1);
+    assert_eq!(arr[0].split_once("\n").unwrap().1, msg2);
+    assert_eq!(arr[1].split_once("\n").unwrap().1, msg1);
 }
 
 // Error cases /////////////////////////////////////////////////////////////////

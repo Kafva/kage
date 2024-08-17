@@ -1,9 +1,8 @@
 import Foundation
 
-struct CommitInfo {
-    let summary: UnsafePointer<CChar>
-    let summary_size: CInt
-    let timestamp: CInt
+struct FFIArray {
+    let data: UnsafeRawPointer
+    let len: CInt
 }
 
 @_silgen_name("ffi_git_clone")
@@ -40,6 +39,9 @@ func ffi_git_push(_ repo: UnsafePointer<CChar>) -> CInt
 
 @_silgen_name("ffi_git_index_has_local_changes")
 func ffi_git_index_has_local_changes(_ repo: UnsafePointer<CChar>) -> CInt
+
+@_silgen_name("ffi_git_log")
+func ffi_git_log(_ repo: UnsafePointer<CChar>) -> FFIArray
 
 @_silgen_name("ffi_git_strerror")
 func ffi_git_strerror() -> UnsafeMutablePointer<CChar>?
@@ -132,6 +134,25 @@ enum Git {
         let r = ffi_git_config_set_user(repoC, username: usernameC)
         if r != 0 {
             try throwError(code: r)
+        }
+    }
+
+    static func log() throws {
+        G.logger.warning("Fetching commit messages")
+        let repoC = try repo.path().toCString()
+        let arr = ffi_git_log(repoC)
+        if arr.len < 0 {
+            try throwError(code: arr.len)
+        }
+        let data = arr.data.bindMemory(
+            to: UnsafeMutablePointer<CChar>.self,
+            capacity: Int(arr.len))
+        let buffer = UnsafeBufferPointer(start: data, count: Int(arr.len))
+        let messages = Array(buffer)
+
+        for m in messages {
+            G.logger.debug("\(m)")
+            //ffi_free_cstring(m);
         }
     }
 

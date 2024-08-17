@@ -1,3 +1,5 @@
+use std::ffi::c_void;
+use crate::ffi::FFIArray;
 use crate::ffi::KAGE_ERROR_LOCK_TAKEN;
 use once_cell::sync::Lazy;
 use std::ffi::CStr;
@@ -185,6 +187,50 @@ pub extern "C" fn ffi_git_strerror() -> *const c_char {
     *git_last_error = None;
     s.into_raw()
 }
+
+/// Return an array of commit messages as "<timtestamp>\n<summary>" strings.
+/// Each string must be passed back to rust and freed!
+#[no_mangle]
+pub extern "C" fn ffi_git_log(
+    repo_path: *const c_char,
+    outarr: *const *const c_char,
+    outsize: c_int
+) -> c_int {
+    let Some(mut git_last_error) = try_lock() else {
+        return KAGE_ERROR_LOCK_TAKEN;
+    };
+    let repo_path = unsafe { CStr::from_ptr(repo_path).to_str() };
+
+    let Ok(repo_path) = repo_path else {
+        return -1
+    };
+
+    match git_log(repo_path) {
+        Ok(arr) => {
+            let arrlen = arr.len();
+            if arrlen < outsize as usize {
+                // let out_slice = unsafe {
+                //     std::slice::from_raw_parts_mut(out, outsize as usize)
+                // };
+                // for i in 0..arrlen {
+                //     out_slice[i] = data[i] as c_char
+                // }
+                // return arrlen as c_int;
+            }
+            warn!(
+                "Output array to small: {} < {}", arrlen, outsize
+            );
+            0
+        },
+        Err(err) => {
+            error!("{}", err);
+            *git_last_error = Some(err);
+            git_last_error.as_ref().unwrap().raw_code() as c_int
+        }
+
+    }
+}
+
 
 fn try_lock() -> Option<MutexGuard<'static, Option<git2::Error>>> {
     let Ok(git_last_error) = GIT_LAST_ERROR.try_lock() else {
