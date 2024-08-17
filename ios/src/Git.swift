@@ -36,7 +36,7 @@ func ffi_git_push(_ repo: UnsafePointer<CChar>) -> CInt
 func ffi_git_index_has_local_changes(_ repo: UnsafePointer<CChar>) -> CInt
 
 @_silgen_name("ffi_git_strerror")
-func ffi_git_strerror(code: CInt) -> UnsafeMutablePointer<CChar>?
+func ffi_git_strerror() -> UnsafeMutablePointer<CChar>?
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -155,9 +155,9 @@ enum Git {
     }
 
     static private func throwError(code: CInt) throws {
-        let s = ffi_git_strerror(code: code)
+        let s = ffi_git_strerror()
         guard let s else {
-            throw AppError.gitError("No description")
+            throw AppError.gitError("code \(code)")
         }
 
         let msg = String(cString: s)

@@ -1,3 +1,5 @@
+use crate::age_error::AgeError;
+use crate::ffi::KAGE_ERROR_LOCK_TAKEN;
 use std::ffi::{CStr, CString};
 use std::os::raw::{c_char, c_int, c_ulonglong};
 use std::sync::{Mutex, MutexGuard};
@@ -18,7 +20,7 @@ pub extern "C" fn ffi_age_unlock_identity(
     passphrase: *const c_char,
 ) -> c_int {
     let Some(mut age_state) = try_lock() else {
-        return -1;
+        return KAGE_ERROR_LOCK_TAKEN;
     };
 
     let encrypted_identity =
@@ -28,6 +30,7 @@ pub extern "C" fn ffi_age_unlock_identity(
     let (Ok(encrypted_identity), Ok(passphrase)) =
         (encrypted_identity, passphrase)
     else {
+        age_state.last_error = Some(AgeError::GenericError);
         return -1;
     };
 
@@ -38,8 +41,7 @@ pub extern "C" fn ffi_age_unlock_identity(
             -1
         }
         _ => {
-            // TODO: TMP
-            age_state.last_error = Some(age_error::AgeError::NoIdentity);
+            age_state.last_error = None;
             0
         }
     }
@@ -48,9 +50,10 @@ pub extern "C" fn ffi_age_unlock_identity(
 #[no_mangle]
 pub extern "C" fn ffi_age_lock_identity() -> c_int {
     let Some(mut age_state) = try_lock() else {
-        return -1;
+        return KAGE_ERROR_LOCK_TAKEN;
     };
     age_state.lock_identity();
+    age_state.last_error = None;
     0
 }
 
@@ -77,7 +80,7 @@ pub extern "C" fn ffi_age_encrypt(
     outpath: *const c_char,
 ) -> c_int {
     let Some(mut age_state) = try_lock() else {
-        return -1;
+        return KAGE_ERROR_LOCK_TAKEN;
     };
 
     let plaintext = unsafe { CStr::from_ptr(plaintext).to_str() };
@@ -87,10 +90,12 @@ pub extern "C" fn ffi_age_encrypt(
     let (Ok(plaintext), Ok(recipient), Ok(outpath)) =
         (plaintext, recipient, outpath)
     else {
+        age_state.last_error = Some(AgeError::GenericError);
         return -1;
     };
 
     let Some(outfile) = path_to_filename(outpath) else {
+        age_state.last_error = Some(AgeError::GenericError);
         return -1;
     };
 
@@ -98,6 +103,7 @@ pub extern "C" fn ffi_age_encrypt(
         Ok(ciphertext) => match std::fs::write(outpath, &ciphertext) {
             Ok(_) => {
                 debug!("Wrote {} byte(s) to '{}'", ciphertext.len(), outfile);
+                age_state.last_error = None;
                 return 0;
             }
             Err(err) => {
@@ -119,16 +125,18 @@ pub extern "C" fn ffi_age_decrypt(
     outsize: c_int,
 ) -> c_int {
     let Some(mut age_state) = try_lock() else {
-        return -1;
+        return KAGE_ERROR_LOCK_TAKEN;
     };
 
     let encrypted_path = unsafe { CStr::from_ptr(encrypted_path).to_str() };
 
     let Ok(encrypted_path) = encrypted_path else {
+        age_state.last_error = Some(AgeError::GenericError);
         return -1;
     };
 
     let Some(filename) = path_to_filename(encrypted_path) else {
+        age_state.last_error = Some(AgeError::GenericError);
         return -1;
     };
 
@@ -143,6 +151,7 @@ pub extern "C" fn ffi_age_decrypt(
                     for i in 0..datalen {
                         out_slice[i] = data[i] as c_char
                     }
+                    age_state.last_error = None;
                     return datalen as c_int;
                 }
                 warn!(

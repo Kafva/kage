@@ -51,22 +51,15 @@ enum Age {
             passphrase: passphraseC)
 
         if r != 0 {
-            throw AppError.ageError
+            try throwError(code: r)
         }
         G.logger.debug("OK: identity unlocked")
-
-        let s = ffi_age_strerror()
-        guard let s else {
-            return
-        }
-        let msg = String(cString: s)
-        G.logger.debug("Age library error: \(msg)")
-        ffi_free_cstring(s)
     }
 
     static func lockIdentity() throws {
-        if ffi_age_lock_identity() != 0 {
-            throw AppError.ageError
+        let r = ffi_age_lock_identity()
+        if r != 0 {
+            try throwError(code: r)
         }
         G.logger.debug("OK: identity locked")
     }
@@ -85,7 +78,7 @@ enum Age {
 
         if written <= 0 {
             outC.deallocate()
-            throw AppError.ageError
+            try throwError(code: written)
         }
         let data = Data(bytes: outC, count: Int(written))
 
@@ -116,7 +109,20 @@ enum Age {
             recepient: recepientC,
             outpath: outpathC)
         if r != 0 {
-            throw AppError.ageError
+            try throwError(code: r)
         }
     }
+
+    static private func throwError(code: CInt) throws {
+        let s = ffi_age_strerror()
+        guard let s else {
+            throw AppError.ageError("code \(code)")
+        }
+
+        let msg = String(cString: s)
+        ffi_free_cstring(s)
+
+        throw AppError.ageError(msg)
+    }
+
 }

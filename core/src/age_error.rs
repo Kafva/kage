@@ -5,6 +5,7 @@
 ///  https://jeltef.github.io/derive_more/derive_more/from.html
 #[derive(Debug)]
 pub enum AgeError {
+    GenericError,
     BadRecepient,
     BadCipherInput,
     BadKey,
@@ -43,6 +44,7 @@ impl std::fmt::Display for AgeError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         use AgeError::*;
         match self {
+            GenericError => f.write_str("Unexpected error"),
             BadRecepient => f.write_str("Bad recepient format"),
             BadCipherInput => f.write_str("Bad ciphertext format"),
             BadKey => f.write_str("Bad key format"),
