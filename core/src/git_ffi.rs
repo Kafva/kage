@@ -19,10 +19,7 @@ static GIT_LAST_ERROR: Lazy<Mutex<Option<git2::Error>>> =
 macro_rules! ffi_git_call {
     ($result:expr, $last_error:ident) => {
         match $result {
-            Ok(_) => {
-                *$last_error = None;
-                0
-            }
+            Ok(_) => 0,
             Err(err) => {
                 error!("{}", err);
                 *$last_error = Some(err);
@@ -172,9 +169,10 @@ pub extern "C" fn ffi_git_index_has_local_changes(
 
 /// Return a dynamically allocated string describing the last error that
 /// occurred. The string must be passed back to rust and freed!
+/// The internal last_error is cleared after being retrieved!
 #[no_mangle]
 pub extern "C" fn ffi_git_strerror() -> *const c_char {
-    let Some(ref git_last_error) = try_lock() else {
+    let Some(mut git_last_error) = try_lock() else {
         return std::ptr::null();
     };
     let Some(err) = git_last_error.as_ref() else {
@@ -183,6 +181,8 @@ pub extern "C" fn ffi_git_strerror() -> *const c_char {
     let Ok(s) = CString::new(err.message()) else {
         return std::ptr::null();
     };
+
+    *git_last_error = None;
     s.into_raw()
 }
 

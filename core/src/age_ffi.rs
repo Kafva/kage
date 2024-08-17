@@ -40,10 +40,7 @@ pub extern "C" fn ffi_age_unlock_identity(
             age_state.last_error = Some(err);
             -1
         }
-        _ => {
-            age_state.last_error = None;
-            0
-        }
+        _ => 0,
     }
 }
 
@@ -53,7 +50,6 @@ pub extern "C" fn ffi_age_lock_identity() -> c_int {
         return KAGE_ERROR_LOCK_TAKEN;
     };
     age_state.lock_identity();
-    age_state.last_error = None;
     0
 }
 
@@ -103,7 +99,6 @@ pub extern "C" fn ffi_age_encrypt(
         Ok(ciphertext) => match std::fs::write(outpath, &ciphertext) {
             Ok(_) => {
                 debug!("Wrote {} byte(s) to '{}'", ciphertext.len(), outfile);
-                age_state.last_error = None;
                 return 0;
             }
             Err(err) => {
@@ -151,7 +146,6 @@ pub extern "C" fn ffi_age_decrypt(
                     for i in 0..datalen {
                         out_slice[i] = data[i] as c_char
                     }
-                    age_state.last_error = None;
                     return datalen as c_int;
                 }
                 warn!(
@@ -171,11 +165,12 @@ pub extern "C" fn ffi_age_decrypt(
     -1
 }
 
-// Return a dynamically allocated string describing the last error that
-// occurred if any. The string must be passed back to rust and freed!
+/// Return a dynamically allocated string describing the last error that
+/// occurred if any. The string must be passed back to rust and freed!
+/// The internal last_error is cleared after being retrieved!
 #[no_mangle]
 pub extern "C" fn ffi_age_strerror() -> *const c_char {
-    let Some(age_state) = try_lock() else {
+    let Some(mut age_state) = try_lock() else {
         return std::ptr::null();
     };
     let Some(ref err) = age_state.last_error else {
@@ -184,6 +179,8 @@ pub extern "C" fn ffi_age_strerror() -> *const c_char {
     let Ok(s) = CString::new(err.to_string()) else {
         return std::ptr::null();
     };
+
+    age_state.last_error = None;
     s.into_raw()
 }
 
