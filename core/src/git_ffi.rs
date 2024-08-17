@@ -1,28 +1,9 @@
-use once_cell::sync::Lazy;
+use std::ffi::CString;
 use std::ffi::CStr;
 use std::os::raw::{c_char, c_int};
-use std::sync::Mutex;
 
 use crate::git::*;
 use crate::*;
-
-pub struct GitState {
-    initialized: bool,
-    last_error: Option<git2::Error>,
-}
-
-impl GitState {
-    pub fn default() -> Self {
-        Self {
-            initialized: false,
-            last_error: None,
-        }
-    }
-}
-
-// Persistent library state
-pub static GIT_STATE: Lazy<Mutex<GitState>> =
-    Lazy::new(|| Mutex::new(GitState::default()));
 
 macro_rules! ffi_git_call {
     ($result:expr) => {
@@ -41,9 +22,8 @@ pub extern "C" fn ffi_git_clone(
     url: *const c_char,
     into: *const c_char,
 ) -> c_int {
-    // let Some(mut git_state) = try_lock() else {
-    //     return -1;
-    // };
+    git_setup();
+
     let url = unsafe { CStr::from_ptr(url).to_str() };
     let into = unsafe { CStr::from_ptr(into).to_str() };
 
@@ -56,6 +36,8 @@ pub extern "C" fn ffi_git_clone(
 
 #[no_mangle]
 pub extern "C" fn ffi_git_pull(repo_path: *const c_char) -> c_int {
+    git_setup();
+
     let repo_path = unsafe { CStr::from_ptr(repo_path).to_str() };
 
     let Ok(repo_path) = repo_path else { return -1 };
@@ -65,6 +47,8 @@ pub extern "C" fn ffi_git_pull(repo_path: *const c_char) -> c_int {
 
 #[no_mangle]
 pub extern "C" fn ffi_git_push(repo_path: *const c_char) -> c_int {
+    git_setup();
+
     let repo_path = unsafe { CStr::from_ptr(repo_path).to_str() };
 
     let Ok(repo_path) = repo_path else { return -1 };
@@ -90,6 +74,8 @@ pub extern "C" fn ffi_git_stage(
 
 #[no_mangle]
 pub extern "C" fn ffi_git_reset(repo_path: *const c_char) -> c_int {
+    git_setup();
+
     let repo_path = unsafe { CStr::from_ptr(repo_path).to_str() };
 
     let Ok(repo_path) = repo_path else { return -1 };
@@ -144,16 +130,15 @@ pub extern "C" fn ffi_git_index_has_local_changes(
     }
 }
 
-// fn try_lock() -> Option<MutexGuard<'static, GitState>> {
-//     let Ok(age_state) = GIT_STATE.try_lock() else {
-//         error!("mutex lock already taken");
-//         return None;
-//     };
-//     Some(age_state)
-// }
-
-// #[no_mangle]
-// pub extern "C"
-// fn ffi_git_strerror() -> Vec<u8> {
-//     err.message().as_bytes().to_vec()
-// }
+/// Return a dynamically allocated string describing the last error that
+/// occurred if any. The string must be passed back to rust and freed!
+#[no_mangle]
+pub extern "C" fn ffi_git_strerror(code: c_int) -> *const c_char {
+    let Some(err) = git2::Error::last_error(code) else {
+        return std::ptr::null();
+    };
+    let Ok(s) = CString::new(err.message()) else {
+        return std::ptr::null();
+    };
+    s.into_raw()
+}

@@ -1,3 +1,4 @@
+use std::sync::Once;
 use std::path::Path;
 
 use git2::build::{CheckoutBuilder, RepoBuilder};
@@ -7,6 +8,7 @@ use git2::opts::{
     set_server_connect_timeout_in_milliseconds,
     set_server_timeout_in_milliseconds,
 };
+
 use git2::{FetchOptions, RemoteCallbacks, Repository};
 
 use crate::*;
@@ -24,28 +26,21 @@ const GIT_BRANCH: &'static str = env!("KAGE_GIT_BRANCH");
 #[cfg(test)]
 pub const GIT_BRANCH: &'static str = env!("KAGE_GIT_BRANCH");
 
-/// Initialize global options in the underlying library
-pub fn git_init_opts() -> Result<(), git2::Error> {
-    unsafe {
-        #[cfg(not(test))]
-        {
-            set_server_timeout_in_milliseconds(5000)?;
-            set_server_connect_timeout_in_milliseconds(5000)?;
-        }
+static ONCE: Once = Once::new();
 
-        #[cfg(test)]
-        {
-            set_server_timeout_in_milliseconds(1000)?;
-            set_server_connect_timeout_in_milliseconds(1000)?;
-        }
-
-        let timeout = get_server_timeout_in_milliseconds()?;
-        let connect_timeout = get_server_connect_timeout_in_milliseconds()?;
-
-        debug!("Configured read/write timeout: {} ms", timeout);
-        debug!("Configured connect timeout: {} ms", connect_timeout);
+macro_rules! internal_error {
+    () => {
+        git2::Error::new(
+            git2::ErrorCode::GenericError,
+            git2::ErrorClass::None,
+            "Internal error",
+        )
     };
-    Ok(())
+}
+
+/// One-time initialization of the underlying library
+pub fn git_setup() {
+    ONCE.call_once(|| git_init_opts().expect("Error initializing libgit2"));
 }
 
 pub fn git_pull(repo_path: &str) -> Result<(), git2::Error> {
@@ -185,7 +180,8 @@ pub fn git_commit(repo_path: &str, message: &str) -> Result<(), git2::Error> {
     });
 
     if is_clean {
-        return Err(internal_error("Refusing to create empty commit"));
+        error!("Refusing to create empty commit");
+        return Err(internal_error!());
     }
 
     let sig = repo.signature()?;
@@ -193,7 +189,8 @@ pub fn git_commit(repo_path: &str, message: &str) -> Result<(), git2::Error> {
     let tree = repo.find_tree(tree_id)?;
 
     let Some(oid) = head.target() else {
-        return Err(internal_error("HEAD unwrap error"));
+        error!("HEAD unwrap error");
+        return Err(internal_error!());
     };
     let parent_commit = repo.find_commit(oid)?;
 
@@ -275,6 +272,30 @@ pub fn git_config_set_user(
     Ok(())
 }
 
+/// Initialize global options in the underlying library
+fn git_init_opts() -> Result<(), git2::Error> {
+    unsafe {
+        #[cfg(not(test))]
+        {
+            set_server_timeout_in_milliseconds(5000)?;
+            set_server_connect_timeout_in_milliseconds(5000)?;
+        }
+
+        #[cfg(test)]
+        {
+            set_server_timeout_in_milliseconds(1000)?;
+            set_server_connect_timeout_in_milliseconds(1000)?;
+        }
+
+        let timeout = get_server_timeout_in_milliseconds()?;
+        let connect_timeout = get_server_connect_timeout_in_milliseconds()?;
+
+        debug!("Configured read/write timeout: {} ms", timeout);
+        debug!("Configured connect timeout: {} ms", connect_timeout);
+    };
+    Ok(())
+}
+
 fn remote_branch_oid(
     repo: &git2::Repository,
 ) -> Result<git2::Oid, git2::Error> {
@@ -306,12 +327,4 @@ fn transfer_progress(progress: git2::Progress, label: &str) -> bool {
     }
 
     true
-}
-
-fn internal_error(message: &str) -> git2::Error {
-    git2::Error::new(
-        git2::ErrorCode::GenericError,
-        git2::ErrorClass::None,
-        message,
-    )
 }

@@ -162,8 +162,8 @@ pub extern "C" fn ffi_age_decrypt(
     -1
 }
 
-// Return a dynamically allocated string describing the last error that occurred if any.
-// The string must be passed back to rust and freed!
+// Return a dynamically allocated string describing the last error that
+// occurred if any. The string must be passed back to rust and freed!
 #[no_mangle]
 pub extern "C" fn ffi_age_strerror() -> *const c_char {
     let Some(age_state) = try_lock() else {
