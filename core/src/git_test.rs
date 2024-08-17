@@ -241,12 +241,50 @@ fn git_stage_multiple_test() {
     ));
     assert_ok(git_push(repo_path));
 
-    // Remove folder1
+    // Remove folder
     rm_rf(&folder1_path);
 
     assert_ok(git_stage(repo_path, &folder1));
     assert_ok(git_commit(repo_path, &format!("Remove '{}'", folder1)));
     assert_ok(git_push(repo_path));
+}
+
+#[test]
+/// Commit messages can be retrieved
+fn git_log_test() {
+    git_setup();
+    let remote_path = &format!("{}/log_test.git", GIT_REMOTE_CLONE_URL);
+    let repo_path = &format!("{}/log_test", GIT_CLIENT_DIR);
+    let now = current_time();
+    let filename = &format!("file-{}", now);
+    let file_path = format!("{}/{}", repo_path, filename);
+    let msg1 = &format!("Add '{}'", filename);
+    let msg2 = &format!("Modified '{}'", filename);
+
+    clone(remote_path, repo_path);
+    fs::write(&file_path, "Content").expect("write file failed");
+    assert_ok(git_stage(repo_path, &filename));
+    assert_ok(git_commit(repo_path, msg1));
+    assert_ok(git_push(repo_path));
+    fs::write(&file_path, "Modified").expect("write file failed");
+    assert_ok(git_stage(repo_path, &filename));
+    assert_ok(git_commit(repo_path, msg2));
+    assert_ok(git_push(repo_path));
+
+    // Retrieve the `git log`
+    let r = git_log(repo_path);
+
+    if let Some(err) = r.as_ref().err() {
+        error!("{}", err);
+        assert!(r.is_ok())
+    }
+
+    // Check the messages of the two commits added during this test run
+    let arr = r.unwrap();
+    let len = arr.len();
+    assert!(len >= 2);
+    assert_eq!(arr[0].summary.as_str(), msg2);
+    assert_eq!(arr[1].summary.as_str(), msg1);
 }
 
 // Error cases /////////////////////////////////////////////////////////////////

@@ -1,5 +1,11 @@
 import Foundation
 
+struct CommitInfo {
+    let summary: UnsafePointer<CChar>
+    let summary_size: CInt
+    let timestamp: CInt
+}
+
 @_silgen_name("ffi_git_clone")
 func ffi_git_clone(
     _ url: UnsafePointer<CChar>,

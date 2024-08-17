@@ -169,7 +169,7 @@ pub extern "C" fn ffi_git_index_has_local_changes(
 
 /// Return a dynamically allocated string describing the last error that
 /// occurred. The string must be passed back to rust and freed!
-/// The internal last_error is cleared after being retrieved!
+/// The internal `last_error` is cleared after being retrieved!
 #[no_mangle]
 pub extern "C" fn ffi_git_strerror() -> *const c_char {
     let Some(mut git_last_error) = try_lock() else {
