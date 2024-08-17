@@ -1,7 +1,6 @@
 use std::ffi::{CStr, CString};
 use std::os::raw::c_char;
 
-
 #[no_mangle]
 pub extern "C" fn ffi_free_cstring(ptr: *mut c_char) {
     unsafe {
@@ -13,4 +12,3 @@ pub extern "C" fn ffi_free_cstring(ptr: *mut c_char) {
         drop(cstr)
     }
 }
-

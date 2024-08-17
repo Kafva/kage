@@ -185,9 +185,7 @@ pub fn git_commit(repo_path: &str, message: &str) -> Result<(), git2::Error> {
     });
 
     if is_clean {
-        let emsg = "Refusing to create empty commit";
-        error!("{}", emsg);
-        return Err(internal_error(emsg));
+        return Err(internal_error("Refusing to create empty commit"));
     }
 
     let sig = repo.signature()?;

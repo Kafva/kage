@@ -12,6 +12,9 @@ Usage: $(basename $0)
     run             Run git-daemon server for development
     unit            Setup git-daemon for unit tests
     stop            Stop git-daemon and cleanup
+
+OPTIONS:
+    -v              Verbose logging
 EOF
     exit 1
 }
@@ -115,13 +118,7 @@ git_server_unit() {
 
 git_server_restart() {
     git_server_stop
-    git daemon --base-path="$TOP/.testenv/kage-store" \
-               --enable=receive-pack \
-               --access-hook="$TOP/tools/ip-auth" \
-               --export-all \
-               --reuseaddr \
-               --verbose \
-               --informative-errors &
+    git daemon ${GIT_SERVER_ARGS[@]} &
 }
 
 git_server_exit() {
@@ -187,9 +184,26 @@ JAMES_REPO_REMOTE="$TOP/.testenv/kage-store/james.git"
 JAMES_REPO_CLIENT="$TOP/.testenv/kage-client/james"
 JAMES_KEY="$TOP/.testenv/kage-client/james/.age-identities"
 JAMES_PUBKEY="$TOP/.testenv/kage-client/james/.age-recipients"
+GIT_SERVER_ARGS=(
+    --base-path="$TOP/.testenv/kage-store"
+    --enable=receive-pack
+    --access-hook="$TOP/tools/ip-auth"
+    --export-all
+    --reuseaddr 
+    --informative-errors
+)
 CMD="$1"
 
 trap git_server_exit SIGINT
+
+while getopts ":hv" opt; do
+    case $opt in
+    v) GIT_SERVER_ARGS+=(--verbose) ;;
+    *) usage ;;
+    esac
+done
+
+shift $((OPTIND - 1))
 
 case "$CMD" in
 run)

@@ -368,12 +368,12 @@ fn clone(url: &str, into: &str) {
     assert_ok(git_config_set_user(into, GIT_USERNAME));
 }
 
-fn current_time() -> u64 {
+fn current_time() -> u128 {
     use std::time::{SystemTime, UNIX_EPOCH};
     SystemTime::now()
         .duration_since(UNIX_EPOCH)
         .unwrap()
-        .as_secs()
+        .as_millis()
 }
 
 fn external_push_file(repo_path: &str, filepath: &str) {

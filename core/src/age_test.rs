@@ -17,7 +17,7 @@ fn age_key_test() {
     let state = AgeState {
         identity: Some(identity),
         unlock_timestamp: Some(SystemTime::now()),
-        last_error: None
+        last_error: None,
     };
 
     let ciphertext = state.encrypt(PLAINTEXT, pubkey.to_string().as_str());
@@ -40,7 +40,7 @@ fn age_encrypted_key_test() {
     let mut state = AgeState {
         identity: None,
         unlock_timestamp: None,
-        last_error: None
+        last_error: None,
     };
 
     // Encrypt data with the public key
