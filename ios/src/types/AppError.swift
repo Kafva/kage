@@ -4,7 +4,7 @@ enum AppError: Error, LocalizedError {
     case urlError(String)
     case cStringError
     case ageError
-    case gitError(CInt)
+    case gitError(String)
 
     var errorDescription: String? {
         switch self {
@@ -14,8 +14,8 @@ enum AppError: Error, LocalizedError {
             return "Cstring conversion failure"
         case .ageError:
             return "Cryptographic operation error"
-        case .gitError(let code):
-            return "Git operation error (code \(code))"
+        case .gitError(let msg):
+            return "Git error: \(msg)"
         }
     }
 }

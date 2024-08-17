@@ -217,6 +217,8 @@ struct SettingsView: View {
             try Git.clone(remote: remote)
             try Git.configSetUser(username: reponame)
             try appState.reloadGitTree()
+            // Clear out any prior errors
+            appState.currentError = nil
         }
         catch {
             try? FileManager.default.removeItem(at: G.gitDir)

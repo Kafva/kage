@@ -35,6 +35,9 @@ func ffi_git_push(_ repo: UnsafePointer<CChar>) -> CInt
 @_silgen_name("ffi_git_index_has_local_changes")
 func ffi_git_index_has_local_changes(_ repo: UnsafePointer<CChar>) -> CInt
 
+@_silgen_name("ffi_git_strerror")
+func ffi_git_strerror(code: CInt) -> UnsafeMutablePointer<CChar>?
+
 ////////////////////////////////////////////////////////////////////////////////
 
 private let repo = G.gitDir
@@ -77,7 +80,7 @@ enum Git {
 
         let r = ffi_git_clone(urlC, into: repoC)
         if r != 0 {
-            throw AppError.gitError(r)
+            try throwError(code: r)
         }
     }
 
@@ -85,7 +88,7 @@ enum Git {
         let repoC = try repo.path().toCString()
         let r = ffi_git_pull(repoC)
         if r != 0 {
-            throw AppError.gitError(r)
+            try throwError(code: r)
         }
         G.logger.debug("Pull successful")
     }
@@ -94,7 +97,7 @@ enum Git {
         let repoC = try repo.path().toCString()
         let r = ffi_git_push(repoC)
         if r != 0 {
-            throw AppError.gitError(r)
+            try throwError(code: r)
         }
         G.logger.debug("Push successful")
     }
@@ -103,7 +106,7 @@ enum Git {
         let repoC = try repo.path().toCString()
         let r = ffi_git_index_has_local_changes(repoC)
         if r != 0 && r != 1 {
-            throw AppError.gitError(r)
+            try throwError(code: r)
         }
         return r == 1
     }
@@ -113,7 +116,7 @@ enum Git {
         let repoC = try repo.path().toCString()
         let r = ffi_git_reset(repoC)
         if r != 0 {
-            throw AppError.gitError(r)
+            try throwError(code: r)
         }
     }
 
@@ -122,7 +125,7 @@ enum Git {
         let usernameC = try username.toCString()
         let r = ffi_git_config_set_user(repoC, username: usernameC)
         if r != 0 {
-            throw AppError.gitError(r)
+            try throwError(code: r)
         }
     }
 
@@ -136,7 +139,7 @@ enum Git {
 
         let r = ffi_git_commit(repoC, message: messageC)
         if r != 0 {
-            throw AppError.gitError(r)
+            try throwError(code: r)
         }
     }
 
@@ -146,8 +149,20 @@ enum Git {
 
         let r = ffi_git_stage(repoC, relativePath: relativePathC)
         if r != 0 {
-            throw AppError.gitError(r)
+            try throwError(code: r)
         }
         G.logger.debug("Staged '\(relativePath)'")
+    }
+
+    static private func throwError(code: CInt) throws {
+        let s = ffi_git_strerror(code: code)
+        guard let s else {
+            throw AppError.gitError("No description")
+        }
+
+        let msg = String(cString: s)
+        ffi_free_cstring(s)
+
+        throw AppError.gitError(msg)
     }
 }

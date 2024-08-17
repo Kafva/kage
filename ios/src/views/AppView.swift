@@ -156,23 +156,23 @@ struct AppView: View {
                 !appState.hasLocalChanges && appState.currentError == nil
                     ? edgesSpacing : 0)
 
-            if appState.hasLocalChanges {
-                /* Sync status indicator */
-                Button {
-                    handleGitPush()
-                } label: {
-                    Image(systemName: "square.and.arrow.up").foregroundColor(
-                        .green)
-                }
-                .padding(.trailing, edgesSpacing)
-            }
-            else if appState.currentError != nil {
+            if appState.currentError != nil {
                 /* Error status indicator */
                 Button {
                     withAnimation { showErrors = true }
                 } label: {
                     Image(systemName: "exclamationmark.circle").foregroundColor(
                         G.errorColor)
+                }
+                .padding(.trailing, edgesSpacing)
+            }
+            else if appState.hasLocalChanges {
+                /* Sync status indicator */
+                Button {
+                    handleGitPush()
+                } label: {
+                    Image(systemName: "square.and.arrow.up").foregroundColor(
+                        .green)
                 }
                 .padding(.trailing, edgesSpacing)
             }

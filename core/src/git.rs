@@ -1,5 +1,5 @@
-use std::sync::Once;
 use std::path::Path;
+use std::sync::Once;
 
 use git2::build::{CheckoutBuilder, RepoBuilder};
 use git2::opts::{

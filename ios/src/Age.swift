@@ -29,9 +29,6 @@ func ffi_age_decrypt(
 @_silgen_name("ffi_age_strerror")
 func ffi_age_strerror() -> UnsafeMutablePointer<CChar>?
 
-@_silgen_name("ffi_free_cstring")
-func ffi_free_cstring(_ ptr: UnsafeMutablePointer<CChar>?)
-
 ////////////////////////////////////////////////////////////////////////////////
 
 enum Age {
