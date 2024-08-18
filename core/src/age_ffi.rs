@@ -4,6 +4,7 @@ use std::ffi::{CStr, CString};
 use std::os::raw::{c_char, c_int, c_ulonglong};
 use std::sync::{Mutex, MutexGuard};
 use std::time::SystemTime;
+use std::ptr::null;
 
 use once_cell::sync::Lazy;
 
@@ -113,45 +114,35 @@ pub extern "C" fn ffi_age_encrypt(
     -1
 }
 
+/// Returns the decrypted value for a given path, the returned pointer
+/// must be passed back to rust and freed!
 #[no_mangle]
 pub extern "C" fn ffi_age_decrypt(
     encrypted_path: *const c_char,
-    out: &mut c_char,
-    outsize: c_int,
-) -> c_int {
+) -> *const c_char {
     let Some(mut age_state) = try_lock() else {
-        return KAGE_ERROR_LOCK_TAKEN;
+        return null();
     };
 
     let encrypted_path = unsafe { CStr::from_ptr(encrypted_path).to_str() };
 
     let Ok(encrypted_path) = encrypted_path else {
         age_state.last_error = Some(AgeError::GenericError);
-        return -1;
+        return null();
     };
 
     let Some(filename) = path_to_filename(encrypted_path) else {
         age_state.last_error = Some(AgeError::GenericError);
-        return -1;
+        return null();
     };
 
     match std::fs::read(encrypted_path) {
         Ok(data) => match age_state.decrypt(data.as_slice()) {
             Ok(data) => {
-                let datalen = data.len();
-                if datalen < outsize as usize {
-                    let out_slice = unsafe {
-                        std::slice::from_raw_parts_mut(out, outsize as usize)
-                    };
-                    for i in 0..datalen {
-                        out_slice[i] = data[i] as c_char
-                    }
-                    return datalen as c_int;
-                }
-                warn!(
-                    "{}: Decryption output buffer to small: {} < {}",
-                    filename, datalen, outsize
-                );
+                let Ok(s) = CString::new(data) else {
+                    return null();
+                };
+                return s.into_raw()
             }
             Err(err) => {
                 error!("{}: {}", filename, err);
@@ -162,7 +153,7 @@ pub extern "C" fn ffi_age_decrypt(
             error!("{}: {}", filename, err);
         }
     }
-    -1
+    null()
 }
 
 /// Return a dynamically allocated string describing the last error that

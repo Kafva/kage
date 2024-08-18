@@ -1,4 +1,3 @@
-use std::ffi::c_void;
 use crate::ffi::FFIArray;
 use crate::ffi::KAGE_ERROR_LOCK_TAKEN;
 use once_cell::sync::Lazy;
@@ -7,6 +6,7 @@ use std::ffi::CString;
 use std::os::raw::{c_char, c_int};
 use std::sync::Mutex;
 use std::sync::MutexGuard;
+use std::ptr::null;
 
 use crate::git::*;
 use crate::*;
@@ -175,13 +175,13 @@ pub extern "C" fn ffi_git_index_has_local_changes(
 #[no_mangle]
 pub extern "C" fn ffi_git_strerror() -> *const c_char {
     let Some(mut git_last_error) = try_lock() else {
-        return std::ptr::null();
+        return null();
     };
     let Some(err) = git_last_error.as_ref() else {
-        return std::ptr::null();
+        return null();
     };
     let Ok(s) = CString::new(err.message()) else {
-        return std::ptr::null();
+        return null();
     };
 
     *git_last_error = None;
@@ -193,44 +193,29 @@ pub extern "C" fn ffi_git_strerror() -> *const c_char {
 #[no_mangle]
 pub extern "C" fn ffi_git_log(
     repo_path: *const c_char,
-    outarr: *const *const c_char,
-    outsize: c_int
-) -> c_int {
+) -> *const c_char {
     let Some(mut git_last_error) = try_lock() else {
-        return KAGE_ERROR_LOCK_TAKEN;
+        return null();
     };
     let repo_path = unsafe { CStr::from_ptr(repo_path).to_str() };
 
-    let Ok(repo_path) = repo_path else {
-        return -1
-    };
+    let Ok(repo_path) = repo_path else { return null() };
 
     match git_log(repo_path) {
         Ok(arr) => {
-            let arrlen = arr.len();
-            if arrlen < outsize as usize {
-                // let out_slice = unsafe {
-                //     std::slice::from_raw_parts_mut(out, outsize as usize)
-                // };
-                // for i in 0..arrlen {
-                //     out_slice[i] = data[i] as c_char
-                // }
-                // return arrlen as c_int;
-            }
-            warn!(
-                "Output array to small: {} < {}", arrlen, outsize
-            );
-            0
-        },
+            // TODO
+            let Ok(s) = CString::new(arr[0].clone()) else {
+                return null();
+            };
+            return s.into_raw()
+        }
         Err(err) => {
             error!("{}", err);
             *git_last_error = Some(err);
-            git_last_error.as_ref().unwrap().raw_code() as c_int
+            null()
         }
-
     }
 }
-
 
 fn try_lock() -> Option<MutexGuard<'static, Option<git2::Error>>> {
     let Ok(git_last_error) = GIT_LAST_ERROR.try_lock() else {

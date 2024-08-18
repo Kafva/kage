@@ -20,11 +20,7 @@ func ffi_age_encrypt(
 ) -> CInt
 
 @_silgen_name("ffi_age_decrypt")
-func ffi_age_decrypt(
-    encryptedFilepath: UnsafePointer<CChar>,
-    out: UnsafeMutableRawPointer,
-    outsize: CInt
-) -> CInt
+func ffi_age_decrypt(encryptedFilepath: UnsafePointer<CChar>) -> UnsafeMutablePointer<CChar>?
 
 @_silgen_name("ffi_age_strerror")
 func ffi_age_strerror() -> UnsafeMutablePointer<CChar>?
@@ -66,26 +62,19 @@ enum Age {
 
     static func decrypt(_ at: URL) throws -> String {
         let pathC = try at.path().toCString()
-        let outC = UnsafeMutableRawPointer.allocate(
-            byteCount:
-                Int(G.ageDecryptOutSize),
-            alignment: 1)
 
-        let written = ffi_age_decrypt(
-            encryptedFilepath: pathC,
-            out: outC,
-            outsize: G.ageDecryptOutSize)
+        let plaintextC = ffi_age_decrypt(encryptedFilepath: pathC)
 
-        if written <= 0 {
-            outC.deallocate()
-            try throwError(code: written)
+        guard let plaintextC else {
+            try throwError(code: -1)
+            return "" // Should never happen
         }
-        let data = Data(bytes: outC, count: Int(written))
 
-        let plaintext = String(decoding: data, as: UTF8.self)
+        let plaintext = String(cString: plaintextC)
             .trimmingCharacters(in: .whitespacesAndNewlines)
 
-        outC.deallocate()
+        ffi_free_cstring(plaintextC);
+
         return plaintext
     }
 

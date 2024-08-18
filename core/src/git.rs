@@ -289,10 +289,8 @@ pub fn git_log(repo_path: &str) -> Result<Vec<String>, git2::Error> {
             break;
         };
 
-        let commit_info = format!("{}\n{}", 
-            commit.time().seconds(),
-            summary.to_string(),
-        );
+        let commit_info =
+            format!("{}\n{}", commit.time().seconds(), summary.to_string(),);
         arr.push(commit_info)
     }
     Ok(arr)
