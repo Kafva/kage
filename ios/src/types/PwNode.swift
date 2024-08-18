@@ -42,6 +42,10 @@ struct PwNode: Identifiable {
         return s.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
     }
 
+    var relativePathNoExtension: String {
+        relativePath.deletingSuffix(".age")
+    }
+
     var isLeaf: Bool {
         return (children ?? []).isEmpty
     }

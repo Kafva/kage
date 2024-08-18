@@ -20,7 +20,8 @@ func ffi_age_encrypt(
 ) -> CInt
 
 @_silgen_name("ffi_age_decrypt")
-func ffi_age_decrypt(encryptedFilepath: UnsafePointer<CChar>) -> UnsafeMutablePointer<CChar>?
+func ffi_age_decrypt(encryptedFilepath: UnsafePointer<CChar>)
+    -> UnsafeMutablePointer<CChar>?
 
 @_silgen_name("ffi_age_strerror")
 func ffi_age_strerror() -> UnsafeMutablePointer<CChar>?
@@ -67,13 +68,13 @@ enum Age {
 
         guard let plaintextC else {
             try throwError(code: -1)
-            return "" // Should never happen
+            return ""  // Prior call always throws, this should never happen
         }
 
         let plaintext = String(cString: plaintextC)
             .trimmingCharacters(in: .whitespacesAndNewlines)
 
-        ffi_free_cstring(plaintextC);
+        ffi_free_cstring(plaintextC)
 
         return plaintext
     }

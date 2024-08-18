@@ -3,6 +3,7 @@ import Foundation
 enum AppError: Error, LocalizedError {
     case urlError(String)
     case cStringError
+    case invalidCommit
     case ageError(String)
     case gitError(String)
 
@@ -10,6 +11,8 @@ enum AppError: Error, LocalizedError {
         switch self {
         case .urlError(let value):
             return "URL parsing failure: \(value)"
+        case .invalidCommit:
+            return "Invalid commit metadata"
         case .cStringError:
             return "Cstring conversion failure"
         case .ageError(let msg):

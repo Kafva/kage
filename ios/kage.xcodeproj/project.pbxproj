@@ -26,6 +26,7 @@
 		D01503049DD6310B8F8E5640 /* PwNodeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5AD9E33A1B0C03156A54DC9 /* PwNodeView.swift */; };
 		DD6D27002C5E5C5700B8089C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DD6D26FF2C5E5C5700B8089C /* Assets.xcassets */; };
 		DD728F762B9392EF00A4BC99 /* libiconv.2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = DD728F752B9392DA00A4BC99 /* libiconv.2.tbd */; };
+		DDBC8BA370FC2B4A8BEB153F /* CommitInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4093DCFAB0E3D446DF6E07A0 /* CommitInfo.swift */; };
 		DDE56F8D2C569F210072C726 /* libz.1.2.12.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = DDE56F8C2C569F210072C726 /* libz.1.2.12.tbd */; };
 		DDFB7FA92C56A43A00972D43 /* libkage_core.a in Frameworks */ = {isa = PBXBuildFile; fileRef = DDFB7FA82C56A43A00972D43 /* libkage_core.a */; };
 		DE05C76D3D3D227CCBFA851F /* TileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FDA32EA556C590828725DDA5 /* TileView.swift */; };
@@ -41,6 +42,7 @@
 		3118AF56BFFD2B6B380F11BF /* URL.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = URL.swift; path = extensions/URL.swift; sourceTree = "<group>"; };
 		3B56BBAAFA1CAE547B46EBC3 /* AppView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AppView.swift; path = views/AppView.swift; sourceTree = "<group>"; };
 		3F64EF6F53B5743A7C3BC877 /* AppState.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
+		4093DCFAB0E3D446DF6E07A0 /* CommitInfo.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CommitInfo.swift; path = types/CommitInfo.swift; sourceTree = "<group>"; };
 		4608B9EDE0D43093B05C59E1 /* DeviceLogger.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DeviceLogger.swift; sourceTree = "<group>"; };
 		4925140419BF971C72C7B0D8 /* PlaintextView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = PlaintextView.swift; path = views/PlaintextView.swift; sourceTree = "<group>"; };
 		53FFC16B27941969597BA5FA /* SettingsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SettingsView.swift; path = views/SettingsView.swift; sourceTree = "<group>"; };
@@ -115,6 +117,7 @@
 				F3C62CB04243765AF854D04D /* MessageView.swift */,
 				58FE20EC6ADD9E74FF57F4C3 /* G.swift */,
 				E1AC5455F9011E92EC973934 /* ErrorView.swift */,
+				4093DCFAB0E3D446DF6E07A0 /* CommitInfo.swift */,
 			);
 			path = src;
 			sourceTree = "<group>";
@@ -271,6 +274,7 @@
 				E7A862E957BA61F7992DD364 /* MessageView.swift in Sources */,
 				4ECF16A48B281796EE6CB4D2 /* G.swift in Sources */,
 				3F1CC9B2E60771104CCD4A7D /* ErrorView.swift in Sources */,
+				DDBC8BA370FC2B4A8BEB153F /* CommitInfo.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

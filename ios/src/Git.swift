@@ -1,7 +1,7 @@
 import Foundation
 
-struct FFIArray {
-    let data: UnsafeRawPointer
+struct CStringArray {
+    let data: UnsafePointer<UnsafeMutablePointer<CChar>?>
     let len: CInt
 }
 
@@ -41,7 +41,7 @@ func ffi_git_push(_ repo: UnsafePointer<CChar>) -> CInt
 func ffi_git_index_has_local_changes(_ repo: UnsafePointer<CChar>) -> CInt
 
 @_silgen_name("ffi_git_log")
-func ffi_git_log(_ repo: UnsafePointer<CChar>) -> FFIArray
+func ffi_git_log(_ repo: UnsafePointer<CChar>) -> CStringArray
 
 @_silgen_name("ffi_git_strerror")
 func ffi_git_strerror() -> UnsafeMutablePointer<CChar>?
@@ -55,7 +55,8 @@ enum Git {
     static func addCommit(node: PwNode, nodeIsNew: Bool) throws {
         try Git.stage(relativePath: node.relativePath)
         try Git.commit(
-            message: "\(nodeIsNew ? "Added" : "Changed") '\(node.relativePath)'"
+            message:
+                "\(nodeIsNew ? "Added" : "Changed") \(node.relativePathNoExtension)"
         )
     }
 
@@ -63,7 +64,7 @@ enum Git {
     static func rmCommit(node: PwNode) throws {
         try FileManager.default.removeItem(at: node.url)
         try Git.stage(relativePath: node.relativePath)
-        try Git.commit(message: "Deleted '\(node.relativePath)'")
+        try Git.commit(message: "Deleted \(node.relativePathNoExtension)")
     }
 
     /// Move a file or folder and create a commit with the change
@@ -76,7 +77,7 @@ enum Git {
         try Git.stage(relativePath: toNode.relativePath)
 
         let msg =
-            "Renamed '\(fromNode.relativePath)' to '\(toNode.relativePath)'"
+            "Renamed \(fromNode.relativePathNoExtension) to \(toNode.relativePathNoExtension)"
         try Git.commit(message: msg)
     }
 
@@ -137,23 +138,28 @@ enum Git {
         }
     }
 
-    static func log() throws {
+    static func log() throws -> [CommitInfo] {
         G.logger.warning("Fetching commit messages")
+        var messages = [CommitInfo]()
+
         let repoC = try repo.path().toCString()
         let arr = ffi_git_log(repoC)
         if arr.len < 0 {
             try throwError(code: arr.len)
         }
-        let data = arr.data.bindMemory(
-            to: UnsafeMutablePointer<CChar>.self,
-            capacity: Int(arr.len))
-        let buffer = UnsafeBufferPointer(start: data, count: Int(arr.len))
-        let messages = Array(buffer)
 
-        for m in messages {
-            G.logger.debug("\(m)")
-            //ffi_free_cstring(m);
+        for i in 0..<Int(arr.len) {
+            if let cString = arr.data[i] {
+
+                let str = String(cString: cString)
+                ffi_free_cstring(cString)
+
+                let commitInfo = try CommitInfo.from(str)
+                messages.append(commitInfo)
+            }
         }
+
+        return messages
     }
 
     static func repoIsEmpty() -> Bool {

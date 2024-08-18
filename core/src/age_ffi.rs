@@ -2,9 +2,9 @@ use crate::age_error::AgeError;
 use crate::ffi::KAGE_ERROR_LOCK_TAKEN;
 use std::ffi::{CStr, CString};
 use std::os::raw::{c_char, c_int, c_ulonglong};
+use std::ptr::null;
 use std::sync::{Mutex, MutexGuard};
 use std::time::SystemTime;
-use std::ptr::null;
 
 use once_cell::sync::Lazy;
 
@@ -142,7 +142,7 @@ pub extern "C" fn ffi_age_decrypt(
                 let Ok(s) = CString::new(data) else {
                     return null();
                 };
-                return s.into_raw()
+                return s.into_raw();
             }
             Err(err) => {
                 error!("{}: {}", filename, err);

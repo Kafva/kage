@@ -1,12 +1,12 @@
-use crate::ffi::FFIArray;
+use crate::ffi::CStringArray;
 use crate::ffi::KAGE_ERROR_LOCK_TAKEN;
 use once_cell::sync::Lazy;
 use std::ffi::CStr;
 use std::ffi::CString;
 use std::os::raw::{c_char, c_int};
+use std::ptr::null;
 use std::sync::Mutex;
 use std::sync::MutexGuard;
-use std::ptr::null;
 
 use crate::git::*;
 use crate::*;
@@ -169,6 +169,58 @@ pub extern "C" fn ffi_git_index_has_local_changes(
     }
 }
 
+/// Return an array of commit messages as "<timtestamp>\n<summary>" strings.
+/// Each string must be passed back to rust and freed!
+#[no_mangle]
+pub extern "C" fn ffi_git_log(repo_path: *const c_char) -> CStringArray {
+    let Some(mut git_last_error) = try_lock() else {
+        return CStringArray {
+            ptr: null(),
+            len: -1,
+        };
+    };
+    let repo_path = unsafe { CStr::from_ptr(repo_path).to_str() };
+
+    let Ok(repo_path) = repo_path else {
+        return CStringArray {
+            ptr: null(),
+            len: 0,
+        };
+    };
+
+    match git_log(repo_path) {
+        Ok(arr) => {
+            let len = arr.len() as c_int;
+            let data = arr
+                .into_iter()
+                .map(|s| {
+                    let Ok(cs) = CString::new(s) else {
+                        return null();
+                    };
+                    cs.into_raw()
+                })
+                .collect::<Vec<_>>();
+
+            let ptr = data.as_ptr();
+
+            // Prevent the `data` vector from being deallocated when leaving
+            // scope, we need to free this manually later!
+            // TODO: is it enough to free each cstring?
+            std::mem::forget(data);
+
+            return CStringArray { ptr, len };
+        }
+        Err(err) => {
+            error!("{}", err);
+            *git_last_error = Some(err);
+            CStringArray {
+                ptr: null(),
+                len: -1,
+            }
+        }
+    }
+}
+
 /// Return a dynamically allocated string describing the last error that
 /// occurred. The string must be passed back to rust and freed!
 /// The internal `last_error` is cleared after being retrieved!
@@ -186,35 +238,6 @@ pub extern "C" fn ffi_git_strerror() -> *const c_char {
 
     *git_last_error = None;
     s.into_raw()
-}
-
-/// Return an array of commit messages as "<timtestamp>\n<summary>" strings.
-/// Each string must be passed back to rust and freed!
-#[no_mangle]
-pub extern "C" fn ffi_git_log(
-    repo_path: *const c_char,
-) -> *const c_char {
-    let Some(mut git_last_error) = try_lock() else {
-        return null();
-    };
-    let repo_path = unsafe { CStr::from_ptr(repo_path).to_str() };
-
-    let Ok(repo_path) = repo_path else { return null() };
-
-    match git_log(repo_path) {
-        Ok(arr) => {
-            // TODO
-            let Ok(s) = CString::new(arr[0].clone()) else {
-                return null();
-            };
-            return s.into_raw()
-        }
-        Err(err) => {
-            error!("{}", err);
-            *git_last_error = Some(err);
-            null()
-        }
-    }
 }
 
 fn try_lock() -> Option<MutexGuard<'static, Option<git2::Error>>> {
