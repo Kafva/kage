@@ -24,6 +24,8 @@ macro_rules! level_to_color {
 #[macro_export]
 macro_rules! debug {
     ($($args:tt)*) => {
+        // Do not include debug output in release builds
+        #[cfg(debug_assertions)]
         log!("DEBUG", $($args)*)
     };
 }

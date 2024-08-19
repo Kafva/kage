@@ -16,9 +16,12 @@ CONFIGURATION=${CONFIGURATION:-Debug}
 PATH="$PATH:$HOME/.cargo/bin"
 LIB="libkage_core.a"
 
-# Always build for release.
-CARGO_BUILDTYPE=release
-CARGO_FLAGS=" --release"
+if [ "$CONFIGURATION" = Debug ]; then
+    CARGO_BUILDTYPE=debug
+else
+    CARGO_BUILDTYPE=release
+    CARGO_FLAGS=" --release"
+fi
 
 rm -f "$SOURCE_ROOT/dist/$LIB"
 

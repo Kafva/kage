@@ -37,7 +37,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		DDA764BA2C730800000B9B23 /* PBXContainerItemProxy */ = {
+		DDC84DF82C730C25003E009D /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = DDA4B6212AFDF6A00046DFCE /* Project object */;
 			proxyType = 1;
@@ -69,7 +69,7 @@
 		DD6D26FF2C5E5C5700B8089C /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		DD728F752B9392DA00A4BC99 /* libiconv.2.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libiconv.2.tbd; path = usr/lib/libiconv.2.tbd; sourceTree = SDKROOT; };
 		DDA4B6292AFDF6A00046DFCE /* kage.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = kage.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		DDA764B42C730800000B9B23 /* kageUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = kageUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		DDC84DF42C730C25003E009D /* kageTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = kageTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		DDE56F8C2C569F210072C726 /* libz.1.2.12.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.1.2.12.tbd; path = usr/lib/libz.1.2.12.tbd; sourceTree = SDKROOT; };
 		DDFB7FA82C56A43A00972D43 /* libkage_core.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libkage_core.a; path = dist/libkage_core.a; sourceTree = "<group>"; };
 		E1AC5455F9011E92EC973934 /* ErrorView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ErrorView.swift; path = views/ErrorView.swift; sourceTree = "<group>"; };
@@ -79,7 +79,7 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		DDA764B52C730800000B9B23 /* kageUITests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = kageUITests; sourceTree = "<group>"; };
+		DDC84DF52C730C25003E009D /* tests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = tests; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -93,7 +93,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		DDA764B12C730800000B9B23 /* Frameworks */ = {
+		DDC84DF12C730C25003E009D /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -148,7 +148,7 @@
 			isa = PBXGroup;
 			children = (
 				DD0ADA602C57580E0006B2E8 /* src */,
-				DDA764B52C730800000B9B23 /* kageUITests */,
+				DDC84DF52C730C25003E009D /* tests */,
 				DDA4B62A2AFDF6A00046DFCE /* Products */,
 				0637CFE505AED851B4CE663F /* Frameworks */,
 			);
@@ -158,7 +158,7 @@
 			isa = PBXGroup;
 			children = (
 				DDA4B6292AFDF6A00046DFCE /* kage.app */,
-				DDA764B42C730800000B9B23 /* kageUITests.xctest */,
+				DDC84DF42C730C25003E009D /* kageTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -185,28 +185,28 @@
 			productReference = DDA4B6292AFDF6A00046DFCE /* kage.app */;
 			productType = "com.apple.product-type.application";
 		};
-		DDA764B32C730800000B9B23 /* kageUITests */ = {
+		DDC84DF32C730C25003E009D /* kageTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = DDA764BE2C730800000B9B23 /* Build configuration list for PBXNativeTarget "kageUITests" */;
+			buildConfigurationList = DDC84DFA2C730C25003E009D /* Build configuration list for PBXNativeTarget "kageTests" */;
 			buildPhases = (
-				DDA764B02C730800000B9B23 /* Sources */,
-				DDA764B12C730800000B9B23 /* Frameworks */,
-				DDA764B22C730800000B9B23 /* Resources */,
+				DDC84DF02C730C25003E009D /* Sources */,
+				DDC84DF12C730C25003E009D /* Frameworks */,
+				DDC84DF22C730C25003E009D /* Resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				DDA764BB2C730800000B9B23 /* PBXTargetDependency */,
+				DDC84DF92C730C25003E009D /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
-				DDA764B52C730800000B9B23 /* kageUITests */,
+				DDC84DF52C730C25003E009D /* tests */,
 			);
-			name = kageUITests;
+			name = kageTests;
 			packageProductDependencies = (
 			);
-			productName = kageUITests;
-			productReference = DDA764B42C730800000B9B23 /* kageUITests.xctest */;
-			productType = "com.apple.product-type.bundle.ui-testing";
+			productName = kageTests;
+			productReference = DDC84DF42C730C25003E009D /* kageTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
 
@@ -221,7 +221,7 @@
 					DDA4B6282AFDF6A00046DFCE = {
 						CreatedOnToolsVersion = 15.0.1;
 					};
-					DDA764B32C730800000B9B23 = {
+					DDC84DF32C730C25003E009D = {
 						CreatedOnToolsVersion = 16.0;
 						TestTargetID = DDA4B6282AFDF6A00046DFCE;
 					};
@@ -241,7 +241,7 @@
 			projectRoot = "";
 			targets = (
 				DDA4B6282AFDF6A00046DFCE /* kage */,
-				DDA764B32C730800000B9B23 /* kageUITests */,
+				DDC84DF32C730C25003E009D /* kageTests */,
 			);
 		};
 /* End PBXProject section */
@@ -255,7 +255,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		DDA764B22C730800000B9B23 /* Resources */ = {
+		DDC84DF22C730C25003E009D /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -337,7 +337,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		DDA764B02C730800000B9B23 /* Sources */ = {
+		DDC84DF02C730C25003E009D /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -347,10 +347,10 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		DDA764BB2C730800000B9B23 /* PBXTargetDependency */ = {
+		DDC84DF92C730C25003E009D /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = DDA4B6282AFDF6A00046DFCE /* kage */;
-			targetProxy = DDA764BA2C730800000B9B23 /* PBXContainerItemProxy */;
+			targetProxy = DDC84DF82C730C25003E009D /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -552,9 +552,10 @@
 			};
 			name = Release;
 		};
-		DDA764BC2C730800000B9B23 /* Debug */ = {
+		DDC84DFB2C730C25003E009D /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = R394CK45KY;
@@ -562,7 +563,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = kafva.kageUITests;
+				PRODUCT_BUNDLE_IDENTIFIER = kafva.kageTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
@@ -571,13 +572,14 @@
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
-				TEST_TARGET_NAME = kage;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/kage.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/kage";
 			};
 			name = Debug;
 		};
-		DDA764BD2C730800000B9B23 /* Release */ = {
+		DDC84DFC2C730C25003E009D /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = R394CK45KY;
@@ -585,7 +587,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = kafva.kageUITests;
+				PRODUCT_BUNDLE_IDENTIFIER = kafva.kageTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
@@ -594,7 +596,7 @@
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
-				TEST_TARGET_NAME = kage;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/kage.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/kage";
 			};
 			name = Release;
 		};
@@ -619,11 +621,11 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		DDA764BE2C730800000B9B23 /* Build configuration list for PBXNativeTarget "kageUITests" */ = {
+		DDC84DFA2C730C25003E009D /* Build configuration list for PBXNativeTarget "kageTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				DDA764BC2C730800000B9B23 /* Debug */,
-				DDA764BD2C730800000B9B23 /* Release */,
+				DDC84DFB2C730C25003E009D /* Debug */,
+				DDC84DFC2C730C25003E009D /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
