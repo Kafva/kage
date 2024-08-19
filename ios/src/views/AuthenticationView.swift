@@ -11,16 +11,21 @@ struct AuthenticationView: View {
             Text("Authentication required")
             SecureField("Passphrase", text: $passphrase)
                 .textFieldStyle(.roundedBorder)
+                .textContentType(.none)
                 .onSubmit { submit() }
                 .padding(.bottom, 20)
             HStack {
                 Button("Cancel") {
-                    showView = false
+                    withAnimation {
+                        showView = false
+                    }
                 }
                 .padding(.leading, 10)
                 Spacer()
                 Button("Ok") {
-                    submit()
+                    withAnimation {
+                        submit()
+                    }
                 }
                 .padding(.trailing, 10)
             }
@@ -34,7 +39,6 @@ struct AuthenticationView: View {
         }
         catch {
             G.logger.debug("Incorrect password")
-            return
         }
     }
 }

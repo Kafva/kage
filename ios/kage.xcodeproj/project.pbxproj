@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 56;
+	objectVersion = 70;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -36,6 +36,16 @@
 		F29F4F7C77539F7248D29841 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53FFC16B27941969597BA5FA /* SettingsView.swift */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		DDA764BA2C730800000B9B23 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = DDA4B6212AFDF6A00046DFCE /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = DDA4B6282AFDF6A00046DFCE;
+			remoteInfo = kage;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
 		053F01E1B08FD597C103AB7E /* AppError.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AppError.swift; path = types/AppError.swift; sourceTree = "<group>"; };
 		1D1B4443C32473991D6FF753 /* AuthenticationView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AuthenticationView.swift; path = views/AuthenticationView.swift; sourceTree = "<group>"; };
@@ -59,6 +69,7 @@
 		DD6D26FF2C5E5C5700B8089C /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		DD728F752B9392DA00A4BC99 /* libiconv.2.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libiconv.2.tbd; path = usr/lib/libiconv.2.tbd; sourceTree = SDKROOT; };
 		DDA4B6292AFDF6A00046DFCE /* kage.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = kage.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		DDA764B42C730800000B9B23 /* kageUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = kageUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		DDE56F8C2C569F210072C726 /* libz.1.2.12.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.1.2.12.tbd; path = usr/lib/libz.1.2.12.tbd; sourceTree = SDKROOT; };
 		DDFB7FA82C56A43A00972D43 /* libkage_core.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libkage_core.a; path = dist/libkage_core.a; sourceTree = "<group>"; };
 		E1AC5455F9011E92EC973934 /* ErrorView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ErrorView.swift; path = views/ErrorView.swift; sourceTree = "<group>"; };
@@ -66,6 +77,10 @@
 		FCD57CC8EEE4290B3C5ED21D /* String.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = String.swift; path = extensions/String.swift; sourceTree = "<group>"; };
 		FDA32EA556C590828725DDA5 /* TileView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TileView.swift; path = views/TileView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		DDA764B52C730800000B9B23 /* kageUITests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = kageUITests; sourceTree = "<group>"; };
+/* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		DDA4B6262AFDF6A00046DFCE /* Frameworks */ = {
@@ -75,6 +90,13 @@
 				DDFB7FA92C56A43A00972D43 /* libkage_core.a in Frameworks */,
 				DDE56F8D2C569F210072C726 /* libz.1.2.12.tbd in Frameworks */,
 				DD728F762B9392EF00A4BC99 /* libiconv.2.tbd in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DDA764B12C730800000B9B23 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -126,6 +148,7 @@
 			isa = PBXGroup;
 			children = (
 				DD0ADA602C57580E0006B2E8 /* src */,
+				DDA764B52C730800000B9B23 /* kageUITests */,
 				DDA4B62A2AFDF6A00046DFCE /* Products */,
 				0637CFE505AED851B4CE663F /* Frameworks */,
 			);
@@ -135,6 +158,7 @@
 			isa = PBXGroup;
 			children = (
 				DDA4B6292AFDF6A00046DFCE /* kage.app */,
+				DDA764B42C730800000B9B23 /* kageUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -161,6 +185,29 @@
 			productReference = DDA4B6292AFDF6A00046DFCE /* kage.app */;
 			productType = "com.apple.product-type.application";
 		};
+		DDA764B32C730800000B9B23 /* kageUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = DDA764BE2C730800000B9B23 /* Build configuration list for PBXNativeTarget "kageUITests" */;
+			buildPhases = (
+				DDA764B02C730800000B9B23 /* Sources */,
+				DDA764B12C730800000B9B23 /* Frameworks */,
+				DDA764B22C730800000B9B23 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				DDA764BB2C730800000B9B23 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				DDA764B52C730800000B9B23 /* kageUITests */,
+			);
+			name = kageUITests;
+			packageProductDependencies = (
+			);
+			productName = kageUITests;
+			productReference = DDA764B42C730800000B9B23 /* kageUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -168,11 +215,15 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 1500;
+				LastSwiftUpdateCheck = 1600;
 				LastUpgradeCheck = 1500;
 				TargetAttributes = {
 					DDA4B6282AFDF6A00046DFCE = {
 						CreatedOnToolsVersion = 15.0.1;
+					};
+					DDA764B32C730800000B9B23 = {
+						CreatedOnToolsVersion = 16.0;
+						TestTargetID = DDA4B6282AFDF6A00046DFCE;
 					};
 				};
 			};
@@ -190,6 +241,7 @@
 			projectRoot = "";
 			targets = (
 				DDA4B6282AFDF6A00046DFCE /* kage */,
+				DDA764B32C730800000B9B23 /* kageUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -200,6 +252,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				DD6D27002C5E5C5700B8089C /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DDA764B22C730800000B9B23 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -278,7 +337,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		DDA764B02C730800000B9B23 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		DDA764BB2C730800000B9B23 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = DDA4B6282AFDF6A00046DFCE /* kage */;
+			targetProxy = DDA764BA2C730800000B9B23 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		DDA4B6352AFDF6A10046DFCE /* Debug */ = {
@@ -478,6 +552,52 @@
 			};
 			name = Release;
 		};
+		DDA764BC2C730800000B9B23 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = R394CK45KY;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = kafva.kageUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_TARGET_NAME = kage;
+			};
+			name = Debug;
+		};
+		DDA764BD2C730800000B9B23 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = R394CK45KY;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = kafva.kageUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_TARGET_NAME = kage;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -495,6 +615,15 @@
 			buildConfigurations = (
 				DDA4B6382AFDF6A10046DFCE /* Debug */,
 				DDA4B6392AFDF6A10046DFCE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		DDA764BE2C730800000B9B23 /* Build configuration list for PBXNativeTarget "kageUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DDA764BC2C730800000B9B23 /* Debug */,
+				DDA764BD2C730800000B9B23 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

@@ -100,7 +100,7 @@ struct PwNode: Identifiable {
 
     /// Retrieve a list of all folder paths in the tree
     func flatFolders() -> [PwNode] {
-        if self.isLeaf {
+        if !self.isDir {
             return []
         }
 

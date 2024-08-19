@@ -7,7 +7,7 @@ struct PwNodeView: View {
     @Binding var showView: Bool
     @Binding var targetNode: PwNode?
 
-    @State private var nodeType: PwNodeType = .folder
+    @State private var nodeType: PwNodeType = .password
     @State private var selectedFolder = G.rootNodeName
     @State private var selectedName = ""
     @State private var password = ""

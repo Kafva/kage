@@ -87,6 +87,7 @@ git_server_setup() {
 git_server_unit() {
     rm -rf "${TOP?}/.testenv"
 
+    # Make sure the tests compile
     (cd $TOP/core && cargo test --no-run -- -q --list) || die "Error compiling tests"
 
     mkdir -p $TOP/.testenv/kage-store

@@ -16,7 +16,6 @@ struct AppView: View {
 
     var body: some View {
         let width = showPlaintext ? 0.8 * G.screenWidth : G.screenWidth
-        let height = showPlaintext ? 0.3 * G.screenHeight : G.screenHeight
         let opacity = 0.97
 
         NavigationStack {
@@ -46,7 +45,7 @@ struct AppView: View {
                     {
                         Color(UIColor.systemBackground).opacity(opacity)
                         overlayView
-                            .frame(width: width, height: height)
+                            .frame(width: width, height: G.screenHeight)
                             .transition(.move(edge: .bottom))
                     }
                 }
@@ -68,43 +67,47 @@ struct AppView: View {
 
     private var overlayView: some View {
         VStack {
-            if showPwNode {
-                if targetNode != nil {
-                    /* Edit view */
-                    PwNodeView(
-                        showView: $showPwNode,
+            Group {
+                if showPwNode {
+                    if targetNode != nil {
+                        /* Edit view */
+                        PwNodeView(
+                            showView: $showPwNode,
+                            targetNode: $targetNode)
+                    }
+                    else {
+                        /* New password or folder view */
+                        PwNodeView(
+                            showView: $showPwNode,
+                            targetNode: $targetNode)
+                    }
+                }
+                else if showSettings {
+                    /* Settings view */
+                    SettingsView(showView: $showSettings)
+                }
+                else if showErrors {
+                    /* Error description view */
+                    ErrorView(showView: $showErrors)
+                }
+                else if appState.identityIsUnlocked {
+                    /* Password in plaintext */
+                    PlaintextView(
+                        showView: $showPlaintext,
                         targetNode: $targetNode)
                 }
                 else {
-                    /* New password or folder view */
-                    PwNodeView(
-                        showView: $showPwNode,
-                        targetNode: $targetNode)
+                    /* Password entry */
+                    AuthenticationView(showView: $showPlaintext)
                 }
             }
-            else if showSettings {
-                /* Settings view */
-                SettingsView(showView: $showSettings)
-            }
-            else if showErrors {
-                /* Error description view */
-                ErrorView(showView: $showErrors)
-            }
-            else if appState.identityIsUnlocked {
-                /* Password in plaintext */
-                PlaintextView(
-                    showView: $showPlaintext,
-                    targetNode: $targetNode)
-            }
-            else {
-                /* Password entry */
-                AuthenticationView(showView: $showPlaintext)
-            }
+            .padding(.top, 150)
+            .padding(.bottom, 100)
+            // Push everything up
+            Spacer()
         }
         // Disable default background for `Form`
         .scrollContentBackground(.hidden)
-        .padding(.top, 150)
-        .padding(.bottom, 100)
     }
 
     private var toolbarView: some View {
