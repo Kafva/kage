@@ -5,9 +5,10 @@ edition = "2021"
 authors = ["Kafva"]
 
 [lib]
-# For the ffi bindings to work on target, a static library is easiest
-crate-type = ["staticlib"]
 name = "kage_core"
+# For the ffi bindings to work on target, a static library is easiest (on iOS)
+crate-type = ["staticlib"]
+#crate-type = ["dylib"]
 
 [package.metadata]
 # Use stable channel, the curve25519-dalek dependency fails to build with the
@@ -31,9 +32,14 @@ age = { version = "0.10.0", features = ["armor"] }
 # Text-Based Stub Libraries (.tbd) need to be included for these in Xcode:
 #   Build Phases > Link Binary with Libraries
 # Without https/ssh support
+[target.'cfg(not(target_os = "android"))'.dependencies]
 git2 = { version = "0.19.0", default-features = false }
+
+# Build with vendored libgit2 for Android
+[target.'cfg(target_os = "android")'.dependencies]
+git2 = { version = "0.19.0", default-features = false, features = ["vendored-libgit2"] }
 
 [features]
 default = []
-# iOS simulator compatible build
+# iOS simulator compatible build (TODO remove)
 simulator = []

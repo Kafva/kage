@@ -16,6 +16,7 @@ CONFIGURATION=${CONFIGURATION:-Debug}
 PATH="$PATH:$HOME/.cargo/bin"
 LIB="libkage_core.a"
 
+# TODO make this compile
 if [ "$CONFIGURATION" = Debug ]; then
     CARGO_BUILDTYPE=debug
 else

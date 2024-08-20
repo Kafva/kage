@@ -50,6 +50,9 @@ class MainActivity : ComponentActivity() {
         return x + y + z
     }
 
+    init {
+        System.loadLibrary("kage_core")
+    }
 }
 
 /**
