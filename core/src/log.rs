@@ -58,8 +58,8 @@ macro_rules! log {
     // The 'level' is matched as a token-tree to ensure that level_to_color!()
     // gets a literal as its argument.
     ($level:tt, $fmt:literal, $($x:expr),*) => {
-        // Disable colored logs on target
-        if cfg!(target_arch = "aarch64-apple-ios") {
+        // Disable colored logs on target (TODO)
+        if cfg!(target_os = "ios") {
             println!(concat!(log_prefix!(), $level, " {}:{} ", $fmt),
                        file!(), line!(), $($x),*)
         } else {
@@ -71,8 +71,8 @@ macro_rules! log {
     };
     // Match level and string literal message
     ($level:tt, $msg:literal) => {
-        // Disable colored logs on target
-        if cfg!(target_arch = "aarch64-apple-ios") {
+        // Disable colored logs on target (TODO)
+        if cfg!(target_os = "ios") {
             println!(concat!(log_prefix!(), $level, " {}:{} {}"),
                        file!(), line!(), $msg);
         } else {
