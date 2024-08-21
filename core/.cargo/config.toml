@@ -8,3 +8,10 @@ KAGE_GIT_BRANCH = "main"
 KAGE_TEST_GIT_REPONAME = "james.git"
 KAGE_TEST_GIT_REMOTE_CLONE_URL = "git://127.0.0.1"
 KAGE_TEST_GIT_CLIENT_DIR = "../.testenv/kage-client"
+
+CC_aarch64_linux_android="/Users/jonas/Library/Android/Sdk/ndk/27.0.12077973/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android35-clang"
+AR_aarch64_linux_android="/Users/jonas/Library/Android/Sdk/ndk/27.0.12077973/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ar"
+
+[target.aarch64-linux-android]
+ar = "/Users/jonas/Library/Android/Sdk/ndk/27.0.12077973/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ar"
+linker = "/Users/jonas/Library/Android/Sdk/ndk/27.0.12077973/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android35-clang"

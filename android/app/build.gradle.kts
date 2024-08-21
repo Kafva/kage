@@ -18,16 +18,6 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
-        ndk {
-            abiFilters.add("arm64-v8a")
-        }
-    }
-
-
-    sourceSets {
-        getByName("main") {
-            jniLibs.srcDirs("dist")
-        }
     }
 
     buildTypes {

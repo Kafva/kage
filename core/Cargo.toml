@@ -6,9 +6,11 @@ authors = ["Kafva"]
 
 [lib]
 name = "kage_core"
-# For the ffi bindings to work on target, a static library is easiest (on iOS)
-crate-type = ["staticlib"]
-#crate-type = ["dylib"]
+# XXX: The crate-type needs to be manually set:
+# https://github.com/rust-lang/cargo/issues/12260
+#   iOS: staticlib
+#   Android: dylib
+
 
 [package.metadata]
 # Use stable channel, the curve25519-dalek dependency fails to build with the
@@ -35,11 +37,10 @@ age = { version = "0.10.0", features = ["armor"] }
 [target.'cfg(not(target_os = "android"))'.dependencies]
 git2 = { version = "0.19.0", default-features = false }
 
-# Build with vendored libgit2 for Android
 [target.'cfg(target_os = "android")'.dependencies]
+# Build with vendored libgit2 for Android
 git2 = { version = "0.19.0", default-features = false, features = ["vendored-libgit2"] }
+jni = { version = "0.21.1" }
 
 [features]
 default = []
-# iOS simulator compatible build (TODO remove)
-simulator = []

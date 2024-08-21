@@ -9,6 +9,7 @@
 .tags
 buildServer.json
 
+
 **/target/**
 
 # Android
@@ -28,7 +29,7 @@ kls-classpath
 .cxx
 local.properties
 .jdbrc
-
+jniLibs
 
 # Xcode
 Pods

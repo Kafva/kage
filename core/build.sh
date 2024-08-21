@@ -15,21 +15,13 @@ CONFIGURATION=${CONFIGURATION:-Debug}
 
 PATH="$PATH:$HOME/.cargo/bin"
 LIB="libkage_core.a"
+DIST=$SOURCE_ROOT/dist
+CARGO_BUILDTYPE=release
 
-# TODO make this compile
-if [ "$CONFIGURATION" = Debug ]; then
-    CARGO_BUILDTYPE=debug
-else
-    CARGO_BUILDTYPE=release
-    CARGO_FLAGS=" --release"
-fi
-
-rm -f "$SOURCE_ROOT/dist/$LIB"
+rm -f "$DIST/*.{a,so,rlib}"
 
 case "$PLATFORM_DISPLAY_NAME" in
 "iOS Simulator")
-    CARGO_FLAGS+=" --features simulator"
-
     if [ "$(uname -m)" = x86_64 ]; then
         CARGO_TARGET=x86_64-apple-ios
     else
@@ -45,10 +37,16 @@ case "$PLATFORM_DISPLAY_NAME" in
 ;;
 esac
 
-(cd $SOURCE_ROOT/../core &&
-    cargo build ${CARGO_FLAGS} --target ${CARGO_TARGET})
+cargo \
+    -Z unstable-options \
+    -C $SOURCE_ROOT/../core \
+    rustc \
+    --lib \
+    --crate-type staticlib \
+    --release \
+    --target ${CARGO_TARGET}
 
 # Always copy the output for the current platform to dist
-mkdir -p "$SOURCE_ROOT/dist"
+mkdir -p "$DIST"
 cp "$SOURCE_ROOT/../core/target/${CARGO_TARGET}/${CARGO_BUILDTYPE}/$LIB" \
-   "$SOURCE_ROOT/dist/$LIB"
+   "$DIST/$LIB"
