@@ -35,9 +35,12 @@ class MainActivity : ComponentActivity() {
                         name = "Android",
                         modifier = Modifier.padding(0.dp, 20.dp)
                     )
-                    Button(onClick = { testFunc() }) {
+                    Button(onClick = {
+                            val r = testFunc()
+                            Log.i("kafva.kage", "testFunc: $r")
+                        }) {
                         Text("Bury me")
-                    } 
+                    }
                 }
             }
         }
@@ -47,7 +50,8 @@ class MainActivity : ComponentActivity() {
         val x = 1
         val y = 1
         val z = 2
-        return x + y + z
+        val kageCore = KageCore()
+        return x + y + z + kageCore.test()
     }
 
     init {
@@ -57,7 +61,7 @@ class MainActivity : ComponentActivity() {
 
 /**
  * @param name the name
- * @param modifier the modifier 
+ * @param modifier the modifier
  */
 @Composable
 fun Greeting(name: String, modifier: Modifier = Modifier) {

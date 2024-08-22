@@ -58,28 +58,26 @@ macro_rules! log {
     // The 'level' is matched as a token-tree to ensure that level_to_color!()
     // gets a literal as its argument.
     ($level:tt, $fmt:literal, $($x:expr),*) => {
-        // Disable colored logs on target (TODO)
-        if cfg!(target_os = "ios") {
-            println!(concat!(log_prefix!(), $level, " {}:{} ", $fmt),
-                       file!(), line!(), $($x),*)
-        } else {
+        if cfg!(feature = "color_logs") {
             println!(concat!(log_prefix!(),
                              "\x1b[", level_to_color!($level), "m", $level,
                              "\x1b[0m {}:{} ", $fmt),
                      file!(), line!(), $($x),*)
+        } else {
+            println!(concat!(log_prefix!(), $level, " {}:{} ", $fmt),
+                       file!(), line!(), $($x),*)
         }
     };
     // Match level and string literal message
     ($level:tt, $msg:literal) => {
-        // Disable colored logs on target (TODO)
-        if cfg!(target_os = "ios") {
-            println!(concat!(log_prefix!(), $level, " {}:{} {}"),
-                       file!(), line!(), $msg);
-        } else {
+        if cfg!(feature = "color_logs") {
             println!(concat!(log_prefix!(),
                              "\x1b[", level_to_color!($level), "m", $level,
                              "\x1b[0m {}:{} ", $msg),
                      file!(), line!())
+        } else {
+            println!(concat!(log_prefix!(), $level, " {}:{} {}"),
+                       file!(), line!(), $msg);
         }
     };
 }

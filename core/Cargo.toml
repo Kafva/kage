@@ -44,3 +44,4 @@ jni = { version = "0.21.1" }
 
 [features]
 default = []
+color_logs = []
