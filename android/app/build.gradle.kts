@@ -6,7 +6,7 @@ plugins {
 android {
     namespace = "kafva.kage"
     compileSdk = 34
-    // Explicitly set the NDK version
+    // XXX: Explicitly set the NDK version
     ndkVersion = "27.0.12077973"
 
     defaultConfig {
