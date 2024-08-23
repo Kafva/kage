@@ -1,6 +1,9 @@
 import Network
 import SwiftUI
 
+@_silgen_name("ffi_free_cstring")
+func ffi_free_cstring(_ ptr: UnsafeMutablePointer<CChar>?)
+
 class AppState: ObservableObject {
     @Published var identityIsUnlocked: Bool = false
     @Published var rootNode: PwNode = PwNode(url: G.gitDir, children: [])

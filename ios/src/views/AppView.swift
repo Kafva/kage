@@ -108,6 +108,7 @@ struct AppView: View {
         }
         // Disable default background for `Form`
         .scrollContentBackground(.hidden)
+        .ignoresSafeArea(.keyboard)
     }
 
     private var toolbarView: some View {

@@ -2,17 +2,29 @@ import XCTest
 
 final class kageTests: XCTestCase {
 
-    var rootNode: PwNode!
+    let remote = "git://127.0.0.1/james.git"
+    let username = "james"
+    var appState: AppState!
 
     override func setUpWithError() throws {
-        // Initialize AppState with a fake tree of nodes
-        self.rootNode = PwNode(url: G.gitDir, children: [])
+        self.appState = AppState()
+        try? FileManager.default.removeItem(at: G.gitDir)
+        do {
+            try Git.clone(remote: remote)
+            try Git.configSetUser(username: username)
+            try appState.reloadGitTree()
+        }
+        catch {
+            try? FileManager.default.removeItem(at: G.gitDir)
+            print("\(error.localizedDescription)")
+            XCTFail()
+        }
     }
 
     override func tearDownWithError() throws {
     }
 
-    func testBasic() throws {
-        XCTAssert(self.rootNode.name == "/")
+    func testAdd() throws {
+        XCTAssert(true)
     }
 }

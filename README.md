@@ -6,6 +6,7 @@ iOS password manager with age-encryption and git.
 A git server for automated and manual testing can be setup with
 [scripts/serverdevel.sh](scripts/serverdevel.sh). To run the automated tests:
 
+### Core library
 ```bash
 # Start git-daemon for unit tests
 ./tools/serverdevel.sh unit
@@ -24,7 +25,14 @@ rustup component add llvm-tools-preview
 (cd core && cargo llvm-cov --html)
 ```
 
-## Android
+### iOS
+Unit tests can be ran from within Xcode, the tests expect the development
+server to be running on localhost.
+```bash
+./tools/serverdevel.sh run
+```
+
+### Android
 The build process has only been tested to work on macOS.
 To build for Android you need to download a NDK manually.
 

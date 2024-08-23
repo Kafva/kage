@@ -193,7 +193,6 @@ GIT_SERVER_ARGS=(
     --reuseaddr
     --informative-errors
 )
-CMD="$1"
 
 trap git_server_exit SIGINT
 
@@ -206,6 +205,7 @@ done
 
 shift $((OPTIND - 1))
 
+CMD="$1"
 case "$CMD" in
 run)
     if [[ ! -d "$JAMES_REPO_CLIENT" || ! -d "$JAMES_REPO_REMOTE" ]]; then
