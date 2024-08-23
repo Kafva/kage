@@ -15,10 +15,7 @@ use age::secrecy::Secret;
 use zeroize::Zeroize;
 
 pub struct AgeState {
-    /// Identity to use for decryption (public during tests)
-    #[cfg(not(test))]
-    identity: Option<age::x25519::Identity>,
-    #[cfg(test)]
+    /// Identity to use for decryption
     pub identity: Option<age::x25519::Identity>,
     /// Timestamp when the identity was unlocked
     pub unlock_timestamp: Option<SystemTime>,

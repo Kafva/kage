@@ -11,7 +11,6 @@ name = "kage_core"
 #   iOS: staticlib
 #   Android: dylib
 
-
 [package.metadata]
 # Use stable channel, the curve25519-dalek dependency fails to build with the
 # nightly toolchain:
@@ -42,7 +41,16 @@ git2 = { version = "0.19.0", default-features = false }
 git2 = { version = "0.19.0", default-features = false, features = ["vendored-libgit2"] }
 jni = { version = "0.21.1" }
 
+[target.'cfg(all(not(target_os = "android"), not(target_os = "ios")))'.dependencies]
+clap = { version = "4.5.16" }
+
 [features]
 default = ["debug_logs"]
 color_logs = []
 debug_logs = []
+
+[[bin]]
+# Basic alternate CLI for age with caching
+name = "kage"
+bench = false
+path = "./src/cmd/kage.rs"

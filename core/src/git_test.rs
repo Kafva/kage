@@ -377,10 +377,6 @@ fn assert_err(result: Result<(), git2::Error>) {
         error!("Unexpected successful result");
     }
 
-    // let code = result.as_ref().err().unwrap().raw_code();
-    // if let Some(last) = git2::Error::last_error(code) {
-    //     debug!("last error: {}", last);
-    // }
     if let Some(ref err) = result.as_ref().err() {
         debug!("libgit2 error {}: {}", err.raw_code(), err.message());
     };
