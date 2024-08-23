@@ -187,7 +187,6 @@ struct PwNodeView: View {
                 G.logger.debug("No target node selected")
             }
         }
-
     }
 
     private func handleSubmit(newPwNode: PwNode?) {

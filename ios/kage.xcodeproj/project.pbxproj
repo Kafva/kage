@@ -24,6 +24,13 @@
 		C34C3F9FFEC40500376B27B6 /* String.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCD57CC8EEE4290B3C5ED21D /* String.swift */; };
 		C471F825A6F62A062C99DD51 /* Git.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89F6D64008ADA8F9053DDBA /* Git.swift */; };
 		D01503049DD6310B8F8E5640 /* PwNodeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5AD9E33A1B0C03156A54DC9 /* PwNodeView.swift */; };
+		DD0DFB192C789E710055B83E /* PwNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92D9D80F1FFDE56912E55422 /* PwNode.swift */; };
+		DD0DFB1A2C789E770055B83E /* FileManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79294E7996D2AD5AD011047B /* FileManager.swift */; };
+		DD0DFB1B2C789E7D0055B83E /* URL.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3118AF56BFFD2B6B380F11BF /* URL.swift */; };
+		DD0DFB1C2C789E850055B83E /* DeviceLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4608B9EDE0D43093B05C59E1 /* DeviceLogger.swift */; };
+		DD0DFB1D2C789E8D0055B83E /* String.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCD57CC8EEE4290B3C5ED21D /* String.swift */; };
+		DD0DFB1E2C789F2A0055B83E /* G.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FE20EC6ADD9E74FF57F4C3 /* G.swift */; };
+		DD0DFB1F2C789FD80055B83E /* AppError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 053F01E1B08FD597C103AB7E /* AppError.swift */; };
 		DD6D27002C5E5C5700B8089C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DD6D26FF2C5E5C5700B8089C /* Assets.xcassets */; };
 		DD728F762B9392EF00A4BC99 /* libiconv.2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = DD728F752B9392DA00A4BC99 /* libiconv.2.tbd */; };
 		DDBC8BA370FC2B4A8BEB153F /* CommitInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4093DCFAB0E3D446DF6E07A0 /* CommitInfo.swift */; };
@@ -66,6 +73,7 @@
 		B83214380B3D83D1D6622731 /* Age.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Age.swift; sourceTree = "<group>"; };
 		BE695AFABD7183E95F01C7E0 /* TreeView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TreeView.swift; path = views/TreeView.swift; sourceTree = "<group>"; };
 		D89F6D64008ADA8F9053DDBA /* Git.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Git.swift; sourceTree = "<group>"; };
+		DD0DFB202C78A0920055B83E /* kageTests.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = kageTests.xctestplan; sourceTree = "<group>"; };
 		DD6D26FF2C5E5C5700B8089C /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		DD728F752B9392DA00A4BC99 /* libiconv.2.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libiconv.2.tbd; path = usr/lib/libiconv.2.tbd; sourceTree = SDKROOT; };
 		DDA4B6292AFDF6A00046DFCE /* kage.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = kage.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -147,6 +155,7 @@
 		DDA4B6202AFDF6A00046DFCE = {
 			isa = PBXGroup;
 			children = (
+				DD0DFB202C78A0920055B83E /* kageTests.xctestplan */,
 				DD0ADA602C57580E0006B2E8 /* src */,
 				DDC84DF52C730C25003E009D /* tests */,
 				DDA4B62A2AFDF6A00046DFCE /* Products */,
@@ -341,6 +350,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DD0DFB1F2C789FD80055B83E /* AppError.swift in Sources */,
+				DD0DFB1E2C789F2A0055B83E /* G.swift in Sources */,
+				DD0DFB1D2C789E8D0055B83E /* String.swift in Sources */,
+				DD0DFB1A2C789E770055B83E /* FileManager.swift in Sources */,
+				DD0DFB192C789E710055B83E /* PwNode.swift in Sources */,
+				DD0DFB1C2C789E850055B83E /* DeviceLogger.swift in Sources */,
+				DD0DFB1B2C789E7D0055B83E /* URL.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

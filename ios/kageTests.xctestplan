@@ -1,0 +1,24 @@
+{
+  "configurations" : [
+    {
+      "id" : "2863F359-07AE-4386-940D-E3A348D8AAC0",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:kage.xcodeproj",
+        "identifier" : "DDC84DF32C730C25003E009D",
+        "name" : "kageTests"
+      }
+    }
+  ],
+  "version" : 1
+}
