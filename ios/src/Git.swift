@@ -139,7 +139,7 @@ enum Git {
     }
 
     static func log() throws -> [CommitInfo] {
-        G.logger.warning("Fetching commit messages")
+        G.logger.debug("Fetching commit messages")
         var messages = [CommitInfo]()
 
         let repoC = try repo.path().toCString()

@@ -204,9 +204,7 @@ pub extern "C" fn ffi_git_log(repo_path: *const c_char) -> CStringArray {
             let ptr = data.as_ptr();
 
             // Prevent the `data` vector from being deallocated when leaving
-            // scope, we need to free this manually later!
-            // TODO: is it enough to free each cstring?
-            // TODO: forget each string instead?
+            // scope, we need to free the contents of the array manually later!
             std::mem::forget(data);
 
             return CStringArray { ptr, len };

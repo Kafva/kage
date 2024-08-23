@@ -6,9 +6,7 @@ set -e
 #
 
 CURDIR=$(cd "$(dirname $0)" && pwd)
-
-PATH="$PATH:$HOME/.cargo/bin"
-CARGO_BUILDTYPE=release
+PATH="$HOME/.cargo/bin:$PATH"
 
 case "$1" in
 android)
@@ -39,7 +37,7 @@ android)
        "target.$CARGO_TARGET.linker='$NDK_HOME/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android35-clang'"
     )
 ;;
-*)
+ios)
     # SOURCE_ROOT is set from Xcode to kage/ios, default to the same path
     # when invoked manually.
     SOURCE_ROOT=${SOURCE_ROOT:-"${CURDIR}/../ios"}
@@ -69,6 +67,9 @@ android)
 
     CARGO_EXTRA_FLAGS=()
 ;;
+*)
+    echo "usage: $0 <android|ios>" >&2
+    exit 1
 esac
 
 rm -f "$DIST/*.{a,so,rlib}"
@@ -86,5 +87,5 @@ cargo \
 
 # Always copy the output for the current platform to dist
 mkdir -p "$DIST"
-cp -v "$SOURCE_ROOT/../core/target/${CARGO_TARGET}/${CARGO_BUILDTYPE}/$LIB" \
+cp -v "$SOURCE_ROOT/../core/target/${CARGO_TARGET}/release/$LIB" \
       "$DIST/$LIB"

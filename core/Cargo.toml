@@ -43,5 +43,6 @@ git2 = { version = "0.19.0", default-features = false, features = ["vendored-lib
 jni = { version = "0.21.1" }
 
 [features]
-default = []
+default = ["debug_logs"]
 color_logs = []
+debug_logs = []
