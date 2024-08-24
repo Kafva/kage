@@ -3,7 +3,7 @@ import Foundation
 enum PwManager {
     // Submit the `newPwNode` and create/modify the password tree to contain the new node.
     static func submit(
-        currentPwNode: PwNode?, newPwNode: PwNode, isDir: Bool,
+        currentPwNode: PwNode?, newPwNode: PwNode, directorySelected: Bool,
         password: String, confirmPassword: String, generate: Bool
     ) throws {
         if let currentPwNode, !currentPwNode.isDir {
@@ -19,7 +19,7 @@ enum PwManager {
                 currentPwNode: currentPwNode,
                 newPwNode: newPwNode)
         }
-        else if isDir {
+        else if directorySelected {
             try PwManager.addFolder(newPwNode: newPwNode)
         }
         else {

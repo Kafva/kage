@@ -8,8 +8,9 @@ class AppState: ObservableObject {
     @Published var identityIsUnlocked: Bool = false
     @Published var rootNode: PwNode = PwNode(url: G.gitDir, children: [])
     @Published var hasLocalChanges: Bool = false
+    private var lockTimer: DispatchSourceTimer?
 
-    /// Description of last high-level error that occured
+    /// Description of last high-level error that occurred
     @Published var currentError: String?
 
     func reloadGitTree() throws {
@@ -29,9 +30,28 @@ class AppState: ObservableObject {
             encryptedIdentity,
             passphrase: passphrase)
         identityIsUnlocked = true
+
+        // Automatically lock the identity after a while
+        lockTimer?.cancel()
+        lockTimer = DispatchSource.makeTimerSource(queue: .global())
+        lockTimer?.schedule(deadline: .now() + 120)
+        lockTimer?.setEventHandler {
+            DispatchQueue.main.async {
+                do {
+                    try self.lockIdentity()
+                }
+                catch {
+                    G.logger.error("\(error.localizedDescription)")
+                }
+            }
+        }
+        lockTimer?.resume()
     }
 
     func lockIdentity() throws {
+        if !identityIsUnlocked {
+            return
+        }
         try Age.lockIdentity()
         identityIsUnlocked = false
     }

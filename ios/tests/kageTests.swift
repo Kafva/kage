@@ -65,7 +65,7 @@ final class kageTests: XCTestCase {
             try PwManager.submit(
                 currentPwNode: nil,
                 newPwNode: newPwNode,
-                isDir: false,
+                directorySelected: false,
                 password: "password",
                 confirmPassword: "password",
                 generate: false)

@@ -8,7 +8,7 @@ struct PwNodeView: View {
     @Binding var currentPwNode: PwNode?
 
     @State private var nodeType: PwNodeType = .password
-    @State private var selectedFolder = G.rootNodeName
+    @State private var selectedFolder = ""
     @State private var selectedName = ""
     @State private var password = ""
     @State private var confirmPassword = ""
@@ -44,44 +44,47 @@ struct PwNodeView: View {
         return appState.rootNode.flatFolders()
     }
 
-    var body: some View {
-        let title: String
-        let confirmIsOk: Bool
-        let isDir = currentPwNode?.isDir ?? (nodeType == .folder)
-        let newNodeIsOk =
+    private var directorySelected: Bool {
+        return currentPwNode?.isDir ?? (nodeType == .folder)
+    }
+
+    private var newNodeIsOk: Bool {
+        return
             (try? PwNode.loadFrom(
                 name: selectedName,
-                relativeFolderPath: selectedFolder, isDir: isDir)) != nil
+                relativeFolderPath: selectedFolder,
+                isDir: directorySelected)) != nil
+
+    }
+
+    var body: some View {
+        let title: String
+        let passwordIsOk: Bool
 
         if let currentPwNode {
             if currentPwNode.isDir {
                 title = "Edit folder '\(currentPwNode.name)'"
-                confirmIsOk = newNodeIsOk
+                passwordIsOk = true
             }
             else {
                 title = "Edit password '\(currentPwNode.name)'"
-                // OK to keep the same name or password (empty)
-                // when editing a password node
-                confirmIsOk =
-                    newNodeIsOk
-                    && (password.isEmpty || password == confirmPassword)
+                passwordIsOk = (password.isEmpty || password == confirmPassword)
             }
         }
         // No node currently selected
         else if nodeType == .folder {
             title = ""
-            confirmIsOk = newNodeIsOk
+            passwordIsOk = true
         }
         else {
             title = ""
-            confirmIsOk =
-                newNodeIsOk
-                && (generate
-                    || (!password.isEmpty && password == confirmPassword))
+            passwordIsOk =
+                (generate || (!password.isEmpty && password == confirmPassword))
         }
 
         let formHeight =
-            (generate || isDir) ? 0.3 * G.screenHeight : 0.4 * G.screenHeight
+            (generate || directorySelected)
+            ? 0.3 * G.screenHeight : 0.4 * G.screenHeight
         let header = Text(title).font(G.title3Font)
             .padding(.bottom, 10)
             .textCase(nil)
@@ -112,12 +115,13 @@ struct PwNodeView: View {
                             .pickerStyle(.navigationLink)
                         }
 
-                        TileView(iconName: isDir ? "folder" : "key") {
+                        TileView(iconName: directorySelected ? "folder" : "key")
+                        {
                             TextField("Name", text: $selectedName)
                                 .textFieldStyle(.roundedBorder)
                         }
 
-                        if !isDir {
+                        if !directorySelected {
                             if currentPwNode == nil {
                                 TileView(iconName: "dice") {
                                     HStack {
@@ -156,7 +160,7 @@ struct PwNodeView: View {
                 Button(action: { handleSubmit() }) {
                     Text("Save").font(G.bodyFont)
                 }
-                .disabled(!confirmIsOk)
+                .disabled(!newNodeIsOk || !passwordIsOk)
                 .padding(.trailing, 30)
             }
             .buttonStyle(BorderlessButtonStyle())
@@ -167,33 +171,34 @@ struct PwNodeView: View {
             // .on Appear is triggered anew when we navigate back from the
             // folder selection
             guard let currentPwNode else {
+                selectedFolder = G.rootNodeName
                 return
             }
 
-            G.logger.debug("Selected: '\(currentPwNode.relativePath)'")
+            G.logger.debug("Current node: '\(currentPwNode.relativePath)'")
             if selectedName.isEmpty {
                 selectedName = currentPwNode.name
             }
             if selectedFolder.isEmpty {
                 selectedFolder = currentPwNode.parentRelativePath
             }
+            G.logger.debug("Selected: '\(selectedFolder)/\(selectedName)'")
         }
     }
 
     private func handleSubmit() {
         var newPwNode: PwNode? = nil
-        let isDir = currentPwNode?.isDir ?? (nodeType == .folder)
         do {
             // The `newPwNode` and `currentPwNode` are equal if we are modifying an existing node
             newPwNode = try PwNode.loadFrom(
                 name: selectedName,
                 relativeFolderPath: selectedFolder,
-                isDir: isDir)
+                isDir: directorySelected)
 
             try PwManager.submit(
                 currentPwNode: currentPwNode,
                 newPwNode: newPwNode!,
-                isDir: isDir,
+                directorySelected: directorySelected,
                 password: password,
                 confirmPassword: confirmPassword,
                 generate: generate)
