@@ -51,7 +51,7 @@ struct DeviceLogger {
     }
 }
 
-extension OSLogEntryLog.Level: Swift.CustomStringConvertible {
+extension OSLogEntryLog.Level {
     public var description: String {
         switch self {
         case .debug:

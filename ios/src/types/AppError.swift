@@ -6,6 +6,8 @@ enum AppError: Error, LocalizedError {
     case invalidCommit
     case ageError(String)
     case gitError(String)
+    case passwordMismatch
+    case invalidNodePath(String)
 
     var errorDescription: String? {
         switch self {
@@ -19,6 +21,10 @@ enum AppError: Error, LocalizedError {
             return "Cryptographic error: \(msg)"
         case .gitError(let msg):
             return "Git error: \(msg)"
+        case .passwordMismatch:
+            return "Passwords do not match"
+        case .invalidNodePath(let msg):
+            return "Invalid node: \(msg)"
         }
     }
 }

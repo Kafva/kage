@@ -54,31 +54,47 @@ struct PwNode: Identifiable {
         return FileManager.default.isDir(url)
     }
 
-    static func loadNewFrom(
+    /// Load a node from the given folder path, the node is allowed to already exist.
+    static func loadFrom(
         name: String,
         relativeFolderPath: String,
         isDir: Bool
-    ) -> Self? {
-        if !validName(name: name) {
-            return nil
+    ) throws -> Self {
+
+        if name == G.gitDirName {
+            throw AppError.invalidNodePath(
+                "The root node name '\(G.gitDirName)' is dissallowed")
         }
+
+        if name.hasSuffix(".age") {
+            throw AppError.invalidNodePath("The '.age' suffix is dissallowed")
+        }
+
+        let regex = /^[-_.@\/a-zA-Z0-9+]{1,64}/
+
+        if (try? regex.wholeMatch(in: name)) == nil {
+            throw AppError.invalidNodePath("Invalid node name: '\(name)'")
+        }
+
         let parentURL = G.gitDir.appending(path: relativeFolderPath)
 
         // Parent must exist
         if !FileManager.default.isDir(parentURL) {
-            G.logger.error("Missing parent path: '\(relativeFolderPath)'")
-            return nil
+            throw AppError.invalidNodePath(
+                "Missing parent path: '\(relativeFolderPath)'")
         }
 
         let urlFile = parentURL.appending(path: name + ".age")
         let urlDir = parentURL.appending(path: name)
 
-        // New node is not allowed to already exist
-        if FileManager.default.isFile(urlFile) {
-            return nil
+        // Make sure that files and folder nodes do not overlap
+        if !isDir && FileManager.default.isDir(urlDir) {
+            throw AppError.invalidNodePath(
+                "Password node conflict with existing folder: '\(urlDir)'")
         }
-        if FileManager.default.isDir(urlDir) {
-            return nil
+        if isDir && FileManager.default.isFile(urlFile) {
+            throw AppError.invalidNodePath(
+                "Directory node conflict with existing file: '\(urlFile)'")
         }
 
         return PwNode(url: isDir ? urlDir : urlFile, children: [])
@@ -148,28 +164,6 @@ struct PwNode: Identifiable {
         }
 
         return matches
-    }
-
-    static private func validName(name: String) -> Bool {
-        if name == G.gitDirName {
-            G.logger.debug(
-                "The root node name '\(G.gitDirName)' is dissallowed")
-            return false
-        }
-
-        if name.hasSuffix(".age") {
-            G.logger.debug("The '.age' suffix is dissallowed")
-            return false
-        }
-
-        let regex = /^[-_.@\/a-zA-Z0-9+]{1,64}/
-
-        if (try? regex.wholeMatch(in: name)) == nil {
-            G.logger.debug("Invalid node name: '\(name)'")
-            return false
-        }
-
-        return true
     }
 }
 

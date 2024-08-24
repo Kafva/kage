@@ -5,7 +5,7 @@ struct PwNodeView: View {
     @EnvironmentObject var appState: AppState
 
     @Binding var showView: Bool
-    @Binding var targetNode: PwNode?
+    @Binding var currentPwNode: PwNode?
 
     @State private var nodeType: PwNodeType = .password
     @State private var selectedFolder = G.rootNodeName
@@ -13,18 +13,6 @@ struct PwNodeView: View {
     @State private var password = ""
     @State private var confirmPassword = ""
     @State private var generate = true
-
-    private var newPasswordIsValid: Bool {
-        if generate {
-            return true
-        }
-        return !password.isEmpty && password == confirmPassword
-    }
-
-    private var nodePathUnchanged: Bool {
-        return targetNode?.parentName == selectedFolder
-            && targetNode?.name == selectedName
-    }
 
     private var passwordForm: some View {
         let underlineColor =
@@ -46,11 +34,11 @@ struct PwNodeView: View {
     }
 
     private var alternativeParentFolders: [PwNode] {
-        if let targetNode {
+        if let currentPwNode {
             // We cannot move a folder to a path beneath itself,
             // exclude items beneath the current folder
             return appState.rootNode.flatFolders().filter {
-                !$0.relativePath.starts(with: targetNode.relativePath)
+                !$0.relativePath.starts(with: currentPwNode.relativePath)
             }
         }
         return appState.rootNode.flatFolders()
@@ -59,33 +47,37 @@ struct PwNodeView: View {
     var body: some View {
         let title: String
         let confirmIsOk: Bool
-        let isDir = targetNode?.isDir ?? (nodeType == .folder)
-        let newPwNode = PwNode.loadNewFrom(
-            name: selectedName,
-            relativeFolderPath: selectedFolder,
-            isDir: isDir)
+        let isDir = currentPwNode?.isDir ?? (nodeType == .folder)
+        let newNodeIsOk =
+            (try? PwNode.loadFrom(
+                name: selectedName,
+                relativeFolderPath: selectedFolder, isDir: isDir)) != nil
 
-        if let targetNode {
-            if targetNode.isDir {
-                title = "Edit folder '\(targetNode.name)'"
-                confirmIsOk = newPwNode != nil
+        if let currentPwNode {
+            if currentPwNode.isDir {
+                title = "Edit folder '\(currentPwNode.name)'"
+                confirmIsOk = newNodeIsOk
             }
             else {
-                title = "Edit password '\(targetNode.name)'"
+                title = "Edit password '\(currentPwNode.name)'"
                 // OK to keep the same name or password (empty)
                 // when editing a password node
                 confirmIsOk =
-                    (newPwNode != nil || nodePathUnchanged)
+                    newNodeIsOk
                     && (password.isEmpty || password == confirmPassword)
             }
         }
+        // No node currently selected
         else if nodeType == .folder {
             title = ""
-            confirmIsOk = newPwNode != nil
+            confirmIsOk = newNodeIsOk
         }
         else {
             title = ""
-            confirmIsOk = newPwNode != nil && newPasswordIsValid
+            confirmIsOk =
+                newNodeIsOk
+                && (generate
+                    || (!password.isEmpty && password == confirmPassword))
         }
 
         let formHeight =
@@ -95,7 +87,7 @@ struct PwNodeView: View {
             .textCase(nil)
 
         return VStack {
-            if targetNode == nil {
+            if currentPwNode == nil {
                 Picker("", selection: $nodeType) {
                     ForEach(PwNodeType.allCases) { p in
                         Text(p.rawValue.capitalized)
@@ -126,7 +118,7 @@ struct PwNodeView: View {
                         }
 
                         if !isDir {
-                            if targetNode == nil {
+                            if currentPwNode == nil {
                                 TileView(iconName: "dice") {
                                     HStack {
                                         Text("Autogenerate").font(
@@ -138,7 +130,7 @@ struct PwNodeView: View {
                                     .frame(alignment: .leading)
                                 }
                             }
-                            if targetNode != nil || !generate {
+                            if currentPwNode != nil || !generate {
                                 passwordForm
                             }
                         }
@@ -161,7 +153,7 @@ struct PwNodeView: View {
 
                 Spacer()
 
-                Button(action: { handleSubmit(newPwNode: newPwNode) }) {
+                Button(action: { handleSubmit() }) {
                     Text("Save").font(G.bodyFont)
                 }
                 .disabled(!confirmIsOk)
@@ -174,124 +166,45 @@ struct PwNodeView: View {
         .onAppear {
             // .on Appear is triggered anew when we navigate back from the
             // folder selection
-            if let targetNode {
-                G.logger.debug("Selected: '\(targetNode.relativePath)'")
-                if selectedName.isEmpty {
-                    selectedName = targetNode.name
-                }
-                if selectedFolder.isEmpty {
-                    selectedFolder = targetNode.parentRelativePath
-                }
+            guard let currentPwNode else {
+                return
             }
-            else {
-                G.logger.debug("No target node selected")
+
+            G.logger.debug("Selected: '\(currentPwNode.relativePath)'")
+            if selectedName.isEmpty {
+                selectedName = currentPwNode.name
+            }
+            if selectedFolder.isEmpty {
+                selectedFolder = currentPwNode.parentRelativePath
             }
         }
     }
 
-    private func handleSubmit(newPwNode: PwNode?) {
-        // The new PwNode must always be valid except for when we are changing
-        // the password value of an existing node.
-        if let targetNode, !targetNode.isDir {
-            changePasswordNode(
-                currentPwNode: targetNode,
-                newPwNode: newPwNode)
-            return
-        }
-
-        guard let newPwNode else {
-            appState.uiError(
-                "Invalid path selected: '\(selectedFolder)/\(selectedName)'")
-            return
-        }
-
-        if let targetNode, targetNode.isDir {
-            renameFolder(
-                currentPwNode: targetNode,
-                newPwNode: newPwNode)
-            return
-        }
-
-        if nodeType == .folder {
-            addFolder(newPwNode: newPwNode)
-        }
-        else {
-            addPassword(newPwNode: newPwNode)
-        }
-    }
-
-    private func dismiss() {
-        G.logger.debug("Dismissing overlay")
-        withAnimation {
-            showView = false
-            self.targetNode = nil
-        }
-    }
-
-    private func addFolder(newPwNode: PwNode) {
+    private func handleSubmit() {
+        var newPwNode: PwNode? = nil
+        let isDir = currentPwNode?.isDir ?? (nodeType == .folder)
         do {
-            try FileManager.default.createDirectory(
-                at: newPwNode.url,
-                withIntermediateDirectories: false)
+            // The `newPwNode` and `currentPwNode` are equal if we are modifying an existing node
+            newPwNode = try PwNode.loadFrom(
+                name: selectedName,
+                relativeFolderPath: selectedFolder,
+                isDir: isDir)
 
-            try appState.reloadGitTree()
-            dismiss()
+            try PwManager.submit(
+                currentPwNode: currentPwNode,
+                newPwNode: newPwNode!,
+                isDir: isDir,
+                password: password,
+                confirmPassword: confirmPassword,
+                generate: generate)
 
-        }
-        catch {
-            appState.uiError("\(error.localizedDescription)")
-            try? FileManager.default.removeItem(at: newPwNode.url)
-        }
-    }
-
-    private func renameFolder(
-        currentPwNode: PwNode,
-        newPwNode: PwNode
-    ) {
-        do {
-            try Git.mvCommit(fromNode: currentPwNode, toNode: newPwNode)
-
-            try appState.reloadGitTree()
-            dismiss()
-
-        }
-        catch {
-            appState.uiError("\(error.localizedDescription)")
-            try? FileManager.default.removeItem(at: newPwNode.url)
-            try? Git.reset()
-        }
-    }
-
-    /// Separate commits are created for moving a password and changing its value
-    private func changePasswordNode(
-        currentPwNode: PwNode,
-        newPwNode: PwNode?
-    ) {
-        // Select the new node if it will be moved, otherwise use the selected node
-        let pwNode = newPwNode ?? currentPwNode
-        do {
-            // Move the password node if the current and new node are different
-            if let newPwNode, currentPwNode.url != newPwNode.url {
-                try Git.mvCommit(fromNode: currentPwNode, toNode: newPwNode)
-            }
-
-            // Change the password value
-            if !password.isEmpty && password == confirmPassword {
-                let recipient = G.gitDir.appending(path: ".age-recipients")
-
-                try Age.encrypt(
-                    recipient: recipient,
-                    outpath: pwNode.url,
-                    plaintext: password)
-
-                try Git.addCommit(node: pwNode, nodeIsNew: !nodePathUnchanged)
-            }
-
+            // Reload git tree with new entry
             try appState.reloadGitTree()
             dismiss()
         }
         catch {
-            appState.uiError("\(error.localizedDescription)")
+            G.logger.error("\(error.localizedDescription)")
+
             if let newPwNode {
                 try? FileManager.default.removeItem(at: newPwNode.url)
             }
@@ -299,30 +212,11 @@ struct PwNodeView: View {
         }
     }
 
-    private func addPassword(newPwNode: PwNode) {
-        if !newPasswordIsValid {
-            appState.uiError("passwords do not match")
-            return
-        }
-        do {
-            let recipient = G.gitDir.appending(path: ".age-recipients")
-            let plaintext = generate ? String.random(18) : password
-
-            try Age.encrypt(
-                recipient: recipient,
-                outpath: newPwNode.url,
-                plaintext: plaintext)
-
-            try Git.addCommit(node: newPwNode, nodeIsNew: true)
-
-            // Reload git tree with new entry
-            try appState.reloadGitTree()
-            dismiss()
-
-        }
-        catch {
-            appState.uiError("\(error.localizedDescription)")
-            try? Git.reset()
+    private func dismiss() {
+        G.logger.debug("Dismissing overlay")
+        withAnimation {
+            self.showView = false
+            self.currentPwNode = nil
         }
     }
 }

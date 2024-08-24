@@ -4,14 +4,14 @@ struct PlaintextView: View {
     @EnvironmentObject var appState: AppState
 
     @Binding var showView: Bool
-    @Binding var targetNode: PwNode?
+    @Binding var currentPwNode: PwNode?
     @State private var plaintext: String = ""
     @State private var hidePlaintext = true
 
     var body: some View {
-        if let targetNode {
+        if let currentPwNode {
             VStack(alignment: .center, spacing: 10) {
-                let title = targetNode.name
+                let title = currentPwNode.name
                 Text(title).font(.title2)  // Scaling
                     .underline(color: .accentColor)
                     .padding(.bottom, 10)
@@ -56,23 +56,21 @@ struct PlaintextView: View {
 
     private func dismiss() {
         withAnimation {
-            targetNode = nil
+            currentPwNode = nil
             showView = false
         }
     }
 
     private func handleShowPlaintext() {
+        guard let currentPwNode else {
+            G.logger.debug("No target node set")
+            return
+        }
+        if !currentPwNode.isLeaf {
+            return
+        }
         do {
-            guard let targetNode else {
-                G.logger.debug("No target node set")
-                return
-            }
-            if !targetNode.isLeaf {
-                return
-            }
-
-            plaintext = try Age.decrypt(targetNode.url)
-
+            plaintext = try Age.decrypt(currentPwNode.url)
         }
         catch {
             appState.uiError("\(error.localizedDescription)")

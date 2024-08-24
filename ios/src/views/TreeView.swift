@@ -5,7 +5,7 @@ struct TreeView: View {
     @EnvironmentObject var appState: AppState
 
     @Binding var searchText: String
-    @Binding var targetNode: PwNode?
+    @Binding var currentPwNode: PwNode?
     @Binding var showPwNode: Bool
     @Binding var showPlaintext: Bool
     @Binding var expandTree: Bool
@@ -19,7 +19,7 @@ struct TreeView: View {
                     node: child,
                     parentMatchesSearch: parentMatchesSearch,
                     searchText: $searchText,
-                    targetNode: $targetNode,
+                    currentPwNode: $currentPwNode,
                     showPwNode: $showPwNode,
                     showPlaintext: $showPlaintext,
                     expandTree: $expandTree)
@@ -46,7 +46,7 @@ private struct TreeNodeView: View {
     let parentMatchesSearch: Bool
 
     @Binding var searchText: String
-    @Binding var targetNode: PwNode?
+    @Binding var currentPwNode: PwNode?
     @Binding var showPwNode: Bool
     @Binding var showPlaintext: Bool
     @Binding var expandTree: Bool
@@ -60,7 +60,7 @@ private struct TreeNodeView: View {
             {
                 PwNodeTreeItemView(
                     node: node,
-                    targetNode: $targetNode,
+                    currentPwNode: $currentPwNode,
                     showPwNode: $showPwNode,
                     showPlaintext: $showPlaintext)
 
@@ -78,7 +78,7 @@ private struct TreeNodeView: View {
                         node: child,
                         parentMatchesSearch: parentMatchesSearch,
                         searchText: $searchText,
-                        targetNode: $targetNode,
+                        currentPwNode: $currentPwNode,
                         showPwNode: $showPwNode,
                         showPlaintext: $showPlaintext,
                         expandTree: $expandTree)
@@ -87,7 +87,7 @@ private struct TreeNodeView: View {
             } label: {
                 PwNodeTreeItemView(
                     node: node,
-                    targetNode: $targetNode,
+                    currentPwNode: $currentPwNode,
                     showPwNode: $showPwNode,
                     showPlaintext: $showPlaintext)
 
@@ -100,7 +100,7 @@ private struct PwNodeTreeItemView: View {
     @EnvironmentObject var appState: AppState
 
     let node: PwNode
-    @Binding var targetNode: PwNode?
+    @Binding var currentPwNode: PwNode?
     @Binding var showPwNode: Bool
     @Binding var showPlaintext: Bool
 
@@ -120,7 +120,7 @@ private struct PwNodeTreeItemView: View {
                     if !node.isLeaf {
                         return
                     }
-                    targetNode = node
+                    currentPwNode = node
                     withAnimation {
                         showPlaintext = true
                     }
@@ -133,14 +133,14 @@ private struct PwNodeTreeItemView: View {
         .font(G.bodyFont)
         .swipeActions(allowsFullSwipe: false) {
             Button(action: {
-                handleGitRemove(node: node)
+                handleRemove(node: node)
             }) {
                 Image(systemName: "xmark.circle")
             }
             .tint(.red)
 
             Button(action: {
-                targetNode = node
+                currentPwNode = node
                 withAnimation {
                     showPwNode = true
                 }
@@ -151,7 +151,7 @@ private struct PwNodeTreeItemView: View {
         }
     }
 
-    private func handleGitRemove(node: PwNode) {
+    private func handleRemove(node: PwNode) {
         do {
             try Git.rmCommit(node: node)
             try appState.reloadGitTree()

@@ -16,6 +16,11 @@ extension FileManager {
         return access(at, expectDirectory: false)
     }
 
+    func exists(_ at: URL) -> Bool {
+        let atPath = at.path(percentEncoded: false)
+        return FileManager.default.fileExists(atPath: atPath)
+    }
+
     func ls(_ at: URL) throws -> [URL] {
         return try self.contentsOfDirectory(
             at: at,

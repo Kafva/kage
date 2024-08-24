@@ -6,7 +6,7 @@ struct AppView: View {
 
     @State private var searchText = ""
 
-    @State private var targetNode: PwNode?
+    @State private var currentPwNode: PwNode?
 
     @State private var showSettings = false
     @State private var showErrors = false
@@ -30,7 +30,7 @@ struct AppView: View {
                 else {
                     TreeView(
                         searchText: $searchText,
-                        targetNode: $targetNode,
+                        currentPwNode: $currentPwNode,
                         showPwNode: $showPwNode,
                         showPlaintext: $showPlaintext,
                         expandTree: $expandTree)
@@ -69,17 +69,17 @@ struct AppView: View {
         VStack {
             Group {
                 if showPwNode {
-                    if targetNode != nil {
+                    if currentPwNode != nil {
                         /* Edit view */
                         PwNodeView(
                             showView: $showPwNode,
-                            targetNode: $targetNode)
+                            currentPwNode: $currentPwNode)
                     }
                     else {
                         /* New password or folder view */
                         PwNodeView(
                             showView: $showPwNode,
-                            targetNode: $targetNode)
+                            currentPwNode: $currentPwNode)
                     }
                 }
                 else if showSettings {
@@ -94,7 +94,7 @@ struct AppView: View {
                     /* Password in plaintext */
                     PlaintextView(
                         showView: $showPlaintext,
-                        targetNode: $targetNode)
+                        currentPwNode: $currentPwNode)
                 }
                 else {
                     /* Password entry */
@@ -190,7 +190,7 @@ struct AppView: View {
             self.showErrors = false
             self.showPwNode = false
             self.showPlaintext = false
-            self.targetNode = nil
+            self.currentPwNode = nil
         }
     }
 
