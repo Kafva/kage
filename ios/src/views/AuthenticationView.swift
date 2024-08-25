@@ -12,6 +12,7 @@ struct AuthenticationView: View {
                 .font(G.title2Font)
                 .padding(.bottom, 15)
 
+            // TODO: Password suggestions are not disabled...
             SecureField("Passphrase", text: $passphrase)
                 .textFieldStyle(.roundedBorder)
                 .textContentType(.none)
@@ -38,7 +39,7 @@ struct AuthenticationView: View {
                 }
                 .padding(.trailing, 10)
             }
-            .font(G.bodyFont)
+            .font(.body)  // Scaling size
 
             if appState.currentError != nil {
                 ErrorTileView().padding(.top, 30)

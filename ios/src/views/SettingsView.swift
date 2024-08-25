@@ -14,6 +14,7 @@ struct SettingsView: View {
         Group {
             TileView(iconName: "server.rack") {
                 TextField("Remote origin", text: $origin)
+                    .textContentType(.init(rawValue: ""))
                     .onChange(of: origin, initial: false) { (_, _) in
                         submitRemote()
                     }
@@ -21,6 +22,7 @@ struct SettingsView: View {
 
             TileView(iconName: "text.book.closed") {
                 TextField("Repository", text: $reponame)
+                    .textContentType(.none)
                     .onChange(of: reponame, initial: false) { (_, _) in
                         submitRemote()
                     }
@@ -150,7 +152,8 @@ struct SettingsView: View {
             }
         }
         .formStyle(.grouped)
-        .padding(.top, G.screenHeight * 0.1)
+        // Note: extra padding to avoid elements going off-screen when keyboard appears
+        .padding(.top, G.screenHeight * 0.2)
     }
 
     private func dismiss() {

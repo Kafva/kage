@@ -114,7 +114,9 @@ struct PwNodeView: View {
                         TileView(iconName: directorySelected ? "folder" : "key")
                         {
                             TextField("Name", text: $selectedName)
+                                .textContentType(.init(rawValue: ""))
                                 .textFieldStyle(.roundedBorder)
+
                         }
 
                         if !directorySelected {

@@ -18,7 +18,7 @@ struct PlaintextView: View {
 
                 let value = hidePlaintext ? "••••••••" : plaintext
                 Text(value)
-                    .font(.body)  // Scaling
+                    .font(.body)  // Scaling size
                     .bold()
                     .monospaced()
                     .foregroundColor(.accentColor)
@@ -48,7 +48,7 @@ struct PlaintextView: View {
                     }
                     .padding(.trailing, 20)
                 }
-                .font(.subheadline)  // Scaling
+                .font(.body)  // Scaling size
 
                 if appState.currentError != nil {
                     ErrorTileView().padding(.top, 30)

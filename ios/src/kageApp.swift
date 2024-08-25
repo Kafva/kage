@@ -29,10 +29,6 @@ struct kageApp: App {
 
             // Check if the identity should be re-locked every time the app moves
             // in or out of the background.
-            if oldPhase != .background && newPhase != .background {
-                return
-            }
-
             guard let identityUnlockedAt = appState.identityUnlockedAt else {
                 return
             }
