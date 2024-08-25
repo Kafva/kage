@@ -15,7 +15,7 @@ struct AuthenticationView: View {
             SecureField("Passphrase", text: $passphrase)
                 .textFieldStyle(.roundedBorder)
                 .textContentType(.none)
-                .onSubmit { 
+                .onSubmit {
                     withAnimation {
                         submit()
                     }

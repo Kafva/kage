@@ -12,4 +12,3 @@ struct ErrorTileView: View {
         .onTapGesture { appState.currentError = nil }
     }
 }
-

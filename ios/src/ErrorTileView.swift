@@ -1,6 +1,5 @@
 import SwiftUI
 
-
 struct ErrorTileView: View {
     @EnvironmentObject var appState: AppState
 
@@ -13,4 +12,3 @@ struct ErrorTileView: View {
         .onTapGesture { appState.currentError = nil }
     }
 }
-

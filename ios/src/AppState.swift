@@ -5,13 +5,16 @@ import SwiftUI
 func ffi_free_cstring(_ ptr: UnsafeMutablePointer<CChar>?)
 
 class AppState: ObservableObject {
-    @Published var identityIsUnlocked: Bool = false
+    @Published var identityUnlockedAt: Date? = nil
     @Published var rootNode: PwNode = PwNode(url: G.gitDir, children: [])
     @Published var hasLocalChanges: Bool = false
-    private var lockTimer: DispatchSourceTimer?
 
     /// Description of last high-level error that occurred
     @Published var currentError: String?
+
+    var identityIsUnlocked: Bool {
+        return identityUnlockedAt != nil
+    }
 
     func reloadGitTree() throws {
         rootNode = try PwNode.loadFrom(G.gitDir)
@@ -29,11 +32,11 @@ class AppState: ObservableObject {
         try Age.unlockIdentity(
             encryptedIdentity,
             passphrase: passphrase)
-        identityIsUnlocked = true
+        identityUnlockedAt = .now
     }
 
     func lockIdentity() throws {
         try Age.lockIdentity()
-        identityIsUnlocked = false
+        identityUnlockedAt = nil
     }
 }

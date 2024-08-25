@@ -42,6 +42,7 @@
 		DDD52A582C79C1F70008CE73 /* PwManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDD52A562C79C1F70008CE73 /* PwManager.swift */; };
 		DDD52A5A2C7B0FDE0008CE73 /* ErrorTileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDD52A592C7B0FDE0008CE73 /* ErrorTileView.swift */; };
 		DDD52A5C2C7B1FC90008CE73 /* View.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDD52A5B2C7B1FC90008CE73 /* View.swift */; };
+		DDD52A5E2C7B28D10008CE73 /* ScenePhase.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDD52A5D2C7B28D10008CE73 /* ScenePhase.swift */; };
 		DDE56F8D2C569F210072C726 /* libz.1.2.12.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = DDE56F8C2C569F210072C726 /* libz.1.2.12.tbd */; };
 		DDFB7FA92C56A43A00972D43 /* libkage_core.a in Frameworks */ = {isa = PBXBuildFile; fileRef = DDFB7FA82C56A43A00972D43 /* libkage_core.a */; };
 		DE05C76D3D3D227CCBFA851F /* TileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FDA32EA556C590828725DDA5 /* TileView.swift */; };
@@ -89,6 +90,7 @@
 		DDD52A562C79C1F70008CE73 /* PwManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PwManager.swift; sourceTree = "<group>"; };
 		DDD52A592C7B0FDE0008CE73 /* ErrorTileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorTileView.swift; sourceTree = "<group>"; };
 		DDD52A5B2C7B1FC90008CE73 /* View.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = View.swift; sourceTree = "<group>"; };
+		DDD52A5D2C7B28D10008CE73 /* ScenePhase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScenePhase.swift; sourceTree = "<group>"; };
 		DDE56F8C2C569F210072C726 /* libz.1.2.12.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.1.2.12.tbd; path = usr/lib/libz.1.2.12.tbd; sourceTree = SDKROOT; };
 		DDFB7FA82C56A43A00972D43 /* libkage_core.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libkage_core.a; path = dist/libkage_core.a; sourceTree = "<group>"; };
 		E1AC5455F9011E92EC973934 /* ErrorView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ErrorView.swift; path = views/ErrorView.swift; sourceTree = "<group>"; };
@@ -135,6 +137,7 @@
 		DD0ADA602C57580E0006B2E8 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				DDD52A5D2C7B28D10008CE73 /* ScenePhase.swift */,
 				DDD52A5B2C7B1FC90008CE73 /* View.swift */,
 				DDD52A592C7B0FDE0008CE73 /* ErrorTileView.swift */,
 				DDD52A562C79C1F70008CE73 /* PwManager.swift */,
@@ -336,6 +339,7 @@
 			files = (
 				DDD52A5C2C7B1FC90008CE73 /* View.swift in Sources */,
 				2F2AB49962B9B00B0C5DAFC6 /* Age.swift in Sources */,
+				DDD52A5E2C7B28D10008CE73 /* ScenePhase.swift in Sources */,
 				EE460C7A0EBEAE5EAA46F45A /* AppState.swift in Sources */,
 				0483E1171307027706C5A75A /* kageApp.swift in Sources */,
 				1AAE5A4D90530A128191EFE5 /* AppError.swift in Sources */,
