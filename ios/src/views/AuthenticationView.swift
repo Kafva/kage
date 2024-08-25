@@ -4,6 +4,7 @@ struct AuthenticationView: View {
     @EnvironmentObject var appState: AppState
 
     @Binding var showView: Bool
+    @Binding var currentPwNode: PwNode?
     @State private var passphrase: String = ""
 
     var body: some View {
@@ -27,6 +28,7 @@ struct AuthenticationView: View {
             HStack {
                 Button("Cancel") {
                     appState.currentError = nil
+                    currentPwNode = nil
                     hideKeyboard()
                     withAnimation {
                         showView = false
