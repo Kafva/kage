@@ -2,7 +2,15 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-    <key>GitVersion</key>
-    <string>v0.0.0-36-gef60ecd-dirty</string>
+	<key>BGTaskSchedulerPermittedIdentifiers</key>
+	<array>
+		<string>kafva.kage.notifications.scheduler</string>
+	</array>
+	<key>GitVersion</key>
+	<string>v0.0.0-85-ga1d9031-dirty</string>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>processing</string>
+	</array>
 </dict>
 </plist>

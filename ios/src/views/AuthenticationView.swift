@@ -12,16 +12,18 @@ struct AuthenticationView: View {
                 .font(G.title2Font)
                 .padding(.bottom, 15)
 
-            // TODO: Password suggestions are not disabled...
             SecureField("Passphrase", text: $passphrase)
                 .textFieldStyle(.roundedBorder)
-                .textContentType(.none)
+                // The .oneTimeCode content appears to consistently disable all password etc.
+                // suggestions in the on-screen keyboard, for now (iOS 18.0).
+                .textContentType(.oneTimeCode)
                 .onSubmit {
                     withAnimation {
                         submit()
                     }
                 }
                 .padding(.bottom, 20)
+
             HStack {
                 Button("Cancel") {
                     appState.currentError = nil

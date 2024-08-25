@@ -34,7 +34,7 @@ struct PlaintextView: View {
 
                 HStack {
                     Button(action: dismiss) {
-                        Label("Close", systemImage: "")
+                        Text("Close")
                     }
                     .padding(.leading, 20)
 
@@ -44,7 +44,7 @@ struct PlaintextView: View {
                         UIPasteboard.general.string = plaintext
                         G.logger.debug("Copied '\(title)' to clipboard")
                     } label: {
-                        Label("Copy...", systemImage: "")
+                        Text("Copy...")
                     }
                     .padding(.trailing, 20)
                 }

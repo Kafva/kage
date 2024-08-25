@@ -8,7 +8,7 @@ struct SearchView: View {
             .fill(G.textFieldBgColor)
 
         return TextField("Search...", text: $searchText)
-            .textContentType(.init(rawValue: ""))
+            .textContentType(.oneTimeCode)
             .multilineTextAlignment(.center)
             .font(G.title3Font)
             .frame(width: G.screenWidth * 0.7)

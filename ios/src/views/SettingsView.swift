@@ -14,7 +14,7 @@ struct SettingsView: View {
         Group {
             TileView(iconName: "server.rack") {
                 TextField("Remote origin", text: $origin)
-                    .textContentType(.init(rawValue: ""))
+                    .textContentType(.oneTimeCode)
                     .onChange(of: origin, initial: false) { (_, _) in
                         submitRemote()
                     }
@@ -22,7 +22,7 @@ struct SettingsView: View {
 
             TileView(iconName: "text.book.closed") {
                 TextField("Repository", text: $reponame)
-                    .textContentType(.none)
+                    .textContentType(.oneTimeCode)
                     .onChange(of: reponame, initial: false) { (_, _) in
                         submitRemote()
                     }
