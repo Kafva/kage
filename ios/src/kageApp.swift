@@ -27,7 +27,6 @@ struct kageApp: App {
             G.logger.debug(
                 "scene: \(oldPhase.description) -> \(newPhase.description)")
 
-
             // Check if the identity should be re-locked every time the app moves
             // in or out of the background.
             if oldPhase != .background && newPhase != .background {
