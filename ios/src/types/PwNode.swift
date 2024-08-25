@@ -35,7 +35,7 @@ struct PwNode: Identifiable {
 
     /// Path relative to git root
     var relativePath: String {
-        let s = url.path().deletingPrefix(G.gitDir.path())
+        let s = url.standardizedFileURL.path().deletingPrefix(G.gitDir.path())
         if s.isEmpty {
             return G.rootNodeName
         }

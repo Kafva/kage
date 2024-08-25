@@ -7,7 +7,6 @@ struct ErrorView: View {
 
     var body: some View {
         VStack {
-            Spacer()
             Text("An error has occured")
                 .foregroundColor(G.textColor)
                 .bold()
@@ -30,7 +29,6 @@ struct ErrorView: View {
                 Spacer()
             }
             .padding(.top, 30)
-            Spacer()
         }
         .padding([.leading, .trailing], 20)
     }

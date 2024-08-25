@@ -54,7 +54,6 @@ struct PwNodeView: View {
                 name: selectedName,
                 relativeFolderPath: selectedFolder,
                 isDir: directorySelected)) != nil
-
     }
 
     var body: some View {
@@ -82,9 +81,6 @@ struct PwNodeView: View {
                 (generate || (!password.isEmpty && password == confirmPassword))
         }
 
-        let formHeight =
-            (generate || directorySelected)
-            ? 0.3 * G.screenHeight : 0.4 * G.screenHeight
         let header = Text(title).font(G.title3Font)
             .padding(.bottom, 10)
             .textCase(nil)
@@ -98,7 +94,7 @@ struct PwNodeView: View {
                 }
                 .pickerStyle(.segmented)
                 .frame(width: 0.8 * G.screenWidth)
-                .padding([.top, .bottom], 20)
+                .padding(.bottom, 5)
             }
 
             Form {
@@ -141,7 +137,7 @@ struct PwNodeView: View {
                     }
                 }
             }
-            .frame(width: G.screenWidth, height: formHeight)
+            .frame(width: G.screenWidth, height: 0.35 * G.screenHeight)
             // .border(.red, width: 1)
             .formStyle(.grouped)
 
@@ -164,14 +160,15 @@ struct PwNodeView: View {
                 .padding(.trailing, 30)
             }
             .buttonStyle(BorderlessButtonStyle())
-
-            Spacer()
         }
+        .ignoresSafeArea(.keyboard)
         .onAppear {
             // .on Appear is triggered anew when we navigate back from the
             // folder selection
             guard let currentPwNode else {
-                selectedFolder = G.rootNodeName
+                if selectedFolder.isEmpty {
+                    selectedFolder = G.rootNodeName
+                }
                 return
             }
 
@@ -219,6 +216,7 @@ struct PwNodeView: View {
 
     private func dismiss() {
         G.logger.debug("Dismissing overlay")
+        hideKeyboard()
         withAnimation {
             self.showView = false
             self.currentPwNode = nil

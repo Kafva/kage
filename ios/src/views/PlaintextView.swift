@@ -12,9 +12,9 @@ struct PlaintextView: View {
         if let currentPwNode {
             VStack(alignment: .center, spacing: 10) {
                 let title = currentPwNode.name
-                Text(title).font(.title2)  // Scaling
-                    .underline(color: .accentColor)
-                    .padding(.bottom, 10)
+                Text(title)
+                    .font(G.title2Font)
+                    .padding(.bottom, 15)
 
                 let value = hidePlaintext ? "••••••••" : plaintext
                 Text(value)
@@ -24,7 +24,12 @@ struct PlaintextView: View {
                     .foregroundColor(.accentColor)
                     .padding(.bottom, 30)
                     .onTapGesture {
-                        hidePlaintext.toggle()
+                        if plaintext.isEmpty {
+                            handleShowPlaintext()
+                        }
+                        else {
+                            hidePlaintext.toggle()
+                        }
                     }
 
                 HStack {
@@ -44,9 +49,10 @@ struct PlaintextView: View {
                     .padding(.trailing, 20)
                 }
                 .font(.subheadline)  // Scaling
-            }
-            .onAppear {
-                handleShowPlaintext()
+
+                if appState.currentError != nil {
+                    ErrorTileView().padding(.top, 30)
+                }
             }
         }
         else {
@@ -55,6 +61,7 @@ struct PlaintextView: View {
     }
 
     private func dismiss() {
+        appState.currentError = nil
         withAnimation {
             currentPwNode = nil
             showView = false
@@ -71,6 +78,13 @@ struct PlaintextView: View {
         }
         do {
             plaintext = try Age.decrypt(currentPwNode.url)
+            if plaintext == "" {
+                appState.uiError("No data retrieved")
+            }
+            else {
+                appState.currentError = nil
+                hidePlaintext = false
+            }
         }
         catch {
             appState.uiError("\(error.localizedDescription)")

@@ -7,15 +7,24 @@ struct AuthenticationView: View {
     @State private var passphrase: String = ""
 
     var body: some View {
-        VStack(alignment: .center, spacing: 5) {
+        VStack(alignment: .center) {
             Text("Authentication required")
+                .font(G.title2Font)
+                .padding(.bottom, 15)
+
             SecureField("Passphrase", text: $passphrase)
                 .textFieldStyle(.roundedBorder)
                 .textContentType(.none)
-                .onSubmit { submit() }
+                .onSubmit { 
+                    withAnimation {
+                        submit()
+                    }
+                }
                 .padding(.bottom, 20)
             HStack {
                 Button("Cancel") {
+                    appState.currentError = nil
+                    hideKeyboard()
                     withAnimation {
                         showView = false
                     }
@@ -30,15 +39,21 @@ struct AuthenticationView: View {
                 .padding(.trailing, 10)
             }
             .font(G.bodyFont)
+
+            if appState.currentError != nil {
+                ErrorTileView().padding(.top, 30)
+            }
         }
     }
 
     private func submit() {
         do {
             try appState.unlockIdentity(passphrase: passphrase)
+            appState.currentError = nil
+            hideKeyboard()
         }
         catch {
-            G.logger.debug("Incorrect password")
+            appState.uiError("\(error.localizedDescription)")
         }
     }
 }

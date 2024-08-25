@@ -62,7 +62,7 @@ enum Age {
     }
 
     static func decrypt(_ at: URL) throws -> String {
-        let pathC = try at.path().toCString()
+        let pathC = try at.standardizedFileURL.path().toCString()
 
         let plaintextC = ffi_age_decrypt(encryptedFilepath: pathC)
 

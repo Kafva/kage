@@ -1,4 +1,3 @@
-import OSLog
 import SwiftUI
 
 struct SettingsView: View {
@@ -34,7 +33,7 @@ struct SettingsView: View {
             #elseif DEBUG
                 remote = "git://10.0.77.1/jonas.git"
             #endif
-            loadCurrentRemote()
+            setCurrentRemote()
         }
     }
 
@@ -54,6 +53,7 @@ struct SettingsView: View {
 
         return TileView(iconName: iconName) {
             Button {
+                hideKeyboard()
                 if isEmpty {
                     Task {
                         inProgress = true
@@ -78,6 +78,7 @@ struct SettingsView: View {
             }
             .alert("Replace all local data?", isPresented: $showAlert) {
                 Button("Yes", role: .destructive) {
+                    hideKeyboard()
                     Task {
                         inProgress = true
                         #if targetEnvironment(simulator)
@@ -98,15 +99,6 @@ struct SettingsView: View {
                 .foregroundColor(.gray)
                 .frame(alignment: .leading)
         }
-    }
-
-    private var errorTile: some View {
-        TileView(iconName: "exclamationmark.circle") {
-            Text(appState.currentError ?? "Unknown error").font(G.captionFont)
-                .foregroundColor(G.errorColor)
-                .frame(alignment: .leading)
-        }
-        .onTapGesture { appState.currentError = nil }
     }
 
     private var historyTile: some View {
@@ -146,7 +138,7 @@ struct SettingsView: View {
                 passwordCountTile
                 versionTile
                 if appState.currentError != nil {
-                    errorTile
+                    ErrorTileView()
                 }
             }
 
@@ -158,9 +150,14 @@ struct SettingsView: View {
             }
         }
         .formStyle(.grouped)
+        .padding(.top, G.screenHeight * 0.1)
     }
 
     private func dismiss() {
+        // The current error has already been visible to the user, do
+        // not keep it when returning back to the main view
+        hideKeyboard()
+        appState.currentError = nil
         withAnimation { showView = false }
     }
 
@@ -184,7 +181,7 @@ struct SettingsView: View {
         }
     }
 
-    private func loadCurrentRemote() {
+    private func setCurrentRemote() {
         if remote.isEmpty {
             return
         }

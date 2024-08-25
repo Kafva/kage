@@ -30,28 +30,9 @@ class AppState: ObservableObject {
             encryptedIdentity,
             passphrase: passphrase)
         identityIsUnlocked = true
-
-        // Automatically lock the identity after a while
-        lockTimer?.cancel()
-        lockTimer = DispatchSource.makeTimerSource(queue: .global())
-        lockTimer?.schedule(deadline: .now() + 120)
-        lockTimer?.setEventHandler {
-            DispatchQueue.main.async {
-                do {
-                    try self.lockIdentity()
-                }
-                catch {
-                    G.logger.error("\(error.localizedDescription)")
-                }
-            }
-        }
-        lockTimer?.resume()
     }
 
     func lockIdentity() throws {
-        if !identityIsUnlocked {
-            return
-        }
         try Age.lockIdentity()
         identityIsUnlocked = false
     }

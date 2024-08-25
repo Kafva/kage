@@ -1,4 +1,3 @@
-import OSLog
 import SwiftUI
 
 struct AppView: View {
@@ -16,8 +15,6 @@ struct AppView: View {
 
     var body: some View {
         let width = showPlaintext ? 0.8 * G.screenWidth : G.screenWidth
-        let opacity = 0.97
-
         NavigationStack {
             VStack {
                 SearchView(searchText: $searchText)
@@ -38,12 +35,13 @@ struct AppView: View {
                 Spacer()
                 toolbarView
             }
+            // Do not move navigation bar items when the keyboard appears
             .ignoresSafeArea(.keyboard)
             .overlay(
                 Group {
                     if showSettings || showErrors || showPwNode || showPlaintext
                     {
-                        Color(UIColor.systemBackground).opacity(opacity)
+                        Color(UIColor.systemBackground)
                         overlayView
                             .frame(width: width, height: G.screenHeight)
                             .transition(.move(edge: .bottom))
@@ -67,48 +65,41 @@ struct AppView: View {
 
     private var overlayView: some View {
         VStack {
-            Group {
-                if showPwNode {
-                    if currentPwNode != nil {
-                        /* Edit view */
-                        PwNodeView(
-                            showView: $showPwNode,
-                            currentPwNode: $currentPwNode)
-                    }
-                    else {
-                        /* New password or folder view */
-                        PwNodeView(
-                            showView: $showPwNode,
-                            currentPwNode: $currentPwNode)
-                    }
-                }
-                else if showSettings {
-                    /* Settings view */
-                    SettingsView(showView: $showSettings)
-                }
-                else if showErrors {
-                    /* Error description view */
-                    ErrorView(showView: $showErrors)
-                }
-                else if appState.identityIsUnlocked {
-                    /* Password in plaintext */
-                    PlaintextView(
-                        showView: $showPlaintext,
+            if showPwNode {
+                if currentPwNode != nil {
+                    /* Edit view */
+                    PwNodeView(
+                        showView: $showPwNode,
                         currentPwNode: $currentPwNode)
                 }
                 else {
-                    /* Password entry */
-                    AuthenticationView(showView: $showPlaintext)
+                    /* New password or folder view */
+                    PwNodeView(
+                        showView: $showPwNode,
+                        currentPwNode: $currentPwNode)
                 }
             }
-            .padding(.top, 150)
-            .padding(.bottom, 100)
-            // Push everything up
-            Spacer()
+            else if showSettings {
+                /* Settings view */
+                SettingsView(showView: $showSettings)
+            }
+            else if showErrors {
+                /* Error description view */
+                ErrorView(showView: $showErrors)
+            }
+            else if appState.identityIsUnlocked {
+                /* Password in plaintext */
+                PlaintextView(
+                    showView: $showPlaintext,
+                    currentPwNode: $currentPwNode)
+            }
+            else {
+                /* Password entry */
+                AuthenticationView(showView: $showPlaintext)
+            }
         }
         // Disable default background for `Form`
         .scrollContentBackground(.hidden)
-        .ignoresSafeArea(.keyboard)
     }
 
     private var toolbarView: some View {

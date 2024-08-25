@@ -10,7 +10,7 @@ enum G {
     static let rootNodeName = "/"
     static let gitDirName = "git-adc83b19e"
     static let gitDir = FileManager.default.appDataDirectory.appending(
-        path: G.gitDirName)
+        path: G.gitDirName).standardizedFileURL
 
     static let screenWidth = UIScreen.main.bounds.size.width
     static let screenHeight = UIScreen.main.bounds.size.height

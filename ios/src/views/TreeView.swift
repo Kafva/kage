@@ -115,7 +115,8 @@ private struct PwNodeTreeItemView: View {
                 // effect and make the hitbox take up the entire row.
                 .contentShape(Rectangle())
                 .onTapGesture {
-                    G.logger.debug("Tapped '\(node.name)'")
+                    hideKeyboard()
+                    G.logger.debug("Opening '\(node.name)'")
 
                     if !node.isLeaf {
                         return
@@ -133,6 +134,7 @@ private struct PwNodeTreeItemView: View {
         .font(G.bodyFont)
         .swipeActions(allowsFullSwipe: false) {
             Button(action: {
+                hideKeyboard()
                 handleRemove(node: node)
             }) {
                 Image(systemName: "xmark.circle")
@@ -140,6 +142,7 @@ private struct PwNodeTreeItemView: View {
             .tint(.red)
 
             Button(action: {
+                hideKeyboard()
                 currentPwNode = node
                 withAnimation {
                     showPwNode = true
