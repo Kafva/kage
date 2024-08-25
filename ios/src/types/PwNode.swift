@@ -100,6 +100,16 @@ struct PwNode: Identifiable {
         return PwNode(url: isDir ? urlDir : urlFile, children: [])
     }
 
+    /// Does a node with the current name already exist
+    func nameTaken() throws -> Bool {
+        guard let urlNoSuffix = URL(string: url.path().deletingSuffix(".age"))
+        else {
+            throw AppError.invalidNodePath("Bad URL: '\(url.path())'")
+        }
+        return FileManager.default.exists(url)
+            || FileManager.default.exists(urlNoSuffix)
+    }
+
     static func loadFrom(_ fromDir: URL) throws -> Self {
         var children: [Self] = []
 

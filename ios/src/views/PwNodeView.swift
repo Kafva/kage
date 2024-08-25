@@ -49,11 +49,20 @@ struct PwNodeView: View {
     }
 
     private var newNodeIsOk: Bool {
-        return
-            (try? PwNode.loadFrom(
+        guard
+            let newNode = try? PwNode.loadFrom(
                 name: selectedName,
                 relativeFolderPath: selectedFolder,
-                isDir: directorySelected)) != nil
+                isDir: directorySelected)
+        else {
+            return false
+        }
+
+        guard let taken = try? newNode.nameTaken() else {
+            return false
+        }
+
+        return !taken
     }
 
     var body: some View {
@@ -136,10 +145,14 @@ struct PwNodeView: View {
                                 passwordForm
                             }
                         }
+
+                        if appState.currentError != nil {
+                            ErrorTileView()
+                        }
                     }
                 }
             }
-            .frame(width: G.screenWidth, height: 0.35 * G.screenHeight)
+            .frame(width: G.screenWidth, height: 0.4 * G.screenHeight)
             // .border(.red, width: 1)
             .formStyle(.grouped)
 
@@ -207,7 +220,7 @@ struct PwNodeView: View {
             dismiss()
         }
         catch {
-            G.logger.error("\(error.localizedDescription)")
+            appState.uiError("\(error.localizedDescription)")
 
             if let newPwNode {
                 try? FileManager.default.removeItem(at: newPwNode.url)

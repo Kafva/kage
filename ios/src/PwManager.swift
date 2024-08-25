@@ -6,26 +6,34 @@ enum PwManager {
         currentPwNode: PwNode?, newPwNode: PwNode, directorySelected: Bool,
         password: String, confirmPassword: String, generate: Bool
     ) throws {
-        if let currentPwNode, !currentPwNode.isDir {
-            try PwManager.changePasswordNode(
-                currentPwNode: currentPwNode,
-                newPwNode: newPwNode,
-                password: password,
-                confirmPassword: confirmPassword)
+        if let currentPwNode {
+            if currentPwNode.isDir {
+                try PwManager.changePasswordNode(
+                    currentPwNode: currentPwNode,
+                    newPwNode: newPwNode,
+                    password: password,
+                    confirmPassword: confirmPassword)
+            }
+            else {
+                try PwManager.renameFolder(
+                    currentPwNode: currentPwNode,
+                    newPwNode: newPwNode)
 
-        }
-        else if let currentPwNode, currentPwNode.isDir {
-            try PwManager.renameFolder(
-                currentPwNode: currentPwNode,
-                newPwNode: newPwNode)
-        }
-        else if directorySelected {
-            try PwManager.addFolder(newPwNode: newPwNode)
+            }
         }
         else {
-            try PwManager.addPassword(
-                newPwNode: newPwNode, password: password,
-                confirmPassword: confirmPassword, generate: generate)
+            if try newPwNode.nameTaken() {
+                throw AppError.invalidNodePath(
+                    "Path already taken: '\(newPwNode.relativePath)'")
+            }
+            if directorySelected {
+                try PwManager.addFolder(newPwNode: newPwNode)
+            }
+            else {
+                try PwManager.addPassword(
+                    newPwNode: newPwNode, password: password,
+                    confirmPassword: confirmPassword, generate: generate)
+            }
         }
     }
 

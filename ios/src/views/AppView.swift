@@ -95,8 +95,9 @@ struct AppView: View {
             }
             else {
                 /* Password entry */
-                AuthenticationView(showView: $showPlaintext,
-                                   currentPwNode: $currentPwNode)
+                AuthenticationView(
+                    showView: $showPlaintext,
+                    currentPwNode: $currentPwNode)
             }
         }
         // Disable default background for `Form`
