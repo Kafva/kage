@@ -54,13 +54,7 @@ struct PwNode: Identifiable {
         return FileManager.default.isDir(url)
     }
 
-    /// Load a node from the given folder path, the node is allowed to already exist.
-    static func loadFrom(
-        name: String,
-        relativeFolderPath: String,
-        isDir: Bool
-    ) throws -> Self {
-
+    private static func check(name: String) throws {
         if name == G.gitDirName {
             throw AppError.invalidNodePath(
                 "The root node name '\(G.gitDirName)' is dissallowed")
@@ -71,12 +65,28 @@ struct PwNode: Identifiable {
         }
 
         // Dots are allowed, but not by themselves
-        let regex = /^[-_.@åäöÅÄÖa-zA-Z0-9+]{1,64}/
+        let regexName = /^[-_.@åäöÅÄÖa-zA-Z0-9+]{1,64}/
 
-        if (try? regex.wholeMatch(in: name)) == nil || name == "."
+        if (try? regexName.wholeMatch(in: name)) == nil
+            || name.starts(with: ".")
             || name == ".."
         {
             throw AppError.invalidNodePath("'\(name)'")
+        }
+    }
+
+    /// Load a node from the given folder path, the node is validated to be
+    /// allowed to exist, the function does NOT fail if the node already
+    /// exists.
+    static func loadValidatedFrom(
+        name: String,
+        relativeFolderPath: String,
+        isDir: Bool
+    ) throws -> Self {
+        // Validate the new name and every component leading up to it
+        try check(name: name)
+        for compName in relativeFolderPath.split(separator: "/") {
+            try check(name: String(compName))
         }
 
         let parentURL = G.gitDir.appending(path: relativeFolderPath)
@@ -113,13 +123,13 @@ struct PwNode: Identifiable {
             || FileManager.default.exists(urlNoSuffix)
     }
 
-    static func loadFrom(_ fromDir: URL) throws -> Self {
+    static func loadRecursivelyFrom(_ fromDir: URL) throws -> Self {
         var children: [Self] = []
 
         for url in try FileManager.default.ls(fromDir) {
             let node =
                 FileManager.default.isDir(url)
-                ? try loadFrom(url) : PwNode(url: url, children: nil)
+                ? try loadRecursivelyFrom(url) : PwNode(url: url, children: nil)
 
             children.append(node)
         }

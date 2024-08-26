@@ -17,7 +17,7 @@ class AppState: ObservableObject {
     }
 
     func reloadGitTree() throws {
-        rootNode = try PwNode.loadFrom(G.gitDir)
+        rootNode = try PwNode.loadRecursivelyFrom(G.gitDir)
         localHeadMatchesRemote = try Git.localHeadMatchesRemote()
     }
 

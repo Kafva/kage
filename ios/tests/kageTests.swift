@@ -123,7 +123,7 @@ final class kageTests: XCTestCase {
         ]
 
         do {
-            let newPwNode = try PwNode.loadFrom(
+            let newPwNode = try PwNode.loadValidatedFrom(
                 name: name,
                 relativeFolderPath: "/",
                 isDir: false)
@@ -164,7 +164,7 @@ final class kageTests: XCTestCase {
 
         for invalidName in invalidNames {
             XCTAssertThrowsError(
-                try PwNode.loadFrom(
+                try PwNode.loadValidatedFrom(
                     name: invalidName,
                     relativeFolderPath: "/",
                     isDir: false)
@@ -181,8 +181,14 @@ final class kageTests: XCTestCase {
 
     func testBadNodePaths() throws {
         let invalidPairs = [
-            ["red/a", "pass1"],  // Already taken
-            ["red", "a"],  // Already taken
+            // Already taken
+            ["red/a", "pass1"],
+            ["red", "a"],
+            // Invalid names in path
+            ["..", "new"],
+            [".hidden", "new"],
+            ["name.age", "new"],
+            ["§", "new"],
         ]
         let password = getTestcasePassword()
 
@@ -206,7 +212,7 @@ final class kageTests: XCTestCase {
         name: String, relativeFolderPath: String, password: String,
         confirmPassword: String? = nil
     ) throws {
-        let newPwNode = try PwNode.loadFrom(
+        let newPwNode = try PwNode.loadValidatedFrom(
             name: name,
             relativeFolderPath: relativeFolderPath,
             isDir: false)
@@ -228,5 +234,4 @@ final class kageTests: XCTestCase {
     private func getTestcasePassword(function: String = #function) -> String {
         return "password-\(getTestcaseNodeName())"
     }
-
 }

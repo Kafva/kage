@@ -50,7 +50,7 @@ struct PwNodeView: View {
 
     private var newNodeIsOk: Bool {
         guard
-            let newNode = try? PwNode.loadFrom(
+            let newNode = try? PwNode.loadValidatedFrom(
                 name: selectedName,
                 relativeFolderPath: selectedFolder,
                 isDir: directorySelected)
@@ -202,7 +202,7 @@ struct PwNodeView: View {
         var newPwNode: PwNode? = nil
         do {
             // The `newPwNode` and `currentPwNode` are equal if we are modifying an existing node
-            newPwNode = try PwNode.loadFrom(
+            newPwNode = try PwNode.loadValidatedFrom(
                 name: selectedName,
                 relativeFolderPath: selectedFolder,
                 isDir: directorySelected)
