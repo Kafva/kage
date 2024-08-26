@@ -156,7 +156,7 @@ private struct PwNodeTreeItemView: View {
 
     private func handleRemove(node: PwNode) {
         do {
-            try Git.rmCommit(node: node)
+            try PwManager.remove(node: node)
             try appState.reloadGitTree()
 
         }

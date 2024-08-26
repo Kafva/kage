@@ -115,6 +115,33 @@ final class kageTests: XCTestCase {
         }
     }
 
+    func testDeleteEmptyFolder() throws {
+        let name = getTestcaseNodeName()
+        do {
+            let newPwNode = try PwNode.loadValidatedFrom(
+                name: name,
+                relativeFolderPath: "red",
+                isDir: true)
+
+            try PwManager.submit(
+                currentPwNode: nil,
+                newPwNode: newPwNode,
+                directorySelected: true,
+                password: "",
+                confirmPassword: "",
+                generate: false)
+
+            XCTAssert(FileManager.default.isDir(newPwNode.url))
+
+            try PwManager.remove(node: newPwNode)
+
+            XCTAssertFalse(FileManager.default.isDir(newPwNode.url))
+        }
+        catch {
+            XCTFail("\(error.localizedDescription)")
+        }
+    }
+
     func testBadPasswords() throws {
         let name = getTestcaseNodeName()
         let invalidPasswords = [

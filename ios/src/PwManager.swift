@@ -37,6 +37,12 @@ enum PwManager {
         }
     }
 
+    /// Remove the provided node from the tree
+    static func remove(node: PwNode) throws {
+        // TODO handle empty folders
+        try Git.rmCommit(node: node)
+    }
+
     private static func addFolder(newPwNode: PwNode) throws {
         try FileManager.default.createDirectory(
             at: newPwNode.url,
@@ -47,6 +53,7 @@ enum PwManager {
         currentPwNode: PwNode,
         newPwNode: PwNode
     ) throws {
+        // TODO handle empty folders
         try Git.mvCommit(fromNode: currentPwNode, toNode: newPwNode)
     }
 
