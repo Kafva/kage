@@ -115,6 +115,33 @@ git_server_unit() {
 
     done < <(cd $TOP/core && cargo test -- -q --list 2> /dev/null | grep '^git_test::')
 
+    # Create ONE repo for the ios unit tests
+    info "Creating $IOS_REPO_CLIENT"
+    mkdir -p $IOS_REPO_CLIENT
+
+    info "SET THE PASSPHRASE TO: 'x'"
+    _age_generate_keys "$IOS_KEY" "$IOS_PUBKEY"
+    _age_generate_files "$IOS_REPO_CLIENT/test1" "$IOS_PUBKEY" 1
+    echo "This is not the right format ???" > "$IOS_REPO_CLIENT/invalid_content"
+
+    info "Creating $IOS_REPO_REMOTE"
+    mkdir -p $IOS_REPO_REMOTE
+    git -C $IOS_REPO_REMOTE init --bare
+
+    git -C $IOS_REPO_CLIENT init
+    git -C $IOS_REPO_CLIENT config user.name "iOS Doe"
+    git -C $IOS_REPO_CLIENT config user.email "ios.doe@kafva.one"
+    git -C $IOS_REPO_CLIENT config commit.gpgsign false
+    git -C $IOS_REPO_CLIENT add .
+    git -C $IOS_REPO_CLIENT commit -m "First commit"
+    git -C $IOS_REPO_CLIENT remote add origin "$REMOTE_ORIGIN/ios.git"
+
+    git_server_restart
+    sleep 1
+
+    info "Pushing first commit"
+    git -C $IOS_REPO_CLIENT push --set-upstream origin main
+
     tree -L 1 "$TOP/.testenv/kage-store"
 }
 
@@ -182,10 +209,17 @@ git_server_status() {
 
 REMOTE_ORIGIN="git://127.0.0.1"
 TOP="$(cd "$(dirname "$0")/.." && pwd)"
+
 JAMES_REPO_REMOTE="$TOP/.testenv/kage-store/james.git"
 JAMES_REPO_CLIENT="$TOP/.testenv/kage-client/james"
 JAMES_KEY="$TOP/.testenv/kage-client/james/.age-identities"
 JAMES_PUBKEY="$TOP/.testenv/kage-client/james/.age-recipients"
+
+IOS_REPO_REMOTE="$TOP/.testenv/kage-store/ios.git"
+IOS_REPO_CLIENT="$TOP/.testenv/kage-client/ios"
+IOS_KEY="$TOP/.testenv/kage-client/ios/.age-identities"
+IOS_PUBKEY="$TOP/.testenv/kage-client/ios/.age-recipients"
+
 GIT_SERVER_ARGS=(
     --base-path="$TOP/.testenv/kage-store"
     --enable=receive-pack

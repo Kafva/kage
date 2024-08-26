@@ -12,6 +12,9 @@ james.git)
 *_test.git)
     [ "$REMOTE_ADDR" = 127.0.0.1 ]
 ;;
+ios.git)
+    [ "$REMOTE_ADDR" = 127.0.0.1 ]
+;;
 *)
     echo "Access denied"
     exit 1

@@ -73,40 +73,38 @@ enum PwManager {
     /// moving the password, one commit is created for changing its value.
     private static func changePasswordNode(
         currentPwNode: PwNode,
-        newPwNode: PwNode?,
+        newPwNode: PwNode,
         password: String,
         confirmPassword: String
     ) throws {
-        if currentPwNode.isPassword {
-            try checkPassword(
-                password: password, confirmPassword: confirmPassword)
-        }
-
-        // Select the new node if it will be moved, otherwise use the selected node
-        let pwNode = newPwNode ?? currentPwNode
         // Move the password node if the current and new node are different
-        let nodePathUnchanged = pwNode.url == currentPwNode.url
-        if let newPwNode, !nodePathUnchanged {
+        if newPwNode.url != currentPwNode.url {
             try Git.mvCommit(fromNode: currentPwNode, toNode: newPwNode)
         }
 
-        let recipient = G.gitDir.appending(path: ".age-recipients")
+        // Update the password if one was provided
+        if !password.isEmpty {
+            try checkPassword(
+                password: password, confirmPassword: confirmPassword)
+            let recipient = G.gitDir.appending(path: ".age-recipients")
 
-        try Age.encrypt(
-            recipient: recipient,
-            outpath: pwNode.url,
-            plaintext: password)
+            try Age.encrypt(
+                recipient: recipient,
+                outpath: newPwNode.url,
+                plaintext: password)
 
-        try Git.addCommit(node: pwNode, nodeIsNew: !nodePathUnchanged)
+            try Git.addCommit(node: newPwNode, nodeIsNew: false)
+        }
     }
 
     private static func addPassword(
         newPwNode: PwNode, password: String,
         confirmPassword: String, generate: Bool
     ) throws {
-        try checkPassword(
-            password: password, confirmPassword: confirmPassword,
-            generate: generate)
+        if !generate {
+            try checkPassword(
+                password: password, confirmPassword: confirmPassword)
+        }
 
         let recipient = G.gitDir.appending(path: ".age-recipients")
         let plaintext = generate ? String.random(18) : password
@@ -120,7 +118,7 @@ enum PwManager {
     }
 
     private static func checkPassword(
-        password: String, confirmPassword: String, generate: Bool = false
+        password: String, confirmPassword: String
     ) throws {
         if password.count > G.maxPasswordLength || password.isEmpty
             || !password.isContiguousUTF8
@@ -128,7 +126,7 @@ enum PwManager {
             throw AppError.invalidPasswordFormat
         }
 
-        if !generate && password != confirmPassword {
+        if password != confirmPassword {
             throw AppError.passwordMismatch
         }
     }

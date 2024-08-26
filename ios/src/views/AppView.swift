@@ -44,7 +44,7 @@ struct AppView: View {
                         Color(UIColor.systemBackground)
                         overlayView
                             .frame(width: width, height: G.screenHeight)
-                            .transition(.move(edge: .bottom))
+                        //.transition(.move(edge: .bottom))
                     }
                 }
             )
