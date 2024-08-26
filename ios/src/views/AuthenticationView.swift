@@ -19,9 +19,7 @@ struct AuthenticationView: View {
                 // suggestions in the on-screen keyboard, for now (iOS 18.0).
                 .textContentType(.oneTimeCode)
                 .onSubmit {
-                    withAnimation {
-                        submit()
-                    }
+                    submit()
                 }
                 .padding(.bottom, 20)
 
@@ -30,16 +28,12 @@ struct AuthenticationView: View {
                     appState.currentError = nil
                     currentPwNode = nil
                     hideKeyboard()
-                    withAnimation {
-                        showView = false
-                    }
+                    showView = false
                 }
                 .padding(.leading, 10)
                 Spacer()
                 Button("Ok") {
-                    withAnimation {
-                        submit()
-                    }
+                    submit()
                 }
                 .padding(.trailing, 10)
             }

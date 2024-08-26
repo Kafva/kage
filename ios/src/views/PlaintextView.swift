@@ -62,10 +62,8 @@ struct PlaintextView: View {
 
     private func dismiss() {
         appState.currentError = nil
-        withAnimation {
-            currentPwNode = nil
-            showView = false
-        }
+        currentPwNode = nil
+        showView = false
     }
 
     private func handleShowPlaintext() {

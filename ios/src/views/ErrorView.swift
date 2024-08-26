@@ -19,10 +19,8 @@ struct ErrorView: View {
 
             HStack {
                 Button(action: {
-                    withAnimation {
-                        showView = false
-                        appState.currentError = nil
-                    }
+                    showView = false
+                    appState.currentError = nil
                 }) {
                     Text("Dismiss").font(.body)  // Scaling size
                 }

@@ -110,7 +110,7 @@ struct AppView: View {
         return HStack(spacing: 15) {
             /* Settings */
             Button {
-                withAnimation { showSettings = true }
+                showSettings = true
             } label: {
                 Image(systemName: "gearshape")
             }
@@ -118,7 +118,7 @@ struct AppView: View {
 
             /* New password or folder */
             Button {
-                withAnimation { showPwNode = true }
+                showPwNode = true
             } label: {
                 Image(systemName: "plus.rectangle.portrait")
             }
@@ -156,7 +156,7 @@ struct AppView: View {
             if appState.currentError != nil {
                 /* Error status indicator */
                 Button {
-                    withAnimation { showErrors = true }
+                    showErrors = true
                 } label: {
                     Image(systemName: "exclamationmark.circle").foregroundColor(
                         G.errorColor)
@@ -178,13 +178,11 @@ struct AppView: View {
     }
 
     private func dismiss() {
-        withAnimation {
-            self.showSettings = false
-            self.showErrors = false
-            self.showPwNode = false
-            self.showPlaintext = false
-            self.currentPwNode = nil
-        }
+        self.showSettings = false
+        self.showErrors = false
+        self.showPwNode = false
+        self.showPlaintext = false
+        self.currentPwNode = nil
     }
 
     private func handleGitPush() {

@@ -161,7 +161,7 @@ struct SettingsView: View {
         // not keep it when returning back to the main view
         hideKeyboard()
         appState.currentError = nil
-        withAnimation { showView = false }
+        showView = false
     }
 
     private var validRemote: Bool {

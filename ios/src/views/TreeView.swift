@@ -122,9 +122,7 @@ private struct PwNodeTreeItemView: View {
                         return
                     }
                     currentPwNode = node
-                    withAnimation {
-                        showPlaintext = true
-                    }
+                    showPlaintext = true
                 }
             }
             else {
@@ -144,9 +142,7 @@ private struct PwNodeTreeItemView: View {
             Button(action: {
                 hideKeyboard()
                 currentPwNode = node
-                withAnimation {
-                    showPwNode = true
-                }
+                showPwNode = true
             }) {
                 Image(systemName: "pencil")
             }

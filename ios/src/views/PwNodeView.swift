@@ -241,9 +241,7 @@ struct PwNodeView: View {
     private func dismiss() {
         G.logger.debug("Dismissing overlay")
         hideKeyboard()
-        withAnimation {
-            self.showView = false
-            self.currentPwNode = nil
-        }
+        self.showView = false
+        self.currentPwNode = nil
     }
 }
