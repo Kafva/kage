@@ -27,7 +27,7 @@ rustup component add llvm-tools-preview
 
 ### iOS
 Unit tests can be ran from within Xcode, the tests expect the development
-server to be running on localhost.
+server to be running on localhost, the passphrase should be set to 'x'.
 ```bash
 ./tools/serverdevel.sh run
 ```

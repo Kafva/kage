@@ -1,6 +1,6 @@
 import Foundation
 
-enum AppError: Error, LocalizedError {
+enum AppError: Error, LocalizedError, Equatable {
     case urlError(String)
     case cStringError
     case invalidCommit
@@ -8,6 +8,7 @@ enum AppError: Error, LocalizedError {
     case gitError(String)
     case passwordMismatch
     case invalidNodePath(String)
+    case invalidPasswordFormat
 
     var errorDescription: String? {
         switch self {
@@ -25,6 +26,8 @@ enum AppError: Error, LocalizedError {
             return "Passwords do not match"
         case .invalidNodePath(let msg):
             return "Invalid node: \(msg)"
+        case .invalidPasswordFormat:
+            return "Invalid password format"
         }
     }
 }

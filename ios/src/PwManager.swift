@@ -58,9 +58,7 @@ enum PwManager {
         password: String,
         confirmPassword: String
     ) throws {
-        if !password.isEmpty && password != confirmPassword {
-            throw AppError.passwordMismatch
-        }
+        try checkPassword(password: password, confirmPassword: confirmPassword)
 
         // Select the new node if it will be moved, otherwise use the selected node
         let pwNode = newPwNode ?? currentPwNode
@@ -84,9 +82,9 @@ enum PwManager {
         newPwNode: PwNode, password: String,
         confirmPassword: String, generate: Bool
     ) throws {
-        if !generate && (password.isEmpty || password != confirmPassword) {
-            throw AppError.passwordMismatch
-        }
+        try checkPassword(
+            password: password, confirmPassword: confirmPassword,
+            generate: generate)
 
         let recipient = G.gitDir.appending(path: ".age-recipients")
         let plaintext = generate ? String.random(18) : password
@@ -97,5 +95,19 @@ enum PwManager {
             plaintext: plaintext)
 
         try Git.addCommit(node: newPwNode, nodeIsNew: true)
+    }
+
+    private static func checkPassword(
+        password: String, confirmPassword: String, generate: Bool = false
+    ) throws {
+        if password.count > G.maxPasswordLength || password.isEmpty
+            || !password.isContiguousUTF8
+        {
+            throw AppError.invalidPasswordFormat
+        }
+
+        if !generate && password != confirmPassword {
+            throw AppError.passwordMismatch
+        }
     }
 }

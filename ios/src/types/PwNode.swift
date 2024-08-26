@@ -70,10 +70,13 @@ struct PwNode: Identifiable {
             throw AppError.invalidNodePath("The '.age' suffix is dissallowed")
         }
 
-        let regex = /^[-_.@\/a-zA-Z0-9+]{1,64}/
+        // Dots are allowed, but not by themselves
+        let regex = /^[-_.@åäöÅÄÖa-zA-Z0-9+]{1,64}/
 
-        if (try? regex.wholeMatch(in: name)) == nil {
-            throw AppError.invalidNodePath("Invalid node name: '\(name)'")
+        if (try? regex.wholeMatch(in: name)) == nil || name == "."
+            || name == ".."
+        {
+            throw AppError.invalidNodePath("'\(name)'")
         }
 
         let parentURL = G.gitDir.appending(path: relativeFolderPath)
