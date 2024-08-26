@@ -37,8 +37,8 @@ func ffi_git_pull(_ repo: UnsafePointer<CChar>) -> CInt
 @_silgen_name("ffi_git_push")
 func ffi_git_push(_ repo: UnsafePointer<CChar>) -> CInt
 
-@_silgen_name("ffi_git_index_has_local_changes")
-func ffi_git_index_has_local_changes(_ repo: UnsafePointer<CChar>) -> CInt
+@_silgen_name("ffi_git_local_head_matches_remote")
+func ffi_git_local_head_matches_remote(_ repo: UnsafePointer<CChar>) -> CInt
 
 @_silgen_name("ffi_git_log")
 func ffi_git_log(_ repo: UnsafePointer<CChar>) -> CStringArray
@@ -111,9 +111,9 @@ enum Git {
         G.logger.debug("Push successful")
     }
 
-    static func indexHasLocalChanges() throws -> Bool {
+    static func localHeadMatchesRemote() throws -> Bool {
         let repoC = try repo.path().toCString()
-        let r = ffi_git_index_has_local_changes(repoC)
+        let r = ffi_git_local_head_matches_remote(repoC)
         if r != 0 && r != 1 {
             try throwError(code: r)
         }
@@ -121,7 +121,7 @@ enum Git {
     }
 
     static func reset() throws {
-        G.logger.warning("Resetting to remote HEAD")
+        G.logger.warning("Resetting to local HEAD")
         let repoC = try repo.path().toCString()
         let r = ffi_git_reset(repoC)
         if r != 0 {

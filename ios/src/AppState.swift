@@ -7,7 +7,7 @@ func ffi_free_cstring(_ ptr: UnsafeMutablePointer<CChar>?)
 class AppState: ObservableObject {
     @Published var identityUnlockedAt: Date? = nil
     @Published var rootNode: PwNode = PwNode(url: G.gitDir, children: [])
-    @Published var hasLocalChanges: Bool = false
+    @Published var localHeadMatchesRemote: Bool = true
 
     /// Description of last high-level error that occurred
     @Published var currentError: String?
@@ -18,7 +18,7 @@ class AppState: ObservableObject {
 
     func reloadGitTree() throws {
         rootNode = try PwNode.loadFrom(G.gitDir)
-        hasLocalChanges = try Git.indexHasLocalChanges()
+        localHeadMatchesRemote = try Git.localHeadMatchesRemote()
     }
 
     func uiError(_ message: String, line: Int = #line, fileID: String = #fileID)

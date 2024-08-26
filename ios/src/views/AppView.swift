@@ -150,7 +150,7 @@ struct AppView: View {
             // Add trailing padding if both sync and error are hidden
             .padding(
                 .trailing,
-                !appState.hasLocalChanges && appState.currentError == nil
+                appState.localHeadMatchesRemote && appState.currentError == nil
                     ? edgesSpacing : 0)
 
             if appState.currentError != nil {
@@ -163,7 +163,7 @@ struct AppView: View {
                 }
                 .padding(.trailing, edgesSpacing)
             }
-            else if appState.hasLocalChanges {
+            else if !appState.localHeadMatchesRemote {
                 /* Sync status indicator */
                 Button {
                     handleGitPush()

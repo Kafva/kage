@@ -149,7 +149,7 @@ pub extern "C" fn ffi_git_commit(
 }
 
 #[no_mangle]
-pub extern "C" fn ffi_git_index_has_local_changes(
+pub extern "C" fn ffi_git_local_head_matches_remote(
     repo_path: *const c_char,
 ) -> c_int {
     let Some(mut git_last_error) = try_lock() else {
@@ -159,8 +159,8 @@ pub extern "C" fn ffi_git_index_has_local_changes(
 
     let Ok(repo_path) = repo_path else { return -1 };
 
-    match git_index_has_local_changes(repo_path) {
-        Ok(has_changes) => has_changes as c_int,
+    match git_local_head_matches_remote(repo_path) {
+        Ok(r) => r as c_int,
         Err(err) => {
             error!("{}", err);
             *git_last_error = Some(err);

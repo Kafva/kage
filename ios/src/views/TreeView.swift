@@ -162,7 +162,12 @@ private struct PwNodeTreeItemView: View {
         }
         catch {
             appState.uiError("\(error.localizedDescription)")
-            try? Git.reset()
+            do {
+                try Git.reset()
+            }
+            catch {
+                G.logger.error("\(error.localizedDescription)")
+            }
         }
     }
 }

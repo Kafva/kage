@@ -38,6 +38,50 @@ fn git_commit_file_test() {
 }
 
 #[test]
+/// Test that we correctly identify if there are new local commits to push
+fn git_check_head_test() {
+    git_setup();
+    let remote_path = &format!("{}/check_head_test.git", GIT_REMOTE_CLONE_URL);
+    let repo_path = &format!("{}/check_head_test", GIT_CLIENT_DIR);
+    let now = current_time();
+    let filename = &format!("file-{}", now);
+    let file_path = format!("{}/{}", repo_path, filename);
+
+    clone(remote_path, repo_path);
+
+    fs::write(&file_path, "Content").expect("write file failed");
+
+    // No difference
+    let equal =
+        git_local_head_matches_remote(repo_path).expect("Git operation failed");
+    assert!(equal);
+
+    // Stage the file
+    assert_ok(git_stage(repo_path, &filename));
+
+    // Still no difference...
+    let equal =
+        git_local_head_matches_remote(repo_path).expect("Git operation failed");
+    assert!(equal);
+
+    // Commit the file
+    assert_ok(git_commit(repo_path, &format!("Add '{}'", filename)));
+
+    // Difference!
+    let equal =
+        git_local_head_matches_remote(repo_path).expect("Git operation failed");
+    assert!(!equal);
+
+    // Push the file
+    assert_ok(git_push(repo_path));
+
+    // Back to no difference
+    let equal =
+        git_local_head_matches_remote(repo_path).expect("Git operation failed");
+    assert!(equal);
+}
+
+#[test]
 /// Test that we can add, commit and push a multilevel folder with two files
 fn git_commit_folder_test() {
     git_setup();
@@ -142,7 +186,7 @@ fn git_pull_test() {
 }
 
 #[test]
-/// Test that we can reset to the remote head commit in a local checkout
+/// Test that we can reset to the previous head commit in a local checkout
 fn git_reset_test() {
     git_setup();
     let remote_path = &format!("{}/reset_test.git", GIT_REMOTE_CLONE_URL);
@@ -152,10 +196,12 @@ fn git_reset_test() {
     let file_to_keep = format!("file_to_keep-{}", now);
     let file_to_remove = format!("file_to_remove-{}", now);
     let file_to_modify = format!("file_to_modify-{}", now);
+    let file_to_not_keep = format!("file_to_not_keep-{}", now);
 
     let file_to_keep_path = format!("{}/{}", repo_path, file_to_keep);
     let file_to_remove_path = format!("{}/{}", repo_path, file_to_remove);
     let file_to_modify_path = format!("{}/{}", repo_path, file_to_modify);
+    let file_to_not_keep_path = format!("{}/{}", repo_path, file_to_not_keep);
 
     let original_data = "To modify";
 
@@ -168,27 +214,32 @@ fn git_reset_test() {
     assert_ok(git_stage(repo_path, &file_to_keep));
     assert_ok(git_stage(repo_path, &file_to_remove));
     assert_ok(git_stage(repo_path, &file_to_modify));
-    assert_ok(git_commit(repo_path, "Test commit")); // FAIL
+    assert_ok(git_commit(repo_path, "Test commit"));
     assert_ok(git_push(repo_path));
 
-    // Stage some changes to them and commit
+    // Stage some new changes
+    fs::write(&file_to_not_keep_path, "To not keep")
+        .expect("write file failed");
     fs::remove_file(&file_to_remove_path).expect("remove file failed");
     fs::write(&file_to_modify_path, "Different content")
         .expect("write file failed");
 
+    // The 'file_to_not_keep' is only removed from the repo with `reset` if it has been staged
+    assert_ok(git_stage(repo_path, &file_to_not_keep));
     assert_ok(git_stage(repo_path, &file_to_remove));
     assert_ok(git_stage(repo_path, &file_to_modify));
-    assert_ok(git_commit(repo_path, "Commit to undo"));
 
     assert!(fs::metadata(&file_to_keep_path).is_ok());
+    assert!(fs::metadata(&file_to_not_keep_path).is_ok());
     assert!(fs::metadata(&file_to_remove_path).is_err());
     assert!(fs::metadata(&file_to_modify_path).is_ok());
 
-    // Reset
+    // Reset the changes
     assert_ok(git_reset(repo_path));
 
     // Verify that changes were restored
     assert!(fs::metadata(&file_to_keep_path).is_ok());
+    assert!(fs::metadata(&file_to_not_keep).is_err());
     assert!(fs::metadata(&file_to_remove_path).is_ok());
     let data = fs::read(&file_to_modify_path).expect("read file failed");
     assert_eq!(data, original_data.as_bytes())

@@ -222,10 +222,16 @@ struct PwNodeView: View {
         catch {
             appState.uiError("\(error.localizedDescription)")
 
+            do {
+                try Git.reset()
+            }
+            catch {
+                G.logger.error("\(error.localizedDescription)")
+            }
+
             if let newPwNode {
                 try? FileManager.default.removeItem(at: newPwNode.url)
             }
-            try? Git.reset()
         }
     }
 

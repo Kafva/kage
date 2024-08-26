@@ -207,18 +207,16 @@ pub fn git_commit(repo_path: &str, message: &str) -> Result<(), git2::Error> {
     Ok(())
 }
 
-/// Hard reset to the remote HEAD, discarding local commits that have not
-/// been pushed.
+/// Hard reset to the local HEAD, discarding all uncommited (and staged) local
+/// changes. Note: untracked files and directories that have not been staged
+/// need to be manually removed.
 pub fn git_reset(repo_path: &str) -> Result<(), git2::Error> {
     let repo = Repository::open(repo_path)?;
-    let remote_origin_head = remote_branch_oid(&repo)?;
+    let local_head = repo.revparse_single(GIT_BRANCH)?.id();
 
-    debug!(
-        "Resetting HEAD to {}/{} {}",
-        GIT_REMOTE, GIT_BRANCH, remote_origin_head
-    );
+    debug!("Resetting HEAD to {} {}", GIT_BRANCH, local_head);
 
-    let obj = repo.find_object(remote_origin_head, None)?;
+    let obj = repo.find_object(local_head, None)?;
     repo.reset(&obj, git2::ResetType::Hard, None)
 }
 
@@ -235,18 +233,12 @@ pub fn git_clone(url: &str, into: &str) -> Result<(), git2::Error> {
     Ok(())
 }
 
-/// Returns true if there are no uncommitted changes and nothing to push
-pub fn git_index_has_local_changes(
+/// Returns true if remote and local HEAD are equal
+pub fn git_local_head_matches_remote(
     repo_path: &str,
 ) -> Result<bool, git2::Error> {
     let repo = Repository::open(repo_path)?;
     let head = repo.head()?;
-    let statuses = repo.statuses(None)?;
-
-    let is_clean = statuses.iter().all(|entry| {
-        let status = entry.status();
-        status.is_empty()
-    });
 
     let remote_oid = remote_branch_oid(&repo)?;
     let Some(local_oid) = head.target() else {
@@ -254,7 +246,7 @@ pub fn git_index_has_local_changes(
         return Ok(false);
     };
 
-    Ok(!is_clean || local_oid != remote_oid)
+    Ok(local_oid == remote_oid)
 }
 
 pub fn git_config_set_user(
