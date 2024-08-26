@@ -82,7 +82,7 @@ final class kageTests: XCTestCase {
     }
 
     /// Add a new password and push it to the remote
-    func testAdd() throws {
+    func testAddPassword() throws {
         let name = getTestcaseNodeName()
         let password = getTestcasePassword()
         do {
@@ -113,6 +113,99 @@ final class kageTests: XCTestCase {
         catch {
             XCTFail("\(error.localizedDescription)")
         }
+    }
+
+    func testMovePassword() throws {
+        let name = getTestcaseNodeName()
+        let password = ""  // Keep original password
+        do {
+            let currentPwNode = try PwNode.loadValidatedFrom(
+                name: "pass2",
+                relativeFolderPath: "blue/a",
+                isDir: false)
+
+            let newPwNode = try doSubmit(
+                name: name, relativeFolderPath: "/", password: password,
+                currentPwNode: currentPwNode)
+
+            // Reload git tree with new entry
+            try appState.reloadGitTree()
+
+            // Verify that the node was inserted as expected
+            let matches = appState.rootNode.findChildren(predicate: name)
+            guard let node = matches.first else {
+                XCTFail("New node not found in tree")
+                return
+            }
+
+            XCTAssert(node.name == name)
+            XCTAssert(FileManager.default.exists(newPwNode.url))
+            XCTAssertFalse(FileManager.default.exists(currentPwNode.url))
+        }
+        catch {
+            XCTFail("\(error.localizedDescription)")
+        }
+    }
+
+    func testDeletePassword() throws {
+        do {
+            let node = try PwNode.loadValidatedFrom(
+                name: "pass5",
+                relativeFolderPath: "blue/a",
+                isDir: false)
+            let predicate = node.relativePath.deletingSuffix(".age")
+
+            var matches = appState.rootNode.findChildren(predicate: predicate)
+            XCTAssert(matches.count > 0)
+            XCTAssert(FileManager.default.exists(node.url))
+
+            try PwManager.remove(node: node)
+
+            // Reload git tree with new entry
+            try appState.reloadGitTree()
+
+            // Verify that the node was removed
+            matches = appState.rootNode.findChildren(predicate: predicate)
+
+            XCTAssert(matches.count == 0)
+            XCTAssertFalse(FileManager.default.exists(node.url))
+        }
+        catch {
+            XCTFail("\(error.localizedDescription)")
+        }
+
+    }
+
+    func testMoveFolder() throws {
+        let name = getTestcaseNodeName()
+        do {
+            let currentPwNode = try PwNode.loadValidatedFrom(
+                name: "a",
+                relativeFolderPath: "green",
+                isDir: true)
+
+            let newPwNode = try doSubmit(
+                name: name, relativeFolderPath: "/green", password: "",
+                currentPwNode: currentPwNode)
+
+            // Reload git tree with new entry
+            try appState.reloadGitTree()
+
+            // Verify that the node was inserted as expected
+            let matches = appState.rootNode.findChildren(predicate: name)
+            guard let node = matches.first else {
+                XCTFail("New node not found in tree")
+                return
+            }
+
+            XCTAssert(node.name == name)
+            XCTAssert(FileManager.default.exists(newPwNode.url))
+            XCTAssertFalse(FileManager.default.exists(currentPwNode.url))
+        }
+        catch {
+            XCTFail("\(error.localizedDescription)")
+        }
+
     }
 
     func testDeleteEmptyFolders() throws {
@@ -212,6 +305,10 @@ final class kageTests: XCTestCase {
             [".hidden", "new"],
             ["name.age", "new"],
             ["§", "new"],
+            // Already taken name in path
+            ["red/a/pass1", "child"],
+            ["red/invalid_content", "child"],
+            ["red/invalid_content/non_existant", "child"],
         ]
         let password = getTestcasePassword()
 
@@ -233,6 +330,7 @@ final class kageTests: XCTestCase {
 
     private func doSubmit(
         name: String, relativeFolderPath: String, password: String,
+        currentPwNode: PwNode? = nil,
         confirmPassword: String? = nil,
         directorySelected: Bool = false
     ) throws -> PwNode {
@@ -242,7 +340,7 @@ final class kageTests: XCTestCase {
             isDir: directorySelected)
 
         try PwManager.submit(
-            currentPwNode: nil,
+            currentPwNode: currentPwNode,
             newPwNode: newPwNode,
             directorySelected: directorySelected,
             password: password,
