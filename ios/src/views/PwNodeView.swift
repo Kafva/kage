@@ -45,7 +45,10 @@ struct PwNodeView: View {
     }
 
     private var directorySelected: Bool {
-        return currentPwNode?.isDir ?? (nodeType == .folder)
+        if let currentPwNode {
+            return !currentPwNode.isPassword
+        }
+        return nodeType == .folder
     }
 
     private var newNodeIsOk: Bool {
@@ -70,13 +73,13 @@ struct PwNodeView: View {
         let passwordIsOk: Bool
 
         if let currentPwNode {
-            if currentPwNode.isDir {
-                title = "Edit folder '\(currentPwNode.name)'"
-                passwordIsOk = true
-            }
-            else {
+            if currentPwNode.isPassword {
                 title = "Edit password '\(currentPwNode.name)'"
                 passwordIsOk = (password.isEmpty || password == confirmPassword)
+            }
+            else {
+                title = "Edit folder '\(currentPwNode.name)'"
+                passwordIsOk = true
             }
         }
         // No node currently selected

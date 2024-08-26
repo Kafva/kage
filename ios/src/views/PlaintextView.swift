@@ -73,7 +73,7 @@ struct PlaintextView: View {
             G.logger.debug("No target node set")
             return
         }
-        if !currentPwNode.isLeaf {
+        if !currentPwNode.isPassword {
             return
         }
         do {

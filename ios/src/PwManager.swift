@@ -7,7 +7,7 @@ enum PwManager {
         password: String, confirmPassword: String, generate: Bool
     ) throws {
         if let currentPwNode {
-            if currentPwNode.isDir {
+            if currentPwNode.isPassword {
                 try PwManager.changePasswordNode(
                     currentPwNode: currentPwNode,
                     newPwNode: newPwNode,
@@ -38,13 +38,15 @@ enum PwManager {
 
     /// Remove the provided node from the tree
     static func remove(node: PwNode) throws {
-        if try FileManager.default.findFirstFile(node.url) == nil {
-            // Just remove the node if there are no files beneath it
-            try FileManager.default.removeItem(at: node.url)
+        if !node.isPassword {
+            if (try? FileManager.default.findFirstFile(node.url)) == nil {
+                // Remove the node without creating a commit if there are no
+                // files beneath it
+                try FileManager.default.removeItem(at: node.url)
+                return
+            }
         }
-        else {
-            try Git.rmCommit(node: node)
-        }
+        try Git.rmCommit(node: node)
     }
 
     private static func addFolder(newPwNode: PwNode) throws {
@@ -57,7 +59,13 @@ enum PwManager {
         currentPwNode: PwNode,
         newPwNode: PwNode
     ) throws {
-        // TODO handle empty folders
+        if (try? FileManager.default.findFirstFile(currentPwNode.url)) == nil {
+            // Move the node without creating a commit if there are no
+            // files beneath it
+            try FileManager.default.moveItem(
+                at: currentPwNode.url, to: newPwNode.url)
+            return
+        }
         try Git.mvCommit(fromNode: currentPwNode, toNode: newPwNode)
     }
 
@@ -69,7 +77,10 @@ enum PwManager {
         password: String,
         confirmPassword: String
     ) throws {
-        try checkPassword(password: password, confirmPassword: confirmPassword)
+        if currentPwNode.isPassword {
+            try checkPassword(
+                password: password, confirmPassword: confirmPassword)
+        }
 
         // Select the new node if it will be moved, otherwise use the selected node
         let pwNode = newPwNode ?? currentPwNode

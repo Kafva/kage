@@ -153,9 +153,10 @@ final class kageTests: XCTestCase {
                 name: "pass5",
                 relativeFolderPath: "blue/a",
                 isDir: false)
-            let predicate = node.relativePath.deletingSuffix(".age")
-
-            var matches = appState.rootNode.findChildren(predicate: predicate)
+            var matches = appState.rootNode.findChildren(predicate: "blue")
+                .first!
+                .findChildren(predicate: "a").first!
+                .findChildren(predicate: node.name)
             XCTAssert(matches.count > 0)
             XCTAssert(FileManager.default.exists(node.url))
 
@@ -165,7 +166,9 @@ final class kageTests: XCTestCase {
             try appState.reloadGitTree()
 
             // Verify that the node was removed
-            matches = appState.rootNode.findChildren(predicate: predicate)
+            matches = appState.rootNode.findChildren(predicate: "blue").first!
+                .findChildren(predicate: "a").first!
+                .findChildren(predicate: node.name)
 
             XCTAssert(matches.count == 0)
             XCTAssertFalse(FileManager.default.exists(node.url))
@@ -173,7 +176,6 @@ final class kageTests: XCTestCase {
         catch {
             XCTFail("\(error.localizedDescription)")
         }
-
     }
 
     func testMoveFolder() throws {
@@ -185,30 +187,49 @@ final class kageTests: XCTestCase {
                 isDir: true)
 
             let newPwNode = try doSubmit(
-                name: name,
-                relativeFolderPath: "/green",
-                password: "",
-                currentPwNode: currentPwNode,
-                directorySelected: true)
+                name: name, relativeFolderPath: "green", password: "",
+                currentPwNode: currentPwNode, directorySelected: true)
 
-            // Reload git tree with new entry
+            // Make sure the folders were moved
+            XCTAssertFalse(FileManager.default.isDir(currentPwNode.url))
+            XCTAssert(FileManager.default.isDir(newPwNode.url))
+
+            // Make sure a commit was created
             try appState.reloadGitTree()
-
-            // Verify that the node was inserted as expected
-            let matches = appState.rootNode.findChildren(predicate: name)
-            guard let node = matches.first else {
-                XCTFail("New node not found in tree")
-                return
-            }
-
-            XCTAssert(node.name == name)
-            XCTAssert(FileManager.default.exists(newPwNode.url))
-            XCTAssertFalse(FileManager.default.exists(currentPwNode.url))
+            XCTAssertFalse(appState.localHeadMatchesRemote)
         }
         catch {
             XCTFail("\(error.localizedDescription)")
         }
+    }
 
+    func testMoveEmptyFolders() throws {
+        let name = getTestcaseNodeName()
+        do {
+            let currentPwNode = try PwNode.loadValidatedFrom(
+                name: name,
+                relativeFolderPath: "/",
+                isDir: true)
+
+            // Create new folders
+            try FileManager.default.mkdirp(currentPwNode.url)
+            try FileManager.default.mkdirp(
+                currentPwNode.url.appending(path: "child"))
+
+            let newPwNode = try doSubmit(
+                name: "\(name)-new", relativeFolderPath: "green", password: "",
+                currentPwNode: currentPwNode, directorySelected: true)
+
+            XCTAssertFalse(FileManager.default.isDir(currentPwNode.url))
+            XCTAssert(FileManager.default.isDir(newPwNode.url))
+
+            // Make sure no commit was created
+            try appState.reloadGitTree()
+            XCTAssert(appState.localHeadMatchesRemote)
+        }
+        catch {
+            XCTFail("\(error.localizedDescription)")
+        }
     }
 
     func testDeleteEmptyFolders() throws {

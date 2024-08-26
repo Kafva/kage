@@ -46,12 +46,8 @@ struct PwNode: Identifiable {
         relativePath.deletingSuffix(".age")
     }
 
-    var isLeaf: Bool {
-        return (children ?? []).isEmpty
-    }
-
-    var isDir: Bool {
-        return FileManager.default.isDir(url)
+    var isPassword: Bool {
+        return url.path().hasSuffix(".age")
     }
 
     private static func check(name: String) throws {
@@ -139,7 +135,7 @@ struct PwNode: Identifiable {
 
     /// Retrieve a list of all folder paths in the tree
     func flatFolders() -> [PwNode] {
-        if !self.isDir {
+        if !FileManager.default.isDir(url) {
             return []
         }
 
@@ -161,7 +157,7 @@ struct PwNode: Identifiable {
         let predicate = predicate.lowercased()
 
         for child in children ?? [] {
-            if child.isLeaf && onlyFolders {
+            if child.isPassword && onlyFolders {
                 continue
             }
 

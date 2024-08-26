@@ -54,7 +54,7 @@ private struct TreeNodeView: View {
     @State private var isExpanded: Bool = false
 
     var body: some View {
-        if node.isLeaf {
+        if node.isPassword {
             if searchText.isEmpty || parentMatchesSearch
                 || node.name.localizedCaseInsensitiveContains(searchText)
             {
@@ -106,7 +106,7 @@ private struct PwNodeTreeItemView: View {
 
     var body: some View {
         Group {
-            if node.isLeaf {
+            if node.isPassword {
                 HStack {
                     Text(node.name)
                     Spacer()
@@ -118,7 +118,7 @@ private struct PwNodeTreeItemView: View {
                     hideKeyboard()
                     G.logger.debug("Opening '\(node.name)'")
 
-                    if !node.isLeaf {
+                    if !node.isPassword {
                         return
                     }
                     currentPwNode = node
