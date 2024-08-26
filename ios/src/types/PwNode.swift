@@ -36,10 +36,11 @@ struct PwNode: Identifiable {
     /// Path relative to git root
     var relativePath: String {
         let s = url.standardizedFileURL.path().deletingPrefix(G.gitDir.path())
+            .trimmingCharacters(in: CharacterSet(charactersIn: "/"))
         if s.isEmpty {
             return G.rootNodeName
         }
-        return s.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
+        return s
     }
 
     var relativePathNoExtension: String {
@@ -125,12 +126,13 @@ struct PwNode: Identifiable {
         for url in try FileManager.default.ls(fromDir) {
             let node =
                 FileManager.default.isDir(url)
-                ? try loadRecursivelyFrom(url) : PwNode(url: url, children: nil)
+                ? try loadRecursivelyFrom(url)
+                : PwNode(url: url.standardizedFileURL, children: nil)
 
             children.append(node)
         }
 
-        return PwNode(url: fromDir, children: children)
+        return PwNode(url: fromDir.standardizedFileURL, children: children)
     }
 
     /// Retrieve a list of all folder paths in the tree

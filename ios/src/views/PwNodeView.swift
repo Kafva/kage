@@ -115,7 +115,12 @@ struct PwNodeView: View {
                         /* New password or folder */
                         TileView(iconName: "folder") {
                             Picker("", selection: $selectedFolder) {
-                                ForEach(alternativeParentFolders) { node in
+                                ForEach(
+                                    alternativeParentFolders.sorted {
+                                        a, b
+                                        in a.relativePath < b.relativePath
+                                    }
+                                ) { node in
                                     Text(node.relativePath).tag(
                                         node.relativePath)
                                 }

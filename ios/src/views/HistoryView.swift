@@ -5,6 +5,8 @@ struct HistoryView: View {
     @EnvironmentObject var appState: AppState
     @State private var messages = [CommitInfo]()
 
+    // Label which is the remote origin
+    // Hold to zoom
     var body: some View {
         return List(messages) { m in
             VStack(alignment: .leading) {
