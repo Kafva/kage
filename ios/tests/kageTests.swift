@@ -185,8 +185,11 @@ final class kageTests: XCTestCase {
                 isDir: true)
 
             let newPwNode = try doSubmit(
-                name: name, relativeFolderPath: "/green", password: "",
-                currentPwNode: currentPwNode)
+                name: name,
+                relativeFolderPath: "/green",
+                password: "",
+                currentPwNode: currentPwNode,
+                directorySelected: true)
 
             // Reload git tree with new entry
             try appState.reloadGitTree()
@@ -329,7 +332,9 @@ final class kageTests: XCTestCase {
     }
 
     private func doSubmit(
-        name: String, relativeFolderPath: String, password: String,
+        name: String,
+        relativeFolderPath: String,
+        password: String,
         currentPwNode: PwNode? = nil,
         confirmPassword: String? = nil,
         directorySelected: Bool = false
