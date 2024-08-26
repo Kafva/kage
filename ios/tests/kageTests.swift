@@ -86,7 +86,7 @@ final class kageTests: XCTestCase {
         let name = getTestcaseNodeName()
         let password = getTestcasePassword()
         do {
-            try doSubmit(
+            _ = try doSubmit(
                 name: name, relativeFolderPath: "/", password: password)
 
             // Reload git tree with new entry
@@ -115,27 +115,23 @@ final class kageTests: XCTestCase {
         }
     }
 
-    func testDeleteEmptyFolder() throws {
+    func testDeleteEmptyFolders() throws {
         let name = getTestcaseNodeName()
         do {
-            let newPwNode = try PwNode.loadValidatedFrom(
-                name: name,
-                relativeFolderPath: "red",
-                isDir: true)
+            let node = try doSubmit(
+                name: name, relativeFolderPath: "red", password: "",
+                directorySelected: true)
+            let childNode = try doSubmit(
+                name: "a", relativeFolderPath: "red/\(name)", password: "",
+                directorySelected: true)
 
-            try PwManager.submit(
-                currentPwNode: nil,
-                newPwNode: newPwNode,
-                directorySelected: true,
-                password: "",
-                confirmPassword: "",
-                generate: false)
+            XCTAssert(FileManager.default.isDir(node.url))
+            XCTAssert(FileManager.default.isDir(childNode.url))
 
-            XCTAssert(FileManager.default.isDir(newPwNode.url))
+            try PwManager.remove(node: node)
 
-            try PwManager.remove(node: newPwNode)
-
-            XCTAssertFalse(FileManager.default.isDir(newPwNode.url))
+            XCTAssertFalse(FileManager.default.isDir(node.url))
+            XCTAssertFalse(FileManager.default.isDir(childNode.url))
         }
         catch {
             XCTFail("\(error.localizedDescription)")
@@ -237,20 +233,22 @@ final class kageTests: XCTestCase {
 
     private func doSubmit(
         name: String, relativeFolderPath: String, password: String,
-        confirmPassword: String? = nil
-    ) throws {
+        confirmPassword: String? = nil,
+        directorySelected: Bool = false
+    ) throws -> PwNode {
         let newPwNode = try PwNode.loadValidatedFrom(
             name: name,
             relativeFolderPath: relativeFolderPath,
-            isDir: false)
+            isDir: directorySelected)
 
         try PwManager.submit(
             currentPwNode: nil,
             newPwNode: newPwNode,
-            directorySelected: false,
+            directorySelected: directorySelected,
             password: password,
             confirmPassword: confirmPassword ?? password,
             generate: false)
+        return newPwNode
     }
 
     private func getTestcaseNodeName(function: String = #function) -> String {

@@ -18,7 +18,6 @@ enum PwManager {
                 try PwManager.renameFolder(
                     currentPwNode: currentPwNode,
                     newPwNode: newPwNode)
-
             }
         }
         else {
@@ -39,8 +38,13 @@ enum PwManager {
 
     /// Remove the provided node from the tree
     static func remove(node: PwNode) throws {
-        // TODO handle empty folders
-        try Git.rmCommit(node: node)
+        if try FileManager.default.findFirstFile(node.url) == nil {
+            // Just remove the node if there are no files beneath it
+            try FileManager.default.removeItem(at: node.url)
+        }
+        else {
+            try Git.rmCommit(node: node)
+        }
     }
 
     private static func addFolder(newPwNode: PwNode) throws {
