@@ -9,6 +9,7 @@ struct TreeView: View {
     @Binding var showPwNode: Bool
     @Binding var showPlaintext: Bool
     @Binding var expandTree: Bool
+    @State private var showAlert: Bool = false
 
     var body: some View {
         List {
@@ -22,7 +23,22 @@ struct TreeView: View {
                     currentPwNode: $currentPwNode,
                     showPwNode: $showPwNode,
                     showPlaintext: $showPlaintext,
-                    expandTree: $expandTree)
+                    expandTree: $expandTree,
+                    showAlert: $showAlert)
+            }
+        }
+        .alert(
+            "Delete \(currentPwNode?.name ?? "node")?", isPresented: $showAlert
+        ) {
+            Button("Yes", role: .destructive) {
+                guard let node = currentPwNode else {
+                    return
+                }
+                handleRemove(node: node)
+                currentPwNode = nil
+            }
+            Button("Cancel", role: .cancel) {
+                currentPwNode = nil
             }
         }
         .listStyle(.plain)
@@ -39,6 +55,24 @@ struct TreeView: View {
             return appState.rootNode.findChildren(predicate: searchText)
         }
     }
+
+    private func handleRemove(node: PwNode) {
+        do {
+            try PwManager.remove(node: node)
+            try appState.reloadGitTree()
+
+        }
+        catch {
+            appState.uiError("\(error.localizedDescription)")
+            do {
+                try Git.reset()
+            }
+            catch {
+                G.logger.error("\(error.localizedDescription)")
+            }
+        }
+    }
+
 }
 
 private struct TreeNodeView: View {
@@ -50,6 +84,7 @@ private struct TreeNodeView: View {
     @Binding var showPwNode: Bool
     @Binding var showPlaintext: Bool
     @Binding var expandTree: Bool
+    @Binding var showAlert: Bool
 
     @State private var isExpanded: Bool = false
 
@@ -62,7 +97,8 @@ private struct TreeNodeView: View {
                     node: node,
                     currentPwNode: $currentPwNode,
                     showPwNode: $showPwNode,
-                    showPlaintext: $showPlaintext)
+                    showPlaintext: $showPlaintext,
+                    showAlert: $showAlert)
 
             }
         }
@@ -81,7 +117,8 @@ private struct TreeNodeView: View {
                         currentPwNode: $currentPwNode,
                         showPwNode: $showPwNode,
                         showPlaintext: $showPlaintext,
-                        expandTree: $expandTree)
+                        expandTree: $expandTree,
+                        showAlert: $showAlert)
 
                 }
             } label: {
@@ -89,7 +126,8 @@ private struct TreeNodeView: View {
                     node: node,
                     currentPwNode: $currentPwNode,
                     showPwNode: $showPwNode,
-                    showPlaintext: $showPlaintext)
+                    showPlaintext: $showPlaintext,
+                    showAlert: $showAlert)
 
             }
         }
@@ -103,6 +141,7 @@ private struct PwNodeTreeItemView: View {
     @Binding var currentPwNode: PwNode?
     @Binding var showPwNode: Bool
     @Binding var showPlaintext: Bool
+    @Binding var showAlert: Bool
 
     var body: some View {
         Group {
@@ -116,7 +155,7 @@ private struct PwNodeTreeItemView: View {
                 .contentShape(Rectangle())
                 .onTapGesture {
                     hideKeyboard()
-                    G.logger.debug("Opening '\(node.name)'")
+                    G.logger.debug("Opening \(node.name)")
 
                     if !node.isPassword {
                         return
@@ -133,7 +172,8 @@ private struct PwNodeTreeItemView: View {
         .swipeActions(allowsFullSwipe: false) {
             Button(action: {
                 hideKeyboard()
-                handleRemove(node: node)
+                currentPwNode = node
+                showAlert = true
             }) {
                 Image(systemName: "xmark.circle")
             }
@@ -147,23 +187,6 @@ private struct PwNodeTreeItemView: View {
                 Image(systemName: "pencil")
             }
             .tint(.blue)
-        }
-    }
-
-    private func handleRemove(node: PwNode) {
-        do {
-            try PwManager.remove(node: node)
-            try appState.reloadGitTree()
-
-        }
-        catch {
-            appState.uiError("\(error.localizedDescription)")
-            do {
-                try Git.reset()
-            }
-            catch {
-                G.logger.error("\(error.localizedDescription)")
-            }
         }
     }
 }
