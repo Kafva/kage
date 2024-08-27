@@ -264,11 +264,12 @@ pub fn git_config_set_user(
     Ok(())
 }
 
-/// Returns an array of "<timestamp>\n<summary>" strings for all commits.
+/// Returns an array of "<timestamp>\n<oid>\n<summary>" strings for all commits.
 /// The first commit will be the last entry in the array
 pub fn git_log(repo_path: &str) -> Result<Vec<String>, git2::Error> {
     let repo = Repository::open(repo_path)?;
     let mut revwalk = repo.revwalk()?;
+    let remote_oid = remote_branch_oid(&repo)?;
 
     let mut arr = vec![];
     revwalk.push_head()?;
@@ -281,8 +282,19 @@ pub fn git_log(repo_path: &str) -> Result<Vec<String>, git2::Error> {
             break;
         };
 
-        let commit_info =
-            format!("{}\n{}", commit.time().seconds(), summary.to_string(),);
+        // Prettify the remote head
+        let revstr = if oid == remote_oid {
+            format!("{}/{}", GIT_REMOTE, GIT_BRANCH)
+        } else {
+            oid.to_string()
+        };
+
+        let commit_info = format!(
+            "{}\n{}\n{}",
+            commit.time().seconds(),
+            revstr,
+            summary.to_string(),
+        );
         arr.push(commit_info)
     }
     Ok(arr)
