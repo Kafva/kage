@@ -11,10 +11,11 @@ usage() {
 Usage: $(basename $0)
     run             Run git-daemon server for development
     unit            Setup git-daemon for unit tests
-    stop            Stop git-daemon and cleanup
+    reset           Stop git-daemon and cleanup
 
 OPTIONS:
     -v              Verbose logging
+    -d              Delete all existing data before starting
 EOF
     exit 1
 }
@@ -23,6 +24,41 @@ die() {
     printf "$1\n" >&2
     git_server_stop
     exit 1
+}
+
+_age_set_passphrase() {
+    local raw_key="$1"
+    local armored_key="$2"
+    local raw_key_tmp=$(mktemp)
+    local expect_script=$(mktemp)
+    echo -n "$raw_key" > $raw_key_tmp
+
+    # Create a password protected age identity non-interactively
+    cat << EOF > $expect_script
+#!/usr/bin/env expect
+log_user 1
+
+spawn age -p -a -o "$armored_key" "$raw_key_tmp"
+
+expect {
+    "Enter passphrase (leave empty to autogenerate a secure one):" {
+        send "$PASSWORD\r"
+        exp_continue
+    }
+    "Confirm passphrase:" {
+        send "$PASSWORD\r"
+        exp_continue
+    }
+    eof {
+        exit
+    }
+}
+
+interact
+EOF
+    chmod +x $expect_script
+    $expect_script
+    rm $expect_script $raw_key_tmp
 }
 
 _age_generate_files() {
@@ -48,7 +84,7 @@ _age_generate_keys() {
 
     # Save it, passphrase encrypted
     # We only want one identity to have access to each store
-    age -p -a <<< "$key" > "$repo_key"
+    _age_set_passphrase "$key" "$repo_key"
 
     # Mark it as the recipient
     echo "$pubkey" >> "$repo_pubkey"
@@ -119,7 +155,7 @@ git_server_unit() {
     info "Creating $IOS_REPO_CLIENT"
     mkdir -p $IOS_REPO_CLIENT
 
-    info "SET THE PASSPHRASE TO: 'x'"
+    info "Setting passphrase to: '$PASSWORD'"
     _age_generate_keys "$IOS_KEY" "$IOS_PUBKEY"
     _age_generate_files "$IOS_REPO_CLIENT/test1" "$IOS_PUBKEY" 1
     echo "This is not the right format ???" > "$IOS_REPO_CLIENT/invalid_content"
@@ -209,6 +245,7 @@ git_server_status() {
 
 REMOTE_ORIGIN="git://127.0.0.1"
 TOP="$(cd "$(dirname "$0")/.." && pwd)"
+PASSWORD=x
 
 JAMES_REPO_REMOTE="$TOP/.testenv/kage-store/james.git"
 JAMES_REPO_CLIENT="$TOP/.testenv/kage-client/james"
@@ -231,9 +268,10 @@ GIT_SERVER_ARGS=(
 
 trap git_server_exit SIGINT
 
-while getopts ":hv" opt; do
+while getopts ":hvd" opt; do
     case $opt in
     v) GIT_SERVER_ARGS+=(--verbose) ;;
+    d) echox rm -rf "${TOP?}/.testenv" ;;
     *) usage ;;
     esac
 done
@@ -252,7 +290,7 @@ run)
 unit)
     git_server_unit
 ;;
-stop)
+reset)
     echox rm -rf "${TOP?}/.testenv"
     git_server_stop
     exit $?
