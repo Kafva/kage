@@ -9,6 +9,7 @@ struct TreeView: View {
     @Binding var showPwNode: Bool
     @Binding var showPlaintext: Bool
     @Binding var expandTree: Bool
+    @Binding var currentError: String?
     @State private var showAlert: Bool = false
 
     var body: some View {
@@ -60,10 +61,10 @@ struct TreeView: View {
         do {
             try PwManager.remove(node: node)
             try appState.reloadGitTree()
-
+            currentError = nil
         }
         catch {
-            appState.uiError("\(error.localizedDescription)")
+            currentError = uiError("\(error.localizedDescription)")
             do {
                 try Git.reset()
             }
@@ -72,7 +73,6 @@ struct TreeView: View {
             }
         }
     }
-
 }
 
 private struct TreeNodeView: View {
@@ -135,8 +135,6 @@ private struct TreeNodeView: View {
 }
 
 private struct PwNodeTreeItemView: View {
-    @EnvironmentObject var appState: AppState
-
     let node: PwNode
     @Binding var currentPwNode: PwNode?
     @Binding var showPwNode: Bool

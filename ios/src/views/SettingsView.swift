@@ -9,6 +9,7 @@ struct SettingsView: View {
     @State private var reponame: String = ""
     @State private var showAlert: Bool = false
     @State private var inProgress: Bool = false
+    @State private var currentError: String?
 
     private var remoteInfoTile: some View {
         Group {
@@ -139,8 +140,8 @@ struct SettingsView: View {
                 historyTile
                 passwordCountTile
                 versionTile
-                if appState.currentError != nil {
-                    ErrorTileView()
+                if currentError != nil {
+                    ErrorTileView(currentError: $currentError)
                 }
             }
 
@@ -157,10 +158,7 @@ struct SettingsView: View {
     }
 
     private func dismiss() {
-        // The current error has already been visible to the user, do
-        // not keep it when returning back to the main view
         hideKeyboard()
-        appState.currentError = nil
         showView = false
     }
 
@@ -208,7 +206,8 @@ struct SettingsView: View {
 
     private func handleGitClone() {
         if !validRemote {
-            appState.uiError("Refusing to clone from invalid remote: \(remote)")
+            currentError = uiError(
+                "Refusing to clone from invalid remote: \(remote)")
             return
         }
 
@@ -218,11 +217,11 @@ struct SettingsView: View {
             try Git.configSetUser(username: reponame)
             try appState.reloadGitTree()
             // Clear out any prior errors
-            appState.currentError = nil
+            currentError = nil
         }
         catch {
             try? FileManager.default.removeItem(at: G.gitDir)
-            appState.uiError("\(error.localizedDescription)")
+            currentError = uiError("\(error.localizedDescription)")
         }
     }
 }

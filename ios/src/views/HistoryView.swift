@@ -4,6 +4,7 @@ import SwiftUI
 struct HistoryView: View {
     @EnvironmentObject var appState: AppState
     @State private var commits = [CommitInfo]()
+    @State private var currentError: String?
 
     var body: some View {
         return List(commits) { commit in
@@ -45,7 +46,8 @@ private struct HistoryItemView: View {
         VStack(alignment: .leading, spacing: 5) {
             Text(commit.summary).font(.body).padding(.top, G.screenHeight * 0.1)
             Text(commit.date).foregroundColor(.gray).font(.caption).lineLimit(1)
-            Text(commit.revstr).foregroundColor(revColor).font(.caption).lineLimit(1)
+            Text(commit.revstr).foregroundColor(revColor).font(.caption)
+                .lineLimit(1)
             Spacer()
         }
         .padding([.leading, .trailing], 20)

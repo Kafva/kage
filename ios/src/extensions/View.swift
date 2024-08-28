@@ -9,4 +9,12 @@ extension View {
                 from: nil,
                 for: nil)
     }
+
+    func uiError(_ message: String, line: Int = #line, fileID: String = #fileID)
+        -> String
+    {
+        G.logger.error(message, line: line, fileID: fileID)
+        return message
+    }
+
 }

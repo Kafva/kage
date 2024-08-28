@@ -6,6 +6,7 @@ struct AuthenticationView: View {
     @Binding var showView: Bool
     @Binding var currentPwNode: PwNode?
     @State private var passphrase: String = ""
+    @State private var currentError: String?
 
     var body: some View {
         VStack(alignment: .center) {
@@ -25,7 +26,6 @@ struct AuthenticationView: View {
 
             HStack {
                 Button("Cancel") {
-                    appState.currentError = nil
                     currentPwNode = nil
                     hideKeyboard()
                     showView = false
@@ -39,8 +39,8 @@ struct AuthenticationView: View {
             }
             .font(.body)  // Scaling size
 
-            if appState.currentError != nil {
-                ErrorTileView().padding(.top, 30)
+            if currentError != nil {
+                ErrorTileView(currentError: $currentError).padding(.top, 30)
             }
         }
     }
@@ -48,11 +48,11 @@ struct AuthenticationView: View {
     private func submit() {
         do {
             try appState.unlockIdentity(passphrase: passphrase)
-            appState.currentError = nil
+            currentError = nil
             hideKeyboard()
         }
         catch {
-            appState.uiError("\(error.localizedDescription)")
+            currentError = uiError("\(error.localizedDescription)")
         }
     }
 }

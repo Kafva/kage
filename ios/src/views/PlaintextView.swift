@@ -7,6 +7,7 @@ struct PlaintextView: View {
     @Binding var currentPwNode: PwNode?
     @State private var plaintext: String = ""
     @State private var hidePlaintext = true
+    @State private var currentError: String?
 
     var body: some View {
         if let currentPwNode {
@@ -50,8 +51,8 @@ struct PlaintextView: View {
                 }
                 .font(.body)  // Scaling size
 
-                if appState.currentError != nil {
-                    ErrorTileView().padding(.top, 30)
+                if currentError != nil {
+                    ErrorTileView(currentError: $currentError).padding(.top, 30)
                 }
             }
         }
@@ -61,7 +62,6 @@ struct PlaintextView: View {
     }
 
     private func dismiss() {
-        appState.currentError = nil
         currentPwNode = nil
         showView = false
     }
@@ -77,15 +77,15 @@ struct PlaintextView: View {
         do {
             plaintext = try Age.decrypt(currentPwNode.url)
             if plaintext == "" {
-                appState.uiError("No data retrieved")
+                currentError = uiError("No data retrieved")
             }
             else {
-                appState.currentError = nil
+                currentError = nil
                 hidePlaintext = false
             }
         }
         catch {
-            appState.uiError("\(error.localizedDescription)")
+            currentError = uiError("\(error.localizedDescription)")
         }
     }
 

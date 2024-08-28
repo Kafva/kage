@@ -12,6 +12,7 @@ struct AppView: View {
     @State private var showPwNode = false
     @State private var showPlaintext = false
     @State private var expandTree = false
+    @State private var currentError: String?
 
     var body: some View {
         let width = showPlaintext ? 0.8 * G.screenWidth : G.screenWidth
@@ -30,7 +31,8 @@ struct AppView: View {
                         currentPwNode: $currentPwNode,
                         showPwNode: $showPwNode,
                         showPlaintext: $showPlaintext,
-                        expandTree: $expandTree)
+                        expandTree: $expandTree,
+                        currentError: $currentError)
                 }
                 Spacer()
                 toolbarView
@@ -44,7 +46,6 @@ struct AppView: View {
                         Color(UIColor.systemBackground)
                         overlayView
                             .frame(width: width, height: G.screenHeight)
-                        //.transition(.move(edge: .bottom))
                     }
                 }
             )
@@ -57,7 +58,7 @@ struct AppView: View {
                     try appState.reloadGitTree()
                 }
                 catch {
-                    appState.uiError("\(error.localizedDescription)")
+                    currentError = uiError("\(error.localizedDescription)")
                 }
             }
         }
@@ -85,7 +86,7 @@ struct AppView: View {
             }
             else if showErrors {
                 /* Error description view */
-                ErrorView(showView: $showErrors)
+                ErrorView(showView: $showErrors, currentError: $currentError)
             }
             else if appState.identityIsUnlocked {
                 /* Password in plaintext */
@@ -150,10 +151,10 @@ struct AppView: View {
             // Add trailing padding if both sync and error are hidden
             .padding(
                 .trailing,
-                appState.localHeadMatchesRemote && appState.currentError == nil
+                appState.localHeadMatchesRemote && currentError == nil
                     ? edgesSpacing : 0)
 
-            if appState.currentError != nil {
+            if currentError != nil {
                 /* Error status indicator */
                 Button {
                     showErrors = true
@@ -191,7 +192,7 @@ struct AppView: View {
             try appState.reloadGitTree()
         }
         catch {
-            appState.uiError("\(error.localizedDescription)")
+            currentError = uiError("\(error.localizedDescription)")
         }
     }
 
@@ -203,7 +204,7 @@ struct AppView: View {
             try appState.lockIdentity()
         }
         catch {
-            appState.uiError("\(error.localizedDescription)")
+            currentError = uiError("\(error.localizedDescription)")
         }
     }
 }

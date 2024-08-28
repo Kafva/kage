@@ -13,6 +13,7 @@ struct PwNodeView: View {
     @State private var password = ""
     @State private var confirmPassword = ""
     @State private var generate = true
+    @State private var currentError: String?
 
     private var passwordForm: some View {
         let underlineColor =
@@ -154,8 +155,8 @@ struct PwNodeView: View {
                             }
                         }
 
-                        if appState.currentError != nil {
-                            ErrorTileView()
+                        if currentError != nil {
+                            ErrorTileView(currentError: $currentError)
                         }
                     }
                 }
@@ -228,7 +229,7 @@ struct PwNodeView: View {
             dismiss()
         }
         catch {
-            appState.uiError("\(error.localizedDescription)")
+            currentError = uiError("\(error.localizedDescription)")
 
             do {
                 try Git.reset()

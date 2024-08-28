@@ -9,9 +9,6 @@ class AppState: ObservableObject {
     @Published var rootNode: PwNode = PwNode(url: G.gitDir, children: [])
     @Published var localHeadMatchesRemote: Bool = true
 
-    /// Description of last high-level error that occurred
-    @Published var currentError: String?
-
     var identityIsUnlocked: Bool {
         return identityUnlockedAt != nil
     }
@@ -19,12 +16,6 @@ class AppState: ObservableObject {
     func reloadGitTree() throws {
         rootNode = try PwNode.loadRecursivelyFrom(G.gitDir)
         localHeadMatchesRemote = try Git.localHeadMatchesRemote()
-    }
-
-    func uiError(_ message: String, line: Int = #line, fileID: String = #fileID)
-    {
-        G.logger.error(message, line: line, fileID: fileID)
-        currentError = message
     }
 
     func unlockIdentity(passphrase: String) throws {
