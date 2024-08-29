@@ -51,9 +51,25 @@ struct PwNode: Identifiable {
         return url.path().hasSuffix(".age")
     }
 
-    private static func checkComponent(name: String, expectPassword: Bool)
+    private static func checkLeaf(
+        url: URL, expectPassword: Bool, allowNameTaken: Bool
+    )
         throws
     {
+        let name = url.lastPathComponent
+        if name.isEmpty || name == ".age" {
+            throw AppError.invalidNodePath("No name provided")
+        }
+
+        guard let urlNoSuffix = URL(string: url.path().deletingSuffix(".age"))
+        else {
+            throw AppError.invalidNodePath("Bad URL: '\(url.path())'")
+        }
+        guard let urlSuffix = URL(string: urlNoSuffix.path() + ".age")
+        else {
+            throw AppError.invalidNodePath("Bad URL: '\(url.path())'")
+        }
+
         if name == G.gitDirName {
             throw AppError.invalidNodePath(
                 "The root node name '\(G.gitDirName)' is dissallowed")
@@ -76,26 +92,44 @@ struct PwNode: Identifiable {
             || name.starts(with: ".")
             || name == ".."
         {
-            throw AppError.invalidNodePath("'\(name)'")
+            throw AppError.invalidNodePath("Bad name: '\(name)'")
+        }
+
+        if allowNameTaken {
+            // Make sure that files and folder nodes do not overlap
+            if expectPassword && FileManager.default.isDir(urlNoSuffix) {
+                throw AppError.invalidNodePath(
+                    "Password node conflict with existing folder: '\(urlNoSuffix.path())'"
+                )
+            }
+            if !expectPassword && FileManager.default.isFile(urlSuffix) {
+                throw AppError.invalidNodePath(
+                    "Directory node conflict with existing file: '\(urlSuffix.path())'"
+                )
+            }
+        }
+        else if FileManager.default.exists(urlSuffix)
+            || FileManager.default.exists(urlNoSuffix)
+        {
+            throw AppError.invalidNodePath("Name already taken: '\(name)'")
         }
     }
 
-    /// Validate that the given node path is OK to be inserted, it may already exist
-    static func check(url: URL) throws -> Self {
-        guard let urlNoSuffix = URL(string: url.path().deletingSuffix(".age"))
-        else {
-            throw AppError.invalidNodePath("Bad URL: '\(url.path())'")
-        }
-        guard let urlSuffix = URL(string: urlNoSuffix.path() + ".age")
-        else {
-            throw AppError.invalidNodePath("Bad URL: '\(url.path())'")
-        }
+    /// Validate that the given node path is OK to be inserted
+    static func loadValidatedFrom(
+        url: URL, checkParents: Bool, allowNameTaken: Bool
+    ) throws -> Self {
         let expectPassword = url.path().hasSuffix(".age")
-        let name = url.lastPathComponent
-        try checkComponent(name: name, expectPassword: true)
+        try checkLeaf(
+            url: url, expectPassword: expectPassword,
+            allowNameTaken: allowNameTaken)
+        var parentURL = url
 
         while true {
-            let parentURL = url.deletingLastPathComponent()
+            parentURL.deleteLastPathComponent()
+            if parentURL.lastPathComponent == G.gitDirName {
+                break
+            }
 
             // Each parent must exist
             if !FileManager.default.isDir(parentURL) {
@@ -104,40 +138,15 @@ struct PwNode: Identifiable {
             }
 
             // Each parent must have a valid name
-            let parentName = parentURL.lastPathComponent
-            try checkComponent(name: parentName, expectPassword: false)
-
-            if parentURL.standardizedFileURL.path() == G.gitDir.path()
-                || parentURL.path() == "/"
-                || parentURL.path().isEmpty
-            {
-                break
+            if !checkParents {
+                continue
             }
+            try checkLeaf(
+                url: parentURL, expectPassword: false, allowNameTaken: true)
 
-        }
-
-        // Make sure that files and folder nodes do not overlap
-        if expectPassword && FileManager.default.isDir(urlNoSuffix) {
-            throw AppError.invalidNodePath(
-                "Password node conflict with existing folder: '\(urlNoSuffix)'")
-        }
-        if !expectPassword && FileManager.default.isFile(urlSuffix) {
-            throw AppError.invalidNodePath(
-                "Directory node conflict with existing file: '\(urlSuffix)'")
         }
 
         return PwNode(url: url.standardizedFileURL, children: [])
-    }
-
-    /// Does a node with the current name already exist
-    func nameTaken() throws -> Bool {
-        guard let urlNoSuffix = URL(string: url.path().deletingSuffix(".age"))
-        else {
-            throw AppError.invalidNodePath("Bad URL: '\(url.path())'")
-        }
-
-        return FileManager.default.exists(url)
-            || FileManager.default.exists(urlNoSuffix)
     }
 
     static func loadRecursivelyFrom(_ fromDir: URL) throws -> Self {
@@ -145,14 +154,17 @@ struct PwNode: Identifiable {
 
         for url in try FileManager.default.ls(fromDir) {
             let node: PwNode
+            let expectPassword = !FileManager.default.isDir(url)
 
-            if FileManager.default.isDir(url) {
-                node = try loadRecursivelyFrom(url)
+            // Validate every leaf node as we traverse the tree
+            try checkLeaf(
+                url: url, expectPassword: expectPassword, allowNameTaken: true)
+
+            if expectPassword {
+                node = PwNode(url: url.standardizedFileURL, children: [])
             }
             else {
-                // The components of the parent path are validated for each leaf
-                // (TODO: pretty inefficient...)
-                node = try check(url: url)
+                node = try loadRecursivelyFrom(url)
             }
             children.append(node)
         }

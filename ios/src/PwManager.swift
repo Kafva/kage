@@ -21,10 +21,6 @@ enum PwManager {
             }
         }
         else {
-            if try newPwNode.nameTaken() {
-                throw AppError.invalidNodePath(
-                    "Path already taken: '\(newPwNode.relativePath)'")
-            }
             if directorySelected {
                 try PwManager.addFolder(newPwNode: newPwNode)
             }

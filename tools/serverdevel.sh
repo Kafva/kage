@@ -100,7 +100,7 @@ git_server_setup() {
     _age_generate_files "$JAMES_REPO_CLIENT/green/a" "$JAMES_PUBKEY"
     _age_generate_files "$JAMES_REPO_CLIENT/green/b" "$JAMES_PUBKEY"
     _age_generate_files "$JAMES_REPO_CLIENT/blue/a" "$JAMES_PUBKEY"
-    echo "This is not the right format ???" > "$JAMES_REPO_CLIENT/invalid_content"
+    echo "This is not the right format ???" > "$JAMES_REPO_CLIENT/invalid_content.age"
 
     info "Creating $JAMES_REPO_REMOTE"
     mkdir -p $JAMES_REPO_REMOTE

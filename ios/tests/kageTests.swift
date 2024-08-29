@@ -176,9 +176,9 @@ final class kageTests: XCTestCase {
                 relativeFolderPath: "green/\(name)",
                 password: password)
 
+            let url = G.gitDir.appending(path: "green/\(name)")
             let currentPwNode = try PwNode.loadValidatedFrom(
-                name: name,
-                relativeFolderPath: "green", isDir: true)
+                url: url, checkParents: true, allowNameTaken: true)
 
             let newPwNode = try doSubmit(
                 name: "\(name)-new", relativeFolderPath: "green", password: "",
@@ -200,10 +200,9 @@ final class kageTests: XCTestCase {
     func testMoveEmptyFolders() throws {
         let name = getTestcaseNodeName()
         do {
+            let url = G.gitDir.appending(path: name)
             let currentPwNode = try PwNode.loadValidatedFrom(
-                name: name,
-                relativeFolderPath: "/",
-                isDir: true)
+                url: url, checkParents: true, allowNameTaken: true)
 
             // Create new folders
             try FileManager.default.mkdirp(currentPwNode.url)
@@ -225,10 +224,9 @@ final class kageTests: XCTestCase {
     func testDeleteEmptyFolders() throws {
         let name = getTestcaseNodeName()
         do {
+            let url = G.gitDir.appending(path: name)
             let currentPwNode = try PwNode.loadValidatedFrom(
-                name: name,
-                relativeFolderPath: "/",
-                isDir: true)
+                url: url, checkParents: true, allowNameTaken: true)
 
             // Create new folders
             try FileManager.default.mkdirp(currentPwNode.url)
@@ -252,10 +250,9 @@ final class kageTests: XCTestCase {
         ]
 
         do {
+            let url = G.gitDir.appending(path: "\(name).age")
             let newPwNode = try PwNode.loadValidatedFrom(
-                name: name,
-                relativeFolderPath: "/",
-                isDir: false)
+                url: url, checkParents: true, allowNameTaken: false)
 
             for invalidPassword in invalidPasswords {
                 XCTAssertThrowsError(
@@ -292,11 +289,10 @@ final class kageTests: XCTestCase {
         ]
 
         for invalidName in invalidNames {
+            let url = G.gitDir.appending(path: invalidName)
             XCTAssertThrowsError(
                 try PwNode.loadValidatedFrom(
-                    name: invalidName,
-                    relativeFolderPath: "/",
-                    isDir: false)
+                    url: url, checkParents: false, allowNameTaken: false)
             ) { error in
                 // Do not check the exact error message, just that it
                 // has the expected type
@@ -359,10 +355,9 @@ final class kageTests: XCTestCase {
         try FileManager.default.mkdirp(
             G.gitDir.appending(path: relativeFolderPath))
 
+        let url = G.gitDir.appending(path: name)
         let newPwNode = try PwNode.loadValidatedFrom(
-            name: name,
-            relativeFolderPath: relativeFolderPath,
-            isDir: false)
+            url: url, checkParents: true, allowNameTaken: false)
 
         try PwManager.submit(
             currentPwNode: nil,
@@ -386,10 +381,9 @@ final class kageTests: XCTestCase {
         confirmPassword: String? = nil,
         directorySelected: Bool = false
     ) throws -> PwNode {
+        let url = G.gitDir.appending(path: name)
         let newPwNode = try PwNode.loadValidatedFrom(
-            name: name,
-            relativeFolderPath: relativeFolderPath,
-            isDir: directorySelected)
+            url: url, checkParents: true, allowNameTaken: false)
 
         try PwManager.submit(
             currentPwNode: currentPwNode,

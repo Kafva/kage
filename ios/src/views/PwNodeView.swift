@@ -52,23 +52,6 @@ struct PwNodeView: View {
         return nodeType == .folder
     }
 
-    private var newNodeIsOk: Bool {
-        guard
-            let newNode = try? PwNode.loadValidatedFrom(
-                name: selectedName,
-                relativeFolderPath: selectedFolder,
-                isDir: directorySelected)
-        else {
-            return false
-        }
-
-        guard let taken = try? newNode.nameTaken() else {
-            return false
-        }
-
-        return !taken
-    }
-
     var body: some View {
         let title: String
         let passwordIsOk: Bool
@@ -180,7 +163,7 @@ struct PwNodeView: View {
                 Button(action: { handleSubmit() }) {
                     Text("Save").font(G.bodyFont)
                 }
-                .disabled(!newNodeIsOk || !passwordIsOk)
+                .disabled(!passwordIsOk)
                 .padding(.trailing, 30)
             }
             .buttonStyle(BorderlessButtonStyle())
@@ -211,10 +194,11 @@ struct PwNodeView: View {
         var newPwNode: PwNode? = nil
         do {
             // The `newPwNode` and `currentPwNode` are equal if we are modifying an existing node
+            let relativePath =
+                "\(selectedFolder)/\(selectedName)\(directorySelected ? "" : ".age")"
+            let url = G.gitDir.appending(path: relativePath)
             newPwNode = try PwNode.loadValidatedFrom(
-                name: selectedName,
-                relativeFolderPath: selectedFolder,
-                isDir: directorySelected)
+                url: url, checkParents: true, allowNameTaken: false)
 
             try PwManager.submit(
                 currentPwNode: currentPwNode,
