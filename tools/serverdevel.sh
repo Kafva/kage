@@ -158,7 +158,7 @@ git_server_unit() {
     info "Setting passphrase to: '$PASSWORD'"
     _age_generate_keys "$IOS_KEY" "$IOS_PUBKEY"
     _age_generate_files "$IOS_REPO_CLIENT/test1" "$IOS_PUBKEY" 1
-    echo "This is not the right format ???" > "$IOS_REPO_CLIENT/invalid_content"
+    echo "This is not the right format ???" > "$IOS_REPO_CLIENT/invalid_content.age"
 
     info "Creating $IOS_REPO_REMOTE"
     mkdir -p $IOS_REPO_REMOTE

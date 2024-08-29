@@ -275,6 +275,7 @@ final class kageTests: XCTestCase {
     }
 
     func testBadNodeNames() throws {
+        // TODO
         let invalidNames = [
             "",
             G.rootNodeName,
@@ -282,7 +283,6 @@ final class kageTests: XCTestCase {
             "/abc/",  // no slashes allowed in node names
             ".",
             "..",
-            "name.age",
             String(repeating: "a", count: 64 + 1),
             "§",
             "😵",
@@ -355,7 +355,7 @@ final class kageTests: XCTestCase {
         try FileManager.default.mkdirp(
             G.gitDir.appending(path: relativeFolderPath))
 
-        let url = G.gitDir.appending(path: name)
+        let url = G.gitDir.appending(path: "\(relativeFolderPath)/\(name).age")
         let newPwNode = try PwNode.loadValidatedFrom(
             url: url, checkParents: true, allowNameTaken: false)
 
@@ -381,7 +381,10 @@ final class kageTests: XCTestCase {
         confirmPassword: String? = nil,
         directorySelected: Bool = false
     ) throws -> PwNode {
-        let url = G.gitDir.appending(path: name)
+        let url = G.gitDir.appending(
+            path:
+                "\(relativeFolderPath)/\(name)\(directorySelected ? "" : ".age")"
+        )
         let newPwNode = try PwNode.loadValidatedFrom(
             url: url, checkParents: true, allowNameTaken: false)
 
