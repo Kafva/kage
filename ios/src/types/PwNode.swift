@@ -51,7 +51,8 @@ struct PwNode: Identifiable {
         return url.path().hasSuffix(".age")
     }
 
-    private static func checkLeaf(
+    /// internal protection level to gain access during tests
+    internal static func checkLeaf(
         url: URL, expectPassword: Bool, allowNameTaken: Bool
     )
         throws
@@ -73,6 +74,12 @@ struct PwNode: Identifiable {
         if name == G.gitDirName {
             throw AppError.invalidNodePath(
                 "The root node name '\(G.gitDirName)' is dissallowed")
+        }
+
+        // The name should not contain '.age' after we strip away the suffix
+        if urlNoSuffix.lastPathComponent.hasSuffix(".age") {
+            throw AppError.invalidNodePath(
+                "Node name cannot end with '.age': '\(name)'")
         }
 
         // Make sure that the .age suffix is correctly used
@@ -117,9 +124,15 @@ struct PwNode: Identifiable {
 
     /// Validate that the given node path is OK to be inserted
     static func loadValidatedFrom(
-        url: URL, checkParents: Bool, allowNameTaken: Bool
+        name: String, relativePath: String, expectPassword: Bool,
+        checkParents: Bool, allowNameTaken: Bool
     ) throws -> Self {
-        let expectPassword = url.path().hasSuffix(".age")
+        if name.contains("/") {
+            throw AppError.invalidNodePath("Node name cannot contain: '/'")
+        }
+        let url = G.gitDir.appending(
+            path: "\(relativePath)/\(name)\(expectPassword ? ".age" : "")")
+
         try checkLeaf(
             url: url, expectPassword: expectPassword,
             allowNameTaken: allowNameTaken)

@@ -194,11 +194,10 @@ struct PwNodeView: View {
         var newPwNode: PwNode? = nil
         do {
             // The `newPwNode` and `currentPwNode` are equal if we are modifying an existing node
-            let relativePath =
-                "\(selectedFolder)/\(selectedName)\(directorySelected ? "" : ".age")"
-            let url = G.gitDir.appending(path: relativePath)
             newPwNode = try PwNode.loadValidatedFrom(
-                url: url, checkParents: true, allowNameTaken: false)
+                name: selectedName, relativePath: selectedFolder,
+                expectPassword: !directorySelected, checkParents: true,
+                allowNameTaken: false)
 
             try PwManager.submit(
                 currentPwNode: currentPwNode,
