@@ -15,25 +15,6 @@ struct PwNodeView: View {
     @State private var generate = true
     @State private var currentError: String?
 
-    private var passwordForm: some View {
-        let underlineColor =
-            password == confirmPassword ? Color.green : Color.red
-        return Group {
-            TileView(iconName: "rectangle.and.pencil.and.ellipsis") {
-                SecureField("Password", text: $password)
-            }
-            .padding(.bottom, 10)
-            TileView(iconName: nil) {
-                SecureField("Confirm", text: $confirmPassword)
-            }
-
-            Divider().frame(height: 2)
-                .overlay(underlineColor)
-                .opacity(password.isEmpty ? 0.0 : 1.0)
-        }
-        .textFieldStyle(.roundedBorder)
-    }
-
     private var alternativeParentFolders: [PwNode] {
         if let currentPwNode {
             // We cannot move a folder to a path beneath itself,
@@ -95,52 +76,15 @@ struct PwNodeView: View {
 
             Form {
                 Section(header: header) {
-                    VStack(alignment: .leading, spacing: 10) {
-                        /* New password or folder */
-                        TileView(iconName: "folder") {
-                            Picker("", selection: $selectedFolder) {
-                                ForEach(
-                                    alternativeParentFolders.sorted {
-                                        a, b
-                                        in a.relativePath < b.relativePath
-                                    }
-                                ) { node in
-                                    Text(node.relativePath).tag(
-                                        node.relativePath)
-                                }
-                            }
-                            .pickerStyle(.navigationLink)
-                        }
+                    directorySelectionView
+                    nameSelectionView
 
-                        TileView(iconName: directorySelected ? "folder" : "key")
-                        {
-                            TextField("Name", text: $selectedName)
-                                .textContentType(.oneTimeCode)
-                                .textFieldStyle(.roundedBorder)
+                    if !directorySelected {
+                        passwordSelectionView
+                    }
 
-                        }
-
-                        if !directorySelected {
-                            if currentPwNode == nil {
-                                TileView(iconName: "dice") {
-                                    HStack {
-                                        Text("Autogenerate").font(
-                                            .system(size: 14)
-                                        )
-                                        .foregroundColor(.gray)
-                                        Toggle(isOn: $generate) {}
-                                    }
-                                    .frame(alignment: .leading)
-                                }
-                            }
-                            if currentPwNode != nil || !generate {
-                                passwordForm
-                            }
-                        }
-
-                        if currentError != nil {
-                            ErrorTileView(currentError: $currentError)
-                        }
+                    if currentError != nil {
+                        ErrorTileView(currentError: $currentError)
                     }
                 }
             }
@@ -187,6 +131,64 @@ struct PwNodeView: View {
                 selectedFolder = currentPwNode.parentRelativePath
             }
             G.logger.debug("Selected: '\(selectedFolder)/\(selectedName)'")
+        }
+    }
+
+    private var directorySelectionView: some View {
+        TileView(iconName: "folder") {
+            Picker("", selection: $selectedFolder) {
+                ForEach(
+                    alternativeParentFolders.sorted {
+                        a, b
+                        in a.relativePath < b.relativePath
+                    }
+                ) { node in
+                    Text(node.relativePath).tag(
+                        node.relativePath)
+                }
+            }
+            .pickerStyle(.navigationLink)
+        }
+    }
+
+    private var nameSelectionView: some View {
+        TileView(iconName: directorySelected ? "folder" : "key") {
+            TextField("Name", text: $selectedName)
+                .textContentType(.oneTimeCode)
+        }
+
+    }
+
+    private var passwordSelectionView: some View {
+        Group {
+            if currentPwNode == nil {
+                TileView(iconName: "dice") {
+                    HStack {
+                        Text("Autogenerate").font(G.bodyFont)
+                            .foregroundColor(.gray)
+                        Toggle(isOn: $generate) {}
+                    }
+                    .frame(alignment: .leading)
+                }
+            }
+            if currentPwNode != nil || !generate {
+                let underlineColor =
+                    password == confirmPassword ? Color.green : Color.red
+
+                TileView(iconName: "rectangle.and.pencil.and.ellipsis") {
+                    SecureField("Password", text: $password)
+                }
+                .padding(.top, 8)
+                .padding(.bottom, 2)
+
+                TileView(iconName: nil) {
+                    SecureField("Confirm", text: $confirmPassword)
+                }
+
+                Divider().frame(height: 2)
+                    .overlay(underlineColor)
+                    .opacity(password.isEmpty ? 0.0 : 1.0)
+            }
         }
     }
 

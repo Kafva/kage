@@ -318,6 +318,24 @@ final class kageTests: XCTestCase {
         }
     }
 
+    func testOkNodeNames() throws {
+        let validNames = [
+            "person123@gmail.com",
+            "name_with-special.chars",
+            "åäöÅÄÖ",
+        ]
+
+        for validName in validNames {
+            print("Checking: '\(validName)'")
+            let _ = try PwNode.loadValidatedFrom(
+                name: validName, relativePath: "/", expectPassword: false,
+                checkParents: false, allowNameTaken: true)
+            let _ = try PwNode.loadValidatedFrom(
+                name: validName, relativePath: "/", expectPassword: false,
+                checkParents: false, allowNameTaken: true)
+        }
+    }
+
     func testBadNodePaths() throws {
         let password = getTestcasePassword()
         let name = getTestcaseNodeName()
