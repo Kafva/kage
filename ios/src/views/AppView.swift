@@ -4,18 +4,10 @@ struct AppView: View {
     @EnvironmentObject var appState: AppState
 
     @State private var searchText = ""
-
-    @State private var currentPwNode: PwNode?
-
-    @State private var showSettings = false
-    @State private var showErrors = false
-    @State private var showPwNode = false
-    @State private var showPlaintext = false
     @State private var expandTree = false
     @State private var currentError: String?
 
     var body: some View {
-        let width = showPlaintext ? 0.8 * G.screenWidth : G.screenWidth
         NavigationStack {
             VStack {
                 SearchView(searchText: $searchText)
@@ -28,9 +20,6 @@ struct AppView: View {
                 else {
                     TreeView(
                         searchText: $searchText,
-                        currentPwNode: $currentPwNode,
-                        showPwNode: $showPwNode,
-                        showPlaintext: $showPlaintext,
                         expandTree: $expandTree,
                         currentError: $currentError)
                 }
@@ -39,16 +28,6 @@ struct AppView: View {
             }
             // Do not move navigation bar items when the keyboard appears
             .ignoresSafeArea(.keyboard)
-            .overlay(
-                Group {
-                    if showSettings || showErrors || showPwNode || showPlaintext
-                    {
-                        Color(UIColor.systemBackground)
-                        overlayView
-                            .frame(width: width, height: G.screenHeight)
-                    }
-                }
-            )
             .onAppear {
                 if !FileManager.default.isDir(G.gitDir) {
                     return
@@ -64,63 +43,18 @@ struct AppView: View {
         }
     }
 
-    private var overlayView: some View {
-        VStack {
-            if showPwNode {
-                if currentPwNode != nil {
-                    /* Edit view */
-                    PwNodeView(
-                        showView: $showPwNode,
-                        currentPwNode: $currentPwNode)
-                }
-                else {
-                    /* New password or folder view */
-                    PwNodeView(
-                        showView: $showPwNode,
-                        currentPwNode: $currentPwNode)
-                }
-            }
-            else if showSettings {
-                /* Settings view */
-                SettingsView(showView: $showSettings)
-            }
-            else if showErrors {
-                /* Error description view */
-                ErrorView(showView: $showErrors, currentError: $currentError)
-            }
-            else if appState.identityIsUnlocked {
-                /* Password in plaintext */
-                PlaintextView(
-                    showView: $showPlaintext,
-                    currentPwNode: $currentPwNode)
-            }
-            else {
-                /* Password entry */
-                AuthenticationView(
-                    showView: $showPlaintext,
-                    currentPwNode: $currentPwNode)
-            }
-        }
-        // Disable default background for `Form`
-        .scrollContentBackground(.hidden)
-    }
-
     private var toolbarView: some View {
         let edgesSpacing = 20.0
 
         return HStack(spacing: 15) {
             /* Settings */
-            Button {
-                showSettings = true
-            } label: {
+            NavigationLink(destination: SettingsView()) {
                 Image(systemName: "gearshape")
             }
             .padding(.leading, edgesSpacing)
 
             /* New password or folder */
-            Button {
-                showPwNode = true
-            } label: {
+            NavigationLink(destination: PwNodeView(node: nil)) {
                 Image(systemName: "plus.rectangle.portrait")
             }
             .disabled(!FileManager.default.isDir(G.gitDir))
@@ -155,10 +89,9 @@ struct AppView: View {
                     ? edgesSpacing : 0)
 
             if currentError != nil {
-                /* Error status indicator */
-                Button {
-                    showErrors = true
-                } label: {
+                NavigationLink(
+                    destination: ErrorView(currentError: $currentError)
+                ) {
                     Image(systemName: "exclamationmark.circle").foregroundColor(
                         G.errorColor)
                 }
@@ -176,14 +109,6 @@ struct AppView: View {
             }
         }
         .font(G.toolbarIconFont)
-    }
-
-    private func dismiss() {
-        self.showSettings = false
-        self.showErrors = false
-        self.showPwNode = false
-        self.showPlaintext = false
-        self.currentPwNode = nil
     }
 
     private func handleGitPush() {

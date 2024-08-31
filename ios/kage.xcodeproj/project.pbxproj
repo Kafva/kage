@@ -14,13 +14,11 @@
 		2F2AB49962B9B00B0C5DAFC6 /* Age.swift in Sources */ = {isa = PBXBuildFile; fileRef = B83214380B3D83D1D6622731 /* Age.swift */; };
 		3F1CC9B2E60771104CCD4A7D /* ErrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1AC5455F9011E92EC973934 /* ErrorView.swift */; };
 		4ECF16A48B281796EE6CB4D2 /* G.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FE20EC6ADD9E74FF57F4C3 /* G.swift */; };
-		60FEED2554CF7715B5ECB59D /* AuthenticationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D1B4443C32473991D6FF753 /* AuthenticationView.swift */; };
 		661147213382961306BC8DED /* SearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5AC568B469A535777B34A514 /* SearchView.swift */; };
 		8434B739EF4DBF51ED3B2EF9 /* PwNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92D9D80F1FFDE56912E55422 /* PwNode.swift */; };
 		8441087AEC4176B26AA5D4AF /* URL.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3118AF56BFFD2B6B380F11BF /* URL.swift */; };
 		A13220ADDD6F04ED791D7A79 /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B8E529A5DE0C7D99D72FD11 /* HistoryView.swift */; };
 		A425F08E3577DDAC666805C0 /* DeviceLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4608B9EDE0D43093B05C59E1 /* DeviceLogger.swift */; };
-		BCB503CBAE89C7553FF5168D /* PlaintextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4925140419BF971C72C7B0D8 /* PlaintextView.swift */; };
 		C34C3F9FFEC40500376B27B6 /* String.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCD57CC8EEE4290B3C5ED21D /* String.swift */; };
 		C471F825A6F62A062C99DD51 /* Git.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89F6D64008ADA8F9053DDBA /* Git.swift */; };
 		D01503049DD6310B8F8E5640 /* PwNodeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5AD9E33A1B0C03156A54DC9 /* PwNodeView.swift */; };
@@ -38,6 +36,7 @@
 		DD6D27002C5E5C5700B8089C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DD6D26FF2C5E5C5700B8089C /* Assets.xcassets */; };
 		DD728F762B9392EF00A4BC99 /* libiconv.2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = DD728F752B9392DA00A4BC99 /* libiconv.2.tbd */; };
 		DDBC8BA370FC2B4A8BEB153F /* CommitInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4093DCFAB0E3D446DF6E07A0 /* CommitInfo.swift */; };
+		DDC228C62C82F17D00A51E1C /* PasswordView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDC228C52C82F17D00A51E1C /* PasswordView.swift */; };
 		DDD52A572C79C1F70008CE73 /* PwManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDD52A562C79C1F70008CE73 /* PwManager.swift */; };
 		DDD52A582C79C1F70008CE73 /* PwManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDD52A562C79C1F70008CE73 /* PwManager.swift */; };
 		DDD52A6A2C7B2F8A0008CE73 /* ErrorTileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDD52A692C7B2F8A0008CE73 /* ErrorTileView.swift */; };
@@ -64,13 +63,11 @@
 
 /* Begin PBXFileReference section */
 		053F01E1B08FD597C103AB7E /* AppError.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AppError.swift; path = types/AppError.swift; sourceTree = "<group>"; };
-		1D1B4443C32473991D6FF753 /* AuthenticationView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AuthenticationView.swift; path = views/AuthenticationView.swift; sourceTree = "<group>"; };
 		3118AF56BFFD2B6B380F11BF /* URL.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = URL.swift; path = extensions/URL.swift; sourceTree = "<group>"; };
 		3B56BBAAFA1CAE547B46EBC3 /* AppView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AppView.swift; path = views/AppView.swift; sourceTree = "<group>"; };
 		3F64EF6F53B5743A7C3BC877 /* AppState.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
 		4093DCFAB0E3D446DF6E07A0 /* CommitInfo.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CommitInfo.swift; path = types/CommitInfo.swift; sourceTree = "<group>"; };
 		4608B9EDE0D43093B05C59E1 /* DeviceLogger.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DeviceLogger.swift; sourceTree = "<group>"; };
-		4925140419BF971C72C7B0D8 /* PlaintextView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = PlaintextView.swift; path = views/PlaintextView.swift; sourceTree = "<group>"; };
 		53FFC16B27941969597BA5FA /* SettingsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SettingsView.swift; path = views/SettingsView.swift; sourceTree = "<group>"; };
 		58FE20EC6ADD9E74FF57F4C3 /* G.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = G.swift; sourceTree = "<group>"; };
 		5AC568B469A535777B34A514 /* SearchView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SearchView.swift; path = views/SearchView.swift; sourceTree = "<group>"; };
@@ -86,6 +83,7 @@
 		DD6D26FF2C5E5C5700B8089C /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		DD728F752B9392DA00A4BC99 /* libiconv.2.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libiconv.2.tbd; path = usr/lib/libiconv.2.tbd; sourceTree = SDKROOT; };
 		DDA4B6292AFDF6A00046DFCE /* kage.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = kage.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		DDC228C52C82F17D00A51E1C /* PasswordView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PasswordView.swift; path = views/PasswordView.swift; sourceTree = "<group>"; };
 		DDC84DF42C730C25003E009D /* kageTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = kageTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		DDD52A562C79C1F70008CE73 /* PwManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PwManager.swift; sourceTree = "<group>"; };
 		DDD52A692C7B2F8A0008CE73 /* ErrorTileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ErrorTileView.swift; path = views/ErrorTileView.swift; sourceTree = "<group>"; };
@@ -137,6 +135,7 @@
 		DD0ADA602C57580E0006B2E8 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				DDC228C52C82F17D00A51E1C /* PasswordView.swift */,
 				DDD52A6B2C7B2FA00008CE73 /* ScenePhase.swift */,
 				DDD52A6C2C7B2FA00008CE73 /* View.swift */,
 				DDD52A692C7B2F8A0008CE73 /* ErrorTileView.swift */,
@@ -157,9 +156,7 @@
 				5AC568B469A535777B34A514 /* SearchView.swift */,
 				BE695AFABD7183E95F01C7E0 /* TreeView.swift */,
 				FDA32EA556C590828725DDA5 /* TileView.swift */,
-				4925140419BF971C72C7B0D8 /* PlaintextView.swift */,
 				A5AD9E33A1B0C03156A54DC9 /* PwNodeView.swift */,
-				1D1B4443C32473991D6FF753 /* AuthenticationView.swift */,
 				7B8E529A5DE0C7D99D72FD11 /* HistoryView.swift */,
 				F3C62CB04243765AF854D04D /* MessageView.swift */,
 				58FE20EC6ADD9E74FF57F4C3 /* G.swift */,
@@ -354,11 +351,10 @@
 				F29F4F7C77539F7248D29841 /* SettingsView.swift in Sources */,
 				22F2C5963E18B5A86816740C /* AppView.swift in Sources */,
 				661147213382961306BC8DED /* SearchView.swift in Sources */,
+				DDC228C62C82F17D00A51E1C /* PasswordView.swift in Sources */,
 				2C0D6D025D0DFEBB1F73D489 /* TreeView.swift in Sources */,
 				DE05C76D3D3D227CCBFA851F /* TileView.swift in Sources */,
-				BCB503CBAE89C7553FF5168D /* PlaintextView.swift in Sources */,
 				D01503049DD6310B8F8E5640 /* PwNodeView.swift in Sources */,
-				60FEED2554CF7715B5ECB59D /* AuthenticationView.swift in Sources */,
 				A13220ADDD6F04ED791D7A79 /* HistoryView.swift in Sources */,
 				E7A862E957BA61F7992DD364 /* MessageView.swift in Sources */,
 				4ECF16A48B281796EE6CB4D2 /* G.swift in Sources */,

@@ -3,9 +3,8 @@ import SwiftUI
 
 struct PwNodeView: View {
     @EnvironmentObject var appState: AppState
-
-    @Binding var showView: Bool
-    @Binding var currentPwNode: PwNode?
+    @Environment(\.dismiss) var dismiss
+    var node: PwNode?
 
     @State private var nodeType: PwNodeType = .password
     @State private var selectedFolder = ""
@@ -16,19 +15,19 @@ struct PwNodeView: View {
     @State private var currentError: String?
 
     private var alternativeParentFolders: [PwNode] {
-        if let currentPwNode {
+        if let node {
             // We cannot move a folder to a path beneath itself,
             // exclude items beneath the current folder
             return appState.rootNode.flatFolders().filter {
-                !$0.relativePath.starts(with: currentPwNode.relativePath)
+                !$0.relativePath.starts(with: node.relativePath)
             }
         }
         return appState.rootNode.flatFolders()
     }
 
     private var directorySelected: Bool {
-        if let currentPwNode {
-            return !currentPwNode.isPassword
+        if let node {
+            return !node.isPassword
         }
         return nodeType == .folder
     }
@@ -37,13 +36,13 @@ struct PwNodeView: View {
         let title: String
         let passwordIsOk: Bool
 
-        if let currentPwNode {
-            if currentPwNode.isPassword {
-                title = "Edit password '\(currentPwNode.name)'"
+        if let node {
+            if node.isPassword {
+                title = "Edit password '\(node.name)'"
                 passwordIsOk = (password.isEmpty || password == confirmPassword)
             }
             else {
-                title = "Edit folder '\(currentPwNode.name)'"
+                title = "Edit folder '\(node.name)'"
                 passwordIsOk = true
             }
         }
@@ -63,7 +62,7 @@ struct PwNodeView: View {
             .textCase(nil)
 
         return VStack {
-            if currentPwNode == nil {
+            if node == nil {
                 Picker("", selection: $nodeType) {
                     ForEach(PwNodeType.allCases) { p in
                         Text(p.rawValue.capitalized)
@@ -96,7 +95,7 @@ struct PwNodeView: View {
             // inside the form...
             // https://www.hackingwithswift.com/forums/swiftui/buttons-in-a-form-section/6175
             HStack {
-                Button(action: dismiss) {
+                Button(action: handleDismiss) {
                     Text("Cancel").foregroundColor(G.errorColor)
                         .font(G.bodyFont)
                 }
@@ -113,22 +112,23 @@ struct PwNodeView: View {
             .buttonStyle(BorderlessButtonStyle())
         }
         .ignoresSafeArea(.keyboard)
+        .navigationBarHidden(true)
         .onAppear {
             // .on Appear is triggered anew when we navigate back from the
             // folder selection
-            guard let currentPwNode else {
+            guard let node else {
                 if selectedFolder.isEmpty {
                     selectedFolder = G.rootNodeName
                 }
                 return
             }
 
-            G.logger.debug("Current node: '\(currentPwNode.relativePath)'")
+            G.logger.debug("Current node: '\(node.relativePath)'")
             if selectedName.isEmpty {
-                selectedName = currentPwNode.name
+                selectedName = node.name
             }
             if selectedFolder.isEmpty {
-                selectedFolder = currentPwNode.parentRelativePath
+                selectedFolder = node.parentRelativePath
             }
             G.logger.debug("Selected: '\(selectedFolder)/\(selectedName)'")
         }
@@ -161,7 +161,7 @@ struct PwNodeView: View {
 
     private var passwordSelectionView: some View {
         Group {
-            if currentPwNode == nil {
+            if node == nil {
                 TileView(iconName: "dice") {
                     HStack {
                         Text("Autogenerate").font(G.bodyFont)
@@ -171,7 +171,7 @@ struct PwNodeView: View {
                     .frame(alignment: .leading)
                 }
             }
-            if currentPwNode != nil || !generate {
+            if node != nil || !generate {
                 let underlineColor =
                     password == confirmPassword ? Color.green : Color.red
 
@@ -195,14 +195,14 @@ struct PwNodeView: View {
     private func handleSubmit() {
         var newPwNode: PwNode? = nil
         do {
-            // The `newPwNode` and `currentPwNode` are equal if we are modifying an existing node
+            // The `newPwNode` and `node` are equal if we are modifying an existing node
             newPwNode = try PwNode.loadValidatedFrom(
                 name: selectedName, relativePath: selectedFolder,
                 expectPassword: !directorySelected, checkParents: true,
                 allowNameTaken: false)
 
             try PwManager.submit(
-                currentPwNode: currentPwNode,
+                currentPwNode: node,
                 newPwNode: newPwNode!,
                 directorySelected: directorySelected,
                 password: password,
@@ -211,7 +211,7 @@ struct PwNodeView: View {
 
             // Reload git tree with new entry
             try appState.reloadGitTree()
-            dismiss()
+            handleDismiss()
         }
         catch {
             currentError = uiError("\(error.localizedDescription)")
@@ -229,10 +229,8 @@ struct PwNodeView: View {
         }
     }
 
-    private func dismiss() {
-        G.logger.debug("Dismissing overlay")
+    private func handleDismiss() {
         hideKeyboard()
-        self.showView = false
-        self.currentPwNode = nil
+        dismiss()
     }
 }

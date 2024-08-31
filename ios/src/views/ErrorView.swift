@@ -1,7 +1,6 @@
 import SwiftUI
 
 struct ErrorView: View {
-    @Binding var showView: Bool
     @Binding var currentError: String?
 
     var body: some View {
@@ -18,7 +17,6 @@ struct ErrorView: View {
 
             HStack {
                 Button(action: {
-                    showView = false
                     currentError = nil
                 }) {
                     Text("Dismiss").font(.body)  // Scaling size

@@ -2,7 +2,7 @@ import SwiftUI
 
 struct SettingsView: View {
     @EnvironmentObject var appState: AppState
-    @Binding var showView: Bool
+    @Environment(\.dismiss) var dismiss
 
     @AppStorage("remote") private var remote: String = ""
     @State private var origin: String = ""
@@ -146,20 +146,19 @@ struct SettingsView: View {
             }
 
             Section {
-                Button(action: dismiss) {
+                Button(action: handleDismiss) {
                     Text("Dismiss").font(G.bodyFont)
                 }
                 .padding([.top, .bottom], 5)
             }
         }
         .formStyle(.grouped)
-        // Note: extra padding to avoid elements going off-screen when keyboard appears
-        .padding(.top, G.screenHeight * 0.2)
+        .navigationBarHidden(true)
     }
 
-    private func dismiss() {
+    private func handleDismiss() {
         hideKeyboard()
-        showView = false
+        dismiss()
     }
 
     private var validRemote: Bool {

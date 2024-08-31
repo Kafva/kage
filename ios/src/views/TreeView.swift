@@ -5,12 +5,8 @@ struct TreeView: View {
     @EnvironmentObject var appState: AppState
 
     @Binding var searchText: String
-    @Binding var currentPwNode: PwNode?
-    @Binding var showPwNode: Bool
-    @Binding var showPlaintext: Bool
     @Binding var expandTree: Bool
     @Binding var currentError: String?
-    @State private var showAlert: Bool = false
 
     var body: some View {
         List {
@@ -21,25 +17,8 @@ struct TreeView: View {
                     node: child,
                     parentMatchesSearch: parentMatchesSearch,
                     searchText: $searchText,
-                    currentPwNode: $currentPwNode,
-                    showPwNode: $showPwNode,
-                    showPlaintext: $showPlaintext,
                     expandTree: $expandTree,
-                    showAlert: $showAlert)
-            }
-        }
-        .alert(
-            "Delete \(currentPwNode?.name ?? "node")?", isPresented: $showAlert
-        ) {
-            Button("Yes", role: .destructive) {
-                guard let node = currentPwNode else {
-                    return
-                }
-                handleRemove(node: node)
-                currentPwNode = nil
-            }
-            Button("Cancel", role: .cancel) {
-                currentPwNode = nil
+                    currentError: $currentError)
             }
         }
         .listStyle(.plain)
@@ -54,6 +33,94 @@ struct TreeView: View {
         }
         else {
             return appState.rootNode.findChildren(predicate: searchText)
+        }
+    }
+}
+
+private struct TreeNodeView: View {
+    let node: PwNode
+    let parentMatchesSearch: Bool
+
+    @Binding var searchText: String
+    @Binding var expandTree: Bool
+    @Binding var currentError: String?
+
+    @State private var isExpanded: Bool = false
+
+    var body: some View {
+        if node.isPassword {
+            if searchText.isEmpty || parentMatchesSearch
+                || node.name.localizedCaseInsensitiveContains(searchText)
+            {
+                PwNodeTreeItemView(node: node, currentError: $currentError)
+
+            }
+        }
+        else {
+            // Force all nodes into their expanded state when there is a search query
+            // or the 'expand all' switch is active.
+            let isExpanded =
+                (!searchText.isEmpty || expandTree)
+                ? Binding.constant(true) : $isExpanded
+            DisclosureGroup(isExpanded: isExpanded) {
+                ForEach(node.children ?? [], id: \.id) { child in
+                    TreeNodeView(
+                        node: child,
+                        parentMatchesSearch: parentMatchesSearch,
+                        searchText: $searchText,
+                        expandTree: $expandTree,
+                        currentError: $currentError)
+
+                }
+            } label: {
+                PwNodeTreeItemView(node: node, currentError: $currentError)
+
+            }
+        }
+    }
+}
+
+private struct PwNodeTreeItemView: View {
+    @EnvironmentObject var appState: AppState
+
+    let node: PwNode
+    @Binding var currentError: String?
+    @State private var showAlert: Bool = false
+
+    var body: some View {
+        Group {
+            if node.isPassword {
+                NavigationLink(destination: PasswordView(node: node)) {
+                    Text(node.name)
+                }
+            }
+            else {
+                Text(node.name)
+            }
+        }
+        .font(G.bodyFont)
+        .swipeActions(allowsFullSwipe: false) {
+            Button(action: {
+                hideKeyboard()
+                showAlert = true
+            }) {
+                Image(systemName: "xmark.circle")
+            }
+            .tint(.red)
+
+            NavigationLink(destination: PwNodeView(node: node)) {
+                Image(systemName: "pencil").tint(.blue)
+            }
+        }
+        .alert(
+            "Delete \(node.name)?", isPresented: $showAlert
+        ) {
+            Button("Yes", role: .destructive) {
+                handleRemove(node: node)
+            }
+            Button("Cancel", role: .cancel) {
+                showAlert = false
+            }
         }
     }
 
@@ -71,120 +138,6 @@ struct TreeView: View {
             catch {
                 G.logger.error("\(error.localizedDescription)")
             }
-        }
-    }
-}
-
-private struct TreeNodeView: View {
-    let node: PwNode
-    let parentMatchesSearch: Bool
-
-    @Binding var searchText: String
-    @Binding var currentPwNode: PwNode?
-    @Binding var showPwNode: Bool
-    @Binding var showPlaintext: Bool
-    @Binding var expandTree: Bool
-    @Binding var showAlert: Bool
-
-    @State private var isExpanded: Bool = false
-
-    var body: some View {
-        if node.isPassword {
-            if searchText.isEmpty || parentMatchesSearch
-                || node.name.localizedCaseInsensitiveContains(searchText)
-            {
-                PwNodeTreeItemView(
-                    node: node,
-                    currentPwNode: $currentPwNode,
-                    showPwNode: $showPwNode,
-                    showPlaintext: $showPlaintext,
-                    showAlert: $showAlert)
-
-            }
-        }
-        else {
-            // Force all nodes into their expanded state when there is a search query
-            // or the 'expand all' switch is active.
-            let isExpanded =
-                (!searchText.isEmpty || expandTree)
-                ? Binding.constant(true) : $isExpanded
-            DisclosureGroup(isExpanded: isExpanded) {
-                ForEach(node.children ?? [], id: \.id) { child in
-                    TreeNodeView(
-                        node: child,
-                        parentMatchesSearch: parentMatchesSearch,
-                        searchText: $searchText,
-                        currentPwNode: $currentPwNode,
-                        showPwNode: $showPwNode,
-                        showPlaintext: $showPlaintext,
-                        expandTree: $expandTree,
-                        showAlert: $showAlert)
-
-                }
-            } label: {
-                PwNodeTreeItemView(
-                    node: node,
-                    currentPwNode: $currentPwNode,
-                    showPwNode: $showPwNode,
-                    showPlaintext: $showPlaintext,
-                    showAlert: $showAlert)
-
-            }
-        }
-    }
-}
-
-private struct PwNodeTreeItemView: View {
-    let node: PwNode
-    @Binding var currentPwNode: PwNode?
-    @Binding var showPwNode: Bool
-    @Binding var showPlaintext: Bool
-    @Binding var showAlert: Bool
-
-    var body: some View {
-        Group {
-            if node.isPassword {
-                HStack {
-                    Text(node.name)
-                    Spacer()
-                }
-                // XXX: A contentShape() is  needed for the Spacer() to take
-                // effect and make the hitbox take up the entire row.
-                .contentShape(Rectangle())
-                .onTapGesture {
-                    hideKeyboard()
-                    G.logger.debug("Opening \(node.name)")
-
-                    if !node.isPassword {
-                        return
-                    }
-                    currentPwNode = node
-                    showPlaintext = true
-                }
-            }
-            else {
-                Text(node.name)
-            }
-        }
-        .font(G.bodyFont)
-        .swipeActions(allowsFullSwipe: false) {
-            Button(action: {
-                hideKeyboard()
-                currentPwNode = node
-                showAlert = true
-            }) {
-                Image(systemName: "xmark.circle")
-            }
-            .tint(.red)
-
-            Button(action: {
-                hideKeyboard()
-                currentPwNode = node
-                showPwNode = true
-            }) {
-                Image(systemName: "pencil")
-            }
-            .tint(.blue)
         }
     }
 }
