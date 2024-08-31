@@ -4,15 +4,14 @@ enum PwManager {
     // Submit the `newPwNode` and create/modify the password tree to contain the new node.
     static func submit(
         currentPwNode: PwNode?, newPwNode: PwNode, directorySelected: Bool,
-        password: String, confirmPassword: String, generate: Bool
+        password: String, generate: Bool
     ) throws {
         if let currentPwNode {
             if currentPwNode.isPassword {
                 try PwManager.changePasswordNode(
                     currentPwNode: currentPwNode,
                     newPwNode: newPwNode,
-                    password: password,
-                    confirmPassword: confirmPassword)
+                    password: password)
             }
             else {
                 try PwManager.renameFolder(
@@ -27,7 +26,7 @@ enum PwManager {
             else {
                 try PwManager.addPassword(
                     newPwNode: newPwNode, password: password,
-                    confirmPassword: confirmPassword, generate: generate)
+                    generate: generate)
             }
         }
     }
@@ -70,8 +69,7 @@ enum PwManager {
     private static func changePasswordNode(
         currentPwNode: PwNode,
         newPwNode: PwNode,
-        password: String,
-        confirmPassword: String
+        password: String
     ) throws {
         // Move the password node if the current and new node are different
         if newPwNode.url != currentPwNode.url {
@@ -80,8 +78,7 @@ enum PwManager {
 
         // Update the password if one was provided
         if !password.isEmpty {
-            try checkPassword(
-                password: password, confirmPassword: confirmPassword)
+            try checkPassword(password: password)
             let recipient = G.gitDir.appending(path: ".age-recipients")
 
             try Age.encrypt(
@@ -95,11 +92,10 @@ enum PwManager {
 
     private static func addPassword(
         newPwNode: PwNode, password: String,
-        confirmPassword: String, generate: Bool
+        generate: Bool
     ) throws {
         if !generate {
-            try checkPassword(
-                password: password, confirmPassword: confirmPassword)
+            try checkPassword(password: password)
         }
 
         let recipient = G.gitDir.appending(path: ".age-recipients")
@@ -114,16 +110,12 @@ enum PwManager {
     }
 
     private static func checkPassword(
-        password: String, confirmPassword: String
+        password: String
     ) throws {
         if password.count > G.maxPasswordLength || password.isEmpty
             || !password.isContiguousUTF8
         {
             throw AppError.invalidPasswordFormat
-        }
-
-        if password != confirmPassword {
-            throw AppError.passwordMismatch
         }
     }
 }

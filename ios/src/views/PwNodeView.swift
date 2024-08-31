@@ -10,7 +10,7 @@ struct PwNodeView: View {
     @State private var selectedFolder = ""
     @State private var selectedName = ""
     @State private var password = ""
-    @State private var confirmPassword = ""
+    @State private var showPassword: Bool = false
     @State private var generate = true
     @State private var currentError: String?
 
@@ -39,7 +39,7 @@ struct PwNodeView: View {
         if let node {
             if node.isPassword {
                 title = "Edit password '\(node.name)'"
-                passwordIsOk = (password.isEmpty || password == confirmPassword)
+                passwordIsOk = generate || !password.isEmpty
             }
             else {
                 title = "Edit folder '\(node.name)'"
@@ -48,52 +48,36 @@ struct PwNodeView: View {
         }
         // No node currently selected
         else if nodeType == .folder {
-            title = ""
+            title = "New item"
             passwordIsOk = true
         }
         else {
-            title = ""
-            passwordIsOk =
-                (generate || (!password.isEmpty && password == confirmPassword))
+            title = "New item"
+            passwordIsOk = generate || !password.isEmpty
         }
 
-        let header = Text(title).font(G.title3Font)
+        let formHeader = Text(title).font(G.title3Font)
             .padding(.bottom, 10)
+            .padding(.top, 20)
             .textCase(nil)
 
-        return VStack {
-            if node == nil {
-                Picker("", selection: $nodeType) {
-                    ForEach(PwNodeType.allCases) { p in
-                        Text(p.rawValue.capitalized)
-                    }
+        return Form {
+            Section(header: formHeader) {
+                if node == nil {
+                    nodeTypePickerView.listRowSeparator(.hidden)
                 }
-                .pickerStyle(.segmented)
-                .frame(width: 0.8 * G.screenWidth)
-                .padding(.bottom, 5)
-            }
+                directorySelectionView
+                nameSelectionView.listRowSeparator(.automatic)
 
-            Form {
-                Section(header: header) {
-                    directorySelectionView
-                    nameSelectionView
+                if !directorySelected {
+                    passwordSelectionView
+                }
 
-                    if !directorySelected {
-                        passwordSelectionView
-                    }
-
-                    if currentError != nil {
-                        ErrorTileView(currentError: $currentError)
-                    }
+                if currentError != nil {
+                    ErrorTileView(currentError: $currentError)
                 }
             }
-            .frame(width: G.screenWidth, height: 0.4 * G.screenHeight)
-            // .border(.red, width: 1)
-            .formStyle(.grouped)
 
-            // Both buttons are triggered when one is pressed if they are placed
-            // inside the form...
-            // https://www.hackingwithswift.com/forums/swiftui/buttons-in-a-form-section/6175
             HStack {
                 Button(action: handleDismiss) {
                     Text("Cancel").foregroundColor(G.errorColor)
@@ -111,27 +95,22 @@ struct PwNodeView: View {
             }
             .buttonStyle(BorderlessButtonStyle())
         }
-        .ignoresSafeArea(.keyboard)
+        .formStyle(.grouped)
         .navigationBarHidden(true)
         .onAppear {
-            // .on Appear is triggered anew when we navigate back from the
-            // folder selection
-            guard let node else {
-                if selectedFolder.isEmpty {
-                    selectedFolder = G.rootNodeName
-                }
-                return
-            }
-
-            G.logger.debug("Current node: '\(node.relativePath)'")
-            if selectedName.isEmpty {
-                selectedName = node.name
-            }
-            if selectedFolder.isEmpty {
-                selectedFolder = node.parentRelativePath
-            }
-            G.logger.debug("Selected: '\(selectedFolder)/\(selectedName)'")
+            handleOnAppear()
         }
+    }
+
+    private var nodeTypePickerView: some View {
+        Picker("", selection: $nodeType) {
+            ForEach(PwNodeType.allCases) { p in
+                Text(p.rawValue.capitalized)
+            }
+        }
+        .pickerStyle(.segmented)
+        .padding(.top, 8)
+        .padding(.bottom, 5)
     }
 
     private var directorySelectionView: some View {
@@ -155,8 +134,8 @@ struct PwNodeView: View {
         TileView(iconName: directorySelected ? "folder" : "key") {
             TextField("Name", text: $selectedName)
                 .textContentType(.oneTimeCode)
+                .padding(.bottom, 5)
         }
-
     }
 
     private var passwordSelectionView: some View {
@@ -166,28 +145,38 @@ struct PwNodeView: View {
                     HStack {
                         Text("Autogenerate").font(G.bodyFont)
                             .foregroundColor(.gray)
+
                         Toggle(isOn: $generate) {}
                     }
                     .frame(alignment: .leading)
                 }
+                .listRowSeparator(.hidden)
             }
             if node != nil || !generate {
-                let underlineColor =
-                    password == confirmPassword ? Color.green : Color.red
-
                 TileView(iconName: "rectangle.and.pencil.and.ellipsis") {
-                    SecureField("Password", text: $password)
+                    ZStack(alignment: .trailing) {
+                        Group {
+                            if showPassword {
+                                TextField("Password", text: $password)
+                            }
+                            else {
+                                SecureField("Password", text: $password)
+                            }
+                        }
+                        // Prevent the hitbox of the textfield and button from overlapping
+                        .padding(.trailing, 32)
+                        Button(action: {
+                            showPassword.toggle()
+                        }) {
+                            Image(
+                                systemName: showPassword ? "eye.slash" : "eye"
+                            )
+                            .accentColor(.gray)
+                        }
+                    }
                 }
                 .padding(.top, 8)
-                .padding(.bottom, 2)
-
-                TileView(iconName: nil) {
-                    SecureField("Confirm", text: $confirmPassword)
-                }
-
-                Divider().frame(height: 2)
-                    .overlay(underlineColor)
-                    .opacity(password.isEmpty ? 0.0 : 1.0)
+                .padding(.bottom, 8)
             }
         }
     }
@@ -206,7 +195,6 @@ struct PwNodeView: View {
                 newPwNode: newPwNode!,
                 directorySelected: directorySelected,
                 password: password,
-                confirmPassword: confirmPassword,
                 generate: generate)
 
             // Reload git tree with new entry
@@ -227,6 +215,26 @@ struct PwNodeView: View {
                 try? FileManager.default.removeItem(at: newPwNode.url)
             }
         }
+    }
+
+    private func handleOnAppear() {
+        // .on Appear is triggered anew when we navigate back from the
+        // folder selection
+        guard let node else {
+            if selectedFolder.isEmpty {
+                selectedFolder = G.rootNodeName
+            }
+            return
+        }
+
+        G.logger.debug("Current node: '\(node.relativePath)'")
+        if selectedName.isEmpty {
+            selectedName = node.name
+        }
+        if selectedFolder.isEmpty {
+            selectedFolder = node.parentRelativePath
+        }
+        G.logger.debug("Selected: '\(selectedFolder)/\(selectedName)'")
     }
 
     private func handleDismiss() {

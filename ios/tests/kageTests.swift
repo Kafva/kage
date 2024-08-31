@@ -261,7 +261,6 @@ final class kageTests: XCTestCase {
                         newPwNode: newPwNode,
                         directorySelected: false,
                         password: invalidPassword,
-                        confirmPassword: invalidPassword,
                         generate: false)
                 ) { error in
                     XCTAssertEqual(
@@ -396,7 +395,6 @@ final class kageTests: XCTestCase {
             newPwNode: newPwNode,
             directorySelected: false,
             password: password,
-            confirmPassword: password,
             generate: false)
 
         try Git.push()
@@ -410,7 +408,6 @@ final class kageTests: XCTestCase {
         relativePath: String,
         password: String,
         currentPwNode: PwNode? = nil,
-        confirmPassword: String? = nil,
         directorySelected: Bool = false
     ) throws -> PwNode {
         let newPwNode = try PwNode.loadValidatedFrom(
@@ -423,7 +420,6 @@ final class kageTests: XCTestCase {
             newPwNode: newPwNode,
             directorySelected: directorySelected,
             password: password,
-            confirmPassword: confirmPassword ?? password,
             generate: false)
         return newPwNode
     }

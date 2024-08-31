@@ -11,6 +11,35 @@ struct SettingsView: View {
     @State private var inProgress: Bool = false
     @State private var currentError: String?
 
+    var body: some View {
+        let settingsHeader = Text("Settings").font(G.title3Font)
+            .padding(.bottom, 10)
+            .padding(.top, 20)
+            .textCase(nil)
+        Form {
+            Section(header: settingsHeader) {
+                remoteInfoTile
+                syncTile
+                historyTile
+                passwordCountTile
+                versionTile
+                if currentError != nil {
+                    ErrorTileView(currentError: $currentError).listRowSeparator(
+                        .hidden)
+                }
+            }
+
+            Section {
+                Button(action: handleDismiss) {
+                    Text("Dismiss").font(G.bodyFont)
+                }
+                .padding([.top, .bottom], 5)
+            }
+        }
+        .formStyle(.grouped)
+        .navigationBarHidden(true)
+    }
+
     private var remoteInfoTile: some View {
         Group {
             TileView(iconName: "server.rack") {
@@ -126,34 +155,6 @@ struct SettingsView: View {
                 EmptyView()
             }
         }
-    }
-
-    var body: some View {
-        let settingsHeader = Text("Settings").font(G.title3Font)
-            .padding(.bottom, 10)
-            .padding(.top, 20)
-            .textCase(nil)
-        Form {
-            Section(header: settingsHeader) {
-                remoteInfoTile
-                syncTile
-                historyTile
-                passwordCountTile
-                versionTile
-                if currentError != nil {
-                    ErrorTileView(currentError: $currentError)
-                }
-            }
-
-            Section {
-                Button(action: handleDismiss) {
-                    Text("Dismiss").font(G.bodyFont)
-                }
-                .padding([.top, .bottom], 5)
-            }
-        }
-        .formStyle(.grouped)
-        .navigationBarHidden(true)
     }
 
     private func handleDismiss() {

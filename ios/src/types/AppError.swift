@@ -6,7 +6,6 @@ enum AppError: Error, LocalizedError, Equatable {
     case invalidCommit
     case ageError(String)
     case gitError(String)
-    case passwordMismatch
     case invalidNodePath(String)
     case invalidPasswordFormat
 
@@ -22,8 +21,6 @@ enum AppError: Error, LocalizedError, Equatable {
             return "Cryptographic error: \(msg)"
         case .gitError(let msg):
             return "Git error: \(msg)"
-        case .passwordMismatch:
-            return "Passwords do not match"
         case .invalidNodePath(let msg):
             return "Invalid node: \(msg)"
         case .invalidPasswordFormat:
