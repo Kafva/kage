@@ -1,5 +1,4 @@
 import OSLog
-import SwiftUI
 
 /// Make all data in log messages public for debug builds
 struct DeviceLogger {
