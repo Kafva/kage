@@ -169,7 +169,7 @@ struct PwNodeView: View {
                         }) {
                             Image(
                                 systemName: showPassword
-                                    ? "eye.fill" : "eye.slash.fill"
+                                    ? "eye" : "eye.slash"
                             )
                             .accentColor(.gray)
                         }

@@ -96,8 +96,6 @@ private struct PwNodeTreeItemView: View {
                 NavigationLink(value: node) {
                     EmptyView()
                 }
-                // Hide navigation link arrow, this element is still present
-                // so the dimensions of the Text() are limited.
                 .opacity(0.0)
             }
             Text(node.name)

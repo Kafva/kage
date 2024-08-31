@@ -59,6 +59,13 @@ struct PwNode: Identifiable, Hashable {
         if name.contains("/") {
             throw AppError.invalidNodePath("Node name cannot contain: '/'")
         }
+        // XXX: We need to check for '..' before creating a URL
+        if name.starts(with: ".") || name.hasSuffix(".")
+            || relativePath.contains("./") || relativePath.contains("/.")
+        {
+            throw AppError.invalidNodePath(
+                "Node name(s) cannot begin or end with: '.'")
+        }
         let url = createURL(
             name: name, relativePath: relativePath,
             expectPassword: expectPassword)
@@ -159,12 +166,10 @@ struct PwNode: Identifiable, Hashable {
                 "Directory with '.age' suffix: '\(name)'")
         }
 
-        // Dots are allowed, but not as a prefix
-        let regexName = /^[-_.@åäöÅÄÖa-zA-Z0-9+]{1,64}/
-
-        if (try? regexName.wholeMatch(in: name)) == nil
-            || name.starts(with: ".")
-        {
+        // Checks for '..' need to be done before this since we receive a URL
+        // (which resolves '..') as input.
+        let regexName = /^[-_.@åäöÅÄÖa-zA-Z0-9+]{1,64}$/
+        if (try? regexName.wholeMatch(in: name)) == nil {
             throw AppError.invalidNodePath("Bad name: '\(name)'")
         }
 

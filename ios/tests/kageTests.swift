@@ -317,6 +317,8 @@ final class kageTests: XCTestCase {
             "/",
             "/abc/",  // no slashes allowed in node names
             ".",
+            ".hidden",
+            "not-hidden.",
             "..",
             String(repeating: "a", count: 64 + 1),
             "§",

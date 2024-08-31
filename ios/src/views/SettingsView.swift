@@ -67,7 +67,7 @@ struct SettingsView: View {
     private var remoteInfoTile: some View {
         Group {
             TileView(iconName: "server.rack") {
-                TextField("Remote remoteAddress", text: $remoteAddress)
+                TextField("Remote address", text: $remoteAddress)
                     .textContentType(.oneTimeCode)
             }
 

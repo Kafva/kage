@@ -78,7 +78,7 @@ struct PasswordView: View {
                 .buttonStyle(.bordered)
                 .tint(.accentColor)
             }
-            .font(.body)  // Scaling size
+            .font(G.bodyFont)
             .padding(.top, 30)
 
             ErrorTileView(currentError: $currentError).padding(.top, 30)

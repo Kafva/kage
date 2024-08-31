@@ -26,6 +26,7 @@ enum G {
     static let title2Font = Font.system(size: 22.0)
     static let title3Font = Font.system(size: 20.0)
     static let bodyFont = Font.system(size: 17.0)
+    static let footnoteFont = Font.system(size: 14.0)
     static let captionFont = Font.system(size: 12.0)
 
     static let toolbarIconFont = Font.system(size: 24.0).bold()

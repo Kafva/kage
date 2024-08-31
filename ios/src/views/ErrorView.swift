@@ -9,11 +9,11 @@ struct ErrorView: View {
             Text("An error has occured")
                 .foregroundColor(G.textColor)
                 .bold()
-                .font(.title2)  // Scaling size
+                .font(G.title2Font)
                 .padding(.bottom, 10)
                 .padding(.top, 10)
             Text(currentError ?? "No description available")
-                .font(.body)  // Scaling size
+                .font(G.bodyFont)
                 .foregroundColor(G.errorColor)
 
             HStack {
@@ -21,7 +21,7 @@ struct ErrorView: View {
                     currentError = nil
                     dismiss()
                 }) {
-                    Text("Dismiss").font(.body)  // Scaling size
+                    Text("Dismiss").font(G.bodyFont)
                 }
                 .buttonStyle(.bordered)
                 Spacer()

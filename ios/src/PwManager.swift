@@ -120,7 +120,7 @@ enum PwManager {
         }
 
         let recipient = G.gitDir.appending(path: ".age-recipients")
-        let plaintext = generate ? randomString(18) : password
+        let plaintext = generate ? randomString(20) : password
 
         try Age.encrypt(
             recipient: recipient,
