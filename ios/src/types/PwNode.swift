@@ -91,12 +91,11 @@ struct PwNode: Identifiable, Hashable {
                 "Directory with '.age' suffix: '\(name)'")
         }
 
-        // Dots are allowed, but not by themselves
+        // Dots are allowed, but not as a prefix
         let regexName = /^[-_.@åäöÅÄÖa-zA-Z0-9+]{1,64}/
 
         if (try? regexName.wholeMatch(in: name)) == nil
             || name.starts(with: ".")
-            || name == ".."
         {
             throw AppError.invalidNodePath("Bad name: '\(name)'")
         }

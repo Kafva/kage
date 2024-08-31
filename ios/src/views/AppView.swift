@@ -46,7 +46,7 @@ struct AppView: View {
     private var toolbarView: some View {
         let edgesSpacing = 20.0
 
-        return HStack(spacing: 15) {
+        return HStack(spacing: 24) {
             /* Settings */
             NavigationLink(destination: SettingsView()) {
                 Image(systemName: "gearshape")

@@ -84,7 +84,6 @@ struct PwNodeView: View {
                         handleDismiss()
                     }
                     .buttonStyle(.bordered)
-                    .tint(G.errorColor)
                     .padding(.leading, 5)
 
                     Spacer()
@@ -127,7 +126,7 @@ struct PwNodeView: View {
                         in a.relativePath < b.relativePath
                     }
                 ) { node in
-                    Text(node.relativePath).tag(
+                    Text(node.relativePath).lineLimit(1).tag(
                         node.relativePath)
                 }
             }

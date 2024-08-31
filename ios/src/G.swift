@@ -28,7 +28,7 @@ enum G {
     static let bodyFont = Font.system(size: 17.0)
     static let captionFont = Font.system(size: 12.0)
 
-    static let toolbarIconFont = Font.system(size: 20.0).bold()
+    static let toolbarIconFont = Font.system(size: 24.0).bold()
 
     // Defined in: Assets.xcassets
     static let errorColor = Color(UIColor(named: "ErrorColor")!)
