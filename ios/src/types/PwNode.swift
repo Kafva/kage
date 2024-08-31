@@ -51,8 +51,7 @@ struct PwNode: Identifiable, Hashable {
         return url.path().hasSuffix(".age")
     }
 
-    /// internal protection level to gain access during tests
-    internal static func checkLeaf(
+    private static func checkLeaf(
         url: URL, expectPassword: Bool, allowNameTaken: Bool
     )
         throws
@@ -130,8 +129,9 @@ struct PwNode: Identifiable, Hashable {
         if name.contains("/") {
             throw AppError.invalidNodePath("Node name cannot contain: '/'")
         }
-        let url = G.gitDir.appending(
-            path: "\(relativePath)/\(name)\(expectPassword ? ".age" : "")")
+        let url = createURL(
+            name: name, relativePath: relativePath,
+            expectPassword: expectPassword)
 
         try checkLeaf(
             url: url, expectPassword: expectPassword,
@@ -183,6 +183,14 @@ struct PwNode: Identifiable, Hashable {
         }
 
         return PwNode(url: fromDir.standardizedFileURL, children: children)
+    }
+
+    static func createURL(
+        name: String, relativePath: String, expectPassword: Bool
+    ) -> URL {
+        return G.gitDir.appending(
+            path: "\(relativePath)/\(name)\(expectPassword ? ".age" : "")"
+        ).standardizedFileURL
     }
 
     /// Retrieve a list of all folder paths in the tree

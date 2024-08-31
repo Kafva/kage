@@ -14,7 +14,7 @@ struct SettingsView: View {
     var body: some View {
         let settingsHeader = Text("Settings").font(G.title3Font)
             .padding(.bottom, 10)
-            .padding(.top, 20)
+            .padding(.top, 40)
             .textCase(nil)
         Form {
             Section(header: settingsHeader) {

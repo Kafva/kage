@@ -7,7 +7,7 @@ struct PwNodeView: View {
     var node: PwNode?
 
     @State private var nodeType: PwNodeType = .password
-    @State private var selectedFolder = ""
+    @State private var selectedRelativePath = ""
     @State private var selectedName = ""
     @State private var password = ""
     @State private var showPassword: Bool = false
@@ -25,7 +25,7 @@ struct PwNodeView: View {
         return appState.rootNode.flatFolders()
     }
 
-    private var directorySelected: Bool {
+    private var selectedDirectory: Bool {
         if let node {
             return !node.isPassword
         }
@@ -58,7 +58,8 @@ struct PwNodeView: View {
 
         let formHeader = Text(title).font(G.title3Font)
             .padding(.bottom, 10)
-            .padding(.top, 20)
+            .padding(.top, 40)
+            .lineLimit(1)
             .textCase(nil)
 
         return Form {
@@ -69,12 +70,13 @@ struct PwNodeView: View {
                 directorySelectionView
                 nameSelectionView.listRowSeparator(.automatic)
 
-                if !directorySelected {
+                if !selectedDirectory {
                     passwordSelectionView
                 }
 
                 if currentError != nil {
-                    ErrorTileView(currentError: $currentError)
+                    ErrorTileView(currentError: $currentError).listRowSeparator(
+                        .hidden)
                 }
 
                 HStack {
@@ -118,7 +120,7 @@ struct PwNodeView: View {
 
     private var directorySelectionView: some View {
         TileView(iconName: "folder") {
-            Picker("", selection: $selectedFolder) {
+            Picker("", selection: $selectedRelativePath) {
                 ForEach(
                     alternativeParentFolders.sorted {
                         a, b
@@ -134,7 +136,7 @@ struct PwNodeView: View {
     }
 
     private var nameSelectionView: some View {
-        TileView(iconName: directorySelected ? "folder" : "key") {
+        TileView(iconName: selectedDirectory ? "folder" : "key") {
             TextField("Name", text: $selectedName)
                 .textContentType(.oneTimeCode)
                 .padding(.bottom, 5)
@@ -156,14 +158,15 @@ struct PwNodeView: View {
                 .listRowSeparator(.hidden)
             }
             if node != nil || !generate {
+                let placeholder = node != nil ? "New password" : "Password"
                 TileView(iconName: "rectangle.and.pencil.and.ellipsis") {
                     ZStack(alignment: .trailing) {
                         Group {
                             if showPassword {
-                                TextField("Password", text: $password)
+                                TextField(placeholder, text: $password)
                             }
                             else {
-                                SecureField("Password", text: $password)
+                                SecureField(placeholder, text: $password)
                             }
                         }
                         // Prevent the hitbox of the textfield and button from overlapping
@@ -187,16 +190,11 @@ struct PwNodeView: View {
     private func handleSubmit() {
         var newPwNode: PwNode? = nil
         do {
-            // The `newPwNode` and `node` are equal if we are modifying an existing node
-            newPwNode = try PwNode.loadValidatedFrom(
-                name: selectedName, relativePath: selectedFolder,
-                expectPassword: !directorySelected, checkParents: true,
-                allowNameTaken: false)
-
-            try PwManager.submit(
+            newPwNode = try PwManager.submit(
+                selectedName: selectedName,
+                selectedRelativePath: selectedRelativePath,
+                selectedDirectory: selectedDirectory,
                 currentPwNode: node,
-                newPwNode: newPwNode!,
-                directorySelected: directorySelected,
                 password: password,
                 generate: generate)
 
@@ -224,8 +222,8 @@ struct PwNodeView: View {
         // .on Appear is triggered anew when we navigate back from the
         // folder selection
         guard let node else {
-            if selectedFolder.isEmpty {
-                selectedFolder = G.rootNodeName
+            if selectedRelativePath.isEmpty {
+                selectedRelativePath = G.rootNodeName
             }
             return
         }
@@ -234,10 +232,10 @@ struct PwNodeView: View {
         if selectedName.isEmpty {
             selectedName = node.name
         }
-        if selectedFolder.isEmpty {
-            selectedFolder = node.parentRelativePath
+        if selectedRelativePath.isEmpty {
+            selectedRelativePath = node.parentRelativePath
         }
-        G.logger.debug("Selected: '\(selectedFolder)/\(selectedName)'")
+        G.logger.debug("Selected: '\(selectedRelativePath)/\(selectedName)'")
     }
 
     private func handleDismiss() {

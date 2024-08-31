@@ -3,9 +3,27 @@ import Foundation
 enum PwManager {
     // Submit the `newPwNode` and create/modify the password tree to contain the new node.
     static func submit(
-        currentPwNode: PwNode?, newPwNode: PwNode, directorySelected: Bool,
-        password: String, generate: Bool
-    ) throws {
+        selectedName: String,
+        selectedRelativePath: String,
+        selectedDirectory: Bool,
+        currentPwNode: PwNode?,
+        password: String,
+        generate: Bool = false
+    ) throws -> PwNode {
+        // Selected name is only allowed to be taken if it is equal to the currentPwNode
+        let url = PwNode.createURL(
+            name: selectedName, relativePath: selectedRelativePath,
+            expectPassword: !selectedDirectory)
+        let allowNameTaken = url == currentPwNode?.url.standardizedFileURL
+
+        // The `newPwNode` and `node` are equal if we are modifying an existing node
+        let newPwNode = try PwNode.loadValidatedFrom(
+            name: selectedName,
+            relativePath: selectedRelativePath,
+            expectPassword: !selectedDirectory,
+            checkParents: true,
+            allowNameTaken: allowNameTaken)
+
         if let currentPwNode {
             if currentPwNode.isPassword {
                 try PwManager.changePasswordNode(
@@ -20,7 +38,7 @@ enum PwManager {
             }
         }
         else {
-            if directorySelected {
+            if selectedDirectory {
                 try PwManager.addFolder(newPwNode: newPwNode)
             }
             else {
@@ -29,6 +47,8 @@ enum PwManager {
                     generate: generate)
             }
         }
+
+        return newPwNode
     }
 
     /// Remove the provided node from the tree
@@ -109,12 +129,8 @@ enum PwManager {
         try Git.addCommit(node: newPwNode, nodeIsNew: true)
     }
 
-    private static func checkPassword(
-        password: String
-    ) throws {
-        if password.count > G.maxPasswordLength || password.isEmpty
-            || !password.isContiguousUTF8
-        {
+    private static func checkPassword(password: String) throws {
+        if password.count > G.maxPasswordLength || password.isEmpty {
             throw AppError.invalidPasswordFormat
         }
     }
