@@ -55,14 +55,8 @@ struct PwNodeView: View {
             passwordIsOk = generate || !password.isEmpty
         }
 
-        let formHeader = Text(title).font(G.title3Font)
-            .padding(.bottom, 10)
-            .padding(.top, 40)
-            .lineLimit(1)
-            .textCase(nil)
-
         return Form {
-            Section(header: formHeader) {
+            Section(header: Text(title).formHeaderStyle()) {
                 if node == nil {
                     nodeTypePickerView.listRowSeparator(.hidden)
                 }
@@ -79,7 +73,7 @@ struct PwNodeView: View {
                 }
 
                 HStack {
-                    Button("Cancel") {
+                    Button("Dismiss") {
                         handleDismiss()
                     }
                     .buttonStyle(.bordered)
@@ -167,13 +161,15 @@ struct PwNodeView: View {
                                 SecureField(placeholder, text: $password)
                             }
                         }
+                        .textContentType(.oneTimeCode)
                         // Prevent the hitbox of the textfield and button from overlapping
                         .padding(.trailing, 32)
                         Button(action: {
                             showPassword.toggle()
                         }) {
                             Image(
-                                systemName: showPassword ? "eye.slash" : "eye"
+                                systemName: showPassword
+                                    ? "eye.fill" : "eye.slash.fill"
                             )
                             .accentColor(.gray)
                         }
@@ -233,7 +229,8 @@ struct PwNodeView: View {
         if selectedRelativePath.isEmpty {
             selectedRelativePath = node.parentRelativePath
         }
-        G.logger.debug("Selected: '\(selectedRelativePath)/\(selectedName)'")
+        G.logger.debug(
+            "Selected: ['\(selectedRelativePath)', '\(selectedName)']")
     }
 
     private func handleDismiss() {

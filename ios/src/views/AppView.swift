@@ -58,13 +58,11 @@ struct AppView: View {
         let edgesSpacing = 20.0
 
         return HStack(spacing: 24) {
-            /* Settings */
             NavigationLink(destination: SettingsView()) {
                 Image(systemName: "gearshape")
             }
             .padding(.leading, edgesSpacing)
 
-            /* New password or folder */
             NavigationLink(destination: PwNodeView(node: nil)) {
                 Image(systemName: "plus.rectangle.portrait")
             }
@@ -72,7 +70,6 @@ struct AppView: View {
 
             Spacer()
 
-            /* Expand/collapse tree */
             Button {
                 expandTree.toggle()
             } label: {
@@ -84,7 +81,6 @@ struct AppView: View {
             }
             .disabled(Git.repoIsEmpty())
 
-            /* Lock indicator */
             Button {
                 handleLockIdentity()
             } label: {
@@ -109,7 +105,6 @@ struct AppView: View {
                 .padding(.trailing, edgesSpacing)
             }
             else if !appState.localHeadMatchesRemote {
-                /* Sync status indicator */
                 Button {
                     handleGitPush()
                 } label: {

@@ -12,6 +12,7 @@ enum G {
         path: G.gitDirName
     ).standardizedFileURL
 
+    static let maxTreeDepth: Int = 15
     static let maxPasswordLength: Int = 1024
     static let autoLockSeconds: TimeInterval = 120.0
     static let screenWidth = UIScreen.main.bounds.size.width

@@ -4,20 +4,17 @@ struct SettingsView: View {
     @EnvironmentObject var appState: AppState
     @Environment(\.dismiss) var dismiss
 
-    @AppStorage("remote") private var remote: String = ""
-    @State private var origin: String = ""
-    @State private var reponame: String = ""
+    @AppStorage("repoPath") private var repoPathStore: String = ""
+    @AppStorage("remoteAddress") private var remoteAddressStore: String = ""
+    @State private var remoteAddress: String = ""
+    @State private var repoPath: String = ""
     @State private var showAlert: Bool = false
     @State private var inProgress: Bool = false
     @State private var currentError: String?
 
     var body: some View {
-        let settingsHeader = Text("Settings").font(G.title3Font)
-            .padding(.bottom, 10)
-            .padding(.top, 40)
-            .textCase(nil)
         Form {
-            Section(header: settingsHeader) {
+            Section(header: Text("Settings").formHeaderStyle()) {
                 remoteInfoTile
                 syncTile
                 historyTile
@@ -27,46 +24,59 @@ struct SettingsView: View {
                     ErrorTileView(currentError: $currentError).listRowSeparator(
                         .hidden)
                 }
+
+                HStack {
+                    Button("Dismiss") {
+                        hideKeyboard()
+                        dismiss()
+                    }
+                    .buttonStyle(.bordered)
+                    .padding(.leading, 5)
+
+                    Spacer()
+
+                    Button("Save") {
+                        handleSubmit()
+                    }
+                    .buttonStyle(.bordered)
+                    .tint(.accentColor)
+                    .disabled(
+                        repoPathStore == repoPath
+                            && remoteAddressStore == remoteAddress
+                    )
+                    .padding(.trailing, 5)
+                }
+                .padding(.top, 40)
             }
 
-            Section {
-                Button(action: handleDismiss) {
-                    Text("Dismiss").font(G.bodyFont)
-                }
-                .padding([.top, .bottom], 5)
-            }
         }
         .formStyle(.grouped)
         .navigationBarHidden(true)
+        .onAppear {
+            #if targetEnvironment(simulator)
+                G.logger.debug("Configuring preset remote")
+                remoteAddressStore = "127.0.0.1"
+                repoPathStore = "james.git"
+            #endif
+            // Load values from @AppStorage
+            remoteAddress = remoteAddressStore
+            repoPath = repoPathStore
+        }
     }
 
     private var remoteInfoTile: some View {
         Group {
             TileView(iconName: "server.rack") {
-                TextField("Remote origin", text: $origin)
+                TextField("Remote remoteAddress", text: $remoteAddress)
                     .textContentType(.oneTimeCode)
-                    .onChange(of: origin, initial: false) { (_, _) in
-                        submitRemote()
-                    }
             }
 
             TileView(iconName: "text.book.closed") {
-                TextField("Repository", text: $reponame)
+                TextField("Repository", text: $repoPath)
                     .textContentType(.oneTimeCode)
-                    .onChange(of: reponame, initial: false) { (_, _) in
-                        submitRemote()
-                    }
             }
         }
         .textFieldStyle(.plain)
-        .onAppear {
-            #if targetEnvironment(simulator)
-                remote = "git://127.0.0.1/james.git"
-            #elseif DEBUG
-                remote = "git://10.0.77.1/jonas.git"
-            #endif
-            setCurrentRemote()
-        }
     }
 
     private var syncTile: some View {
@@ -121,7 +131,7 @@ struct SettingsView: View {
                     }
                 }
             }
-            .disabled(!validRemote || inProgress)
+            .disabled(!remoteIsValid || inProgress)
         }
     }
 
@@ -152,55 +162,49 @@ struct SettingsView: View {
         }
     }
 
-    private func handleDismiss() {
-        hideKeyboard()
-        dismiss()
-    }
+    private var remoteIsValid: Bool {
+        let regexRemoteAddress = /^[-.A-Za-z0-9]{5,64}$/
+        let regexRepoPath = /^[-_\/.@A-Za-z0-9]{5,64}$/
 
-    private var validRemote: Bool {
-        let regex = /[-_.a-z0-9]{5,64}/
-        return (try? regex.firstMatch(in: origin) != nil) ?? false
-            && (try? regex.firstMatch(in: reponame) != nil) ?? false
-    }
-
-    private func submitRemote() {
-        let newRemote = "git://\(origin)/\(reponame)"
-        if validRemote {
-            if remote == newRemote {
-                return
-            }
-            remote = newRemote
-            G.logger.debug("Updated remote: \(remote)")
-        }
+        guard let match = try? regexRemoteAddress.firstMatch(in: remoteAddress)
         else {
-            G.logger.debug("Invalid remote: \(newRemote)")
+            return false
         }
+        if match.first == nil {
+            return false
+        }
+
+        guard let match = try? regexRepoPath.firstMatch(in: repoPath) else {
+            return false
+        }
+        if match.first == nil {
+            return false
+        }
+
+        return true
     }
 
-    private func setCurrentRemote() {
-        if remote.isEmpty {
+    private var remote: String {
+        "git://\(remoteAddress)/\(repoPath)"
+    }
+
+    private func handleSubmit() {
+        if remoteAddress == remoteAddressStore && repoPath == repoPathStore {
             return
         }
-        guard let idx = remote.lastIndex(of: "/") else {
-            return
-        }
-        if idx == remote.startIndex || idx == remote.endIndex {
-            G.logger.debug("Invalid remote origin: \(remote)")
+        if !remoteIsValid {
+            currentError = uiError("Invalid format for remote")
             return
         }
 
-        let originStart = remote.index(
-            remote.startIndex, offsetBy: "git://".count)
-        let originEnd = remote.index(before: idx)
-        let nameStart = remote.index(after: idx)
-
-        origin = String(remote[originStart...originEnd])
-        reponame = String(remote[nameStart...])
-        G.logger.debug("Loaded remote: git://\(origin)/\(reponame)")
+        remoteAddressStore = remoteAddress
+        repoPathStore = repoPath
+        G.logger.info("Updated remote: \(remote)")
+        currentError = nil
     }
 
     private func handleGitClone() {
-        if !validRemote {
+        if !remoteIsValid {
             currentError = uiError(
                 "Refusing to clone from invalid remote: \(remote)")
             return
@@ -209,7 +213,7 @@ struct SettingsView: View {
         try? FileManager.default.removeItem(at: G.gitDir)
         do {
             try Git.clone(remote: remote)
-            try Git.configSetUser(username: reponame)
+            try Git.configSetUser(username: repoPath)
             try appState.reloadGitTree()
             // Clear out any prior errors
             currentError = nil

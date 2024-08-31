@@ -68,7 +68,8 @@ struct PwNode: Identifiable, Hashable {
             allowNameTaken: allowNameTaken)
         var parentURL = url
 
-        while true {
+        // Do not iterate forever if we are in a bad state where gitDir is missing
+        for _ in 0...G.maxTreeDepth {
             parentURL.deleteLastPathComponent()
             if parentURL.lastPathComponent == G.gitDirName {
                 break
