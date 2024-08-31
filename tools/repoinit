@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+set -e
+
+usage() {
+    cat << EOF >&2
+usage: $(basename $0) <repo>
+EOF
+    exit 1
+}
+
+################################################################################
+
+[[ -z "$1" || "$1" = '-h' ]] && usage
+
+REPO_PATH="$1"
+
+mkdir -p $REPO_PATH
+
+# Generate a new key
+KEY="$(age-keygen)"
+
+# Make it password protected
+age -p -a -o "$REPO_PATH/.age-identities" <(echo "$KEY")
+
+# Save public key
+age-keygen -y <<< "$KEY" > "$REPO_PATH/.age-recipients"
+
+# Setup git repo
+(cd $REPO_PATH && git init)
+git -C $REPO_PATH add .
+git -C $REPO_PATH commit --no-gpg-sign -m "Initial commit"
+
+tree -a -L 1 --noreport $REPO_PATH
+cat << EOF
++ git -C $REPO_PATH remote add origin "???/$REPO_PATH.git"
++ git -C $REPO_PATH push
+EOF
