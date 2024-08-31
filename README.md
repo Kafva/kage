@@ -1,6 +1,9 @@
 # kage
-iOS password manager with age-encryption and git.
+Cross platform password manager using age-encryption and git. Supported platforms:
 
+* iOS
+* Android (WIP)
+* CLI for Linux/macOS (WIP)
 
 ## Development notes
 A git server for automated and manual testing can be setup with
@@ -9,7 +12,7 @@ A git server for automated and manual testing can be setup with
 ### Core library
 ```bash
 # Start git-daemon for unit tests
-./tools/serverdevel.sh unit
+./tools/serverdevel.sh -d unit
 
 # To show stdout/stderr: cargo test -- --nocapture
 (cd core && cargo test)
@@ -29,7 +32,7 @@ rustup component add llvm-tools-preview
 Unit tests can be ran from within Xcode, the tests expect the development
 server to be running on localhost
 ```bash
-./tools/serverdevel.sh unit
+./tools/serverdevel.sh -d unit
 ```
 
 ### Android

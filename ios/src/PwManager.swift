@@ -1,7 +1,8 @@
 import Foundation
 
 enum PwManager {
-    // Submit the `newPwNode` and create/modify the password tree to contain the new node.
+    // Submit the selected parameters and create/modify the password tree to
+    // contain the new node.
     static func submit(
         selectedName: String,
         selectedRelativePath: String,
