@@ -11,14 +11,54 @@ struct PasswordView: View {
     @State private var passphrase: String = ""
 
     var body: some View {
-        let submitText = appState.identityIsUnlocked ? "Copy..." : "Ok"
-        let dismissText = appState.identityIsUnlocked ? "Dismiss" : "Cancel"
-        VStack(alignment: .center, spacing: 10) {
+        let submitText: String
+        let dismissText: String
+        let headerText: String
+
+        if appState.identityIsUnlocked {
+            submitText = "Copy..."
+            dismissText = "Dismiss"
+            headerText = node.name
+        }
+        else {
+            submitText = "Ok"
+            dismissText = "Cancel"
+            headerText = "Authentication required"
+        }
+
+        return VStack(alignment: .center) {
+            Text(headerText).font(G.title2Font)
+                .padding(.bottom, 10)
+                .textCase(nil)
+
             if appState.identityIsUnlocked {
-                plaintextView
+                Text(hidePlaintext ? "••••••••" : plaintext)
+                    .font(G.title3Font)
+                    .bold()
+                    .monospaced()
+                    .foregroundColor(.accentColor)
+                    .onTapGesture {
+                        if plaintext.isEmpty {
+                            handleShowPlaintext()
+                        }
+                        else {
+                            hidePlaintext.toggle()
+                        }
+                    }
             }
             else {
-                authenticationView
+                VStack {
+                    SecureField("Password", text: $passphrase)
+                        .font(G.title3Font)
+                        // The .oneTimeCode content appears to consistently disable all password etc.
+                        // suggestions in the on-screen keyboard, for now (iOS 18.0).
+                        .textContentType(.oneTimeCode)
+                        .onSubmit {
+                            handleSubmit()
+                        }
+                    Divider().frame(height: 1).overlay(.gray).opacity(0.8)
+                        .padding(.top, 5)
+                }
             }
 
             HStack {
@@ -27,63 +67,24 @@ struct PasswordView: View {
                     dismiss()
                 }
                 .padding(.leading, 10)
+                .buttonStyle(.bordered)
+
                 Spacer()
+
                 Button(submitText) {
                     handleSubmit()
                 }
                 .padding(.trailing, 10)
-
-            }.font(.body)  // Scaling size
-
-            if currentError != nil {
-                ErrorTileView(currentError: $currentError).padding(.top, 30)
+                .buttonStyle(.bordered)
+                .tint(.accentColor)
             }
+            .font(.body)  // Scaling size
+            .padding(.top, 30)
+
+            ErrorTileView(currentError: $currentError).padding(.top, 30)
         }
         .frame(width: 0.8 * G.screenWidth, height: G.screenHeight)
         .navigationBarHidden(true)
-    }
-
-    private var authenticationView: some View {
-        VStack(alignment: .center) {
-            Text("Authentication required")
-                .font(G.title2Font)
-                .padding(.bottom, 15)
-
-            SecureField("Passphrase", text: $passphrase)
-                .textFieldStyle(.roundedBorder)
-                // The .oneTimeCode content appears to consistently disable all password etc.
-                // suggestions in the on-screen keyboard, for now (iOS 18.0).
-                .textContentType(.oneTimeCode)
-                .onSubmit {
-                    handleSubmit()
-                }
-                .padding(.bottom, 20)
-        }
-    }
-
-    private var plaintextView: some View {
-        VStack(alignment: .center, spacing: 10) {
-            let title = node.name
-            Text(title)
-                .font(G.title2Font)
-                .padding(.bottom, 15)
-
-            let value = hidePlaintext ? "••••••••" : plaintext
-            Text(value)
-                .font(.body)  // Scaling size
-                .bold()
-                .monospaced()
-                .foregroundColor(.accentColor)
-                .padding(.bottom, 30)
-                .onTapGesture {
-                    if plaintext.isEmpty {
-                        handleShowPlaintext()
-                    }
-                    else {
-                        hidePlaintext.toggle()
-                    }
-                }
-        }
     }
 
     private func handleSubmit() {

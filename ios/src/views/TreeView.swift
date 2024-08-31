@@ -21,6 +21,12 @@ struct TreeView: View {
                     currentError: $currentError)
             }
         }
+        // Handler for NavigationLink(value:), this is used to hide the
+        // the right-hand-side arrow that appears by default when using a
+        // NavigationLink...
+        .navigationDestination(for: PwNode.self) { node in
+            PasswordView(node: node)
+        }
         .listStyle(.plain)
         .frame(
             width: 0.9 * G.screenWidth,
@@ -70,11 +76,9 @@ private struct TreeNodeView: View {
                         searchText: $searchText,
                         expandTree: $expandTree,
                         currentError: $currentError)
-
                 }
             } label: {
                 PwNodeTreeItemView(node: node, currentError: $currentError)
-
             }
         }
     }
@@ -88,15 +92,16 @@ private struct PwNodeTreeItemView: View {
     @State private var showAlert: Bool = false
 
     var body: some View {
-        Group {
+        ZStack(alignment: .leading) {
             if node.isPassword {
-                NavigationLink(destination: PasswordView(node: node)) {
-                    Text(node.name)
+                NavigationLink(value: node) {
+                    EmptyView()
                 }
+                // Hide navigation link arrow, this element is still present
+                // so the dimensions of the Text() are limited.
+                .opacity(0.0)
             }
-            else {
-                Text(node.name)
-            }
+            Text(node.name)
         }
         .font(G.bodyFont)
         .swipeActions(allowsFullSwipe: false) {

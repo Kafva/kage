@@ -83,6 +83,36 @@ final class kageTests: XCTestCase {
         }
     }
 
+    /// Change the plaintext value of a password
+    func testModifyPassword() throws {
+        let name = getTestcaseNodeName()
+        let password = getTestcasePassword()
+        do {
+            let newPwNode = try doSubmit(
+                name: name, relativePath: "/", password: password)
+
+            // Reload git tree with new entry
+            try appState.reloadGitTree()
+
+            try appState.unlockIdentity(passphrase: Self.passphrase)
+            var plaintext = try Age.decrypt(newPwNode.url)
+            XCTAssert(plaintext == password)
+
+            // Submit anew for the same node with a new password
+            let _ = try doSubmit(
+                name: name, relativePath: "/", password: "NewPassword")
+
+            try appState.reloadGitTree()
+
+            plaintext = try Age.decrypt(newPwNode.url)
+            XCTAssert(plaintext == "NewPassword")
+
+        }
+        catch {
+            XCTFail("\(error.localizedDescription)")
+        }
+    }
+
     /// Move a node while keeping the same password
     func testMovePassword() throws {
         let name = getTestcaseNodeName()

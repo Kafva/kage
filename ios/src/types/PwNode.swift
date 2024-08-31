@@ -1,7 +1,7 @@
 import Foundation
 import SwiftUI
 
-struct PwNode: Identifiable {
+struct PwNode: Identifiable, Hashable {
     let id = UUID()
     let url: URL
     let children: [PwNode]?

@@ -76,24 +76,27 @@ struct PwNodeView: View {
                 if currentError != nil {
                     ErrorTileView(currentError: $currentError)
                 }
-            }
 
-            HStack {
-                Button(action: handleDismiss) {
-                    Text("Cancel").foregroundColor(G.errorColor)
-                        .font(G.bodyFont)
+                HStack {
+                    Button("Cancel") {
+                        handleDismiss()
+                    }
+                    .buttonStyle(.bordered)
+                    .tint(G.errorColor)
+                    .padding(.leading, 5)
+
+                    Spacer()
+
+                    Button("Save") {
+                        handleSubmit()
+                    }
+                    .buttonStyle(.bordered)
+                    .tint(.accentColor)
+                    .disabled(!passwordIsOk)
+                    .padding(.trailing, 5)
                 }
-                .padding(.leading, 30)
-
-                Spacer()
-
-                Button(action: { handleSubmit() }) {
-                    Text("Save").font(G.bodyFont)
-                }
-                .disabled(!passwordIsOk)
-                .padding(.trailing, 30)
+                .padding(.top, 40)
             }
-            .buttonStyle(BorderlessButtonStyle())
         }
         .formStyle(.grouped)
         .navigationBarHidden(true)
