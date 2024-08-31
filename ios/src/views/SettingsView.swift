@@ -145,15 +145,10 @@ struct SettingsView: View {
     private var passwordCountTile: some View {
         let passwords = try? FileManager.default.findFiles(G.gitDir)
         return TileView(iconName: nil) {
-            if let passwords {
-                Text("Storage: \(passwords.count) password(s)")
-                    .font(G.captionFont)
-                    .foregroundColor(.gray)
-                    .frame(alignment: .leading)
-            }
-            else {
-                EmptyView()
-            }
+            Text("Storage: \(passwords?.count ?? 0) password(s)")
+                .font(G.captionFont)
+                .foregroundColor(.gray)
+                .frame(alignment: .leading)
         }
     }
 

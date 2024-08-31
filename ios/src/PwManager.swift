@@ -120,7 +120,7 @@ enum PwManager {
         }
 
         let recipient = G.gitDir.appending(path: ".age-recipients")
-        let plaintext = generate ? String.random(18) : password
+        let plaintext = generate ? randomString(18) : password
 
         try Age.encrypt(
             recipient: recipient,
@@ -134,5 +134,13 @@ enum PwManager {
         if password.count > G.maxPasswordLength || password.isEmpty {
             throw AppError.invalidPasswordFormat
         }
+    }
+
+    private static func randomString(_ length: Int) -> String {
+        return String(
+            (0..<length).map { _ in
+                "\"!#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~"
+                    .randomElement()!
+            })
     }
 }

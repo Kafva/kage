@@ -3,7 +3,6 @@ import SwiftUI
 @main
 struct kageApp: App {
     @Environment(\.scenePhase) var scenePhase
-
     @StateObject private var appState: AppState = AppState()
 
     var body: some Scene {

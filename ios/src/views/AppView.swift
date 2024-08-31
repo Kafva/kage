@@ -15,7 +15,7 @@ struct AppView: View {
                     .padding(.bottom, 10)
                 Spacer()
                 if Git.repoIsEmpty() {
-                    MessageView(type: .empty)
+                    emptyTreeView
                 }
                 else {
                     TreeView(
@@ -41,6 +41,17 @@ struct AppView: View {
                 }
             }
         }
+    }
+
+    private var emptyTreeView: some View {
+        VStack(alignment: .center, spacing: 5) {
+            Image(systemName: "rays")
+                .font(G.title2Font)
+
+            Text("Empty password repoistory")
+                .font(G.bodyFont)
+        }
+        .foregroundColor(.gray)
     }
 
     private var toolbarView: some View {

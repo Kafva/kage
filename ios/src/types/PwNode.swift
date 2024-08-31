@@ -51,75 +51,6 @@ struct PwNode: Identifiable, Hashable {
         return url.path().hasSuffix(".age")
     }
 
-    private static func checkLeaf(
-        url: URL, expectPassword: Bool, allowNameTaken: Bool
-    )
-        throws
-    {
-        let name = url.lastPathComponent
-        if name.isEmpty || name == ".age" {
-            throw AppError.invalidNodePath("No name provided")
-        }
-
-        guard let urlNoSuffix = URL(string: url.path().deletingSuffix(".age"))
-        else {
-            throw AppError.invalidNodePath("Bad URL: '\(url.path())'")
-        }
-        guard let urlSuffix = URL(string: urlNoSuffix.path() + ".age")
-        else {
-            throw AppError.invalidNodePath("Bad URL: '\(url.path())'")
-        }
-
-        if name == G.gitDirName {
-            throw AppError.invalidNodePath(
-                "The root node name '\(G.gitDirName)' is dissallowed")
-        }
-
-        // The name should not contain '.age' after we strip away the suffix
-        if urlNoSuffix.lastPathComponent.hasSuffix(".age") {
-            throw AppError.invalidNodePath(
-                "Node name cannot end with '.age': '\(name)'")
-        }
-
-        // Make sure that the .age suffix is correctly used
-        if expectPassword && !name.hasSuffix(".age") {
-            throw AppError.invalidNodePath(
-                "Password node without '.age' suffix: '\(name)'")
-        }
-        if !expectPassword && name.hasSuffix(".age") {
-            throw AppError.invalidNodePath(
-                "Directory with '.age' suffix: '\(name)'")
-        }
-
-        // Dots are allowed, but not as a prefix
-        let regexName = /^[-_.@åäöÅÄÖa-zA-Z0-9+]{1,64}/
-
-        if (try? regexName.wholeMatch(in: name)) == nil
-            || name.starts(with: ".")
-        {
-            throw AppError.invalidNodePath("Bad name: '\(name)'")
-        }
-
-        if allowNameTaken {
-            // Make sure that files and folder nodes do not overlap
-            if expectPassword && FileManager.default.isDir(urlNoSuffix) {
-                throw AppError.invalidNodePath(
-                    "Password node conflict with existing folder: '\(urlNoSuffix.path())'"
-                )
-            }
-            if !expectPassword && FileManager.default.isFile(urlSuffix) {
-                throw AppError.invalidNodePath(
-                    "Directory node conflict with existing file: '\(urlSuffix.path())'"
-                )
-            }
-        }
-        else if FileManager.default.exists(urlSuffix)
-            || FileManager.default.exists(urlNoSuffix)
-        {
-            throw AppError.invalidNodePath("Name already taken: '\(name)'")
-        }
-    }
-
     /// Validate that the given node path is OK to be inserted
     static func loadValidatedFrom(
         name: String, relativePath: String, expectPassword: Bool,
@@ -190,6 +121,70 @@ struct PwNode: Identifiable, Hashable {
         return G.gitDir.appending(
             path: "\(relativePath)/\(name)\(expectPassword ? ".age" : "")"
         ).standardizedFileURL
+    }
+
+    private static func checkLeaf(
+        url: URL, expectPassword: Bool, allowNameTaken: Bool
+    )
+        throws
+    {
+        let name = url.lastPathComponent
+        if name.isEmpty || name == ".age" || name == G.gitDirName {
+            throw AppError.invalidNodePath("No name provided")
+        }
+
+        guard let urlNoSuffix = URL(string: url.path().deletingSuffix(".age"))
+        else {
+            throw AppError.invalidNodePath("Bad URL: '\(url.path())'")
+        }
+        guard let urlSuffix = URL(string: urlNoSuffix.path() + ".age")
+        else {
+            throw AppError.invalidNodePath("Bad URL: '\(url.path())'")
+        }
+
+        // The name should not contain '.age' after we strip away the suffix
+        if urlNoSuffix.lastPathComponent.hasSuffix(".age") {
+            throw AppError.invalidNodePath(
+                "Node name cannot end with '.age': '\(name)'")
+        }
+
+        // Make sure that the .age suffix is correctly used
+        if expectPassword && !name.hasSuffix(".age") {
+            throw AppError.invalidNodePath(
+                "Password node without '.age' suffix: '\(name)'")
+        }
+        if !expectPassword && name.hasSuffix(".age") {
+            throw AppError.invalidNodePath(
+                "Directory with '.age' suffix: '\(name)'")
+        }
+
+        // Dots are allowed, but not as a prefix
+        let regexName = /^[-_.@åäöÅÄÖa-zA-Z0-9+]{1,64}/
+
+        if (try? regexName.wholeMatch(in: name)) == nil
+            || name.starts(with: ".")
+        {
+            throw AppError.invalidNodePath("Bad name: '\(name)'")
+        }
+
+        if allowNameTaken {
+            // Make sure that files and folder nodes do not overlap
+            if expectPassword && FileManager.default.isDir(urlNoSuffix) {
+                throw AppError.invalidNodePath(
+                    "Password node conflict with existing folder: '\(urlNoSuffix.path())'"
+                )
+            }
+            if !expectPassword && FileManager.default.isFile(urlSuffix) {
+                throw AppError.invalidNodePath(
+                    "Directory node conflict with existing file: '\(urlSuffix.path())'"
+                )
+            }
+        }
+        else if FileManager.default.exists(urlSuffix)
+            || FileManager.default.exists(urlNoSuffix)
+        {
+            throw AppError.invalidNodePath("Name already taken: '\(name)'")
+        }
     }
 
     /// Retrieve a list of all folder paths in the tree

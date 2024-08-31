@@ -16,7 +16,6 @@
 		4ECF16A48B281796EE6CB4D2 /* G.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FE20EC6ADD9E74FF57F4C3 /* G.swift */; };
 		661147213382961306BC8DED /* SearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5AC568B469A535777B34A514 /* SearchView.swift */; };
 		8434B739EF4DBF51ED3B2EF9 /* PwNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92D9D80F1FFDE56912E55422 /* PwNode.swift */; };
-		8441087AEC4176B26AA5D4AF /* URL.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3118AF56BFFD2B6B380F11BF /* URL.swift */; };
 		A13220ADDD6F04ED791D7A79 /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B8E529A5DE0C7D99D72FD11 /* HistoryView.swift */; };
 		A425F08E3577DDAC666805C0 /* DeviceLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4608B9EDE0D43093B05C59E1 /* DeviceLogger.swift */; };
 		C34C3F9FFEC40500376B27B6 /* String.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCD57CC8EEE4290B3C5ED21D /* String.swift */; };
@@ -24,7 +23,6 @@
 		D01503049DD6310B8F8E5640 /* PwNodeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5AD9E33A1B0C03156A54DC9 /* PwNodeView.swift */; };
 		DD0DFB192C789E710055B83E /* PwNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92D9D80F1FFDE56912E55422 /* PwNode.swift */; };
 		DD0DFB1A2C789E770055B83E /* FileManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79294E7996D2AD5AD011047B /* FileManager.swift */; };
-		DD0DFB1B2C789E7D0055B83E /* URL.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3118AF56BFFD2B6B380F11BF /* URL.swift */; };
 		DD0DFB1C2C789E850055B83E /* DeviceLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4608B9EDE0D43093B05C59E1 /* DeviceLogger.swift */; };
 		DD0DFB1D2C789E8D0055B83E /* String.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCD57CC8EEE4290B3C5ED21D /* String.swift */; };
 		DD0DFB1E2C789F2A0055B83E /* G.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FE20EC6ADD9E74FF57F4C3 /* G.swift */; };
@@ -45,7 +43,6 @@
 		DDE56F8D2C569F210072C726 /* libz.1.2.12.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = DDE56F8C2C569F210072C726 /* libz.1.2.12.tbd */; };
 		DDFB7FA92C56A43A00972D43 /* libkage_core.a in Frameworks */ = {isa = PBXBuildFile; fileRef = DDFB7FA82C56A43A00972D43 /* libkage_core.a */; };
 		DE05C76D3D3D227CCBFA851F /* TileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FDA32EA556C590828725DDA5 /* TileView.swift */; };
-		E7A862E957BA61F7992DD364 /* MessageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3C62CB04243765AF854D04D /* MessageView.swift */; };
 		EE460C7A0EBEAE5EAA46F45A /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F64EF6F53B5743A7C3BC877 /* AppState.swift */; };
 		F23F9F5FA348B2447751B8E1 /* FileManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79294E7996D2AD5AD011047B /* FileManager.swift */; };
 		F29F4F7C77539F7248D29841 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53FFC16B27941969597BA5FA /* SettingsView.swift */; };
@@ -63,7 +60,6 @@
 
 /* Begin PBXFileReference section */
 		053F01E1B08FD597C103AB7E /* AppError.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AppError.swift; path = types/AppError.swift; sourceTree = "<group>"; };
-		3118AF56BFFD2B6B380F11BF /* URL.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = URL.swift; path = extensions/URL.swift; sourceTree = "<group>"; };
 		3B56BBAAFA1CAE547B46EBC3 /* AppView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AppView.swift; path = views/AppView.swift; sourceTree = "<group>"; };
 		3F64EF6F53B5743A7C3BC877 /* AppState.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
 		4093DCFAB0E3D446DF6E07A0 /* CommitInfo.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CommitInfo.swift; path = types/CommitInfo.swift; sourceTree = "<group>"; };
@@ -92,7 +88,6 @@
 		DDE56F8C2C569F210072C726 /* libz.1.2.12.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.1.2.12.tbd; path = usr/lib/libz.1.2.12.tbd; sourceTree = SDKROOT; };
 		DDFB7FA82C56A43A00972D43 /* libkage_core.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libkage_core.a; path = dist/libkage_core.a; sourceTree = "<group>"; };
 		E1AC5455F9011E92EC973934 /* ErrorView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ErrorView.swift; path = views/ErrorView.swift; sourceTree = "<group>"; };
-		F3C62CB04243765AF854D04D /* MessageView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MessageView.swift; path = views/MessageView.swift; sourceTree = "<group>"; };
 		FCD57CC8EEE4290B3C5ED21D /* String.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = String.swift; path = extensions/String.swift; sourceTree = "<group>"; };
 		FDA32EA556C590828725DDA5 /* TileView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TileView.swift; path = views/TileView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -147,7 +142,6 @@
 				053F01E1B08FD597C103AB7E /* AppError.swift */,
 				92D9D80F1FFDE56912E55422 /* PwNode.swift */,
 				79294E7996D2AD5AD011047B /* FileManager.swift */,
-				3118AF56BFFD2B6B380F11BF /* URL.swift */,
 				FCD57CC8EEE4290B3C5ED21D /* String.swift */,
 				4608B9EDE0D43093B05C59E1 /* DeviceLogger.swift */,
 				D89F6D64008ADA8F9053DDBA /* Git.swift */,
@@ -158,7 +152,6 @@
 				FDA32EA556C590828725DDA5 /* TileView.swift */,
 				A5AD9E33A1B0C03156A54DC9 /* PwNodeView.swift */,
 				7B8E529A5DE0C7D99D72FD11 /* HistoryView.swift */,
-				F3C62CB04243765AF854D04D /* MessageView.swift */,
 				58FE20EC6ADD9E74FF57F4C3 /* G.swift */,
 				E1AC5455F9011E92EC973934 /* ErrorView.swift */,
 				4093DCFAB0E3D446DF6E07A0 /* CommitInfo.swift */,
@@ -341,7 +334,6 @@
 				DDD52A582C79C1F70008CE73 /* PwManager.swift in Sources */,
 				8434B739EF4DBF51ED3B2EF9 /* PwNode.swift in Sources */,
 				F23F9F5FA348B2447751B8E1 /* FileManager.swift in Sources */,
-				8441087AEC4176B26AA5D4AF /* URL.swift in Sources */,
 				DDD52A6D2C7B2FA00008CE73 /* View.swift in Sources */,
 				DDD52A6E2C7B2FA00008CE73 /* ScenePhase.swift in Sources */,
 				DDD52A6A2C7B2F8A0008CE73 /* ErrorTileView.swift in Sources */,
@@ -356,7 +348,6 @@
 				DE05C76D3D3D227CCBFA851F /* TileView.swift in Sources */,
 				D01503049DD6310B8F8E5640 /* PwNodeView.swift in Sources */,
 				A13220ADDD6F04ED791D7A79 /* HistoryView.swift in Sources */,
-				E7A862E957BA61F7992DD364 /* MessageView.swift in Sources */,
 				4ECF16A48B281796EE6CB4D2 /* G.swift in Sources */,
 				3F1CC9B2E60771104CCD4A7D /* ErrorView.swift in Sources */,
 				DDBC8BA370FC2B4A8BEB153F /* CommitInfo.swift in Sources */,
@@ -378,7 +369,6 @@
 				DD0DFB192C789E710055B83E /* PwNode.swift in Sources */,
 				DD0DFB1C2C789E850055B83E /* DeviceLogger.swift in Sources */,
 				DDD52A572C79C1F70008CE73 /* PwManager.swift in Sources */,
-				DD0DFB1B2C789E7D0055B83E /* URL.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
