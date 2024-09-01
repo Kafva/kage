@@ -88,7 +88,7 @@ struct AppView: View {
                     appState.identityIsUnlocked ? "lock.open" : "lock"
                 Image(systemName: systemName)
             }
-            .disabled(Git.repoIsEmpty())
+            .disabled(Git.repoIsEmpty() || !appState.identityIsUnlocked)
             // Add trailing padding if both sync and error are hidden
             .padding(
                 .trailing,
