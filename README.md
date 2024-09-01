@@ -1,13 +1,18 @@
 # kage
-Cross platform password manager using age-encryption and git. Supported platforms:
-
-* iOS
-* Android (WIP)
-* CLI for Linux/macOS (WIP)
-
+Password manager for mobile (iOS and Android) using age-encryption and git.
 The layout of the git repository that kage expects can be setup with:
 ```bash
 tools/repoinit $NAME
+```
+
+Only the iOS version supports modifying the password store on device, for
+Android all changes to the password store are made remotely and fetched.
+
+To use the password store on macOS/Linux etc. you can write a basic
+wrapper yourself or use [passage](https://github.com/FiloSottile/passage):
+
+```bash
+PASSAGE_DIR=$NAME PASSAGE_IDENTITIES_FILE=$NAME/.age-identities passage
 ```
 
 ## Development notes

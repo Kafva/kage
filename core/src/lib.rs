@@ -1,8 +1,7 @@
 #[macro_use]
 mod log;
 
-// Needs to be public for kage CLI
-pub mod age;
+mod age;
 mod age_error;
 
 #[cfg(any(test, target_os = "android", target_os = "ios"))]
