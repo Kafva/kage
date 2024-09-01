@@ -1,5 +1,5 @@
 # kage
-Password manager for mobile (iOS and Android) using age-encryption and git.
+Password manager for iOS and Android using age-encryption and git.
 The layout of the git repository that kage expects can be setup with:
 ```bash
 tools/repoinit $NAME

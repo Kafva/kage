@@ -3,22 +3,18 @@ mod log;
 
 mod age;
 mod age_error;
+mod age_ffi;
 
-#[cfg(any(test, target_os = "android", target_os = "ios"))]
 mod git;
+mod git_ffi;
+
+mod ffi;
+
+#[cfg(target_os = "android")]
+mod jni;
 
 #[cfg(test)]
 mod age_test;
 
 #[cfg(test)]
 mod git_test;
-
-#[cfg(any(target_os = "android", target_os = "ios"))]
-mod age_ffi;
-#[cfg(any(target_os = "android", target_os = "ios"))]
-mod ffi;
-#[cfg(any(target_os = "android", target_os = "ios"))]
-mod git_ffi;
-
-#[cfg(target_os = "android")]
-mod jni;
