@@ -1,5 +1,4 @@
 use crate::age_error::AgeError;
-use crate::ffi::KAGE_ERROR_LOCK_TAKEN;
 use std::ffi::{CStr, CString};
 use std::os::raw::{c_char, c_int, c_ulonglong};
 use std::ptr::null;
@@ -21,7 +20,7 @@ pub extern "C" fn ffi_age_unlock_identity(
     passphrase: *const c_char,
 ) -> c_int {
     let Some(mut age_state) = try_lock() else {
-        return KAGE_ERROR_LOCK_TAKEN;
+        return KAGE_ERROR_LOCK_TAKEN as c_int;
     };
 
     let encrypted_identity =
@@ -48,7 +47,7 @@ pub extern "C" fn ffi_age_unlock_identity(
 #[no_mangle]
 pub extern "C" fn ffi_age_lock_identity() -> c_int {
     let Some(mut age_state) = try_lock() else {
-        return KAGE_ERROR_LOCK_TAKEN;
+        return KAGE_ERROR_LOCK_TAKEN as c_int;
     };
     age_state.lock_identity();
     0
@@ -77,7 +76,7 @@ pub extern "C" fn ffi_age_encrypt(
     outpath: *const c_char,
 ) -> c_int {
     let Some(mut age_state) = try_lock() else {
-        return KAGE_ERROR_LOCK_TAKEN;
+        return KAGE_ERROR_LOCK_TAKEN as c_int;
     };
 
     let plaintext = unsafe { CStr::from_ptr(plaintext).to_str() };

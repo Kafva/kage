@@ -1,5 +1,4 @@
 use crate::ffi::CStringArray;
-use crate::ffi::KAGE_ERROR_LOCK_TAKEN;
 use once_cell::sync::Lazy;
 use std::ffi::CStr;
 use std::ffi::CString;
@@ -37,7 +36,7 @@ pub extern "C" fn ffi_git_clone(
     into: *const c_char,
 ) -> c_int {
     let Some(mut git_last_error) = try_lock() else {
-        return KAGE_ERROR_LOCK_TAKEN;
+        return KAGE_ERROR_LOCK_TAKEN as c_int;
     };
     git_setup();
 
@@ -54,7 +53,7 @@ pub extern "C" fn ffi_git_clone(
 #[no_mangle]
 pub extern "C" fn ffi_git_pull(repo_path: *const c_char) -> c_int {
     let Some(mut git_last_error) = try_lock() else {
-        return KAGE_ERROR_LOCK_TAKEN;
+        return KAGE_ERROR_LOCK_TAKEN as c_int;
     };
     git_setup();
 
@@ -68,7 +67,7 @@ pub extern "C" fn ffi_git_pull(repo_path: *const c_char) -> c_int {
 #[no_mangle]
 pub extern "C" fn ffi_git_push(repo_path: *const c_char) -> c_int {
     let Some(mut git_last_error) = try_lock() else {
-        return KAGE_ERROR_LOCK_TAKEN;
+        return KAGE_ERROR_LOCK_TAKEN as c_int;
     };
     git_setup();
 
@@ -86,7 +85,7 @@ pub extern "C" fn ffi_git_stage(
     relative_path: *const c_char,
 ) -> c_int {
     let Some(mut git_last_error) = try_lock() else {
-        return KAGE_ERROR_LOCK_TAKEN;
+        return KAGE_ERROR_LOCK_TAKEN as c_int;
     };
     let repo_path = unsafe { CStr::from_ptr(repo_path).to_str() };
     let relative_path = unsafe { CStr::from_ptr(relative_path).to_str() };
@@ -101,7 +100,7 @@ pub extern "C" fn ffi_git_stage(
 #[no_mangle]
 pub extern "C" fn ffi_git_reset(repo_path: *const c_char) -> c_int {
     let Some(mut git_last_error) = try_lock() else {
-        return KAGE_ERROR_LOCK_TAKEN;
+        return KAGE_ERROR_LOCK_TAKEN as c_int;
     };
     git_setup();
 
@@ -118,7 +117,7 @@ pub extern "C" fn ffi_git_config_set_user(
     username: *const c_char,
 ) -> c_int {
     let Some(mut git_last_error) = try_lock() else {
-        return KAGE_ERROR_LOCK_TAKEN;
+        return KAGE_ERROR_LOCK_TAKEN as c_int;
     };
     let repo_path = unsafe { CStr::from_ptr(repo_path).to_str() };
     let username = unsafe { CStr::from_ptr(username).to_str() };
@@ -136,7 +135,7 @@ pub extern "C" fn ffi_git_commit(
     message: *const c_char,
 ) -> c_int {
     let Some(mut git_last_error) = try_lock() else {
-        return KAGE_ERROR_LOCK_TAKEN;
+        return KAGE_ERROR_LOCK_TAKEN as c_int;
     };
     let repo_path = unsafe { CStr::from_ptr(repo_path).to_str() };
     let message = unsafe { CStr::from_ptr(message).to_str() };
@@ -153,7 +152,7 @@ pub extern "C" fn ffi_git_local_head_matches_remote(
     repo_path: *const c_char,
 ) -> c_int {
     let Some(mut git_last_error) = try_lock() else {
-        return KAGE_ERROR_LOCK_TAKEN;
+        return KAGE_ERROR_LOCK_TAKEN as c_int;
     };
     let repo_path = unsafe { CStr::from_ptr(repo_path).to_str() };
 

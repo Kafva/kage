@@ -47,11 +47,9 @@ class MainActivity : ComponentActivity() {
     }
 
     fun testFunc(): Int {
-        val x = 1
-        val y = 1
-        val z = 2
-        val kageCore = KageCore()
-        return x + y + z + kageCore.test()
+        val git = Git()
+        val r = git.clone("git://127.0.0.1/james.git", "james")
+        return r
     }
 
     init {
