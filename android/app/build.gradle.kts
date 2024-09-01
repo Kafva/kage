@@ -1,3 +1,8 @@
+//
+// What does the declarative syntax actually do 🤨 ? 
+// Checkout: https://android.googlesource.com/platform/tools/base
+//
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
@@ -49,7 +54,14 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+
+    task<Exec>("rebuildCore") {
+        commandLine("${project.rootDir}/../core/build.sh", "android")
+    }
 }
+
+// Automatically rebuild core library during gradle build
+tasks.named("build") { dependsOn("rebuildCore") }
 
 dependencies {
 
