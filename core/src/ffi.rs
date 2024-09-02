@@ -1,3 +1,4 @@
+use std::ffi::c_int;
 use std::ffi::CString;
 use std::os::raw::c_char;
 

@@ -61,6 +61,8 @@ android {
 }
 
 // Automatically rebuild core library during gradle build
+// TODO: this needs to be forced as the FIRST task, changes to core generally
+// require two rebuilds currently...
 tasks.named("build") { dependsOn("rebuildCore") }
 
 dependencies {

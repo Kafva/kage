@@ -58,7 +58,10 @@ macro_rules! log {
     // The 'level' is matched as a token-tree to ensure that level_to_color!()
     // gets a literal as its argument.
     ($level:tt, $fmt:literal, $($x:expr),*) => {
-        if cfg!(feature = "color_logs") {
+        if cfg!(target_os = "android") {
+            std::fs::write("/data/user/0/kafva.kage/mylog.txt", "xDDD\nNEW\n").expect("NOPE")
+        }
+        else if cfg!(feature = "color_logs") {
             println!(concat!(log_prefix!(),
                              "\x1b[", level_to_color!($level), "m", $level,
                              "\x1b[0m {}:{} ", $fmt),
@@ -70,7 +73,10 @@ macro_rules! log {
     };
     // Match level and string literal message
     ($level:tt, $msg:literal) => {
-        if cfg!(feature = "color_logs") {
+        if cfg!(target_os = "android") {
+            std::fs::write("/data/user/0/kafva.kage/mylog.txt", "xDDD\nNEW\n").expect("NOPE")
+        }
+        else if cfg!(feature = "color_logs") {
             println!(concat!(log_prefix!(),
                              "\x1b[", level_to_color!($level), "m", $level,
                              "\x1b[0m {}:{} ", $msg),
