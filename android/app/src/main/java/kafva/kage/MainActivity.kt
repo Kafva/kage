@@ -2,6 +2,7 @@ package kafva.kage
 
 import android.os.Bundle
 import android.util.Log
+import android.content.ContextWrapper
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.activity.ComponentActivity
@@ -23,9 +24,6 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        val g = Group<String>("xd")
-        g.add("mem")
-
         setContent {
             KageTheme {
                 Column(modifier = Modifier.fillMaxSize(),
@@ -36,8 +34,11 @@ class MainActivity : ComponentActivity() {
                         modifier = Modifier.padding(0.dp, 20.dp)
                     )
                     Button(onClick = {
-                            val r = testFunc()
-                            Log.i("kafva.kage", "testFunc: $r")
+                            val git = Git()
+                            // TODO
+                            //val appDir = ContextWrapper.getFilesDir().getAbsolutePath()
+                            val r = git.clone("git://127.0.0.1/james.git", "/james")
+                            Log.i("kafva.kage", "OK: $r")
                         }) {
                         Text("Bury me")
                     }
@@ -46,10 +47,12 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    fun testFunc(): Int {
+    override fun onStart() {
+        super.onStart()
+        Log.v("kafva.kage", "Starting...")
         val git = Git()
         val r = git.clone("git://127.0.0.1/james.git", "james")
-        return r
+        Log.v("kafva.kage", "${Thread.currentThread().stackTrace[2].methodName}: $r")
     }
 
     init {

@@ -1,3 +1,6 @@
+#[cfg(target_os = "android")]
+extern crate android_log_sys;
+
 #[macro_use]
 mod log;
 

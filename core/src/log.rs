@@ -21,6 +21,31 @@ macro_rules! level_to_color {
     };
 }
 
+#[cfg(target_os = "android")]
+#[macro_export]
+macro_rules! android_level_to_prio {
+    ("DEBUG") => {
+        android_log_sys::LogPriority::DEBUG as std::ffi::c_int
+    };
+    ("INFO") => {
+        android_log_sys::LogPriority::INFO as std::ffi::c_int
+    };
+    ("WARN") => {
+        android_log_sys::LogPriority::WARN as std::ffi::c_int
+    };
+    ("ERROR") => {
+        android_log_sys::LogPriority::ERROR as std::ffi::c_int
+    };
+}
+
+#[cfg(target_os = "android")]
+#[macro_export]
+macro_rules! android_tag {
+    () => {
+        "kafva.kage\0"
+    };
+}
+
 #[macro_export]
 macro_rules! debug {
     ($($args:tt)*) => {
@@ -59,7 +84,14 @@ macro_rules! log {
     // gets a literal as its argument.
     ($level:tt, $fmt:literal, $($x:expr),*) => {
         if cfg!(target_os = "android") {
-            std::fs::write("/data/user/0/kafva.kage/mylog.txt", "xDDD\nNEW\n").expect("NOPE")
+            let msg = format!(concat!("{}:{} ", $fmt, "\0"), file!(), line!(), $($x),*);
+            unsafe {
+                android_log_sys::__android_log_write(
+                    android_level_to_prio!($level),
+                    android_tag!().as_ptr() as *const std::ffi::c_char,
+                    msg.as_ptr() as *const std::ffi::c_char,
+                );
+            };
         }
         else if cfg!(feature = "color_logs") {
             println!(concat!(log_prefix!(),
@@ -74,7 +106,13 @@ macro_rules! log {
     // Match level and string literal message
     ($level:tt, $msg:literal) => {
         if cfg!(target_os = "android") {
-            std::fs::write("/data/user/0/kafva.kage/mylog.txt", "xDDD\nNEW\n").expect("NOPE")
+            unsafe {
+                android_log_sys::__android_log_write(
+                    android_level_to_prio!($level),
+                    android_tag!().as_ptr() as *const std::ffi::c_char,
+                    format!("{}\0", $msg).as_ptr() as *const std::ffi::c_char,
+                );
+            };
         }
         else if cfg!(feature = "color_logs") {
             println!(concat!(log_prefix!(),

@@ -1,3 +1,6 @@
+use android_log_sys;
+use std::ffi::{c_char, c_int};
+
 use jni::objects::{JClass, JString};
 use jni::sys::jint;
 use jni::JNIEnv;
@@ -35,14 +38,13 @@ pub extern "system" fn Java_kafva_kage_Git_clone<'local>(
     let Some(mut git_last_error) = try_lock() else {
         return KAGE_ERROR_LOCK_TAKEN as jint;
     };
-    info!("Hey!");
-    99
-    //git_setup();
 
-    // let url: String = env.get_string(&url).expect("NOPE").into();
-    // let into: String = env.get_string(&into).expect("NOPE").into();
+    git_setup();
 
-    // jni_git_call!(git_clone(url.as_str(), into.as_str()), git_last_error)
+    let url: String = env.get_string(&url).expect("NOPE").into();
+    let into: String = env.get_string(&into).expect("NOPE").into();
+
+    jni_git_call!(git_clone(url.as_str(), into.as_str()), git_last_error)
 }
 
 fn try_lock() -> Option<MutexGuard<'static, Option<git2::Error>>> {

@@ -55,14 +55,19 @@ android {
         }
     }
 
-    task<Exec>("rebuildCore") {
+}
+
+task<Exec>("rebuildCore") {
+    // https://docs.gradle.org/current/userguide/build_lifecycle.html
+    doFirst {
         commandLine("${project.rootDir}/../core/build.sh", "android")
     }
 }
 
-// Automatically rebuild core library during gradle build
-// TODO: this needs to be forced as the FIRST task, changes to core generally
-// require two rebuilds currently...
+// Automatically rebuild core library during gradle build.
+// NOTE: if you run `build` and `installDebug` in the same invocation the
+// .so is generally not copied into place in time, run `build` and 
+// `installDebug` separately to ensure that changes appear on target.
 tasks.named("build") { dependsOn("rebuildCore") }
 
 dependencies {
