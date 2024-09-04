@@ -40,7 +40,6 @@ git2 = { version = "0.19.0", default-features = false }
 # Build with vendored libgit2 for Android
 git2 = { version = "0.19.0", default-features = false, features = ["vendored-libgit2"] }
 jni = { version = "0.21.1" }
-android_log-sys = "0.3"
 
 [features]
 default = ["debug_logs"]

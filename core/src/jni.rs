@@ -1,6 +1,3 @@
-use android_log_sys;
-use std::ffi::{c_char, c_int};
-
 use jni::objects::{JClass, JString};
 use jni::sys::jint;
 use jni::JNIEnv;
@@ -14,6 +11,7 @@ use crate::KAGE_ERROR_LOCK_TAKEN;
 
 static GIT_LAST_ERROR: Lazy<Mutex<Option<git2::Error>>> =
     Lazy::new(|| Mutex::new(None));
+
 
 macro_rules! jni_git_call {
     ($result:expr, $last_error:ident) => {

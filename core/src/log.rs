@@ -25,16 +25,16 @@ macro_rules! level_to_color {
 #[macro_export]
 macro_rules! android_level_to_prio {
     ("DEBUG") => {
-        android_log_sys::LogPriority::DEBUG as std::ffi::c_int
+        3 as std::ffi::c_int
     };
     ("INFO") => {
-        android_log_sys::LogPriority::INFO as std::ffi::c_int
+        4 as std::ffi::c_int
     };
     ("WARN") => {
-        android_log_sys::LogPriority::WARN as std::ffi::c_int
+        5 as std::ffi::c_int
     };
     ("ERROR") => {
-        android_log_sys::LogPriority::ERROR as std::ffi::c_int
+        6 as std::ffi::c_int
     };
 }
 
@@ -86,7 +86,7 @@ macro_rules! log {
         if cfg!(target_os = "android") {
             let msg = format!(concat!("{}:{} ", $fmt, "\0"), file!(), line!(), $($x),*);
             unsafe {
-                android_log_sys::__android_log_write(
+                crate::__android_log_write(
                     android_level_to_prio!($level),
                     android_tag!().as_ptr() as *const std::ffi::c_char,
                     msg.as_ptr() as *const std::ffi::c_char,
@@ -107,7 +107,7 @@ macro_rules! log {
     ($level:tt, $msg:literal) => {
         if cfg!(target_os = "android") {
             unsafe {
-                android_log_sys::__android_log_write(
+                crate::__android_log_write(
                     android_level_to_prio!($level),
                     android_tag!().as_ptr() as *const std::ffi::c_char,
                     format!("{}\0", $msg).as_ptr() as *const std::ffi::c_char,

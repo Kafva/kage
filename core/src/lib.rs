@@ -1,5 +1,13 @@
+use std::ffi::{c_int,c_char};
+
 #[cfg(target_os = "android")]
-extern crate android_log_sys;
+//#[link(name = "log")]
+extern "C" {
+    pub fn __android_log_write(prio: c_int,
+                               tag: *const c_char,
+                               text: *const c_char)
+                               -> c_int;
+}
 
 #[macro_use]
 mod log;
