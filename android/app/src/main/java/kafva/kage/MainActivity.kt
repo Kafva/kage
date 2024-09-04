@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.dp
 import kafva.kage.ui.theme.KageTheme
+import java.io.File;
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -34,11 +35,7 @@ class MainActivity : ComponentActivity() {
                         modifier = Modifier.padding(0.dp, 20.dp)
                     )
                     Button(onClick = {
-                            val git = Git()
-                            // TODO
-                            //val appDir = ContextWrapper.getFilesDir().getAbsolutePath()
-                            val r = git.clone("git://127.0.0.1/james.git", "/james")
-                            Log.i("kafva.kage", "OK: $r")
+                        clone()
                         }) {
                         Text("Bury me")
                     }
@@ -50,8 +47,17 @@ class MainActivity : ComponentActivity() {
     override fun onStart() {
         super.onStart()
         Log.v("kafva.kage", "Starting...")
+        clone()
+    }
+
+    private fun clone() {
+        // https://developer.android.com/studio/run/emulator-networking
+        val url = "git://10.0.2.2:9418/james.git"
+        val into = "${this.filesDir.path}/james"
+
+        File(into).deleteRecursively()
         val git = Git()
-        val r = git.clone("git://127.0.0.1/james.git", "james")
+        val r = git.clone(url, into)
         Log.v("kafva.kage", "${Thread.currentThread().stackTrace[2].methodName}: $r")
     }
 

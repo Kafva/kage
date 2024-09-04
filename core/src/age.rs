@@ -8,6 +8,8 @@ use std::io::{Read, Write}; // For .read_to_end() and .write_all()
 use std::time::SystemTime;
 
 use crate::age_error::AgeError;
+
+#[cfg(not(target_os = "android"))]
 use crate::{error, level_to_color, log, log_prefix};
 
 use age;

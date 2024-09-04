@@ -1,11 +1,4 @@
 #[macro_export]
-macro_rules! log_prefix {
-    () => {
-        "[kage-core] "
-    };
-}
-
-#[macro_export]
 macro_rules! level_to_color {
     ("DEBUG") => {
         "94"
@@ -18,31 +11,6 @@ macro_rules! level_to_color {
     };
     ("ERROR") => {
         "91"
-    };
-}
-
-#[cfg(target_os = "android")]
-#[macro_export]
-macro_rules! android_level_to_prio {
-    ("DEBUG") => {
-        3 as std::ffi::c_int
-    };
-    ("INFO") => {
-        4 as std::ffi::c_int
-    };
-    ("WARN") => {
-        5 as std::ffi::c_int
-    };
-    ("ERROR") => {
-        6 as std::ffi::c_int
-    };
-}
-
-#[cfg(target_os = "android")]
-#[macro_export]
-macro_rules! android_tag {
-    () => {
-        "kafva.kage\0"
     };
 }
 
@@ -76,24 +44,22 @@ macro_rules! error {
     };
 }
 
-// Do not color logs when building for a real iOS target
+#[cfg(not(target_os = "android"))]
+#[macro_export]
+macro_rules! log_prefix {
+    () => {
+        "[kage-core] "
+    };
+}
+
+#[cfg(not(target_os = "android"))]
 #[macro_export]
 macro_rules! log {
     // Match level, format string and arguments
     // The 'level' is matched as a token-tree to ensure that level_to_color!()
     // gets a literal as its argument.
     ($level:tt, $fmt:literal, $($x:expr),*) => {
-        if cfg!(target_os = "android") {
-            let msg = format!(concat!("{}:{} ", $fmt, "\0"), file!(), line!(), $($x),*);
-            unsafe {
-                crate::__android_log_write(
-                    android_level_to_prio!($level),
-                    android_tag!().as_ptr() as *const std::ffi::c_char,
-                    msg.as_ptr() as *const std::ffi::c_char,
-                );
-            };
-        }
-        else if cfg!(feature = "color_logs") {
+        if cfg!(feature = "color_logs") {
             println!(concat!(log_prefix!(),
                              "\x1b[", level_to_color!($level), "m", $level,
                              "\x1b[0m {}:{} ", $fmt),
@@ -105,16 +71,7 @@ macro_rules! log {
     };
     // Match level and string literal message
     ($level:tt, $msg:literal) => {
-        if cfg!(target_os = "android") {
-            unsafe {
-                crate::__android_log_write(
-                    android_level_to_prio!($level),
-                    android_tag!().as_ptr() as *const std::ffi::c_char,
-                    format!("{}\0", $msg).as_ptr() as *const std::ffi::c_char,
-                );
-            };
-        }
-        else if cfg!(feature = "color_logs") {
+        if cfg!(feature = "color_logs") {
             println!(concat!(log_prefix!(),
                              "\x1b[", level_to_color!($level), "m", $level,
                              "\x1b[0m {}:{} ", $msg),

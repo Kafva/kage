@@ -7,11 +7,11 @@ use std::sync::MutexGuard;
 
 use crate::git::git_clone;
 use crate::git::git_setup;
+use crate::log_android::__android_log_write;
 use crate::KAGE_ERROR_LOCK_TAKEN;
 
 static GIT_LAST_ERROR: Lazy<Mutex<Option<git2::Error>>> =
     Lazy::new(|| Mutex::new(None));
-
 
 macro_rules! jni_git_call {
     ($result:expr, $last_error:ident) => {
@@ -39,10 +39,21 @@ pub extern "system" fn Java_kafva_kage_Git_clone<'local>(
 
     git_setup();
 
-    let url: String = env.get_string(&url).expect("NOPE").into();
-    let into: String = env.get_string(&into).expect("NOPE").into();
+    let Ok(url) = env.get_string(&url) else {
+        return -1 as jint;
+    };
+    let Ok(url) = url.to_str() else {
+        return -1 as jint;
+    };
 
-    jni_git_call!(git_clone(url.as_str(), into.as_str()), git_last_error)
+    let Ok(into) = env.get_string(&into) else {
+        return -1 as jint;
+    };
+    let Ok(into) = into.to_str() else {
+        return -1 as jint;
+    };
+
+    jni_git_call!(git_clone(url, into), git_last_error)
 }
 
 fn try_lock() -> Option<MutexGuard<'static, Option<git2::Error>>> {
