@@ -1,7 +1,6 @@
 package kafva.kage
 
 import android.os.Bundle
-import android.util.Log
 import android.content.ContextWrapper
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -19,6 +18,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.dp
 import kafva.kage.ui.theme.KageTheme
 import java.io.File;
+import kafva.kage.Log
+import kafva.kage.GIT_DIR_NAME
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -46,19 +47,19 @@ class MainActivity : ComponentActivity() {
 
     override fun onStart() {
         super.onStart()
-        Log.v("kafva.kage", "Starting...")
+        Log.v("Starting...")
         clone()
     }
 
     private fun clone() {
         // https://developer.android.com/studio/run/emulator-networking
         val url = "git://10.0.2.2:9418/james.git"
-        val into = "${this.filesDir.path}/james"
+        val into = "${this.filesDir.path}/${GIT_DIR_NAME}/james"
 
         File(into).deleteRecursively()
         val git = Git()
         val r = git.clone(url, into)
-        Log.v("kafva.kage", "${Thread.currentThread().stackTrace[2].methodName}: $r")
+        Log.v("Cloned into ${into}: $r")
     }
 
     init {
