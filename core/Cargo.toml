@@ -43,5 +43,6 @@ jni = { version = "0.21.1" }
 
 [features]
 default = ["debug_logs"]
-color_logs = []
+# The ffi library for iOS only works when built with --release, debug logs
+# therefore need their own feature flag, we cannot rely on cfg(debug_assertions)
 debug_logs = []

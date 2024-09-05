@@ -59,26 +59,28 @@ macro_rules! log {
     // The 'level' is matched as a token-tree to ensure that level_to_color!()
     // gets a literal as its argument.
     ($level:tt, $fmt:literal, $($x:expr),*) => {
-        if cfg!(feature = "color_logs") {
+        // Enable colored logs for all targets except real iOS devices
+        // Pro-tip: rustc --print=cfg --target aarch64-apple-ios-sim
+        if cfg!(all(target_os = "ios", not(target_abi = "sim"))) {
+            println!(concat!(log_prefix!(), $level, " {}:{} ", $fmt),
+                       file!(), line!(), $($x),*)
+        } else {
             println!(concat!(log_prefix!(),
                              "\x1b[", level_to_color!($level), "m", $level,
                              "\x1b[0m {}:{} ", $fmt),
                      file!(), line!(), $($x),*)
-        } else {
-            println!(concat!(log_prefix!(), $level, " {}:{} ", $fmt),
-                       file!(), line!(), $($x),*)
         }
     };
     // Match level and string literal message
     ($level:tt, $msg:literal) => {
-        if cfg!(feature = "color_logs") {
+        if cfg!(all(target_os = "ios", not(target_abi = "sim"))) {
+            println!(concat!(log_prefix!(), $level, " {}:{} {}"),
+                       file!(), line!(), $msg);
+        } else {
             println!(concat!(log_prefix!(),
                              "\x1b[", level_to_color!($level), "m", $level,
                              "\x1b[0m {}:{} ", $msg),
                      file!(), line!())
-        } else {
-            println!(concat!(log_prefix!(), $level, " {}:{} {}"),
-                       file!(), line!(), $msg);
         }
     };
 }

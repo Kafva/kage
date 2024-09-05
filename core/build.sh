@@ -72,9 +72,15 @@ ios)
     exit 1
 esac
 
+if [ "$CONFIGURATION" = Release ]; then
+    # Disable default debug_logs feature
+    CARGO_EXTRA_FLAGS+=(--no-default-features)
+fi
+
 rm -f "$DIST/*.{a,so,rlib}"
 
-# Always build with --release when bundling for ffi
+# Always build with --release when bundling for ffi, debug builds
+# have issues on iOS.
 cargo \
     -Z unstable-options \
     -C $SOURCE_ROOT/../core \
