@@ -1,7 +1,7 @@
 # vi: ft=gitignore
 /build
 /.testenv
-/log
+log
 /.bundle
 /.bundle.xcresult
 .lldbinit
