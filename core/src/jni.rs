@@ -7,6 +7,7 @@ use std::sync::MutexGuard;
 
 use crate::git::git_clone;
 use crate::git::git_setup;
+use crate::git::git_pull;
 use crate::log_android::__android_log_write;
 use crate::KAGE_ERROR_LOCK_TAKEN;
 
@@ -55,6 +56,46 @@ pub extern "system" fn Java_kafva_kage_Git_clone<'local>(
 
     jni_git_call!(git_clone(url, into), git_last_error)
 }
+
+#[no_mangle]
+pub extern "system" fn Java_kafva_kage_Git_pull<'local>(
+    mut env: JNIEnv<'local>,
+    _class: JClass<'local>,
+    repo_path: JString<'local>,
+) -> jint {
+    let Some(mut git_last_error) = try_lock() else {
+        return KAGE_ERROR_LOCK_TAKEN as jint;
+    };
+
+    let Ok(repo_path) = env.get_string(&repo_path) else {
+        return -1 as jint;
+    };
+    let Ok(repo_path) = repo_path.to_str() else {
+        return -1 as jint;
+    };
+
+    jni_git_call!(git_pull(repo_path), git_last_error)
+}
+
+#[no_mangle]
+pub extern "system" fn Java_kafva_kage_Git_strerror<'local>(
+    mut env: JNIEnv<'local>,
+    _class: JClass<'local>,
+) -> JString<'local> {
+    let Some(mut git_last_error) = try_lock() else {
+        return JString::default();
+    };
+    let Some(err) = git_last_error.as_ref() else {
+        return JString::default();
+    };
+
+    let Ok(msg) = env.new_string(err.message()) else {
+        return JString::default();
+    };
+
+    msg
+}
+
 
 fn try_lock() -> Option<MutexGuard<'static, Option<git2::Error>>> {
     let Ok(git_last_error) = GIT_LAST_ERROR.try_lock() else {

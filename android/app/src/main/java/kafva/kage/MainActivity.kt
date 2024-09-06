@@ -21,6 +21,12 @@ import java.io.File;
 import kafva.kage.Log
 import kafva.kage.GIT_DIR_NAME
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,7 +44,15 @@ class MainActivity : ComponentActivity() {
                     Button(onClick = {
                         clone()
                         }) {
-                        Text("Bury me")
+                        Text("clone")
+                    }
+                    Button(onClick = {
+                        pull()
+                        }) {
+                        Text("pull")
+                    }
+                    if (errorState != "") {
+                        Text("Error: $errorState")
                     }
                 }
             }
@@ -51,6 +65,21 @@ class MainActivity : ComponentActivity() {
         clone()
     }
 
+    var errorState by remember {
+        mutableStateOf("")
+    }
+
+    private fun pull() {
+        val repoPath = "${this.filesDir.path}/${GIT_DIR_NAME}/james"
+
+        val git = Git()
+        val r = git.pull(repoPath)
+        Log.v("Pulled ${repoPath}: $r")
+        if (r != 0) {
+            errorState = git.strerror()
+        }
+    }
+
     private fun clone() {
         // https://developer.android.com/studio/run/emulator-networking
         val url = "git://10.0.2.2:9418/james.git"
@@ -60,6 +89,9 @@ class MainActivity : ComponentActivity() {
         val git = Git()
         val r = git.clone(url, into)
         Log.v("Cloned into ${into}: $r")
+        if (r != 0) {
+            errorState = git.strerror()
+        }
     }
 
     init {
@@ -72,27 +104,9 @@ class MainActivity : ComponentActivity() {
  * @param modifier the modifier
  */
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
+fun AppComposable(name: String, modifier: Modifier = Modifier) {
     Text(
         text = "Hello $name!",
         modifier = modifier
     )
-}
-
-
-/**
- * A group of *members*.
- *
- * This class has no useful logic; it's just a documentation example.
- *
- * @param T the type of a member in this group.
- * @property name the name of this group.
- * @constructor Creates an empty group.
- */
-class Group<T>(val name: String) {
-    /**
-     * Adds a [member] to this group.
-     * @return the new size of the group.
-     */
-    fun add(member: T): Int { return 1 }
 }
