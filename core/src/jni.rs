@@ -6,8 +6,8 @@ use std::sync::Mutex;
 use std::sync::MutexGuard;
 
 use crate::git::git_clone;
-use crate::git::git_setup;
 use crate::git::git_pull;
+use crate::git::git_setup;
 use crate::log_android::__android_log_write;
 use crate::KAGE_ERROR_LOCK_TAKEN;
 
@@ -95,7 +95,6 @@ pub extern "system" fn Java_kafva_kage_Git_strerror<'local>(
 
     msg
 }
-
 
 fn try_lock() -> Option<MutexGuard<'static, Option<git2::Error>>> {
     let Ok(git_last_error) = GIT_LAST_ERROR.try_lock() else {

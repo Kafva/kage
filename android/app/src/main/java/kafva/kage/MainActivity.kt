@@ -31,66 +31,16 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        val repoPath = "${this.filesDir.path}/${GIT_DIR_NAME}/james"
 
         setContent {
             KageTheme {
                 Column(modifier = Modifier.fillMaxSize(),
                        verticalArrangement = Arrangement.spacedBy(10.dp),
                        horizontalAlignment = Alignment.CenterHorizontally) {
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(0.dp, 20.dp)
-                    )
-                    Button(onClick = {
-                        clone()
-                        }) {
-                        Text("clone")
-                    }
-                    Button(onClick = {
-                        pull()
-                        }) {
-                        Text("pull")
-                    }
-                    if (errorState != "") {
-                        Text("Error: $errorState")
-                    }
+                    AppComposable(repoPath)
                 }
             }
-        }
-    }
-
-    override fun onStart() {
-        super.onStart()
-        Log.v("Starting...")
-        clone()
-    }
-
-    var errorState by remember {
-        mutableStateOf("")
-    }
-
-    private fun pull() {
-        val repoPath = "${this.filesDir.path}/${GIT_DIR_NAME}/james"
-
-        val git = Git()
-        val r = git.pull(repoPath)
-        Log.v("Pulled ${repoPath}: $r")
-        if (r != 0) {
-            errorState = git.strerror()
-        }
-    }
-
-    private fun clone() {
-        // https://developer.android.com/studio/run/emulator-networking
-        val url = "git://10.0.2.2:9418/james.git"
-        val into = "${this.filesDir.path}/${GIT_DIR_NAME}/james"
-
-        File(into).deleteRecursively()
-        val git = Git()
-        val r = git.clone(url, into)
-        Log.v("Cloned into ${into}: $r")
-        if (r != 0) {
-            errorState = git.strerror()
         }
     }
 
@@ -99,14 +49,38 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-/**
- * @param name the name
- * @param modifier the modifier
- */
 @Composable
-fun AppComposable(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
+fun AppComposable(
+    repoPath: String
+) {
+    val git = Git()
+    val errorState = remember { mutableStateOf("") } 
+
+    Button(onClick = {
+            // https://developer.android.com/studio/run/emulator-networking
+            val url = "git://10.0.2.2:9418/james.git"
+
+            File(repoPath).deleteRecursively()
+            val r = git.clone(url, repoPath)
+            Log.v("Cloned into ${repoPath}: $r")
+            if (r != 0) {
+                errorState.value = git.strerror()
+            }
+        },
+        modifier = Modifier.padding(top = 70.dp)
+    ) {
+        Text("clone")
+    }
+    Button(onClick = {
+            val r = git.pull(repoPath)
+            Log.v("Pulled ${repoPath}: $r")
+            if (r != 0) {
+                errorState.value = git.strerror()
+            }
+        }) {
+        Text("pull")
+    }
+    if (errorState.value != "") {
+        Text("Error: ${errorState.value}")
+    }
 }
