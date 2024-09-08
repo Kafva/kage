@@ -1,14 +1,11 @@
-use jni::objects::{JClass, JString};
-use jni::sys::jint;
+use jni::objects::{JClass, JObject, JObjectArray, JString};
+use jni::sys::{jint, jsize};
 use jni::JNIEnv;
-use once_cell::sync::Lazy;
-use std::sync::Mutex;
-use std::sync::MutexGuard;
 
 use crate::git::git_clone;
+use crate::git::git_log;
 use crate::git::git_pull;
 use crate::git::git_setup;
-use crate::git::git_log;
 use crate::git::git_try_lock;
 use crate::git_call;
 use crate::log_android::__android_log_write;
@@ -66,10 +63,10 @@ pub extern "system" fn Java_kafva_kage_Git_pull<'local>(
 
 #[no_mangle]
 pub extern "system" fn Java_kafva_kage_Git_strerror<'local>(
-    mut env: JNIEnv<'local>,
+    env: JNIEnv<'local>,
     _class: JClass<'local>,
 ) -> JString<'local> {
-    let Some(mut git_last_error) = git_try_lock() else {
+    let Some(git_last_error) = git_try_lock() else {
         return JString::default();
     };
     let Some(err) = git_last_error.as_ref() else {
@@ -88,29 +85,55 @@ pub extern "system" fn Java_kafva_kage_Git_log<'local>(
     mut env: JNIEnv<'local>,
     _class: JClass<'local>,
     repo_path: JString<'local>,
-) -> JString<'local> {
-    let Some(mut git_last_error) = git_try_lock() else {
-        return JString::default();
+) -> JObjectArray<'local> {
+    let Some(_git_last_error) = git_try_lock() else {
+        return JObjectArray::default();
     };
 
     let Ok(repo_path) = env.get_string(&repo_path) else {
-        return JString::default();
+        return JObjectArray::default();
     };
     let Ok(repo_path) = repo_path.to_str() else {
-        return JString::default();
+        return JObjectArray::default();
     };
 
     match git_log(repo_path) {
         Ok(arr) => {
-            let s = arr.join("\n");
-            let Ok(s) = env.new_string(s) else {
-                return JString::default();
+            let size = arr.len() as jsize;
+
+            let Some(first) = arr.first() else {
+                error!("Empty commit log");
+                return JObjectArray::default();
             };
-            s
-        },
+
+            let Ok(s) = env.new_string(first) else {
+                error!("Error creating Java string from: '{}'", first);
+                return JObjectArray::default();
+            };
+
+            let Ok(outarr) = env.new_object_array(size, "java/lang/String", s)
+            else {
+                error!("Error creating Java object array");
+                return JObjectArray::default();
+            };
+
+            for item in arr.into_iter().skip(1) {
+                let Ok(s) = env.new_string(&item) else {
+                    error!("Error creating Java string from: '{}'", item);
+                    return JObjectArray::default();
+                };
+
+                let Ok(_) = env.set_object_array_element(&outarr, 0, s) else {
+                    error!("Error adding Java string to array: '{}'", item);
+                    return JObjectArray::default();
+                };
+            }
+
+            outarr
+        }
         Err(err) => {
             error!("{}", err);
-            return JString::default();
+            return JObjectArray::default();
         }
     }
 }

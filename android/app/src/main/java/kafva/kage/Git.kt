@@ -8,7 +8,7 @@ class Git {
 
     external fun pull(repoPath: String): Int
 
-    external fun log(repoPath: String): String
+    external fun log(repoPath: String): Array<String>
 
     external fun strerror(): String
 }

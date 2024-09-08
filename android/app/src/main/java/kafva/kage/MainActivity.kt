@@ -67,12 +67,13 @@ fun AppComposable(repoPath: String) {
     ) {
         Text("clone")
     }
-    Button(onClick = {
-        val r = git.pull(repoPath)
-        errorState.value = if (r != 0) git.strerror() else ""
-        Log.v("Pulled $repoPath: $r")
-    },
-        modifier = Modifier.padding(bottom = 100.dp)
+    Button(
+        onClick = {
+            val r = git.pull(repoPath)
+            errorState.value = if (r != 0) git.strerror() else ""
+            Log.v("Pulled $repoPath: $r")
+        },
+        modifier = Modifier.padding(bottom = 100.dp),
     ) {
         Text("pull")
     }
@@ -80,7 +81,7 @@ fun AppComposable(repoPath: String) {
         Text("Error: ${errorState.value}")
     }
 
-    for (line in logs.split('\n')) {
+    for (line in logs) {
         Text(line)
     }
 }

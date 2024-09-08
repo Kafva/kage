@@ -17,6 +17,7 @@ use git2::{FetchOptions, RemoteCallbacks, Repository};
 use crate::*;
 
 const TRANSFER_STAGES: usize = 4;
+#[cfg(not(target_os = "android"))]
 const GIT_EMAIL: &'static str = env!("KAGE_GIT_EMAIL");
 
 #[cfg(not(test))]
@@ -111,6 +112,7 @@ pub fn git_pull(repo_path: &str) -> Result<(), git2::Error> {
     Ok(())
 }
 
+#[cfg(not(target_os = "android"))]
 pub fn git_push(repo_path: &str) -> Result<(), git2::Error> {
     let repo = Repository::open(repo_path)?;
     let mut remote = repo.find_remote(GIT_REMOTE)?;
@@ -141,6 +143,7 @@ pub fn git_push(repo_path: &str) -> Result<(), git2::Error> {
     Ok(())
 }
 
+#[cfg(not(target_os = "android"))]
 pub fn git_stage(
     repo_path: &str,
     relative_path: &str,
@@ -190,6 +193,7 @@ pub fn git_stage(
     index.write()
 }
 
+#[cfg(not(target_os = "android"))]
 pub fn git_commit(repo_path: &str, message: &str) -> Result<(), git2::Error> {
     let repo = Repository::open(repo_path)?;
     // Retrieve the commit that HEAD points to so that we can replace
@@ -234,6 +238,7 @@ pub fn git_commit(repo_path: &str, message: &str) -> Result<(), git2::Error> {
 /// Hard reset to the local HEAD, discarding all uncommited (and staged) local
 /// changes. Note: untracked files and directories that have not been staged
 /// need to be manually removed.
+#[cfg(not(target_os = "android"))]
 pub fn git_reset(repo_path: &str) -> Result<(), git2::Error> {
     let repo = Repository::open(repo_path)?;
     let local_head = repo.revparse_single(GIT_BRANCH)?.id();
@@ -258,6 +263,7 @@ pub fn git_clone(url: &str, into: &str) -> Result<(), git2::Error> {
 }
 
 /// Returns true if remote and local HEAD are equal
+#[cfg(not(target_os = "android"))]
 pub fn git_local_head_matches_remote(
     repo_path: &str,
 ) -> Result<bool, git2::Error> {
@@ -273,6 +279,7 @@ pub fn git_local_head_matches_remote(
     Ok(local_oid == remote_oid)
 }
 
+#[cfg(not(target_os = "android"))]
 pub fn git_config_set_user(
     repo_path: &str,
     username: &str,
