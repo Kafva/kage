@@ -1,4 +1,7 @@
+use once_cell::sync::Lazy;
 use std::path::Path;
+use std::sync::Mutex;
+use std::sync::MutexGuard;
 use std::sync::Once;
 
 use git2::build::{CheckoutBuilder, RepoBuilder};
@@ -26,7 +29,28 @@ const GIT_BRANCH: &'static str = env!("KAGE_GIT_BRANCH");
 #[cfg(test)]
 pub const GIT_BRANCH: &'static str = env!("KAGE_GIT_BRANCH");
 
+/// Persistent library state for last error that occurred
+/// The git2::Error::last_error() method does not fit our needs, the error
+/// message we want to show tends to be overwritten from later successful
+/// invocations of git functions before we can retrieve it.
+static GIT_LAST_ERROR: Lazy<Mutex<Option<git2::Error>>> =
+    Lazy::new(|| Mutex::new(None));
+
 static ONCE: Once = Once::new();
+
+#[macro_export]
+macro_rules! git_call {
+    ($result:expr, $last_error:ident) => {
+        match $result {
+            Ok(_) => 0,
+            Err(err) => {
+                error!("{}", err);
+                *$last_error = Some(err);
+                $last_error.as_ref().unwrap().raw_code()
+            }
+        }
+    };
+}
 
 macro_rules! internal_error {
     () => {
@@ -298,6 +322,16 @@ pub fn git_log(repo_path: &str) -> Result<Vec<String>, git2::Error> {
         arr.push(commit_info)
     }
     Ok(arr)
+}
+
+/// Acquire the last error mutex, should be called before each method call
+/// in a multithreaded environment.
+pub fn git_try_lock() -> Option<MutexGuard<'static, Option<git2::Error>>> {
+    let Ok(git_last_error) = GIT_LAST_ERROR.try_lock() else {
+        error!("Mutex lock already taken");
+        return None;
+    };
+    Some(git_last_error)
 }
 
 /// Initialize global options in the underlying library

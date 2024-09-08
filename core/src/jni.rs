@@ -8,24 +8,10 @@ use std::sync::MutexGuard;
 use crate::git::git_clone;
 use crate::git::git_pull;
 use crate::git::git_setup;
+use crate::git::git_try_lock;
+use crate::git_call;
 use crate::log_android::__android_log_write;
 use crate::KAGE_ERROR_LOCK_TAKEN;
-
-static GIT_LAST_ERROR: Lazy<Mutex<Option<git2::Error>>> =
-    Lazy::new(|| Mutex::new(None));
-
-macro_rules! jni_git_call {
-    ($result:expr, $last_error:ident) => {
-        match $result {
-            Ok(_) => 0,
-            Err(err) => {
-                error!("{}", err);
-                *$last_error = Some(err);
-                $last_error.as_ref().unwrap().raw_code() as jint
-            }
-        }
-    };
-}
 
 #[no_mangle]
 pub extern "system" fn Java_kafva_kage_Git_clone<'local>(
@@ -34,7 +20,7 @@ pub extern "system" fn Java_kafva_kage_Git_clone<'local>(
     url: JString<'local>,
     into: JString<'local>,
 ) -> jint {
-    let Some(mut git_last_error) = try_lock() else {
+    let Some(mut git_last_error) = git_try_lock() else {
         return KAGE_ERROR_LOCK_TAKEN as jint;
     };
 
@@ -54,7 +40,7 @@ pub extern "system" fn Java_kafva_kage_Git_clone<'local>(
         return -1 as jint;
     };
 
-    jni_git_call!(git_clone(url, into), git_last_error)
+    git_call!(git_clone(url, into), git_last_error) as jint
 }
 
 #[no_mangle]
@@ -63,7 +49,7 @@ pub extern "system" fn Java_kafva_kage_Git_pull<'local>(
     _class: JClass<'local>,
     repo_path: JString<'local>,
 ) -> jint {
-    let Some(mut git_last_error) = try_lock() else {
+    let Some(mut git_last_error) = git_try_lock() else {
         return KAGE_ERROR_LOCK_TAKEN as jint;
     };
 
@@ -74,7 +60,7 @@ pub extern "system" fn Java_kafva_kage_Git_pull<'local>(
         return -1 as jint;
     };
 
-    jni_git_call!(git_pull(repo_path), git_last_error)
+    git_call!(git_pull(repo_path), git_last_error) as jint
 }
 
 #[no_mangle]
@@ -82,7 +68,7 @@ pub extern "system" fn Java_kafva_kage_Git_strerror<'local>(
     mut env: JNIEnv<'local>,
     _class: JClass<'local>,
 ) -> JString<'local> {
-    let Some(mut git_last_error) = try_lock() else {
+    let Some(mut git_last_error) = git_try_lock() else {
         return JString::default();
     };
     let Some(err) = git_last_error.as_ref() else {
@@ -94,12 +80,4 @@ pub extern "system" fn Java_kafva_kage_Git_strerror<'local>(
     };
 
     msg
-}
-
-fn try_lock() -> Option<MutexGuard<'static, Option<git2::Error>>> {
-    let Ok(git_last_error) = GIT_LAST_ERROR.try_lock() else {
-        error!("Mutex lock already taken");
-        return None;
-    };
-    Some(git_last_error)
 }

@@ -1,41 +1,18 @@
 use crate::ffi::CStringArray;
-use once_cell::sync::Lazy;
 use std::ffi::CStr;
 use std::ffi::CString;
 use std::os::raw::{c_char, c_int};
 use std::ptr::null;
-use std::sync::Mutex;
-use std::sync::MutexGuard;
 
 use crate::git::*;
 use crate::*;
-
-/// Persistent library state for last error that occured
-/// The git2::Error::last_error() method does not fit our needs, the error
-/// message we want to show tends to be overwritten from later successful
-/// invocations of git functions before we can retrieve it.
-static GIT_LAST_ERROR: Lazy<Mutex<Option<git2::Error>>> =
-    Lazy::new(|| Mutex::new(None));
-
-macro_rules! ffi_git_call {
-    ($result:expr, $last_error:ident) => {
-        match $result {
-            Ok(_) => 0,
-            Err(err) => {
-                error!("{}", err);
-                *$last_error = Some(err);
-                $last_error.as_ref().unwrap().raw_code() as c_int
-            }
-        }
-    };
-}
 
 #[no_mangle]
 pub extern "C" fn ffi_git_clone(
     url: *const c_char,
     into: *const c_char,
 ) -> c_int {
-    let Some(mut git_last_error) = try_lock() else {
+    let Some(mut git_last_error) = git_try_lock() else {
         return KAGE_ERROR_LOCK_TAKEN as c_int;
     };
     git_setup();
@@ -47,12 +24,12 @@ pub extern "C" fn ffi_git_clone(
         return -1;
     };
 
-    ffi_git_call!(git_clone(url, into), git_last_error)
+    git_call!(git_clone(url, into), git_last_error) as c_int
 }
 
 #[no_mangle]
 pub extern "C" fn ffi_git_pull(repo_path: *const c_char) -> c_int {
-    let Some(mut git_last_error) = try_lock() else {
+    let Some(mut git_last_error) = git_try_lock() else {
         return KAGE_ERROR_LOCK_TAKEN as c_int;
     };
     git_setup();
@@ -61,12 +38,12 @@ pub extern "C" fn ffi_git_pull(repo_path: *const c_char) -> c_int {
 
     let Ok(repo_path) = repo_path else { return -1 };
 
-    ffi_git_call!(git_pull(repo_path), git_last_error)
+    git_call!(git_pull(repo_path), git_last_error) as c_int
 }
 
 #[no_mangle]
 pub extern "C" fn ffi_git_push(repo_path: *const c_char) -> c_int {
-    let Some(mut git_last_error) = try_lock() else {
+    let Some(mut git_last_error) = git_try_lock() else {
         return KAGE_ERROR_LOCK_TAKEN as c_int;
     };
     git_setup();
@@ -75,7 +52,7 @@ pub extern "C" fn ffi_git_push(repo_path: *const c_char) -> c_int {
 
     let Ok(repo_path) = repo_path else { return -1 };
 
-    ffi_git_call!(git_push(repo_path), git_last_error)
+    git_call!(git_push(repo_path), git_last_error) as c_int
 }
 
 /// Stage an 'add' or a 'rm' operation
@@ -84,7 +61,7 @@ pub extern "C" fn ffi_git_stage(
     repo_path: *const c_char,
     relative_path: *const c_char,
 ) -> c_int {
-    let Some(mut git_last_error) = try_lock() else {
+    let Some(mut git_last_error) = git_try_lock() else {
         return KAGE_ERROR_LOCK_TAKEN as c_int;
     };
     let repo_path = unsafe { CStr::from_ptr(repo_path).to_str() };
@@ -94,12 +71,12 @@ pub extern "C" fn ffi_git_stage(
         return -1;
     };
 
-    ffi_git_call!(git_stage(repo_path, relative_path), git_last_error)
+    git_call!(git_stage(repo_path, relative_path), git_last_error) as c_int
 }
 
 #[no_mangle]
 pub extern "C" fn ffi_git_reset(repo_path: *const c_char) -> c_int {
-    let Some(mut git_last_error) = try_lock() else {
+    let Some(mut git_last_error) = git_try_lock() else {
         return KAGE_ERROR_LOCK_TAKEN as c_int;
     };
     git_setup();
@@ -108,7 +85,7 @@ pub extern "C" fn ffi_git_reset(repo_path: *const c_char) -> c_int {
 
     let Ok(repo_path) = repo_path else { return -1 };
 
-    ffi_git_call!(git_reset(repo_path), git_last_error)
+    git_call!(git_reset(repo_path), git_last_error) as c_int
 }
 
 #[no_mangle]
@@ -116,7 +93,7 @@ pub extern "C" fn ffi_git_config_set_user(
     repo_path: *const c_char,
     username: *const c_char,
 ) -> c_int {
-    let Some(mut git_last_error) = try_lock() else {
+    let Some(mut git_last_error) = git_try_lock() else {
         return KAGE_ERROR_LOCK_TAKEN as c_int;
     };
     let repo_path = unsafe { CStr::from_ptr(repo_path).to_str() };
@@ -126,7 +103,7 @@ pub extern "C" fn ffi_git_config_set_user(
         return -1;
     };
 
-    ffi_git_call!(git_config_set_user(repo_path, username), git_last_error)
+    git_call!(git_config_set_user(repo_path, username), git_last_error) as c_int
 }
 
 #[no_mangle]
@@ -134,7 +111,7 @@ pub extern "C" fn ffi_git_commit(
     repo_path: *const c_char,
     message: *const c_char,
 ) -> c_int {
-    let Some(mut git_last_error) = try_lock() else {
+    let Some(mut git_last_error) = git_try_lock() else {
         return KAGE_ERROR_LOCK_TAKEN as c_int;
     };
     let repo_path = unsafe { CStr::from_ptr(repo_path).to_str() };
@@ -144,14 +121,14 @@ pub extern "C" fn ffi_git_commit(
         return -1;
     };
 
-    ffi_git_call!(git_commit(repo_path, message), git_last_error)
+    git_call!(git_commit(repo_path, message), git_last_error) as c_int
 }
 
 #[no_mangle]
 pub extern "C" fn ffi_git_local_head_matches_remote(
     repo_path: *const c_char,
 ) -> c_int {
-    let Some(mut git_last_error) = try_lock() else {
+    let Some(mut git_last_error) = git_try_lock() else {
         return KAGE_ERROR_LOCK_TAKEN as c_int;
     };
     let repo_path = unsafe { CStr::from_ptr(repo_path).to_str() };
@@ -172,7 +149,7 @@ pub extern "C" fn ffi_git_local_head_matches_remote(
 /// Each string must be passed back to rust and freed!
 #[no_mangle]
 pub extern "C" fn ffi_git_log(repo_path: *const c_char) -> CStringArray {
-    let Some(mut git_last_error) = try_lock() else {
+    let Some(mut git_last_error) = git_try_lock() else {
         return CStringArray {
             ptr: null(),
             len: -1,
@@ -224,7 +201,7 @@ pub extern "C" fn ffi_git_log(repo_path: *const c_char) -> CStringArray {
 /// The internal `last_error` is cleared after being retrieved!
 #[no_mangle]
 pub extern "C" fn ffi_git_strerror() -> *const c_char {
-    let Some(mut git_last_error) = try_lock() else {
+    let Some(mut git_last_error) = git_try_lock() else {
         return null();
     };
     let Some(err) = git_last_error.as_ref() else {
@@ -236,12 +213,4 @@ pub extern "C" fn ffi_git_strerror() -> *const c_char {
 
     *git_last_error = None;
     s.into_raw()
-}
-
-fn try_lock() -> Option<MutexGuard<'static, Option<git2::Error>>> {
-    let Ok(git_last_error) = GIT_LAST_ERROR.try_lock() else {
-        error!("Mutex lock already taken");
-        return None;
-    };
-    Some(git_last_error)
 }
