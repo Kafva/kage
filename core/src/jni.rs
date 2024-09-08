@@ -8,6 +8,7 @@ use std::sync::MutexGuard;
 use crate::git::git_clone;
 use crate::git::git_pull;
 use crate::git::git_setup;
+use crate::git::git_log;
 use crate::git::git_try_lock;
 use crate::git_call;
 use crate::log_android::__android_log_write;
@@ -80,4 +81,36 @@ pub extern "system" fn Java_kafva_kage_Git_strerror<'local>(
     };
 
     msg
+}
+
+#[no_mangle]
+pub extern "system" fn Java_kafva_kage_Git_log<'local>(
+    mut env: JNIEnv<'local>,
+    _class: JClass<'local>,
+    repo_path: JString<'local>,
+) -> JString<'local> {
+    let Some(mut git_last_error) = git_try_lock() else {
+        return JString::default();
+    };
+
+    let Ok(repo_path) = env.get_string(&repo_path) else {
+        return JString::default();
+    };
+    let Ok(repo_path) = repo_path.to_str() else {
+        return JString::default();
+    };
+
+    match git_log(repo_path) {
+        Ok(arr) => {
+            let s = arr.join("\n");
+            let Ok(s) = env.new_string(s) else {
+                return JString::default();
+            };
+            s
+        },
+        Err(err) => {
+            error!("{}", err);
+            return JString::default();
+        }
+    }
 }

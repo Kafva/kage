@@ -51,6 +51,7 @@ class MainActivity : ComponentActivity() {
 fun AppComposable(repoPath: String) {
     val git = Git()
     val errorState = remember { mutableStateOf("") }
+    val logs = git.log(repoPath)
 
     Button(
         onClick = {
@@ -70,10 +71,16 @@ fun AppComposable(repoPath: String) {
         val r = git.pull(repoPath)
         errorState.value = if (r != 0) git.strerror() else ""
         Log.v("Pulled $repoPath: $r")
-    }) {
+    },
+        modifier = Modifier.padding(bottom = 100.dp)
+    ) {
         Text("pull")
     }
     if (errorState.value != "") {
         Text("Error: ${errorState.value}")
+    }
+
+    for (line in logs.split('\n')) {
+        Text(line)
     }
 }
