@@ -9,7 +9,8 @@ use once_cell::sync::Lazy;
 use crate::age::AgeState;
 use crate::*;
 
-// Persistent library state
+/// TODO move to age.rs
+/// Persistent library state
 static AGE_STATE: Lazy<Mutex<AgeState>> =
     Lazy::new(|| Mutex::new(AgeState::default()));
 

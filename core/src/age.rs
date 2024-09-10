@@ -101,6 +101,7 @@ impl AgeState {
         Ok(decrypted)
     }
 
+    #[cfg(not(target_os = "android"))]
     pub fn encrypt(
         &self,
         plaintext: &str,
