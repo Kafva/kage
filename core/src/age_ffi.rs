@@ -1,9 +1,8 @@
 use crate::age_error::AgeError;
 use std::ffi::{CStr, CString};
-use std::os::raw::{c_char, c_int, c_ulonglong};
+use std::os::raw::{c_char, c_int};
 use std::ptr::null;
 use std::sync::{Mutex, MutexGuard};
-use std::time::SystemTime;
 
 use once_cell::sync::Lazy;
 
@@ -51,21 +50,6 @@ pub extern "C" fn ffi_age_lock_identity() -> c_int {
     };
     age_state.lock_identity();
     0
-}
-
-#[no_mangle]
-pub extern "C" fn ffi_age_unlock_timestamp() -> c_ulonglong {
-    let Some(age_state) = try_lock() else {
-        return 0;
-    };
-    let Some(timestamp) = age_state.unlock_timestamp else {
-        return 0;
-    };
-    let Ok(duration) = timestamp.duration_since(SystemTime::UNIX_EPOCH) else {
-        return 0;
-    };
-
-    duration.as_secs()
 }
 
 /// Encrypt `plaintext` for `recipient`, writing the ciphertext to `outpath`.

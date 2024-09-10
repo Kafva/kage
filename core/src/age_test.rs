@@ -1,7 +1,6 @@
 use crate::age::AgeState;
 use crate::age_error::AgeError;
 use crate::error;
-use std::time::SystemTime;
 
 use age;
 use age::secrecy::Secret;
@@ -16,7 +15,6 @@ fn age_key_test() {
     let pubkey = identity.to_public();
     let state = AgeState {
         identity: Some(identity),
-        unlock_timestamp: Some(SystemTime::now()),
         last_error: None,
     };
 
@@ -39,7 +37,6 @@ fn age_encrypted_key_test() {
         "age1ganl3gcyvjlnyh9373knv5du2hlhuafg6tp0elsz43q7fqu60s7qqural4";
     let mut state = AgeState {
         identity: None,
-        unlock_timestamp: None,
         last_error: None,
     };
 

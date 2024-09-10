@@ -5,7 +5,6 @@
 //!                  This should be in the ascii-armored format, i.e. created with `age -a`
 
 use std::io::{Read, Write}; // For .read_to_end() and .write_all()
-use std::time::SystemTime;
 
 use crate::age_error::AgeError;
 
@@ -22,8 +21,6 @@ pub struct AgeState {
     identity: Option<age::x25519::Identity>,
     #[cfg(test)]
     pub identity: Option<age::x25519::Identity>,
-    /// Timestamp when the identity was unlocked
-    pub unlock_timestamp: Option<SystemTime>,
     pub last_error: Option<AgeError>,
 }
 
@@ -31,7 +28,6 @@ impl AgeState {
     pub fn default() -> Self {
         Self {
             identity: None,
-            unlock_timestamp: None,
             last_error: None,
         }
     }
@@ -74,7 +70,6 @@ impl AgeState {
         {
             if let Ok(identity) = key.parse::<age::x25519::Identity>() {
                 self.identity = Some(identity);
-                self.unlock_timestamp = Some(SystemTime::now());
                 age_key.zeroize();
                 return Ok(());
             };
@@ -86,7 +81,6 @@ impl AgeState {
 
     pub fn lock_identity(&mut self) {
         self.identity = None;
-        self.unlock_timestamp = None;
     }
 
     pub fn decrypt(&self, ciphertext: &[u8]) -> Result<Vec<u8>, AgeError> {

@@ -9,9 +9,6 @@ func ffi_age_unlock_identity(
 @_silgen_name("ffi_age_lock_identity")
 func ffi_age_lock_identity() -> CInt
 
-@_silgen_name("ffi_age_unlock_timestamp")
-func ffi_age_unlock_timestamp() -> CUnsignedLongLong
-
 @_silgen_name("ffi_age_encrypt")
 func ffi_age_encrypt(
     plaintext: UnsafePointer<CChar>,
@@ -29,9 +26,6 @@ func ffi_age_strerror() -> UnsafeMutablePointer<CChar>?
 ////////////////////////////////////////////////////////////////////////////////
 
 enum Age {
-    static func unlockTimestamp() -> UInt64 {
-        return ffi_age_unlock_timestamp()
-    }
 
     static func unlockIdentity(
         _ encryptedIdentity: URL,
