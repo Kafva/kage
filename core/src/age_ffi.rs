@@ -1,4 +1,4 @@
-use crate::age::age_try_lock;
+use crate::age::{age_try_lock, path_to_filename};
 use crate::age_error::AgeError;
 use std::ffi::{CStr, CString};
 use std::os::raw::{c_char, c_int};
@@ -80,6 +80,7 @@ pub extern "C" fn ffi_age_encrypt(
             }
             Err(err) => {
                 error!("{}: {}", outfile, err);
+                age_state.last_error = Some(AgeError::IoError(err))
             }
         },
         Err(err) => {
@@ -127,6 +128,7 @@ pub extern "C" fn ffi_age_decrypt(
         },
         Err(err) => {
             error!("{}: {}", filename, err);
+            age_state.last_error = Some(AgeError::IoError(err))
         }
     }
     null()
@@ -149,15 +151,4 @@ pub extern "C" fn ffi_age_strerror() -> *const c_char {
 
     age_state.last_error = None;
     s.into_raw()
-}
-
-fn path_to_filename(pathstr: &str) -> Option<&str> {
-    let path = std::path::Path::new(pathstr);
-
-    if let Some(filename) = path.file_name() {
-        return filename.to_str();
-    }
-
-    error!("Bad filepath: '{}'", pathstr);
-    None
 }

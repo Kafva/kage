@@ -53,6 +53,7 @@ macro_rules! git_call {
     };
 }
 
+#[cfg(not(target_os = "android"))]
 macro_rules! internal_error {
     () => {
         git2::Error::new(

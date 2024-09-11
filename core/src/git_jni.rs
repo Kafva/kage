@@ -1,4 +1,4 @@
-use jni::objects::{JClass, JObject, JObjectArray, JString};
+use jni::objects::{JClass, JObjectArray, JString};
 use jni::sys::{jint, jsize};
 use jni::JNIEnv;
 
@@ -8,7 +8,6 @@ use crate::git::git_pull;
 use crate::git::git_setup;
 use crate::git::git_try_lock;
 use crate::git_call;
-use crate::log_android::__android_log_write;
 use crate::KAGE_ERROR_LOCK_TAKEN;
 
 #[no_mangle]

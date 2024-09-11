@@ -4,7 +4,9 @@
 //!                  x25519 key used to decrypt .age files.
 //!                  This should be in the ascii-armored format, i.e. created with `age -a`
 
-use std::io::{Read, Write}; // For .read_to_end() and .write_all()
+use std::io::Read; // For .read_to_end()
+#[cfg(not(target_os = "android"))]
+use std::io::Write; // For .write_all()
 
 use crate::age_error::AgeError;
 
@@ -161,4 +163,15 @@ pub fn age_try_lock() -> Option<MutexGuard<'static, AgeState>> {
         return None;
     };
     Some(age_state)
+}
+
+pub fn path_to_filename(pathstr: &str) -> Option<&str> {
+    let path = std::path::Path::new(pathstr);
+
+    if let Some(filename) = path.file_name() {
+        return filename.to_str();
+    }
+
+    error!("Bad filepath: '{}'", pathstr);
+    None
 }
