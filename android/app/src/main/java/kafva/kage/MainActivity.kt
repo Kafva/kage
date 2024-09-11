@@ -52,6 +52,7 @@ fun AppComposable(repoPath: String) {
     val age = Age()
     val git = Git()
     val errorState = remember { mutableStateOf("") }
+    val unlockState = remember { mutableStateOf(false) }
     val logs = git.log(repoPath)
 
     Button(
@@ -85,16 +86,42 @@ fun AppComposable(repoPath: String) {
     for (line in logs) {
         Text(line)
     }
+
     Button(
         onClick = {
-            val encryptedIdentity = File("$repoPath/.age-identities").readText()
-            val passphrase = "x"
-            val r = age.unlockIdentity(encryptedIdentity, passphrase)
+            var r: Int
+            if (unlockState.value) {
+                r = age.lockIdentity()
+                Log.v("Identity locked: $r")
+                if (r == 0) {
+                    unlockState.value = false
+                }
+            } else {
+                val encryptedIdentity =
+                    File(
+                        "$repoPath/.age-identities",
+                    ).readText()
+                val passphrase = "x"
+                r = age.unlockIdentity(encryptedIdentity, passphrase)
+                Log.v("Identity unlocked: $r")
+                if (r == 0) {
+                    unlockState.value = true
+                }
+            }
+
             errorState.value = if (r != 0) age.strerror() else ""
-            Log.v("Identity unlocked: $r")
         },
         modifier = Modifier.padding(bottom = 100.dp),
     ) {
-        Text("pull")
+        Text(if (unlockState.value) "Lock" else "Unlock")
+    }
+
+    Button(
+        onClick = {
+            // val encryptedPath = "$repoPath/red/pass1.age"
+        },
+        modifier = Modifier.padding(bottom = 100.dp),
+    ) {
+        Text("Decrypt")
     }
 }

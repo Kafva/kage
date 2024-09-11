@@ -32,24 +32,45 @@ macro_rules! android_tag {
 }
 
 #[macro_export]
-macro_rules! log {
+macro_rules! debug_safe {
+    ($($args:tt)*) => {
+        // Do not include debug output in release builds
+        #[cfg(feature = "debug_logs")]
+        log_safe!("DEBUG", $($args)*)
+    };
+}
+
+#[macro_export]
+macro_rules! log_safe {
     ($level:tt, $fmt:literal, $($x:expr),*) => {
-        let msg = format!(concat!("{}:{} ", $fmt, "\0"), file!(), line!(), $($x),*);
-        unsafe {
+        {
+            let msg = format!(concat!("{}:{} ", $fmt, "\0"), file!(), line!(), $($x),*);
             crate::log_android::__android_log_write(
                 android_level_to_prio!($level),
                 android_tag!().as_ptr() as *const std::ffi::c_char,
                 msg.as_ptr() as *const std::ffi::c_char,
             );
+        }
+    };
+    ($level:tt, $msg:literal) => {
+        crate::log_android::__android_log_write(
+            android_level_to_prio!($level),
+            android_tag!().as_ptr() as *const std::ffi::c_char,
+            format!("{}\0", $msg).as_ptr() as *const std::ffi::c_char,
+        );
+    };
+}
+
+#[macro_export]
+macro_rules! log {
+    ($level:tt, $fmt:literal, $($x:expr),*) => {
+        unsafe {
+            log_safe!($level, $fmt, $($x),*);
         };
     };
     ($level:tt, $msg:literal) => {
         unsafe {
-            crate::log_android::__android_log_write(
-                android_level_to_prio!($level),
-                android_tag!().as_ptr() as *const std::ffi::c_char,
-                format!("{}\0", $msg).as_ptr() as *const std::ffi::c_char,
-            );
+            log_safe!($level, $msg);
         };
     };
 }

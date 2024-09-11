@@ -44,6 +44,16 @@ macro_rules! error {
     };
 }
 
+/// The android logging backend is unsafe, the `_safe` version of the logging methods
+/// should be used when logging inside of an already defined unsafe {} block.
+#[cfg(not(target_os = "android"))]
+#[macro_export]
+macro_rules! debug_safe {
+    ($($args:tt)*) => {
+        log!("DEBUG", $($args)*)
+    };
+}
+
 #[cfg(not(target_os = "android"))]
 #[macro_export]
 macro_rules! log_prefix {

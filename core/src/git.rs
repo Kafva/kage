@@ -360,8 +360,8 @@ fn git_init_opts() -> Result<(), git2::Error> {
         let timeout = get_server_timeout_in_milliseconds()?;
         let connect_timeout = get_server_connect_timeout_in_milliseconds()?;
 
-        debug!("Configured read/write timeout: {} ms", timeout);
-        debug!("Configured connect timeout: {} ms", connect_timeout);
+        debug_safe!("Configured read/write timeout: {} ms", timeout);
+        debug_safe!("Configured connect timeout: {} ms", connect_timeout);
     };
     Ok(())
 }

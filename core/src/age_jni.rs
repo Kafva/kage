@@ -2,8 +2,9 @@ use jni::objects::{JClass, JString};
 use jni::sys::jint;
 use jni::JNIEnv;
 
-use crate::age::{age_try_lock, path_to_filename};
+use crate::age::age_try_lock;
 use crate::age_error::AgeError;
+use crate::util::path_to_filename;
 use crate::KAGE_ERROR_LOCK_TAKEN;
 
 macro_rules! jni_get_string {

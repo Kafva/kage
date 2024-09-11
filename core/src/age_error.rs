@@ -6,7 +6,8 @@
 #[derive(Debug)]
 pub enum AgeError {
     GenericError,
-    BadRecepient,
+    #[allow(dead_code)]
+    BadRecepient, // Unused on Android
     BadCipherInput,
     BadKey,
     NoIdentity,

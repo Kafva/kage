@@ -1,5 +1,6 @@
-use crate::age::{age_try_lock, path_to_filename};
+use crate::age::age_try_lock;
 use crate::age_error::AgeError;
+use crate::util::path_to_filename;
 use std::ffi::{CStr, CString};
 use std::os::raw::{c_char, c_int};
 use std::ptr::null;
