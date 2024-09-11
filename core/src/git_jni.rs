@@ -137,38 +137,3 @@ pub extern "system" fn Java_kafva_kage_Git_log<'local>(
         }
     }
 }
-
-#[no_mangle]
-pub extern "system" fn Java_kafva_kage_Age_unlockIdentity<'local>(
-    mut env: JNIEnv<'local>,
-    _class: JClass<'local>,
-    encrypted_identity: JString<'local>,
-    passphrase: JString<'local>,
-) -> jint {
-    -1
-}
-
-#[no_mangle]
-pub extern "system" fn Java_kafva_kage_Age_lockIdentity<'local>(
-    mut env: JNIEnv<'local>,
-    _class: JClass<'local>,
-) -> jint {
-    -1
-}
-
-#[no_mangle]
-pub extern "system" fn Java_kafva_kage_Age_decrypt<'local>(
-    mut env: JNIEnv<'local>,
-    _class: JClass<'local>,
-    encrypted_path: JString<'local>,
-) -> JString<'local> {
-    JString::default()
-}
-
-#[no_mangle]
-pub extern "system" fn Java_kafva_kage_Age_strerror<'local>(
-    mut env: JNIEnv<'local>,
-    _class: JClass<'local>,
-) -> JString<'local> {
-    JString::default()
-}

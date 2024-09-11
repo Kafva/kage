@@ -19,7 +19,9 @@ mod git_ffi;
 mod ffi;
 
 #[cfg(target_os = "android")]
-mod jni;
+mod age_jni;
+#[cfg(target_os = "android")]
+mod git_jni;
 
 #[cfg(test)]
 mod age_test;

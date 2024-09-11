@@ -1,25 +1,17 @@
+use crate::age::age_try_lock;
 use crate::age_error::AgeError;
 use std::ffi::{CStr, CString};
 use std::os::raw::{c_char, c_int};
 use std::ptr::null;
-use std::sync::{Mutex, MutexGuard};
 
-use once_cell::sync::Lazy;
-
-use crate::age::AgeState;
 use crate::*;
-
-/// TODO move to age.rs
-/// Persistent library state
-static AGE_STATE: Lazy<Mutex<AgeState>> =
-    Lazy::new(|| Mutex::new(AgeState::default()));
 
 #[no_mangle]
 pub extern "C" fn ffi_age_unlock_identity(
     encrypted_identity: *const c_char,
     passphrase: *const c_char,
 ) -> c_int {
-    let Some(mut age_state) = try_lock() else {
+    let Some(mut age_state) = age_try_lock() else {
         return KAGE_ERROR_LOCK_TAKEN as c_int;
     };
 
@@ -46,7 +38,7 @@ pub extern "C" fn ffi_age_unlock_identity(
 
 #[no_mangle]
 pub extern "C" fn ffi_age_lock_identity() -> c_int {
-    let Some(mut age_state) = try_lock() else {
+    let Some(mut age_state) = age_try_lock() else {
         return KAGE_ERROR_LOCK_TAKEN as c_int;
     };
     age_state.lock_identity();
@@ -60,7 +52,7 @@ pub extern "C" fn ffi_age_encrypt(
     recipient: *const c_char,
     outpath: *const c_char,
 ) -> c_int {
-    let Some(mut age_state) = try_lock() else {
+    let Some(mut age_state) = age_try_lock() else {
         return KAGE_ERROR_LOCK_TAKEN as c_int;
     };
 
@@ -104,7 +96,7 @@ pub extern "C" fn ffi_age_encrypt(
 pub extern "C" fn ffi_age_decrypt(
     encrypted_path: *const c_char,
 ) -> *const c_char {
-    let Some(mut age_state) = try_lock() else {
+    let Some(mut age_state) = age_try_lock() else {
         return null();
     };
 
@@ -145,7 +137,7 @@ pub extern "C" fn ffi_age_decrypt(
 /// The internal `last_error` is cleared after being retrieved!
 #[no_mangle]
 pub extern "C" fn ffi_age_strerror() -> *const c_char {
-    let Some(mut age_state) = try_lock() else {
+    let Some(mut age_state) = age_try_lock() else {
         return std::ptr::null();
     };
     let Some(ref err) = age_state.last_error else {
@@ -157,14 +149,6 @@ pub extern "C" fn ffi_age_strerror() -> *const c_char {
 
     age_state.last_error = None;
     s.into_raw()
-}
-
-fn try_lock() -> Option<MutexGuard<'static, AgeState>> {
-    let Ok(age_state) = AGE_STATE.try_lock() else {
-        error!("Mutex lock already taken");
-        return None;
-    };
-    Some(age_state)
 }
 
 fn path_to_filename(pathstr: &str) -> Option<&str> {

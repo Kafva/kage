@@ -49,6 +49,7 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun AppComposable(repoPath: String) {
+    val age = Age()
     val git = Git()
     val errorState = remember { mutableStateOf("") }
     val logs = git.log(repoPath)
@@ -83,5 +84,17 @@ fun AppComposable(repoPath: String) {
 
     for (line in logs) {
         Text(line)
+    }
+    Button(
+        onClick = {
+            val encryptedIdentity = File("$repoPath/.age-identities").readText()
+            val passphrase = "x"
+            val r = age.unlockIdentity(encryptedIdentity, passphrase)
+            errorState.value = if (r != 0) age.strerror() else ""
+            Log.v("Identity unlocked: $r")
+        },
+        modifier = Modifier.padding(bottom = 100.dp),
+    ) {
+        Text("pull")
     }
 }
