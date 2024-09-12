@@ -53,6 +53,7 @@ fun AppComposable(repoPath: String) {
     val git = Git()
     val errorState = remember { mutableStateOf("") }
     val unlockState = remember { mutableStateOf(false) }
+    val plaintextState = remember { mutableStateOf("") }
     val logs = git.log(repoPath)
 
     Button(
@@ -62,7 +63,8 @@ fun AppComposable(repoPath: String) {
 
             File(repoPath).deleteRecursively()
             val r = git.clone(url, repoPath)
-            errorState.value = if (r != 0) git.strerror() else ""
+            errorState.value =
+                if (r != 0) git.strerror() ?: "Unknown error" else ""
             Log.v("Cloned into $repoPath: $r")
         },
         modifier = Modifier.padding(top = 70.dp),
@@ -72,7 +74,8 @@ fun AppComposable(repoPath: String) {
     Button(
         onClick = {
             val r = git.pull(repoPath)
-            errorState.value = if (r != 0) git.strerror() else ""
+            errorState.value =
+                if (r != 0) git.strerror() ?: "Unknown error" else ""
             Log.v("Pulled $repoPath: $r")
         },
         modifier = Modifier.padding(bottom = 100.dp),
@@ -109,7 +112,8 @@ fun AppComposable(repoPath: String) {
                 }
             }
 
-            errorState.value = if (r != 0) age.strerror() else ""
+            errorState.value =
+                if (r != 0) age.strerror() ?: "Unknown error" else ""
         },
         modifier = Modifier.padding(bottom = 100.dp),
     ) {
@@ -118,10 +122,19 @@ fun AppComposable(repoPath: String) {
 
     Button(
         onClick = {
-            // val encryptedPath = "$repoPath/red/pass1.age"
+            val encryptedPath = "$repoPath/red/pass1.age"
+            plaintextState.value = age.decrypt(encryptedPath) ?: ""
         },
         modifier = Modifier.padding(bottom = 100.dp),
     ) {
-        Text("Decrypt")
+        Text(
+            if (plaintextState.value !=
+                ""
+            ) {
+                "Decrypted: ${plaintextState.value}"
+            } else {
+                "Decrypt"
+            },
+        )
     }
 }

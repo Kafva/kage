@@ -10,5 +10,5 @@ class Git {
 
     external fun log(repoPath: String): Array<String>
 
-    external fun strerror(): String
+    external fun strerror(): String?
 }

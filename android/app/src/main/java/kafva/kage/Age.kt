@@ -8,7 +8,7 @@ class Age {
 
     external fun lockIdentity(): Int
 
-    external fun decrypt(encryptedPath: String): String
+    external fun decrypt(encryptedPath: String): String?
 
-    external fun strerror(): String
+    external fun strerror(): String?
 }
