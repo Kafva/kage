@@ -1,6 +1,6 @@
 [versions]
 agp = "8.5.0"
-kotlin = "1.9.0"
+kotlin = "2.0.20"
 coreKtx = "1.10.1"
 junit = "4.13.2"
 junitVersion = "1.1.5"
@@ -8,6 +8,11 @@ espressoCore = "3.5.1"
 lifecycleRuntimeKtx = "2.6.1"
 activityCompose = "1.8.0"
 composeBom = "2024.04.01"
+# dagger.hilt
+hilt = "2.51.1"
+hiltExt = "1.2.0"
+androidxHiltNavigationCompose = "1.2.0"
+ksp = "2.0.20-1.0.24" # kotlin version must be at least 2.0.20 for this to work
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -25,7 +30,19 @@ androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-man
 androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
 
+# dagger.hilt
+hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hilt" }
+hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hilt" }
+dagger-hiltandroidplugin = { module = "com.google.dagger:hilt-android-gradle-plugin", version.ref = "hilt" }
+androidx-hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "androidxHiltNavigationCompose" }
+hilt-ext-compiler = { module = "androidx.hilt:hilt-compiler", version.ref = "hiltExt" }
+
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+# dagger.hilt
+hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
+# Alternative to kapt: https://developer.android.com/build/migrate-to-ksp
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 

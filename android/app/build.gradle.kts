@@ -1,11 +1,16 @@
 //
-// What does the declarative syntax actually do 🤨 ? 
+// What does the declarative syntax actually do 🤨 ?
 // Checkout: https://android.googlesource.com/platform/tools/base
 //
 
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
+    // Enable dagger.hilt plugin
+    alias(libs.plugins.hilt)
+    alias(libs.plugins.ksp)
+    // Enable compose plugin: https://developer.android.com/develop/ui/compose/compiler
+    alias(libs.plugins.compose.compiler)
 }
 
 android {
@@ -37,11 +42,11 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "17"
     }
     buildFeatures {
         compose = true
@@ -66,7 +71,7 @@ task<Exec>("rebuildCore") {
 
 // Automatically rebuild core library during gradle build.
 // NOTE: if you run `build` and `installDebug` in the same invocation the
-// .so is generally not copied into place in time, run `build` and 
+// .so is generally not copied into place in time, run `build` and
 // `installDebug` separately to ensure that changes appear on target.
 tasks.named("build") { dependsOn("rebuildCore") }
 
@@ -98,4 +103,8 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+    // dagger.hilt
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.compiler)
 }
