@@ -10,9 +10,8 @@ activityCompose = "1.8.0"
 composeBom = "2024.04.01"
 # dagger.hilt
 hilt = "2.51.1"
-hiltExt = "1.2.0"
-androidxHiltNavigationCompose = "1.2.0"
-ksp = "2.0.20-1.0.24" # kotlin version must be at least 2.0.20 for this to work
+# Kotlin version must be at least 2.0.20 (+ Java version >=17) for this to work
+ksp = "2.0.20-1.0.24"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -34,8 +33,6 @@ androidx-material3 = { group = "androidx.compose.material3", name = "material3" 
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hilt" }
 hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hilt" }
 dagger-hiltandroidplugin = { module = "com.google.dagger:hilt-android-gradle-plugin", version.ref = "hilt" }
-androidx-hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "androidxHiltNavigationCompose" }
-hilt-ext-compiler = { module = "androidx.hilt:hilt-compiler", version.ref = "hiltExt" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

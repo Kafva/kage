@@ -16,8 +16,6 @@ PASSAGE_DIR=$NAME PASSAGE_IDENTITIES_FILE=$NAME/.age-identities passage
 ```
 
 ## Development notes
-A git server for automated and manual testing can be setup with
-[scripts/serverdevel](scripts/serverdevel). To run the automated tests:
 
 ### Core library
 ```bash

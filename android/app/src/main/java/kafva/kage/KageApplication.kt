@@ -7,5 +7,4 @@ import dagger.hilt.android.HiltAndroidApp
  * Application which sets up our dependency [Graph] with a context.
  */
 @HiltAndroidApp
-class KageApplication : Application() {
-}
+class KageApplication : Application()
