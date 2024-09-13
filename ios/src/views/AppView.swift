@@ -115,6 +115,7 @@ struct AppView: View {
             }
         }
         .font(G.toolbarIconFont)
+        .padding(.bottom, 10)
     }
 
     private func handleGitPush() {
