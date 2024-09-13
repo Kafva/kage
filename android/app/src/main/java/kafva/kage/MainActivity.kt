@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kafva.kage.ui.theme.KageTheme
 import java.io.File
+import java.nio.file.Paths
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -55,6 +56,8 @@ fun AppComposable(repoPath: String) {
     val unlockState = remember { mutableStateOf(false) }
     val plaintextState = remember { mutableStateOf("") }
     val logs = git.log(repoPath)
+
+    val node = PwNode(Paths.get("/"), listOf())
 
     Button(
         onClick = {
