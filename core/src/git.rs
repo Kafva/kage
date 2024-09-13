@@ -223,7 +223,7 @@ pub fn git_commit(repo_path: &str, message: &str) -> Result<(), git2::Error> {
     };
     let parent_commit = repo.find_commit(oid)?;
 
-    let oid = repo.commit(
+    let _oid = repo.commit(
         Some("HEAD"),
         &sig,
         &sig,
@@ -232,7 +232,7 @@ pub fn git_commit(repo_path: &str, message: &str) -> Result<(), git2::Error> {
         &[&parent_commit],
     )?;
 
-    debug!("[{} {:.7}] {}", GIT_BRANCH, oid, message);
+    debug!("[{} {:.7}] {}", GIT_BRANCH, _oid, message);
     Ok(())
 }
 
@@ -374,7 +374,7 @@ fn remote_branch_oid(
     Ok(id)
 }
 
-fn transfer_progress(progress: git2::Progress, label: &str) -> bool {
+fn transfer_progress(progress: git2::Progress, _label: &str) -> bool {
     let total = progress.total_objects();
     let total_deltas = progress.total_deltas();
     if total <= TRANSFER_STAGES {
@@ -390,10 +390,10 @@ fn transfer_progress(progress: git2::Progress, label: &str) -> bool {
         if recv == total && (indexed < total || deltas < total_deltas) {
             /* skip */
         } else {
-            debug!("{}: [{:4} / {:4}]", label, recv, total);
+            debug!("{}: [{:4} / {:4}]", _label, recv, total);
         }
     } else if recv == total && indexed == total && deltas == total_deltas {
-        debug!("{}: [{:4} / {:4}] Done", label, recv, total);
+        debug!("{}: [{:4} / {:4}] Done", _label, recv, total);
     }
 
     true
