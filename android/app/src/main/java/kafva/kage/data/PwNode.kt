@@ -2,7 +2,7 @@ package kafva.kage.data
 
 import java.io.File
 
-data class PwNode (
+data class PwNode(
     private val path: File,
     private var children: List<PwNode>,
 ) {

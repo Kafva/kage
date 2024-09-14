@@ -4,18 +4,17 @@ package kafva.kage.data
 // import dagger.Provides
 // import dagger.hilt.InstallIn
 // import dagger.hilt.components.SingletonComponent
-import kafva.kage.data.PwNode
 import java.io.File
 import javax.inject.Inject
 
 // @Module
 // @InstallIn(SingletonComponent::class)
-class PwNodeRepository @Inject constructor(
-) {
-    lateinit var pwNodeStore: PwNode
+class PwNodeRepository
+    @Inject
+    constructor() {
+        lateinit var pwNodeStore: PwNode
 
-    fun load(rootPath: File) {
-        pwNodeStore = PwNode(rootPath, listOf())
+        fun load(rootPath: File) {
+            pwNodeStore = PwNode(rootPath, listOf())
+        }
     }
-}
-

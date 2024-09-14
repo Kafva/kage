@@ -6,7 +6,6 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,28 +13,27 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
+import dagger.hilt.android.AndroidEntryPoint
+import kafva.kage.data.PwNodeViewModel
 import kafva.kage.ui.theme.KageTheme
 import java.io.File
-import kafva.kage.data.PwNodeViewModel
-import androidx.compose.runtime.collectAsState
-import dagger.hilt.android.AndroidEntryPoint
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.hilt.navigation.compose.hiltViewModel
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         val repoPath = "${this.filesDir.path}/${GIT_DIR_NAME}/james"
-        //val pwNodeViewModel: PwNodeViewModel by viewModels()
+        // val pwNodeViewModel: PwNodeViewModel by viewModels()
         setContent {
             KageTheme {
                 Column(
@@ -44,7 +42,7 @@ class MainActivity : ComponentActivity() {
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     AppComposable(repoPath)
-                    //PwNodeTree(viewModel = pwNodeViewModel)
+                    // PwNodeTree(viewModel = pwNodeViewModel)
                     PwNodeTree()
                 }
             }
