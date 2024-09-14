@@ -162,8 +162,9 @@ enum Git {
         return messages
     }
 
-    static func repoIsEmpty() -> Bool {
-        return (try? FileManager.default.findFirstFile(repo) == nil) ?? true
+    static func repoIsInitialized() -> Bool {
+        return FileManager.default.isFile(
+            G.gitDir.appending(path: ".age-identities"))
     }
 
     static private func commit(message: String) throws {

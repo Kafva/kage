@@ -14,8 +14,8 @@ struct AppView: View {
                     .padding(.top, 40)
                     .padding(.bottom, 10)
                 Spacer()
-                if Git.repoIsEmpty() {
-                    emptyTreeView
+                if !Git.repoIsInitialized() {
+                    uninitializedTreeView
                 }
                 else {
                     TreeView(
@@ -43,12 +43,12 @@ struct AppView: View {
         }
     }
 
-    private var emptyTreeView: some View {
+    private var uninitializedTreeView: some View {
         VStack(alignment: .center, spacing: 5) {
             Image(systemName: "rays")
                 .font(G.title2Font)
 
-            Text("Empty password repoistory")
+            Text("Uninitialized password repoistory")
                 .font(G.bodyFont)
         }
         .foregroundColor(.gray)
@@ -79,7 +79,7 @@ struct AppView: View {
                     : "rectangle.expand.vertical"
                 Image(systemName: expandIconName)
             }
-            .disabled(Git.repoIsEmpty())
+            .disabled(!Git.repoIsInitialized())
 
             Button {
                 handleLockIdentity()
@@ -88,7 +88,7 @@ struct AppView: View {
                     appState.identityIsUnlocked ? "lock.open" : "lock"
                 Image(systemName: systemName)
             }
-            .disabled(Git.repoIsEmpty() || !appState.identityIsUnlocked)
+            .disabled(!Git.repoIsInitialized() || !appState.identityIsUnlocked)
             // Add trailing padding if both sync and error are hidden
             .padding(
                 .trailing,

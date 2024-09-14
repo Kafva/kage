@@ -82,9 +82,9 @@ struct SettingsView: View {
     private var syncTile: some View {
         let iconName: String
         let text: String
-        let isEmpty = Git.repoIsEmpty()
+        let isInitialized = Git.repoIsInitialized()
 
-        if isEmpty {
+        if isInitialized {
             iconName = "square.and.arrow.down"
             text = "Fetch password repository"
         }
@@ -96,7 +96,7 @@ struct SettingsView: View {
         return TileView(iconName: iconName) {
             Button {
                 hideKeyboard()
-                if isEmpty {
+                if isInitialized {
                     Task {
                         inProgress = true
                         #if targetEnvironment(simulator)
@@ -148,7 +148,7 @@ struct SettingsView: View {
             NavigationLink(destination: HistoryView()) {
                 Text("History").foregroundColor(.accentColor)
             }
-            .disabled(Git.repoIsEmpty())
+            .disabled(!Git.repoIsInitialized())
         }
     }
 
