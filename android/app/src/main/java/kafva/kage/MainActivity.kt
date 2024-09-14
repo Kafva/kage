@@ -57,7 +57,8 @@ fun AppComposable(repoPath: String) {
     val plaintextState = remember { mutableStateOf("") }
     val logs = git.log(repoPath)
 
-    val node = PwNode(Paths.get("/"), listOf())
+    val node = PwNode(Paths.get(repoPath), listOf())
+    Log.d("${node.children[1]}")
 
     Button(
         onClick = {

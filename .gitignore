@@ -17,14 +17,9 @@ kls_database.db
 kls-classpath
 *.iml
 .gradle
-/local.properties
-/.idea/caches
-/.idea/libraries
-/.idea/modules.xml
-/.idea/workspace.xml
-/.idea/navEditor.xml
-/.idea/assetWizardSettings.xml
-/captures
+.idea
+local.properties
+captures
 .externalNativeBuild
 .cxx
 local.properties
