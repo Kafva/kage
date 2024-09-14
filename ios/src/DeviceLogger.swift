@@ -16,7 +16,7 @@ struct DeviceLogger {
         #if DEBUG
             logger.debug("\(fileID):\(line):\t\(message, privacy: .public)")
         #else
-            logger.debug("\(fileID):\(line):\t\(message))")
+            logger.debug("\(fileID):\(line):\t\(message)")
         #endif
     }
 
@@ -26,7 +26,7 @@ struct DeviceLogger {
         #if DEBUG
             logger.info("\(fileID):\(line):\t\(message, privacy: .public)")
         #else
-            logger.info("\(fileID):\(line):\t\(message))")
+            logger.info("\(fileID):\(line):\t\(message)")
         #endif
     }
 
@@ -37,7 +37,7 @@ struct DeviceLogger {
             logger.warning(
                 "\(fileID):\(line):\t\(message, privacy: .public)")
         #else
-            logger.warning("\(fileID):\(line):\t\(message))")
+            logger.warning("\(fileID):\(line):\t\(message)")
         #endif
     }
 
@@ -45,7 +45,7 @@ struct DeviceLogger {
         #if DEBUG
             logger.error("\(fileID):\(line):\t\(message, privacy: .public)")
         #else
-            logger.error("\(fileID):\(line):\t\(message))")
+            logger.error("\(fileID):\(line):\t\(message)")
         #endif
     }
 }
