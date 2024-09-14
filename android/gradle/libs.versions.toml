@@ -12,6 +12,8 @@ composeBom = "2024.04.01"
 hilt = "2.51.1"
 # Kotlin version must be at least 2.0.20 (+ Java version >=17) for this to work
 ksp = "2.0.20-1.0.24"
+androidxHiltNavigationCompose = "1.2.0"
+
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -33,6 +35,7 @@ androidx-material3 = { group = "androidx.compose.material3", name = "material3" 
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hilt" }
 hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hilt" }
 dagger-hiltandroidplugin = { module = "com.google.dagger:hilt-android-gradle-plugin", version.ref = "hilt" }
+androidx-hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "androidxHiltNavigationCompose" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
@@ -42,4 +45,3 @@ hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 # Alternative to kapt: https://developer.android.com/build/migrate-to-ksp
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
-

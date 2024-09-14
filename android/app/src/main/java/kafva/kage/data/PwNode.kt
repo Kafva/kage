@@ -1,20 +1,22 @@
-@file:Suppress("ktlint:standard:no-wildcard-imports")
+package kafva.kage.data
 
-package kafva.kage
+import java.io.File
 
-import java.nio.file.Path
-import kotlin.io.path.*
-
-data class PwNode(
-    val path: Path,
-    var children: List<PwNode>,
+data class PwNode (
+    private val path: File,
+    private var children: List<PwNode>,
 ) {
+    val name = path.getName()
+
     init {
         if (path.isDirectory()) {
             val mutableChildren: MutableList<PwNode> = mutableListOf()
 
-            for (childPath: Path in path.listDirectoryEntries()) {
-                if (childPath.name.startsWith(".")) {
+            for (f in path.listFiles()) {
+                val childPath: File = f!!
+                val name = childPath.getName() ?: ""
+
+                if (name == "" || name.startsWith(".")) {
                     continue
                 }
                 val child: PwNode = PwNode(childPath, listOf())
