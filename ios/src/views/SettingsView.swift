@@ -84,7 +84,7 @@ struct SettingsView: View {
         let text: String
         let isInitialized = Git.repoIsInitialized()
 
-        if isInitialized {
+        if !isInitialized {
             iconName = "square.and.arrow.down"
             text = "Fetch password repository"
         }

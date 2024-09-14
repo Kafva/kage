@@ -163,8 +163,10 @@ enum Git {
     }
 
     static func repoIsInitialized() -> Bool {
-        return FileManager.default.isFile(
-            G.gitDir.appending(path: ".age-identities"))
+        let idents = G.gitDir.appending(path: ".age-identities")
+        let recips = G.gitDir.appending(path: ".age-recipients")
+        return FileManager.default.isFile(idents)
+            && FileManager.default.isFile(recips)
     }
 
     static private func commit(message: String) throws {
