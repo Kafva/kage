@@ -29,7 +29,8 @@ import kafva.kage.data.SettingsViewModel
 import kafva.kage.data.Settings
 import kafva.kage.ui.theme.KageTheme
 import java.io.File
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kafva.kage.data.PwNode
+import kafva.kage.ui.views.TreeView
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -75,7 +76,7 @@ fun SettingsView(viewModel: SettingsViewModel = hiltViewModel()) {
              val newSettings = Settings("git://10.0.2.2:9418/jane.git")
              viewModel.updateSettings(newSettings)
          },
-         modifier = Modifier.padding(top = 70.dp),
+         modifier = Modifier.padding(top = 10.dp),
      ) {
          Text("Update remote to jane")
      }
@@ -89,7 +90,7 @@ fun PwNodeTree(viewModel: PwNodeViewModel = hiltViewModel()) {
     val pwNodes by viewModel.pwNodes.collectAsState()
 
     pwNodes?.let { node ->
-        Text(node.name)
+        TreeView(node)
     }
 }
 

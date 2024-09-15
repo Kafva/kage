@@ -4,7 +4,7 @@ import java.io.File
 
 data class PwNode(
     private val path: File,
-    private var children: List<PwNode>,
+    var children: List<PwNode>,
 ) {
     private companion object {
         private fun loadChildren(path: File): List<PwNode> {
