@@ -9,13 +9,14 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import java.io.IOException
+import javax.inject.Inject
 
 data class Settings(
     val remoteAddress: String,
 )
 
-// / https://github.com/Kotlin-Android-Open-Source/DataStore-sample
-class SettingsRepository(
+/// https://github.com/Kotlin-Android-Open-Source/DataStore-sample
+class SettingsRepository @Inject constructor(
     private val dataStore: DataStore<Preferences>,
 ) {
     private object Keys {
