@@ -6,24 +6,30 @@ data class PwNode(
     private val path: File,
     private var children: List<PwNode>,
 ) {
-    val name = path.getName()
-
-    init {
-        if (path.isDirectory()) {
-            val mutableChildren: MutableList<PwNode> = mutableListOf()
-
-            for (f in path.listFiles()) {
-                val childPath: File = f!!
-                val name = childPath.getName() ?: ""
-
-                if (name == "" || name.startsWith(".")) {
-                    continue
-                }
-                val child: PwNode = PwNode(childPath, listOf())
-                mutableChildren.add(child)
+    private companion object {
+        private fun loadChildren(path: File): List<PwNode> {
+            if (!path.isDirectory()) {
+                return listOf()
             }
 
-            children = mutableChildren.toList()
+            val mutableChildren: MutableList<PwNode> = mutableListOf()
+
+            path.listFiles()?.forEach {
+                val name = it.getName() ?: ""
+                if (name != "" && !name.startsWith(".")) {
+                    val child: PwNode = PwNode(it, listOf())
+                    mutableChildren.add(child)
+                }
+            }
+
+            return mutableChildren.toList()
         }
+    }
+
+    val name = path.getName()
+
+    // / Recursively load the nodes under the current path
+    init {
+        children = PwNode.loadChildren(path)
     }
 }

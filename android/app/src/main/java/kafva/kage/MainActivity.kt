@@ -33,7 +33,6 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         val repoPath = "${this.filesDir.path}/${GIT_DIR_NAME}/james"
-        // val pwNodeViewModel: PwNodeViewModel by viewModels()
         setContent {
             KageTheme {
                 Column(
@@ -42,7 +41,6 @@ class MainActivity : ComponentActivity() {
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     AppComposable(repoPath)
-                    // PwNodeTree(viewModel = pwNodeViewModel)
                     PwNodeTree()
                 }
             }

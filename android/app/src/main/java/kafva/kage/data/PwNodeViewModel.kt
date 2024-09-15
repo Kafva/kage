@@ -13,7 +13,8 @@ import javax.inject.Inject
 class PwNodeViewModel
     @Inject
     constructor(
-        private val repository: PwNodeRepository,
+        private val pwNodeRepository: PwNodeRepository,
+        // private val settingsRepository: SettingsRepository
     ) : ViewModel() {
         private val _pwNodes = MutableStateFlow<PwNode?>(null)
         val pwNodes: StateFlow<PwNode?> = _pwNodes
@@ -21,8 +22,8 @@ class PwNodeViewModel
         init {
             val repoPath = File("/james")
             viewModelScope.launch {
-                repository.load(repoPath)
-                _pwNodes.value = repository.pwNodeStore
+                pwNodeRepository.load(repoPath)
+                _pwNodes.value = pwNodeRepository.pwNodeStore
             }
         }
     }
