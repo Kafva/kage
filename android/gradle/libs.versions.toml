@@ -26,7 +26,6 @@ androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-man
 
 # Compose / UI
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
-androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
 androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
 androidx-ui = { group = "androidx.compose.ui", name = "ui" }
@@ -34,12 +33,15 @@ androidx-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
 androidx-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
 androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
+# Lifecycle
+androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
+androidx-lifecycle-livedata = { module = "androidx.lifecycle:lifecycle-livedata-ktx", version.ref = "lifecycleRuntimeKtx" }
 
 # Recommended way to interact with SharedPreferences: https://developer.android.com/jetpack/androidx/releases/datastore
 androidx-datastore = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferences"}
 
 # Dagger is a DI (dependency injection) library that should enable better
-# seperation between views and buisness logic (it is probably overkill for this
+# separation between views and business logic (it is probably overkill for this
 # app).
 #   @Inject
 #   @Provides

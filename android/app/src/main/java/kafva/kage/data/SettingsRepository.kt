@@ -4,6 +4,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.core.edit
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -29,7 +30,6 @@ class SettingsRepository @Inject constructor(
     val settings: Flow<Settings> =
         dataStore.data
             .catch {
-                // throws an IOException when an error is encountered when reading data
                 if (it is IOException) {
                     emit(emptyPreferences())
                 } else {
@@ -40,4 +40,10 @@ class SettingsRepository @Inject constructor(
                     remoteAddress = preferences.remoteAddress,
                 )
             }.distinctUntilChanged()
+
+    suspend fun updateSettings(newSettings: Settings) {
+        dataStore.edit {
+            it[Keys.remoteAddress] = newSettings.remoteAddress
+        }
+    }
 }
