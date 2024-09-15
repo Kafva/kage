@@ -22,12 +22,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.asFlow
 import dagger.hilt.android.AndroidEntryPoint
 import kafva.kage.data.PwNodeViewModel
 import kafva.kage.data.SettingsViewModel
 import kafva.kage.data.Settings
 import kafva.kage.ui.theme.KageTheme
 import java.io.File
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -56,7 +58,7 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun SettingsView(viewModel: SettingsViewModel = hiltViewModel()) {
-     //val currentSettings = viewModel.currentSettings
+    val currentSettings by viewModel.currentSettings.collectAsState(Settings(""))
 
      Button(
          onClick = {
@@ -65,10 +67,20 @@ fun SettingsView(viewModel: SettingsViewModel = hiltViewModel()) {
          },
          modifier = Modifier.padding(top = 70.dp),
      ) {
-         Text("Update remote")
+         Text("Update remote to james")
      }
 
-     //Text("Current remote: ${currentSettings.remoteAddress}")
+     Button(
+         onClick = {
+             val newSettings = Settings("git://10.0.2.2:9418/jane.git")
+             viewModel.updateSettings(newSettings)
+         },
+         modifier = Modifier.padding(top = 70.dp),
+     ) {
+         Text("Update remote to jane")
+     }
+
+     Text("Current remote: ${currentSettings.remoteAddress}")
 }
 
 
