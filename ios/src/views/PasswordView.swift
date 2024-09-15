@@ -96,6 +96,9 @@ struct PasswordView: View {
             do {
                 try appState.unlockIdentity(passphrase: passphrase)
                 currentError = nil
+                // XXX: Do not keep the correct passphrase around, we do not want it
+                // to be lying around after the unlock timeout
+                passphrase = ""
                 hideKeyboard()
             }
             catch {
