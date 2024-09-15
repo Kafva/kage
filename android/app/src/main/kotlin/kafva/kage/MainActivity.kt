@@ -44,7 +44,6 @@ class MainActivity : ComponentActivity() {
                     verticalArrangement = Arrangement.spacedBy(10.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
-                    // AppComposable(repoPath)
                     SettingsView()
                     PwNodeTree()
                 }

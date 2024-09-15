@@ -53,6 +53,5 @@ To build for Android you need to download a NDK manually.
 4. Build the library and app
 
 ```bash
-core/build.sh android
-(cd android && ./gradlew :app:assembleRelease)
+(cd android && ./gradlew build)
 ```
