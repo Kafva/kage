@@ -24,17 +24,22 @@ android)
     CARGO_TARGET=aarch64-linux-android
 
     name="${CARGO_TARGET//-/_}"
-    export "CC_${name}"="$NDK_HOME/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android35-clang"
-    export "AR_${name}"="$NDK_HOME/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ar"
+    case "$(uname)" in
+    # There is no arm64 macOS toolchain
+    Darwin) llvm_toolchain_arch=darwin-x86_64 ;;
+    Linux) llvm_toolchain_arch="linux-$(uname -m)" ;;
+    esac
+    export "CC_${name}"="$NDK_HOME/toolchains/llvm/prebuilt/$llvm_toolchain_arch/bin/aarch64-linux-android35-clang"
+    export "AR_${name}"="$NDK_HOME/toolchains/llvm/prebuilt/$llvm_toolchain_arch/bin/llvm-ar"
 
     # $NDK_HOME is not expandable inside `.cargo/config.toml` so we provide it from
     # here instead for now.
     # https://github.com/rust-lang/cargo/issues/10789
     CARGO_EXTRA_FLAGS=(
        --config
-       "target.$CARGO_TARGET.ar='$NDK_HOME/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ar'"
+       "target.$CARGO_TARGET.ar='$NDK_HOME/toolchains/llvm/prebuilt/$llvm_toolchain_arch/bin/llvm-ar'"
        --config
-       "target.$CARGO_TARGET.linker='$NDK_HOME/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android35-clang'"
+       "target.$CARGO_TARGET.linker='$NDK_HOME/toolchains/llvm/prebuilt/$llvm_toolchain_arch/bin/aarch64-linux-android35-clang'"
     )
 ;;
 ios)
