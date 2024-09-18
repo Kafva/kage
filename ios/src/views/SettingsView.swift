@@ -96,7 +96,7 @@ struct SettingsView: View {
         return TileView(iconName: iconName) {
             Button {
                 hideKeyboard()
-                if isInitialized {
+                if !isInitialized {
                     Task {
                         inProgress = true
                         #if targetEnvironment(simulator)
