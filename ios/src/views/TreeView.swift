@@ -10,11 +10,8 @@ struct TreeView: View {
     var body: some View {
         List {
             ForEach(searchResults, id: \.id) { child in
-                let parentMatchesSearch = child.name
-                    .localizedCaseInsensitiveContains(searchText)
                 TreeNodeView(
                     node: child,
-                    parentMatchesSearch: parentMatchesSearch,
                     searchText: $searchText,
                     expandTree: $expandTree,
                     currentError: $currentError)
@@ -44,7 +41,6 @@ struct TreeView: View {
 
 private struct TreeNodeView: View {
     let node: PwNode
-    let parentMatchesSearch: Bool
 
     @Binding var searchText: String
     @Binding var expandTree: Bool
@@ -54,12 +50,7 @@ private struct TreeNodeView: View {
 
     var body: some View {
         if node.isPassword {
-            if searchText.isEmpty || parentMatchesSearch
-                || node.name.localizedCaseInsensitiveContains(searchText)
-            {
-                PwNodeTreeItemView(node: node, currentError: $currentError)
-
-            }
+            PwNodeTreeItemView(node: node, currentError: $currentError)
         }
         else {
             // Force all nodes into their expanded state when there is a search query
@@ -71,7 +62,6 @@ private struct TreeNodeView: View {
                 ForEach(node.children ?? [], id: \.id) { child in
                     TreeNodeView(
                         node: child,
-                        parentMatchesSearch: parentMatchesSearch,
                         searchText: $searchText,
                         expandTree: $expandTree,
                         currentError: $currentError)

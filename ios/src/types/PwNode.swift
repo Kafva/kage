@@ -209,34 +209,31 @@ struct PwNode: Identifiable, Hashable {
         return folders
     }
 
-    /// Returns a subset of the tree with paths to every node that matches
-    /// `predicate`.
-    func findChildren(predicate: String, onlyFolders: Bool = false) -> [PwNode]
-    {
+    /// Returns the subset of the tree that matches `predicate`.
+    /// Note: all children (recursively) of a node are included if a node
+    /// matches the predicate.
+    func findChildren(predicate: String) -> [PwNode] {
+        // Include all of the children if there is no query
+        if predicate.isEmpty {
+            return children ?? []
+        }
+
         var matches: [PwNode] = []
         let predicate = predicate.lowercased()
 
+        // If the parent does not match the predicate, check each child
         for child in children ?? [] {
-            if child.isPassword && onlyFolders {
+            if child.name.lowercased().contains(predicate) {
+                // Include everything beneath a matching child
+                matches.append(child)
                 continue
             }
 
-            let childMatches = child.findChildren(
-                predicate: predicate,
-                onlyFolders: onlyFolders)
+            // Check children recursively if the current child was not a match
+            let childMatches = child.findChildren(predicate: predicate)
 
-            if childMatches.isEmpty {
-                // Append the child with all its children if it matches the
-                // predicate.
-                if child.name.lowercased().contains(predicate)
-                    || predicate.isEmpty
-                {
-                    matches.append(child)
-                }
-            }
-            else {
-                // Append the child with a subset of its own children if one of
-                // its children matched the predicate.
+            // Include the child with the subset of the child nodes that match the query
+            if !childMatches.isEmpty {
                 let subsetChild = PwNode(url: child.url, children: childMatches)
                 matches.append(subsetChild)
             }
