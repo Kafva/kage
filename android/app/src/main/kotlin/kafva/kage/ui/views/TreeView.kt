@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Face
 import androidx.compose.material.icons.filled.AccountBox
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
@@ -17,7 +18,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 
 @Composable
 public fun TreeView(node: PwNode) {
-    LazyColumn {
+    LazyColumn(modifier = Modifier.fillMaxWidth(0.8f)) {
         node.children.forEach { child ->
             item {
                 TreeChildView(child)
@@ -37,12 +38,13 @@ fun TreeChildView(node: PwNode, depth: Int = 0) {
                     contentDescription = "Folder",
                 )
             },
-            modifier = Modifier.padding(start = (depth * 5).dp)
+            modifier = Modifier.padding(start = (depth * 10).dp)
         )
+        HorizontalDivider(modifier = Modifier.padding(start = (depth * 10).dp))
+
         node.children.forEach { child ->
             TreeChildView(child, depth + 1)
         }
-        HorizontalDivider()
     }
     else {
         ListItem(
@@ -55,7 +57,6 @@ fun TreeChildView(node: PwNode, depth: Int = 0) {
             },
             modifier = Modifier.padding(start = (depth * 5).dp)
         )
+        HorizontalDivider(modifier = Modifier.padding(start = (depth * 10).dp))
     }
 }
-
-
