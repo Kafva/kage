@@ -640,17 +640,6 @@
     </issue>
 
     <issue
-        id="UnusedMaterial3ScaffoldPaddingParameter"
-        message="Content padding parameter _ is not used"
-        errorLine1="    ) { _ -> // XXX: this parameter should not be ignored"
-        errorLine2="        ~">
-        <location
-            file="src/main/kotlin/kafva/kage/ui/views/ToolbarView.kt"
-            line="49"
-            column="9"/>
-    </issue>
-
-    <issue
         id="ObsoleteSdkInt"
         message="Unnecessary; SDK_INT is always >= 31"
         errorLine1="        tools:targetApi=&quot;31&quot;>"

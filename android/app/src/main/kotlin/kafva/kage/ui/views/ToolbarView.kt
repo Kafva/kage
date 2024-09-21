@@ -19,10 +19,18 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.BottomAppBarDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.SearchBar
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ToolbarView(content: @Composable (PaddingValues) -> Unit) {
+    var query by rememberSaveable { mutableStateOf("") }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -38,11 +46,15 @@ fun ToolbarView(content: @Composable (PaddingValues) -> Unit) {
                     }
                 },
                 title = {
-                    Text(
-                        "hey",
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
+                    SearchBar(
+                        query = query,
+                        onQueryChange = { query = it  },
+                        active = true,
+                        onActiveChange = {  },
+                        onSearch = {  }
+                    ) {
+
+                    }
                 },
 
             )
