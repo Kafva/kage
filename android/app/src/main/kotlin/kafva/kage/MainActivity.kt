@@ -31,6 +31,8 @@ import kafva.kage.ui.theme.KageTheme
 import java.io.File
 import kafva.kage.data.PwNode
 import kafva.kage.ui.views.TreeView
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.foundation.background
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -40,7 +42,8 @@ class MainActivity : ComponentActivity() {
         setContent {
             KageTheme {
                 Column(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier.fillMaxSize()
+                                       .background(MaterialTheme.colorScheme.surface),
                     verticalArrangement = Arrangement.spacedBy(10.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {

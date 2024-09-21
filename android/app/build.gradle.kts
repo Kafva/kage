@@ -87,6 +87,7 @@ dependencies {
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
+    // Source: https://android.googlesource.com/platform/frameworks/support
     implementation(libs.androidx.material3)
     testImplementation(libs.junit)
     // You can declare dependencies in gradle scripts like this:
