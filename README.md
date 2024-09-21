@@ -25,11 +25,6 @@ PASSAGE_DIR=$NAME PASSAGE_IDENTITIES_FILE=$NAME/.age-identities passage
 # To show stdout/stderr: cargo test -- --nocapture
 (cd core && cargo test)
 
-# To debug a testcase
-cd core &&
-cargo test --no-run &&
-    rust-lldb $(fd '^kage_core-[0-9a-z]{16}$' target/debug/deps) -- $testcase
-
 # Run tests with coverage information
 cargo install cargo-llvm-cov
 rustup component add llvm-tools-preview
