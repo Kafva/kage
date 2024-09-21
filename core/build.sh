@@ -16,12 +16,21 @@ android)
     fi
 
     SOURCE_ROOT=${SOURCE_ROOT:-"${CURDIR}/../android"}
+    TARGET_ARCH=${2:-"aarch64"}
+
+    if [ "$TARGET_ARCH" = aarch64 ]; then
+        DIST=$SOURCE_ROOT/app/src/main/jniLibs/arm64-v8a
+
+    elif [ "$TARGET_ARCH" = x86_64 ]; then
+        DIST=$SOURCE_ROOT/app/src/main/jniLibs/x86_64
+
+    else
+        die "Unsupported architecture"
+    fi
 
     LIB="libkage_core.so"
     CARGO_CRATE_TYPE=dylib
-    # XXX: Hardcoded target ABI
-    DIST=$SOURCE_ROOT/app/src/main/jniLibs/arm64-v8a
-    CARGO_TARGET=aarch64-linux-android
+    CARGO_TARGET=$TARGET_ARCH-linux-android
 
     name="${CARGO_TARGET//-/_}"
     case "$(uname)" in
@@ -29,7 +38,8 @@ android)
     Darwin) llvm_toolchain_arch=darwin-x86_64 ;;
     Linux) llvm_toolchain_arch="linux-$(uname -m)" ;;
     esac
-    export "CC_${name}"="$NDK_HOME/toolchains/llvm/prebuilt/$llvm_toolchain_arch/bin/aarch64-linux-android35-clang"
+
+    export "CC_${name}"="$NDK_HOME/toolchains/llvm/prebuilt/$llvm_toolchain_arch/bin/$TARGET_ARCH-linux-android35-clang"
     export "AR_${name}"="$NDK_HOME/toolchains/llvm/prebuilt/$llvm_toolchain_arch/bin/llvm-ar"
 
     # $NDK_HOME is not expandable inside `.cargo/config.toml` so we provide it from
@@ -73,7 +83,7 @@ ios)
     CARGO_EXTRA_FLAGS=()
 ;;
 *)
-    echo "usage: $0 <android|ios>" >&2
+    echo "usage: $0 <android|ios> [android target arch]" >&2
     exit 1
 esac
 
