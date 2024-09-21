@@ -1,6 +1,7 @@
 package kafva.kage.ui.views
 
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.IconButton
@@ -21,7 +22,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ToolbarView(content: @Composable () -> Unit) {
+fun ToolbarView(content: @Composable (PaddingValues) -> Unit) {
     Scaffold(
         topBar = {
             TopAppBar(
@@ -46,8 +47,8 @@ fun ToolbarView(content: @Composable () -> Unit) {
 
             )
         },
-    ) { _ -> // XXX: this parameter should not be ignored
-        content()
+    ) { innerPadding ->
+        content(innerPadding)
     }
 }
 

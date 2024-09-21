@@ -22,6 +22,7 @@ import kafva.kage.ui.theme.KageTheme
 import kafva.kage.ui.views.SettingsView
 import kafva.kage.ui.views.TreeView
 import kafva.kage.ui.views.ToolbarView
+import androidx.compose.foundation.layout.padding
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -30,10 +31,11 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             KageTheme {
-                ToolbarView {
+                ToolbarView { innerPadding ->
                     Column(
                         modifier = Modifier.fillMaxSize()
-                                           .background(MaterialTheme.colorScheme.surface),
+                                           .background(MaterialTheme.colorScheme.surface)
+                                           .padding(innerPadding),
                         verticalArrangement = Arrangement.spacedBy(10.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
