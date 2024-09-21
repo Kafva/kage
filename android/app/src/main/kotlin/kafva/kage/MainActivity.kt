@@ -21,6 +21,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kafva.kage.ui.theme.KageTheme
 import kafva.kage.ui.views.SettingsView
 import kafva.kage.ui.views.TreeView
+import kafva.kage.ui.views.ToolbarView
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -29,14 +30,16 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             KageTheme {
-                Column(
-                    modifier = Modifier.fillMaxSize()
-                                       .background(MaterialTheme.colorScheme.surface),
-                    verticalArrangement = Arrangement.spacedBy(10.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    SettingsView()
-                    TreeView()
+                ToolbarView {
+                    Column(
+                        modifier = Modifier.fillMaxSize()
+                                           .background(MaterialTheme.colorScheme.surface),
+                        verticalArrangement = Arrangement.spacedBy(10.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        SettingsView()
+                        TreeView()
+                    }
                 }
             }
         }
