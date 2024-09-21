@@ -7,9 +7,11 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.io.File
 import javax.inject.Inject
+import kafva.kage.Log
 
 private const val GIT_DIR_NAME = "git-adc83b19e"
 
@@ -18,15 +20,33 @@ class TreeViewModel @Inject constructor(
     @ApplicationContext appContext: Context,
     private val pwNodeRepository: PwNodeRepository,
 ) : ViewModel() {
-        private val _pwNodes = MutableStateFlow<PwNode?>(null)
-        val pwNodes: StateFlow<PwNode?> = _pwNodes
 
-        init {
-            viewModelScope.launch {
-                // Load password tree recursively
-                val repoPath = File("${appContext.filesDir.path}/${GIT_DIR_NAME}/james")
-                pwNodeRepository.load(repoPath)
-                _pwNodes.value = pwNodeRepository.pwNodeStore
-            }
+    private val _nodes = MutableStateFlow<PwNode?>(null)
+    val nodes: StateFlow<PwNode?> = _nodes
+
+    private val _isSearching = MutableStateFlow(false)
+    val isSearching: StateFlow<Boolean> = _isSearching
+
+    private val _query = MutableStateFlow("")
+    val query: StateFlow<String> = _query
+
+    fun onIsSearchingChanged(active: Boolean) {
+        _isSearching.value = active
+    }
+
+    fun onQueryChanged(text: String) {
+        Log.d("Current query: ${text}")
+        _query.value = text
+    }
+
+    init {
+        viewModelScope.launch {
+            // Load password tree recursively
+            val repoPath = File("${appContext.filesDir.path}/${GIT_DIR_NAME}/james")
+            pwNodeRepository.load(repoPath)
+            _nodes.value = pwNodeRepository.pwNodeStore
         }
     }
+
+
+}
