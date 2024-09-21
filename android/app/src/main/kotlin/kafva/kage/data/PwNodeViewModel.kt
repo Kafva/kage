@@ -1,16 +1,15 @@
 package kafva.kage.data
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import java.io.File
 import javax.inject.Inject
-import kafva.kage.Log
-import dagger.hilt.android.qualifiers.ApplicationContext
-import android.content.Context
 
 private const val GIT_DIR_NAME = "git-adc83b19e"
 
