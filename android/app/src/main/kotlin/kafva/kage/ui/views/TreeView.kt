@@ -9,6 +9,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
@@ -26,14 +27,33 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import kafva.kage.Log
 import kafva.kage.data.PwNode
-
+import kafva.kage.data.TreeViewModel
+import androidx.compose.runtime.collectAsState
 
 @Composable
-fun TreeView(
+fun TreeView(viewModel: TreeViewModel = hiltViewModel()) {
+    var expandRecursively by remember { mutableStateOf(false) }
+    val pwNodes by viewModel.pwNodes.collectAsState()
+
+    Button(
+        onClick = {
+            expandRecursively = !expandRecursively
+        },
+    ) {
+        Text("Toggle expansion")
+    }
+
+    pwNodes?.let { node ->
+        TreeRootFolderView(node, expandRecursively)
+    }
+}
+
+@Composable
+private fun TreeRootFolderView(
     node: PwNode,
-    expandRecursively: Boolean = false
+    expandRecursively: Boolean
 ) {
-    LazyColumn(modifier = Modifier.fillMaxWidth(0.8f)) {
+    LazyColumn(modifier = Modifier.fillMaxWidth(0.85f)) {
         node.children.forEach { child ->
             item {
                 TreeChildView(child, expandRecursively)
@@ -45,35 +65,38 @@ fun TreeView(
 @Composable
 private fun TreeChildView(
     node: PwNode,
-    expandRecursively: Boolean = false,
+    expandRecursively: Boolean,
     depth: Int = 0
 ) {
-    var isExpanded by remember { mutableStateOf(true) }
+    var isExpanded by remember { mutableStateOf(false) }
     val expanded = isExpanded || expandRecursively
     val isPassword = node.children.isEmpty()
     val icon: ImageVector
     val desc: String
+    val name: String
 
     if (isPassword) {
         icon = Icons.Filled.Person
         desc = "Password"
+        name = node.name
     }
     else {
+        name = node.name.removeSuffix(".age")
         icon = if (expanded) Icons.Filled.KeyboardArrowDown else
                              Icons.Filled.KeyboardArrowRight
         desc = "Folder"
     }
 
     ListItem(
-        headlineContent = { Text(text = node.name) },
+        headlineContent = { Text(text = name) },
         leadingContent = {
             Icon(icon, contentDescription = desc)
         },
-        modifier = Modifier.padding(start = (depth * 10).dp, bottom = 10.dp)
+        modifier = Modifier.padding(start = (depth * 15).dp, bottom = 10.dp)
                            .clip(RoundedCornerShape(50))
                            .clickable {
             if (isPassword) {
-                Log.i("xd")
+                Log.i("TODO")
             }
             else {
                 isExpanded = !isExpanded

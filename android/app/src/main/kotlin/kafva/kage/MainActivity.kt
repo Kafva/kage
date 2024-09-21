@@ -12,14 +12,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import kafva.kage.data.PwNodeViewModel
 import kafva.kage.ui.theme.KageTheme
 import kafva.kage.ui.views.SettingsView
 import kafva.kage.ui.views.TreeView
@@ -38,7 +36,7 @@ class MainActivity : ComponentActivity() {
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     SettingsView()
-                    PwNodeTree()
+                    TreeView()
                 }
             }
         }
@@ -46,15 +44,6 @@ class MainActivity : ComponentActivity() {
 
     init {
         System.loadLibrary("kage_core")
-    }
-}
-
-@Composable
-fun PwNodeTree(viewModel: PwNodeViewModel = hiltViewModel()) {
-    val pwNodes by viewModel.pwNodes.collectAsState()
-
-    pwNodes?.let { node ->
-        TreeView(node)
     }
 }
 

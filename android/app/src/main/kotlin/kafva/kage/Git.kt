@@ -1,6 +1,6 @@
 package kafva.kage
 
-class Git {
+object Git {
     external fun clone(
         url: String,
         into: String,

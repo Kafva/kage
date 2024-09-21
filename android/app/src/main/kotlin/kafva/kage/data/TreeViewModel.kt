@@ -14,7 +14,7 @@ import javax.inject.Inject
 private const val GIT_DIR_NAME = "git-adc83b19e"
 
 @HiltViewModel
-class PwNodeViewModel @Inject constructor(
+class TreeViewModel @Inject constructor(
     @ApplicationContext appContext: Context,
     private val pwNodeRepository: PwNodeRepository,
 ) : ViewModel() {

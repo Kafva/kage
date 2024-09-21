@@ -1,6 +1,6 @@
 package kafva.kage
 
-class Age {
+object Age {
     external fun unlockIdentity(
         encryptedIdentity: String,
         passphrase: String,
