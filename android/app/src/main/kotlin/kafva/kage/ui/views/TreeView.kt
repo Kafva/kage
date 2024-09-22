@@ -43,18 +43,8 @@ fun TreeView(viewModel: TreeViewModel = hiltViewModel()) {
         Text("Toggle expansion")
     }
 
-    searchMatches?.let { node ->
-        TreeRootFolderView(node, expandRecursively)
-    }
-}
-
-@Composable
-private fun TreeRootFolderView(
-    node: PwNode,
-    expandRecursively: Boolean
-) {
     LazyColumn(modifier = Modifier.fillMaxWidth(0.85f)) {
-        node.children.forEach { child ->
+        searchMatches.forEach { child ->
             item {
                 TreeChildView(child, expandRecursively)
             }
@@ -73,22 +63,19 @@ private fun TreeChildView(
     val isPassword = node.children.isEmpty()
     val icon: ImageVector
     val desc: String
-    val name: String
 
     if (isPassword) {
         icon = Icons.Filled.Person
         desc = "Password"
-        name = node.name
     }
     else {
-        name = node.name.removeSuffix(".age")
         icon = if (expanded) Icons.Filled.KeyboardArrowDown else
                              Icons.Filled.KeyboardArrowRight
         desc = "Folder"
     }
 
     ListItem(
-        headlineContent = { Text(text = name) },
+        headlineContent = { Text(text = node.name) },
         leadingContent = {
             Icon(icon, contentDescription = desc)
         },

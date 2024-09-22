@@ -26,28 +26,21 @@ class TreeViewModel @Inject constructor(
     private val pwNodeRepository: PwNodeRepository,
 ) : ViewModel() {
 
-    private val _nodes = MutableStateFlow<PwNode?>(null)
-    val nodes: StateFlow<PwNode?> = _nodes
+    private val _rootNode = MutableStateFlow<PwNode?>(null)
+    val rootNode: StateFlow<PwNode?> = _rootNode
 
     private val _query = MutableStateFlow("")
     val query: StateFlow<String> = _query
 
-    val searchMatches = combine(query, _nodes) { query, node ->
-            val q = query.trim().lowercase()
-            if (node != null && (query.isEmpty() || node.name.lowercase().contains(q))) {
-                node
-            } else {
-                null
-            }
-        }.stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = _nodes.value
-        )
+    private val _searchMatches = MutableStateFlow<List<PwNode>>(listOf())
+    val searchMatches: StateFlow<List<PwNode>> = _searchMatches
 
     fun onQueryChanged(text: String) {
         Log.d("Current query: ${text}")
-        _query.value = text
+        _query.value = text.lowercase()
+        if (_rootNode.value != null) {
+            _searchMatches.value = _rootNode.value!!.findChildren(_query.value)
+        }
     }
 
     init {
@@ -55,9 +48,11 @@ class TreeViewModel @Inject constructor(
             // Load password tree recursively
             val repoPath = File("${appContext.filesDir.path}/${GIT_DIR_NAME}/james")
             pwNodeRepository.load(repoPath)
-            _nodes.value = pwNodeRepository.pwNodeStore
+            _rootNode.value = pwNodeRepository.pwNodeStore
+            // Initialize with all nodes in the search result
+            if (_rootNode.value != null) {
+                _searchMatches.value = _rootNode.value!!.findChildren("")
+            }
         }
     }
-
-
 }
