@@ -1,3 +1,5 @@
+import java.io.ByteArrayOutputStream
+
 //
 // What does the declarative syntax actually do 🤨 ?
 // Checkout: https://android.googlesource.com/platform/tools/base
@@ -65,9 +67,18 @@ android {
 }
 
 task<Exec>("rebuildCore") {
+    // Build for the currently connected device (if any)
+    val output = ByteArrayOutputStream()
+    exec {
+        commandLine("adb", "shell", "uname", "-m")
+        standardOutput = output
+        isIgnoreExitValue = true
+    }
+    val targetArch = output.toString().trim()
+
     // https://docs.gradle.org/current/userguide/build_lifecycle.html
     doFirst {
-        commandLine("${project.rootDir}/../core/build.sh", "android")
+        commandLine("${project.rootDir}/../core/build.sh", "android", targetArch)
     }
 }
 

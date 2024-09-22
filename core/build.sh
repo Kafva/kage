@@ -5,6 +5,14 @@ set -e
 # Build script for iOS and Android
 #
 
+die() { printf "$1\n" >&2 && exit 1; }
+usage() {
+    cat << EOF >&2
+usage: $(basename $0) <android|ios> [android target arch]
+EOF
+    exit 1
+}
+
 CURDIR=$(cd "$(dirname $0)" && pwd)
 PATH="$HOME/.cargo/bin:$PATH"
 
@@ -25,7 +33,7 @@ android)
         DIST=$SOURCE_ROOT/app/src/main/jniLibs/x86_64
 
     else
-        die "Unsupported architecture"
+        die "Unsupported architecture: '$TARGET_ARCH'"
     fi
 
     LIB="libkage_core.so"
@@ -39,17 +47,20 @@ android)
     Linux) llvm_toolchain_arch="linux-$(uname -m)" ;;
     esac
 
-    export "CC_${name}"="$NDK_HOME/toolchains/llvm/prebuilt/$llvm_toolchain_arch/bin/$TARGET_ARCH-linux-android35-clang"
-    export "AR_${name}"="$NDK_HOME/toolchains/llvm/prebuilt/$llvm_toolchain_arch/bin/llvm-ar"
+    llvm_cc="$NDK_HOME/toolchains/llvm/prebuilt/$llvm_toolchain_arch/bin/$TARGET_ARCH-linux-android35-clang"
+    llvm_ar="$NDK_HOME/toolchains/llvm/prebuilt/$llvm_toolchain_arch/bin/llvm-ar"
+
+    export "CC_${name}"="$llvm_cc"
+    export "AR_${name}"="$llvm_ar"
 
     # $NDK_HOME is not expandable inside `.cargo/config.toml` so we provide it from
     # here instead for now.
     # https://github.com/rust-lang/cargo/issues/10789
     CARGO_EXTRA_FLAGS=(
        --config
-       "target.$CARGO_TARGET.ar='$NDK_HOME/toolchains/llvm/prebuilt/$llvm_toolchain_arch/bin/llvm-ar'"
+       "target.$CARGO_TARGET.linker='$llvm_cc'"
        --config
-       "target.$CARGO_TARGET.linker='$NDK_HOME/toolchains/llvm/prebuilt/$llvm_toolchain_arch/bin/aarch64-linux-android35-clang'"
+       "target.$CARGO_TARGET.ar='$llvm_ar'"
     )
 ;;
 ios)
@@ -83,8 +94,7 @@ ios)
     CARGO_EXTRA_FLAGS=()
 ;;
 *)
-    echo "usage: $0 <android|ios> [android target arch]" >&2
-    exit 1
+    usage
 esac
 
 if [ "$CONFIGURATION" = Release ]; then
