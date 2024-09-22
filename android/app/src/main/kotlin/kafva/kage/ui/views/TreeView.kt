@@ -33,7 +33,7 @@ import androidx.compose.runtime.collectAsState
 @Composable
 fun TreeView(viewModel: TreeViewModel = hiltViewModel()) {
     var expandRecursively by remember { mutableStateOf(false) }
-    val nodes by viewModel.nodes.collectAsState()
+    val searchMatches by viewModel.searchMatches.collectAsState()
 
     Button(
         onClick = {
@@ -43,7 +43,7 @@ fun TreeView(viewModel: TreeViewModel = hiltViewModel()) {
         Text("Toggle expansion")
     }
 
-    nodes?.let { node ->
+    searchMatches?.let { node ->
         TreeRootFolderView(node, expandRecursively)
     }
 }

@@ -3,6 +3,8 @@ package kafva.kage.ui.views
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -41,6 +43,7 @@ import kafva.kage.data.TreeViewModel
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.Alignment
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -54,7 +57,9 @@ fun ToolbarView(
 
     Scaffold(
         topBar = {
-            Row(modifier = Modifier.padding(top = 30.dp)) {
+            Row(modifier = Modifier.padding(top = 30.dp).fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center) {
                 TextField(
                     value = query,
                     onValueChange = {
@@ -83,6 +88,7 @@ fun ToolbarView(
 
             }
         },
+
     ) { innerPadding ->
         content(innerPadding)
     }

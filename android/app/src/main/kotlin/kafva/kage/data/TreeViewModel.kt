@@ -8,10 +8,15 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.launch
 import java.io.File
 import javax.inject.Inject
 import kafva.kage.Log
+import kotlinx.coroutines.flow.stateIn
+import kafva.kage.data.PwNode
+import kotlin.text.lowercase
 
 private const val GIT_DIR_NAME = "git-adc83b19e"
 
@@ -26,6 +31,19 @@ class TreeViewModel @Inject constructor(
 
     private val _query = MutableStateFlow("")
     val query: StateFlow<String> = _query
+
+    val searchMatches = combine(query, _nodes) { query, node ->
+            val q = query.trim().lowercase()
+            if (node != null && (query.isEmpty() || node.name.lowercase().contains(q))) {
+                node
+            } else {
+                null
+            }
+        }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = _nodes.value
+        )
 
     fun onQueryChanged(text: String) {
         Log.d("Current query: ${text}")
