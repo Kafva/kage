@@ -26,6 +26,8 @@ class TreeViewModel @Inject constructor(
     private val pwNodeRepository: PwNodeRepository,
 ) : ViewModel() {
 
+    val expandRecursively = MutableStateFlow<Boolean>(true)
+
     private val _rootNode = MutableStateFlow<PwNode?>(null)
     val rootNode: StateFlow<PwNode?> = _rootNode
 

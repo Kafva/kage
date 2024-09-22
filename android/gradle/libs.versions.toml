@@ -17,6 +17,7 @@ datastorePreferences = "1.1.1"
 androidx-lifecycle-compose = "2.8.5"
 androidx-lifecycle-runtime-compose = "2.8.5"
 materialIconsCore = "1.7.2"
+androidxNavigation = "2.8.0"
 
 [libraries]
 # Unit tests
@@ -64,6 +65,8 @@ hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hilt"
 hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hilt" }
 dagger-hiltandroidplugin = { module = "com.google.dagger:hilt-android-gradle-plugin", version.ref = "hilt" }
 androidx-hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "androidxHiltNavigationCompose" }
+androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "androidxNavigation" }
+
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

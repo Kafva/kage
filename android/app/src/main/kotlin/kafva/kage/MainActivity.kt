@@ -24,6 +24,7 @@ import kafva.kage.ui.views.TreeView
 import kafva.kage.ui.views.ToolbarView
 import androidx.compose.foundation.layout.padding
 
+
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,7 +40,6 @@ class MainActivity : ComponentActivity() {
                         verticalArrangement = Arrangement.spacedBy(10.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
-                        SettingsView()
                         TreeView()
                     }
                 }

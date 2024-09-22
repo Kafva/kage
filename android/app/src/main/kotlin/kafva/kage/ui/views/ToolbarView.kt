@@ -26,6 +26,8 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material3.BottomAppBarDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -44,6 +46,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.Alignment
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.compose.currentBackStackEntryAsState
+
+
+// @Serializable
+// object MainRoute
+// @Serializable
+// object SettingsRoute
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -54,6 +64,14 @@ fun ToolbarView(
 ) {
     val focusManager = LocalFocusManager.current
     val query by treeViewModel.query.collectAsState()
+    val expandRecursively by treeViewModel.expandRecursively.collectAsState()
+
+    val navController = rememberNavController()
+    // val navGraph by remember(navController) {
+    //     navController.createGraph(startDestination = MainRoute)) {
+    //         composable<SettingsRoute> { SettingsScreen() }
+    //     }
+    // }
 
     Scaffold(
         topBar = {
@@ -75,14 +93,21 @@ fun ToolbarView(
                     ),
                 )
 
-                IconButton(onClick = {}) {
-                    Icon(
-                        Icons.Filled.ArrowDropDown,
-                        contentDescription = "Toggle tree expansion",
-                    )
+                val treeExpansionIcon = if (expandRecursively)
+                                Icons.Filled.KeyboardArrowDown
+                           else Icons.Filled.KeyboardArrowRight
+
+                IconButton(onClick = {
+                    treeViewModel.expandRecursively.value =
+                        !treeViewModel.expandRecursively.value
+                }) {
+                    Icon(treeExpansionIcon, contentDescription = "Toggle tree expansion")
                 }
 
-                IconButton(onClick = {}) {
+                IconButton(onClick = {
+                    //navController.navigate()
+
+                }) {
                     Icon(Icons.Filled.Settings, contentDescription = "Settings")
                 }
 

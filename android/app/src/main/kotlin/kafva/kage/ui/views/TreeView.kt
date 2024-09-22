@@ -32,16 +32,8 @@ import androidx.compose.runtime.collectAsState
 
 @Composable
 fun TreeView(viewModel: TreeViewModel = hiltViewModel()) {
-    var expandRecursively by remember { mutableStateOf(false) }
+    val expandRecursively by viewModel.expandRecursively.collectAsState()
     val searchMatches by viewModel.searchMatches.collectAsState()
-
-    Button(
-        onClick = {
-            expandRecursively = !expandRecursively
-        },
-    ) {
-        Text("Toggle expansion")
-    }
 
     LazyColumn(modifier = Modifier.fillMaxWidth(0.85f)) {
         searchMatches.forEach { child ->
