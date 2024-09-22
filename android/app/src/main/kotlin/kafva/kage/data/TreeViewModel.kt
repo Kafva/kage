@@ -24,15 +24,8 @@ class TreeViewModel @Inject constructor(
     private val _nodes = MutableStateFlow<PwNode?>(null)
     val nodes: StateFlow<PwNode?> = _nodes
 
-    private val _isSearching = MutableStateFlow(false)
-    val isSearching: StateFlow<Boolean> = _isSearching
-
     private val _query = MutableStateFlow("")
     val query: StateFlow<String> = _query
-
-    fun onIsSearchingChanged(active: Boolean) {
-        _isSearching.value = active
-    }
 
     fun onQueryChanged(text: String) {
         Log.d("Current query: ${text}")
