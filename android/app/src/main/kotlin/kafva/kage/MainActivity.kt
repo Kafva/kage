@@ -24,6 +24,11 @@ import kafva.kage.ui.views.TreeView
 import kafva.kage.ui.views.ToolbarView
 import androidx.compose.foundation.layout.padding
 
+import androidx.navigation.compose.NavHost
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import kafva.kage.types.Screen
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -32,17 +37,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             KageTheme {
-                ToolbarView { innerPadding ->
-                    Column(
-                        modifier = Modifier.fillMaxSize()
-                                           .background(MaterialTheme.colorScheme.surface)
-                                           .padding(innerPadding),
-                        verticalArrangement = Arrangement.spacedBy(10.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                    ) {
-                        TreeView()
-                    }
-                }
+                AppComposable()
             }
         }
     }
@@ -51,6 +46,30 @@ class MainActivity : ComponentActivity() {
         System.loadLibrary("kage_core")
     }
 }
+
+@Composable
+fun AppComposable(navController: NavHostController = rememberNavController()) {
+
+    ToolbarView(navController) { innerPadding ->
+        Column(
+            modifier = Modifier.fillMaxSize()
+                               .background(MaterialTheme.colorScheme.surface)
+                               .padding(innerPadding),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            NavHost(navController = navController, Screen.Home.route) {
+                composable(Screen.Home.route) {
+                    TreeView()
+                }
+                composable(Screen.Settings.route) {
+                    SettingsView(navController)
+                }
+            }
+        }
+    }
+}
+
 
 // @Composable
 // fun AppComposable(repoPath: String) {

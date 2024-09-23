@@ -28,6 +28,7 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material3.BottomAppBarDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -48,68 +49,57 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.Alignment
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.currentBackStackEntryAsState
-
-
-// @Serializable
-// object MainRoute
-// @Serializable
-// object SettingsRoute
-
+import kafva.kage.types.Screen
+import androidx.navigation.NavHostController
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ToolbarView(
+    navController: NavHostController,
     treeViewModel: TreeViewModel = hiltViewModel(),
     content: @Composable (PaddingValues) -> Unit
 ) {
-    val focusManager = LocalFocusManager.current
-    val query by treeViewModel.query.collectAsState()
     val expandRecursively by treeViewModel.expandRecursively.collectAsState()
-
-    val navController = rememberNavController()
-    // val navGraph by remember(navController) {
-    //     navController.createGraph(startDestination = MainRoute)) {
-    //         composable<SettingsRoute> { SettingsScreen() }
-    //     }
-    // }
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route ?: Screen.Home.route
 
     Scaffold(
         topBar = {
             Row(modifier = Modifier.padding(top = 30.dp).fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center) {
-                TextField(
-                    value = query,
-                    onValueChange = {
-                        treeViewModel.onQueryChanged(it)
-                    },
-                    placeholder = { Text("Search...") },
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                    keyboardActions = KeyboardActions(
-                        onDone = {
-                            focusManager.clearFocus()
+
+                when (currentRoute) {
+                    Screen.Home.route -> {
+                        SearchField()
+
+                        IconButton(onClick = {
+                            treeViewModel.expandRecursively.value =
+                                !treeViewModel.expandRecursively.value
+                        }) {
+                            val treeExpansionIcon = if (expandRecursively)
+                                            Icons.Filled.KeyboardArrowDown
+                                       else Icons.Filled.KeyboardArrowRight
+                            Icon(treeExpansionIcon, "Toggle tree expansion")
                         }
-                    ),
-                )
 
-                val treeExpansionIcon = if (expandRecursively)
-                                Icons.Filled.KeyboardArrowDown
-                           else Icons.Filled.KeyboardArrowRight
+                        IconButton(onClick = {
+                            navController.navigate(Screen.Settings.route)
+                        }) {
+                            Icon(Icons.Filled.Settings, "Settings")
+                        }
+                    }
+                    else -> {
+                        IconButton(onClick = {
+                            navController.navigate(Screen.Home.route)
 
-                IconButton(onClick = {
-                    treeViewModel.expandRecursively.value =
-                        !treeViewModel.expandRecursively.value
-                }) {
-                    Icon(treeExpansionIcon, contentDescription = "Toggle tree expansion")
+                        }) {
+                            Icon(Icons.Filled.KeyboardArrowLeft, "Go home")
+                        }
+                        Text(currentRoute)
+                    }
                 }
 
-                IconButton(onClick = {
-                    //navController.navigate()
-
-                }) {
-                    Icon(Icons.Filled.Settings, contentDescription = "Settings")
-                }
 
             }
         },
@@ -119,3 +109,23 @@ fun ToolbarView(
     }
 }
 
+@Composable
+private fun SearchField(treeViewModel: TreeViewModel = hiltViewModel()) {
+    val focusManager = LocalFocusManager.current
+    val query by treeViewModel.query.collectAsState()
+
+    TextField(
+        value = query,
+        onValueChange = {
+            treeViewModel.onQueryChanged(it)
+        },
+        placeholder = { Text("Search...") },
+        singleLine = true,
+        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+        keyboardActions = KeyboardActions(
+            onDone = {
+                focusManager.clearFocus()
+            }
+        ),
+    )
+}
