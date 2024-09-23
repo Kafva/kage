@@ -20,6 +20,7 @@ import kotlin.text.lowercase
 
 private const val GIT_DIR_NAME = "git-adc83b19e"
 
+/// Keep mutable state flows private, and expose non-modifiable state-flows
 @HiltViewModel
 class TreeViewModel @Inject constructor(
     @ApplicationContext appContext: Context,

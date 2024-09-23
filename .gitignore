@@ -25,6 +25,7 @@ captures
 local.properties
 .jdbrc
 jniLibs
+.kotlin
 
 # Xcode
 Pods
