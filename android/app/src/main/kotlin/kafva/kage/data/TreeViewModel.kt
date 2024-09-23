@@ -48,9 +48,9 @@ class TreeViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             // Load password tree recursively
-            val repoPath = File("${appContext.filesDir.path}/${GIT_DIR_NAME}/james")
+            val repoPath = File("${appContext.filesDir.path}/${GIT_DIR_NAME}")
             pwNodeRepository.load(repoPath)
-            _rootNode.value = pwNodeRepository.pwNodeStore
+            _rootNode.value = pwNodeRepository.rootNode
             // Initialize with all nodes in the search result
             if (_rootNode.value != null) {
                 _searchMatches.value = _rootNode.value!!.findChildren("")
