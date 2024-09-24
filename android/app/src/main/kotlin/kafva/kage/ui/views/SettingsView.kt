@@ -12,7 +12,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import kafva.kage.data.Settings
 import kafva.kage.data.SettingsViewModel
 import androidx.navigation.NavHostController
-import kafva.kage.Git
 
 
 @Composable
@@ -42,20 +41,15 @@ fun SettingsView(
         Text("Update remote to jane")
     }
 
-    // Button(
-    //     onClick = {
-    //         // https://developer.android.com/studio/run/emulator-networking
-
-    //         File(repoPath).deleteRecursively()
-    //         val r = Git.clone(url, repoPath)
-    //         errorState.value =
-    //             if (r != 0) Git.strerror() ?: "Unknown error" else ""
-    //         Log.v("Cloned into $repoPath: $r")
-    //     },
-    //     modifier = Modifier.padding(top = 70.dp),
-    // ) {
-    //     Text("clone")
-    // }
+    Button(
+        onClick = {
+            // https://developer.android.com/studio/run/emulator-networking
+            viewModel.clone()
+        },
+        modifier = Modifier.padding(top = 10.dp),
+    ) {
+        Text("Clone")
+    }
 
     Text("Current remote: ${currentSettings.remoteAddress}")
 

@@ -12,16 +12,37 @@ import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 import java.io.File
 import javax.inject.Inject
+import kafva.kage.data.PwNode
+import kafva.kage.Log
+import kafva.kage.Git as Jni
 
-class GitContext constructor(val filesDir: String) {
+/// "Repository" for git tree
+class GitContext @Inject constructor(val filesDir: String) {
+    var rootNode: PwNode? = null
     val localRepoName = "git-adc83b19e"
     val repoPath: File = File("${filesDir}/${localRepoName}")
+
+    var lastError: String? = null
+
+    /// Load password tree recursively
+    fun setup() {
+        rootNode = PwNode(repoPath, listOf())
+    }
+
+    /// (Re)clone from URL
+    fun clone(url: String) {
+        Log.v("Cloning into $repoPath...")
+        repoPath.deleteRecursively()
+        val r = Jni.clone(url, repoPath.toPath().toString())
+        lastError =
+            if (r != 0) Jni.strerror() ?: "Unknown error" else ""
+        Log.v("Clone done: $r")
+    }
 }
 
 @Module
 @InstallIn(SingletonComponent::class)
 object GitContextModule {
-
 
     @Provides
     @Singleton

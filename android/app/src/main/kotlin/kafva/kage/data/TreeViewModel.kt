@@ -19,13 +19,10 @@ import kafva.kage.data.PwNode
 import kotlin.text.lowercase
 import kafva.kage.di.GitContext
 
-
 /// Keep mutable state flows private, and expose non-modifiable state-flows
 @HiltViewModel
 class TreeViewModel @Inject constructor(
-    @ApplicationContext appContext: Context,
     private val gitContext: GitContext,
-    private val pwNodeRepository: PwNodeRepository,
 ) : ViewModel() {
 
     val expandRecursively = MutableStateFlow<Boolean>(true)
@@ -49,9 +46,8 @@ class TreeViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            // Load password tree recursively
-            pwNodeRepository.load(gitContext.repoPath)
-            _rootNode.value = pwNodeRepository.rootNode
+            gitContext.setup()
+            _rootNode.value = gitContext.rootNode
             // Initialize with all nodes in the search result
             if (_rootNode.value != null) {
                 _searchMatches.value = _rootNode.value!!.findChildren("")
