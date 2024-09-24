@@ -1,4 +1,4 @@
-package kafva.kage.di
+package kafva.kage.data
 
 import android.content.Context
 import androidx.datastore.core.DataStore
@@ -14,10 +14,9 @@ import java.io.File
 import javax.inject.Inject
 import kafva.kage.data.PwNode
 import kafva.kage.Log
-import kafva.kage.Git as Jni
+import kafva.kage.jni.Git as Jni
 
-/// "Repository" for git tree
-class GitContext @Inject constructor(val filesDir: String) {
+class GitRepository @Inject constructor(val filesDir: String) {
     var rootNode: PwNode? = null
     val localRepoName = "git-adc83b19e"
     val repoPath: File = File("${filesDir}/${localRepoName}")
@@ -38,17 +37,4 @@ class GitContext @Inject constructor(val filesDir: String) {
             if (r != 0) Jni.strerror() ?: "Unknown error" else ""
         Log.v("Clone done: $r")
     }
-}
-
-@Module
-@InstallIn(SingletonComponent::class)
-object GitContextModule {
-
-    @Provides
-    @Singleton
-    fun provideGitContext(
-        @ApplicationContext appContext: Context
-    ): GitContext = GitContext(
-        appContext.filesDir.path
-    )
 }

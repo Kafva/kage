@@ -1,4 +1,4 @@
-package kafva.kage
+package kafva.kage.jni
 
 object Git {
     external fun clone(

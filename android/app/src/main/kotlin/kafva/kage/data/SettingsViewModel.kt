@@ -16,11 +16,11 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import android.content.Context
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
-import kafva.kage.di.GitContext
+import kafva.kage.data.GitRepository
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
-    private val gitContext: GitContext,
+    private val gitRepository: GitRepository,
     private val settingsRepository: SettingsRepository
 ) : ViewModel() {
 
@@ -35,7 +35,7 @@ class SettingsViewModel @Inject constructor(
     fun clone() {
         viewModelScope.launch {
             settingsRepository.settings.collect { s ->
-                gitContext.clone(s.remoteAddress)
+                gitRepository.clone(s.remoteAddress)
             }
         }
     }

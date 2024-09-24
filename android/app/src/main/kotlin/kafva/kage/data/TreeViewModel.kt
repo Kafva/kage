@@ -17,12 +17,12 @@ import kafva.kage.Log
 import kotlinx.coroutines.flow.stateIn
 import kafva.kage.data.PwNode
 import kotlin.text.lowercase
-import kafva.kage.di.GitContext
+import kafva.kage.data.GitRepository
 
 /// Keep mutable state flows private, and expose non-modifiable state-flows
 @HiltViewModel
 class TreeViewModel @Inject constructor(
-    private val gitContext: GitContext,
+    private val gitRepository: GitRepository,
 ) : ViewModel() {
 
     val expandRecursively = MutableStateFlow<Boolean>(true)
@@ -46,8 +46,8 @@ class TreeViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            gitContext.setup()
-            _rootNode.value = gitContext.rootNode
+            gitRepository.setup()
+            _rootNode.value = gitRepository.rootNode
             // Initialize with all nodes in the search result
             if (_rootNode.value != null) {
                 _searchMatches.value = _rootNode.value!!.findChildren("")
