@@ -2,10 +2,10 @@ package kafva.kage.data
 
 import java.io.File
 import javax.inject.Inject
-// import android.content.Context
+// import kafva.kage.di.GitContext
 
 class PwNodeRepository @Inject constructor(
-  //  private val appContext: Context
+//  private val gitContext: GitContext
 ) {
     lateinit var rootNode: PwNode
 

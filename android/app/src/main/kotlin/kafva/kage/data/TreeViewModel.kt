@@ -17,13 +17,14 @@ import kafva.kage.Log
 import kotlinx.coroutines.flow.stateIn
 import kafva.kage.data.PwNode
 import kotlin.text.lowercase
+import kafva.kage.di.GitContext
 
-private const val GIT_DIR_NAME = "git-adc83b19e"
 
 /// Keep mutable state flows private, and expose non-modifiable state-flows
 @HiltViewModel
 class TreeViewModel @Inject constructor(
     @ApplicationContext appContext: Context,
+    private val gitContext: GitContext,
     private val pwNodeRepository: PwNodeRepository,
 ) : ViewModel() {
 
@@ -49,8 +50,7 @@ class TreeViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             // Load password tree recursively
-            val repoPath = File("${appContext.filesDir.path}/${GIT_DIR_NAME}")
-            pwNodeRepository.load(repoPath)
+            pwNodeRepository.load(gitContext.repoPath)
             _rootNode.value = pwNodeRepository.rootNode
             // Initialize with all nodes in the search result
             if (_rootNode.value != null) {
