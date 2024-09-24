@@ -21,7 +21,7 @@ macro_rules! jni_get_string {
 }
 
 #[no_mangle]
-pub extern "system" fn Java_kafva_kage_Age_unlockIdentity<'local>(
+pub extern "system" fn Java_kafva_kage_jni_Age_unlockIdentity<'local>(
     mut env: JNIEnv<'local>,
     _class: JClass<'local>,
     encrypted_identity: JString<'local>,
@@ -45,7 +45,7 @@ pub extern "system" fn Java_kafva_kage_Age_unlockIdentity<'local>(
 }
 
 #[no_mangle]
-pub extern "system" fn Java_kafva_kage_Age_lockIdentity<'local>(
+pub extern "system" fn Java_kafva_kage_jni_Age_lockIdentity<'local>(
     _env: JNIEnv<'local>,
     _class: JClass<'local>,
 ) -> jint {
@@ -57,7 +57,7 @@ pub extern "system" fn Java_kafva_kage_Age_lockIdentity<'local>(
 }
 
 #[no_mangle]
-pub extern "system" fn Java_kafva_kage_Age_decrypt<'local>(
+pub extern "system" fn Java_kafva_kage_jni_Age_decrypt<'local>(
     mut env: JNIEnv<'local>,
     _class: JClass<'local>,
     encrypted_path: JString<'local>,
@@ -98,7 +98,7 @@ pub extern "system" fn Java_kafva_kage_Age_decrypt<'local>(
 }
 
 #[no_mangle]
-pub extern "system" fn Java_kafva_kage_Age_strerror<'local>(
+pub extern "system" fn Java_kafva_kage_jni_Age_strerror<'local>(
     env: JNIEnv<'local>,
     _class: JClass<'local>,
 ) -> JString<'local> {
