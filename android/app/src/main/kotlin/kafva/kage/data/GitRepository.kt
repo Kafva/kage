@@ -21,20 +21,24 @@ class GitRepository @Inject constructor(val filesDir: String) {
     val localRepoName = "git-adc83b19e"
     val repoPath: File = File("${filesDir}/${localRepoName}")
 
-    var lastError: String? = null
-
     /// Load password tree recursively
     fun setup() {
         rootNode = PwNode(repoPath, listOf())
     }
 
-    /// (Re)clone from URL
-    fun clone(url: String) {
-        Log.v("Cloning into $repoPath...")
+    /// Reclone from URL
+    fun clone(url: String): String? {
+        Log.v("Recloning into $repoPath...")
         repoPath.deleteRecursively()
+
         val r = Jni.clone(url, repoPath.toPath().toString())
-        lastError =
-            if (r != 0) Jni.strerror() ?: "Unknown error" else ""
         Log.v("Clone done: $r")
+        if (r != 0) return Jni.strerror() ?: "Unknown error" else return null
+    }
+
+    fun pull(): String? {
+        val r = Jni.pull(repoPath.toPath().toString())
+        Log.v("Pull done: $r")
+        if (r != 0) return Jni.strerror() ?: "Unknown error" else return null
     }
 }

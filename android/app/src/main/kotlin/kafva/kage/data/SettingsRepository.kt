@@ -11,12 +11,15 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import java.io.IOException
 import javax.inject.Inject
+import javax.inject.Singleton
+
 
 data class Settings(
     val remoteAddress: String,
 )
 
 /// https://github.com/Kotlin-Android-Open-Source/DataStore-sample
+@Singleton
 class SettingsRepository @Inject constructor(
     private val dataStore: DataStore<Preferences>,
 ) {

@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.launch
 import java.io.File
 import javax.inject.Inject
+import javax.inject.Singleton
 import kafva.kage.Log
 import kotlinx.coroutines.flow.stateIn
 import kafva.kage.data.PwNode
@@ -23,9 +24,8 @@ import kafva.kage.data.GitRepository
 @HiltViewModel
 class TreeViewModel @Inject constructor(
     private val gitRepository: GitRepository,
+    val runtimeSettingsRepository: RuntimeSettingsRepository,
 ) : ViewModel() {
-
-    val expandRecursively = MutableStateFlow<Boolean>(true)
 
     private val _rootNode = MutableStateFlow<PwNode?>(null)
     val rootNode: StateFlow<PwNode?> = _rootNode
@@ -47,6 +47,8 @@ class TreeViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             gitRepository.setup()
+            // TODO should be a flow in the GitRepository instead, otherwise
+            // the model is only updated when we switch views
             _rootNode.value = gitRepository.rootNode
             // Initialize with all nodes in the search result
             if (_rootNode.value != null) {

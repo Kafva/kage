@@ -24,13 +24,13 @@ class SettingsViewModel @Inject constructor(
     private val settingsRepository: SettingsRepository
 ) : ViewModel() {
 
+    val currentSettings: Flow<Settings> = settingsRepository.settings
+
     fun updateSettings(newSettings: Settings) =
         viewModelScope.launch {
             settingsRepository.updateSettings(newSettings)
             Log.i("Updated remoteAddress: ${newSettings.remoteAddress}")
         }
-
-    val currentSettings: Flow<Settings> = settingsRepository.settings
 
     fun clone() {
         viewModelScope.launch {

@@ -51,17 +51,23 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import kafva.kage.types.Screen
 import androidx.navigation.NavHostController
+import kafva.kage.Log
+import kafva.kage.data.ToolbarViewModel
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ToolbarView(
     navController: NavHostController,
-    treeViewModel: TreeViewModel = hiltViewModel(),
+    viewModel: ToolbarViewModel = hiltViewModel(),
     content: @Composable (PaddingValues) -> Unit
 ) {
-    val expandRecursively by treeViewModel.expandRecursively.collectAsState()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route ?: Screen.Home.route
+
+    val expandRecursively by viewModel.runtimeSettingsRepository
+                                      .expandRecursively.collectAsState()
+    Log.d("toolbar: ${System.identityHashCode(expandRecursively)}")
 
     Scaffold(
         topBar = {
@@ -74,8 +80,7 @@ fun ToolbarView(
                         SearchField()
 
                         IconButton(onClick = {
-                            treeViewModel.expandRecursively.value =
-                                !treeViewModel.expandRecursively.value
+                            viewModel.runtimeSettingsRepository.toggleExpandRecursively()
                         }) {
                             val treeExpansionIcon = if (expandRecursively)
                                             Icons.Filled.KeyboardArrowDown
