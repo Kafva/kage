@@ -19,10 +19,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kafva.kage.ui.theme.KageTheme
-import kafva.kage.ui.views.SettingsView
-import kafva.kage.ui.views.TreeView
-import kafva.kage.ui.views.ToolbarView
 import androidx.compose.foundation.layout.padding
+import kafva.kage.ui.views.AppView
 
 import androidx.navigation.compose.NavHost
 import androidx.navigation.NavHostController
@@ -37,7 +35,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             KageTheme {
-                AppComposable()
+                AppView()
             }
         }
     }
@@ -46,30 +44,6 @@ class MainActivity : ComponentActivity() {
         System.loadLibrary("kage_core")
     }
 }
-
-@Composable
-fun AppComposable(navController: NavHostController = rememberNavController()) {
-
-    ToolbarView(navController) { innerPadding ->
-        Column(
-            modifier = Modifier.fillMaxSize()
-                               .background(MaterialTheme.colorScheme.surface)
-                               .padding(innerPadding),
-            verticalArrangement = Arrangement.spacedBy(10.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            NavHost(navController = navController, Screen.Home.route) {
-                composable(Screen.Home.route) {
-                    TreeView()
-                }
-                composable(Screen.Settings.route) {
-                    SettingsView(navController)
-                }
-            }
-        }
-    }
-}
-
 
 // @Composable
 // fun AppComposable(repoPath: String) {

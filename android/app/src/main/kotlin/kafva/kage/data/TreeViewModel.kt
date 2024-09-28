@@ -23,37 +23,13 @@ import kafva.kage.data.GitRepository
 /// Keep mutable state flows private, and expose non-modifiable state-flows
 @HiltViewModel
 class TreeViewModel @Inject constructor(
-    private val gitRepository: GitRepository,
+    val gitRepository: GitRepository,
     val runtimeSettingsRepository: RuntimeSettingsRepository,
 ) : ViewModel() {
-
-    private val _rootNode = MutableStateFlow<PwNode?>(null)
-    val rootNode: StateFlow<PwNode?> = _rootNode
-
-    private val _query = MutableStateFlow("")
-    val query: StateFlow<String> = _query
-
-    private val _searchMatches = MutableStateFlow<List<PwNode>>(listOf())
-    val searchMatches: StateFlow<List<PwNode>> = _searchMatches
-
-    fun onQueryChanged(text: String) {
-        Log.d("Current query: ${text}")
-        _query.value = text.lowercase()
-        if (_rootNode.value != null) {
-            _searchMatches.value = _rootNode.value!!.findChildren(_query.value)
-        }
-    }
-
     init {
+        // Load nodes from git repository when initialising the view
         viewModelScope.launch {
             gitRepository.setup()
-            // TODO should be a flow in the GitRepository instead, otherwise
-            // the model is only updated when we switch views
-            _rootNode.value = gitRepository.rootNode
-            // Initialize with all nodes in the search result
-            if (_rootNode.value != null) {
-                _searchMatches.value = _rootNode.value!!.findChildren("")
-            }
         }
     }
 }

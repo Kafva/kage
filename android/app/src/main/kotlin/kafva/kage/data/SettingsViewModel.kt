@@ -24,27 +24,21 @@ class SettingsViewModel @Inject constructor(
     private val settingsRepository: SettingsRepository
 ) : ViewModel() {
 
-    val currentSettings: Flow<Settings> = settingsRepository.settings
-
     fun updateSettings(newSettings: Settings) =
         viewModelScope.launch {
             settingsRepository.updateSettings(newSettings)
-            Log.i("Updated remoteAddress: ${newSettings.remoteAddress}")
+            Log.i("Updated remoteAddress: ${settingsRepository.remoteAddress()}")
         }
 
     fun clone() {
         viewModelScope.launch {
-            settingsRepository.settings.collect { s ->
-                gitRepository.clone(s.remoteAddress)
-            }
+            gitRepository.clone(settingsRepository.remoteAddress())
         }
     }
 
     init {
         viewModelScope.launch {
-            settingsRepository.settings.collect { s ->
-                Log.i("Loaded remoteAddress: ${s.remoteAddress}")
-            }
+            Log.i("Loaded remoteAddress: ${settingsRepository.remoteAddress()}")
         }
     }
 }

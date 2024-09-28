@@ -7,5 +7,6 @@ import kafva.kage.data.RuntimeSettingsRepository
 
 @HiltViewModel
 class ToolbarViewModel @Inject constructor(
+    val gitRepository: GitRepository,
     val runtimeSettingsRepository: RuntimeSettingsRepository,
 ) : ViewModel() {}

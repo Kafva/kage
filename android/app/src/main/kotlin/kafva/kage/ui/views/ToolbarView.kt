@@ -19,6 +19,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDropDown
@@ -67,7 +68,6 @@ fun ToolbarView(
 
     val expandRecursively by viewModel.runtimeSettingsRepository
                                       .expandRecursively.collectAsState()
-    Log.d("toolbar: ${System.identityHashCode(expandRecursively)}")
 
     Scaffold(
         topBar = {
@@ -115,14 +115,14 @@ fun ToolbarView(
 }
 
 @Composable
-private fun SearchField(treeViewModel: TreeViewModel = hiltViewModel()) {
+private fun SearchField(viewModel: ToolbarViewModel = hiltViewModel()) {
     val focusManager = LocalFocusManager.current
-    val query by treeViewModel.query.collectAsState()
+    val query = viewModel.gitRepository.query.collectAsState()
 
     TextField(
-        value = query,
+        value = query.value,
         onValueChange = {
-            treeViewModel.onQueryChanged(it)
+            viewModel.gitRepository.updateMatches(it)
         },
         placeholder = { Text("Search...") },
         singleLine = true,

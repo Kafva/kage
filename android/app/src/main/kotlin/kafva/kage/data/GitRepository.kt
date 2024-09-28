@@ -15,15 +15,36 @@ import javax.inject.Inject
 import kafva.kage.data.PwNode
 import kafva.kage.Log
 import kafva.kage.jni.Git as Jni
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 
+@Singleton
 class GitRepository @Inject constructor(val filesDir: String) {
-    var rootNode: PwNode? = null
     val localRepoName = "git-adc83b19e"
     val repoPath: File = File("${filesDir}/${localRepoName}")
 
+    private val _query = MutableStateFlow("")
+    val query: StateFlow<String> = _query
+
+    private val _searchMatches = MutableStateFlow<List<PwNode>>(listOf())
+    val searchMatches: StateFlow<List<PwNode>> = _searchMatches
+
+    private val _rootNode = MutableStateFlow<PwNode?>(null)
+    val rootNode: StateFlow<PwNode?> = _rootNode
+
     /// Load password tree recursively
     fun setup() {
-        rootNode = PwNode(repoPath, listOf())
+        _rootNode.value = PwNode(repoPath, listOf())
+        // Populate the search result with all nodes
+        _searchMatches.value = rootNode.value?.findChildren(_query.value) ?: listOf()
+        Log.d("Loaded tree: ${_rootNode.value}")
+    }
+
+    fun updateMatches(text: String) {
+        Log.d("Current query: ${query.value}")
+        _query.value = text.lowercase()
+        _searchMatches.value = rootNode.value?.findChildren(query.value) ?: listOf()
+        Log.d("Found: ${_searchMatches.value}")
     }
 
     /// Reclone from URL
