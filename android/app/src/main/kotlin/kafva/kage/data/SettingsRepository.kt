@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.collectLatest
 import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -18,6 +19,7 @@ import javax.inject.Singleton
 
 data class Settings(
     val remoteAddress: String,
+    val repoPath: String
 )
 
 /// https://github.com/Kotlin-Android-Open-Source/DataStore-sample
@@ -26,21 +28,36 @@ class SettingsRepository @Inject constructor(
     private val dataStore: DataStore<Preferences>,
 ) {
     private object Keys {
-        val remoteAddress = stringPreferencesKey("remote_address")
+        val remoteAddress = stringPreferencesKey("remoteAddress")
+        val repoPath = stringPreferencesKey("repoPath")
     }
 
     private inline val Preferences.remoteAddress
         get() = this[Keys.remoteAddress] ?: ""
 
+    private inline val Preferences.repoPath
+        get() = this[Keys.repoPath] ?: ""
+
 
     suspend fun updateSettings(newSettings: Settings) {
         dataStore.edit {
             it[Keys.remoteAddress] = newSettings.remoteAddress
+            it[Keys.repoPath] = newSettings.repoPath
         }
     }
 
-    suspend fun remoteAddress(): String {
-        val prefs = dataStore.data.first()
-        return prefs.remoteAddress
-    }
+    val flow: Flow<Settings> =
+        dataStore.data
+            .catch {
+                if (it is IOException) {
+                    emit(emptyPreferences())
+                } else {
+                    throw it
+                }
+            }.map { preferences ->
+                Settings(
+                    remoteAddress = preferences.remoteAddress,
+                    repoPath = preferences.repoPath,
+                )
+            }.distinctUntilChanged()
 }

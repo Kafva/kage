@@ -37,14 +37,12 @@ class GitRepository @Inject constructor(val filesDir: String) {
         _rootNode.value = PwNode(repoPath, listOf())
         // Populate the search result with all nodes
         _searchMatches.value = rootNode.value?.findChildren(_query.value) ?: listOf()
-        Log.d("Loaded tree: ${_rootNode.value}")
     }
 
     fun updateMatches(text: String) {
-        Log.d("Current query: ${query.value}")
+        Log.d("Updated query: ${query.value}")
         _query.value = text.lowercase()
         _searchMatches.value = rootNode.value?.findChildren(query.value) ?: listOf()
-        Log.d("Found: ${_searchMatches.value}")
     }
 
     /// Reclone from URL

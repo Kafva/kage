@@ -49,14 +49,16 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.TextField
+import kotlinx.coroutines.flow.StateFlow
 
 
 @Composable
 fun SettingsView(
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
-    //val focusManager = LocalFocusManager.current
-    val remoteAddress = remember { mutableStateOf("") }
+    val settings = viewModel.settingsRepository.flow.collectAsState(Settings("", ""))
+    val remoteAddress = remember { mutableStateOf(settings.value.remoteAddress) }
+    // val repoPath: StateFlow<String> = remember { mutableStateOf(settings.repoPath) }
 
     Column {
         TextField(
@@ -64,17 +66,14 @@ fun SettingsView(
             onValueChange = {
                 remoteAddress.value = it
             },
-            placeholder = { Text("Server address") },
             singleLine = true,
-            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done,
-                                              keyboardType = KeyboardType.Ascii),
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
             keyboardActions = KeyboardActions(
                 onDone = {
                     // https://developer.android.com/studio/run/emulator-networking
                     // git://10.0.2.2:9418/james.git
-                    val newSettings = Settings("git://${remoteAddress.value}/james.git")
+                    val newSettings = Settings(remoteAddress.value, settings.value.repoPath)
                     viewModel.updateSettings(newSettings)
-                    //focusManager.clearFocus()
                 }
             ),
         )
