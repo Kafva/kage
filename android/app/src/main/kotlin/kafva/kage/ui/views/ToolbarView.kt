@@ -73,7 +73,7 @@ fun ToolbarView(
         topBar = {
             Row(modifier = Modifier.padding(top = 30.dp).fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center) {
+                horizontalArrangement = Arrangement.Start) {
 
                 when (currentRoute) {
                     Screen.Home.route -> {
@@ -116,7 +116,8 @@ fun ToolbarView(
 
 @Composable
 private fun SearchField(viewModel: ToolbarViewModel = hiltViewModel()) {
-    val focusManager = LocalFocusManager.current
+    //val keyboardController = LocalSoftwareKeyboardController.current
+    //val focusManager = LocalFocusManager.current
     val query = viewModel.gitRepository.query.collectAsState()
 
     TextField(
@@ -126,10 +127,11 @@ private fun SearchField(viewModel: ToolbarViewModel = hiltViewModel()) {
         },
         placeholder = { Text("Search...") },
         singleLine = true,
-        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done, keyboardType = KeyboardType.Text),
         keyboardActions = KeyboardActions(
             onDone = {
-                focusManager.clearFocus()
+                // keyboardController?.hide()
+                // focusManager.clearFocus()
             }
         ),
     )

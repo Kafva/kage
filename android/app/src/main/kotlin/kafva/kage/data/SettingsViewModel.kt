@@ -26,10 +26,9 @@ class SettingsViewModel @Inject constructor(
     val settingsRepository: SettingsRepository
 ) : ViewModel() {
 
-    fun updateSettings(newSettings: Settings) =
+    fun updateSettings(s: Settings) =
         viewModelScope.launch {
-            settingsRepository.updateSettings(newSettings)
-            Log.i("Updated remoteAddress: ${newSettings.remoteAddress}")
+            settingsRepository.updateSettings(s)
         }
 
     fun clone() {

@@ -102,6 +102,8 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     // Source: https://android.googlesource.com/platform/frameworks/support
+    // Icons: https://developer.android.com/reference/kotlin/androidx/compose/material/icons/package-summary
+
     implementation(libs.androidx.material3)
     testImplementation(libs.junit)
     // You can declare dependencies in gradle scripts like this:

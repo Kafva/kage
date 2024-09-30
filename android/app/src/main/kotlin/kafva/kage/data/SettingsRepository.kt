@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.collectLatest
 import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Singleton
+import kafva.kage.Log
 
 
 data class Settings(
@@ -39,11 +40,12 @@ class SettingsRepository @Inject constructor(
         get() = this[Keys.repoPath] ?: ""
 
 
-    suspend fun updateSettings(newSettings: Settings) {
+    suspend fun updateSettings(s: Settings) {
         dataStore.edit {
-            it[Keys.remoteAddress] = newSettings.remoteAddress
-            it[Keys.repoPath] = newSettings.repoPath
+            it[Keys.remoteAddress] = s.remoteAddress
+            it[Keys.repoPath] = s.repoPath
         }
+        Log.i("Updated settings: ${s.remoteAddress}/${s.repoPath}")
     }
 
     val flow: Flow<Settings> =
@@ -59,5 +61,5 @@ class SettingsRepository @Inject constructor(
                     remoteAddress = preferences.remoteAddress,
                     repoPath = preferences.repoPath,
                 )
-            }.distinctUntilChanged()
+            }
 }
