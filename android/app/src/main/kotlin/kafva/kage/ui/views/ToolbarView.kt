@@ -135,5 +135,6 @@ private fun SearchField(viewModel: ToolbarViewModel = hiltViewModel()) {
                 // focusManager.clearFocus()
             }
         ),
+        modifier = Modifier.padding(start = 30.dp)
     )
 }

@@ -37,7 +37,7 @@ fun TreeView(viewModel: TreeViewModel = hiltViewModel()) {
     val expandRecursively by viewModel.runtimeSettingsRepository
                                       .expandRecursively.collectAsStateWithLifecycle()
 
-    LazyColumn(modifier = Modifier.fillMaxWidth(0.85f)) {
+    LazyColumn(modifier = Modifier.fillMaxWidth(0.85f).padding(top = 10.dp)) {
         searchMatches.forEach { child ->
             item {
                 TreeChildView(child, expandRecursively)

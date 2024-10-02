@@ -5,13 +5,15 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.AlertDialog
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
@@ -38,13 +40,14 @@ fun SettingsView(
     val focusManager = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
 
+    val openAlertDialog = remember { mutableStateOf(false) }
     val remoteAddress = remember { mutableStateOf("") }
     val repoPath = remember { mutableStateOf("") }
 
-    Column {
+    Column(modifier = Modifier.padding(top = 10.dp)) {
         TextField(
             value = remoteAddress.value,
-            leadingIcon = { Icon(Icons.Filled.PlayArrow, "Remote address") },
+            leadingIcon = { Icon(Icons.Filled.Home, "Remote address") },
             label = { Text("Remote address") },
             onValueChange = {
                 remoteAddress.value = it
@@ -54,9 +57,8 @@ fun SettingsView(
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done, keyboardType = KeyboardType.Text),
             keyboardActions = KeyboardActions(
                 onDone = {
-                    // val newSettings = Settings(remoteAddress.value, repoPath.value)
-                    // viewModel.updateSettings(newSettings)
-                    // keyboardController?.hide()
+                    val newSettings = Settings(remoteAddress.value, repoPath.value)
+                    viewModel.updateSettings(newSettings)
                     focusManager.moveFocus(FocusDirection.Down)
                 }
             ),
@@ -77,20 +79,58 @@ fun SettingsView(
                     // git://10.0.2.2:9418/james.git
                     val newSettings = Settings(remoteAddress.value, repoPath.value)
                     viewModel.updateSettings(newSettings)
-                    // focusManager.clearFocus()
-                    keyboardController?.hide()
                     focusManager.moveFocus(FocusDirection.Down)
+                    // focusManager.clearFocus()
+                    // keyboardController?.hide()
+                    // focusManager.clearFocus()
                 }
             ),
         )
 
         TextButton(
             onClick = {
-                viewModel.clone()
+                openAlertDialog.value = true
             },
             modifier = Modifier.padding(top = 4.dp)
         ) {
             Text("Reset password repository")
+        }
+
+        if (openAlertDialog.value) {
+            AlertDialog(
+                icon = {
+                    Icon(Icons.Filled.Warning,
+                         contentDescription = "")
+                },
+                title = {
+                    Text(text = "Are you sure?")
+                },
+                text = {
+                    Text("This operation will delete the local checkout")
+                },
+                onDismissRequest = {
+                    openAlertDialog.value = false
+                },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            viewModel.clone()
+                            openAlertDialog.value = false
+                        }
+                    ) {
+                        Text("Yes", color = Color.Red)
+                    }
+                },
+                dismissButton = {
+                    TextButton(
+                        onClick = {
+                            openAlertDialog.value = false
+                        }
+                    ) {
+                        Text("No")
+                    }
+                },
+            )
         }
 
         LaunchedEffect(Unit) {
