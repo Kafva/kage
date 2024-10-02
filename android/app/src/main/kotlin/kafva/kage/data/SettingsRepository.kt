@@ -61,5 +61,5 @@ class SettingsRepository @Inject constructor(
                     remoteAddress = preferences.remoteAddress,
                     repoPath = preferences.repoPath,
                 )
-            }
+            }.distinctUntilChanged()
 }

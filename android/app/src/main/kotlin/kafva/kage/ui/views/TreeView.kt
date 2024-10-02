@@ -29,12 +29,13 @@ import kafva.kage.Log
 import kafva.kage.data.PwNode
 import kafva.kage.data.TreeViewModel
 import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 @Composable
 fun TreeView(viewModel: TreeViewModel = hiltViewModel()) {
-    val searchMatches by viewModel.gitRepository.searchMatches.collectAsState()
+    val searchMatches by viewModel.gitRepository.searchMatches.collectAsStateWithLifecycle()
     val expandRecursively by viewModel.runtimeSettingsRepository
-                                      .expandRecursively.collectAsState()
+                                      .expandRecursively.collectAsStateWithLifecycle()
 
     LazyColumn(modifier = Modifier.fillMaxWidth(0.85f)) {
         searchMatches.forEach { child ->

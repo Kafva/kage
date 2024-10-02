@@ -31,7 +31,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.focus.FocusDirection
 
-
 @Composable
 fun SettingsView(
     viewModel: SettingsViewModel = hiltViewModel()
@@ -39,16 +38,13 @@ fun SettingsView(
     val focusManager = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
 
-    val emptySettings = Settings("10.0.2.2", "james.git") // TODO
-    val settings = viewModel.settingsRepository.flow.collectAsState(emptySettings)
-    val remoteAddress = remember { mutableStateOf(settings.value.remoteAddress) }
-    val repoPath = remember { mutableStateOf(settings.value.repoPath) }
+    val remoteAddress = remember { mutableStateOf("") }
+    val repoPath = remember { mutableStateOf("") }
 
     Column {
         TextField(
             value = remoteAddress.value,
             leadingIcon = { Icon(Icons.Filled.PlayArrow, "Remote address") },
-            //placeholder = { Text(settings.value.remoteAddress) },
             label = { Text("Remote address") },
             onValueChange = {
                 remoteAddress.value = it
@@ -70,7 +66,6 @@ fun SettingsView(
             value = repoPath.value,
             leadingIcon = { Icon(Icons.Filled.Person, "Repository") },
             label = { Text("Repository") },
-            //placeholder = { Text(settings.value.repoPath) },
             onValueChange = {
                 repoPath.value = it
             },
@@ -99,7 +94,12 @@ fun SettingsView(
         }
 
         LaunchedEffect(Unit) {
-            Log.d("Launched view!")
+            // Fill the textfields with the current configuration from the
+            // datastore when the view appears.
+            viewModel.settingsRepository.flow.collect { s ->
+                remoteAddress.value = s.remoteAddress
+                repoPath.value = s.repoPath
+            }
         }
     }
 }

@@ -52,6 +52,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import kafva.kage.types.Screen
 import androidx.navigation.NavHostController
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kafva.kage.Log
 import kafva.kage.data.ToolbarViewModel
 
@@ -67,7 +68,7 @@ fun ToolbarView(
     val currentRoute = navBackStackEntry?.destination?.route ?: Screen.Home.route
 
     val expandRecursively by viewModel.runtimeSettingsRepository
-                                      .expandRecursively.collectAsState()
+                                      .expandRecursively.collectAsStateWithLifecycle()
 
     Scaffold(
         topBar = {
@@ -118,7 +119,7 @@ fun ToolbarView(
 private fun SearchField(viewModel: ToolbarViewModel = hiltViewModel()) {
     //val keyboardController = LocalSoftwareKeyboardController.current
     //val focusManager = LocalFocusManager.current
-    val query = viewModel.gitRepository.query.collectAsState()
+    val query = viewModel.gitRepository.query.collectAsStateWithLifecycle()
 
     TextField(
         value = query.value,
