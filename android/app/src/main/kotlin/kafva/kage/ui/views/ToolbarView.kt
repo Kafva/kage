@@ -97,8 +97,7 @@ fun ToolbarView(
                     }
                     else -> {
                         IconButton(onClick = {
-                            navController.navigate(Screen.Home.route)
-
+                            navController.popBackStack()
                         }) {
                             Icon(Icons.Filled.KeyboardArrowLeft, "Go home")
                         }

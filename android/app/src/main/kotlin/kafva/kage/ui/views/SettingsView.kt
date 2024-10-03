@@ -7,6 +7,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.List
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -26,15 +27,19 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import kafva.kage.data.Settings
+import kafva.kage.types.Screen
 import kafva.kage.Log
 import kafva.kage.data.SettingsViewModel
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.Row
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.focus.FocusDirection
+import androidx.navigation.NavHostController
 
 @Composable
 fun SettingsView(
+    navController: NavHostController,
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
     val focusManager = LocalFocusManager.current
@@ -132,6 +137,16 @@ fun SettingsView(
                 },
             )
         }
+
+        Button(onClick = {
+            navController.navigate(Screen.History.route)
+        }) {
+            Row {
+                Icon(Icons.Filled.List, "History")
+                Text("History", modifier = Modifier.padding(start = 4.dp))
+            }
+        }
+
 
         LaunchedEffect(Unit) {
             // Fill the textfields with the current configuration from the

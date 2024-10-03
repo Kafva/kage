@@ -26,6 +26,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import kafva.kage.types.Screen
 import kafva.kage.ui.views.SettingsView
+import kafva.kage.ui.views.HistoryView
 import kafva.kage.ui.views.TreeView
 import kafva.kage.ui.views.ToolbarView
 
@@ -45,7 +46,10 @@ fun AppView(navController: NavHostController = rememberNavController()) {
                     TreeView()
                 }
                 composable(Screen.Settings.route) {
-                    SettingsView()
+                    SettingsView(navController)
+                }
+                composable(Screen.History.route) {
+                    HistoryView()
                 }
             }
         }
