@@ -17,11 +17,13 @@ import kafva.kage.Log
 import kafva.kage.jni.Git as Jni
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kafva.kage.types.CommitInfo
 
 @Singleton
 class GitRepository @Inject constructor(val filesDir: String) {
     val localRepoName = "git-adc83b19e"
     val repoPath: File = File("${filesDir}/${localRepoName}")
+    val repoStr = repoPath.toPath().toString()
 
     private val _query = MutableStateFlow("")
     val query: StateFlow<String> = _query
@@ -50,14 +52,18 @@ class GitRepository @Inject constructor(val filesDir: String) {
         Log.v("Recloning into $repoPath...")
         repoPath.deleteRecursively()
 
-        val r = Jni.clone(url, repoPath.toPath().toString())
+        val r = Jni.clone(url, repoStr)
         Log.v("Clone done: $r")
         if (r != 0) return Jni.strerror() ?: "Unknown error" else return null
     }
 
     fun pull(): String? {
-        val r = Jni.pull(repoPath.toPath().toString())
+        val r = Jni.pull(repoStr)
         Log.v("Pull done: $r")
         if (r != 0) return Jni.strerror() ?: "Unknown error" else return null
+    }
+
+    fun log(): List<CommitInfo> {
+        return Jni.log(repoStr).map { logStr -> CommitInfo(logStr) }
     }
 }

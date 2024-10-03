@@ -29,14 +29,27 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import kafva.kage.Log
 import kafva.kage.data.HistoryViewModel
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.foundation.layout.fillMaxWidth
+import kafva.kage.types.CommitInfo
 
 @Composable
 fun HistoryView(
     viewModel: HistoryViewModel = hiltViewModel()
 ) {
-    Text("hey")
+    LazyColumn(modifier = Modifier.fillMaxWidth(0.85f).padding(top = 10.dp)) {
+        viewModel.gitRepository.log().forEach { log ->
+            item {
+                Column {
+                    Text(log.summary)
+                    Text(log.revstr)
+                    Text(log.date)
+                }
+            }
+        }
+    }
 }
 

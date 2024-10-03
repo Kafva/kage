@@ -1,6 +1,7 @@
 package kafva.kage.di
 
 import android.content.Context
+import android.content.pm.PackageInfo
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
@@ -16,6 +17,8 @@ import kafva.kage.data.PwNode
 import kafva.kage.Log
 import kafva.kage.data.GitRepository
 
+class VersionRepository constructor(val versionName: String) {}
+
 @Module
 @InstallIn(SingletonComponent::class)
 object GitContextModule {
@@ -27,4 +30,17 @@ object GitContextModule {
     ): GitRepository = GitRepository(
         appContext.filesDir.path
     )
+
+
+    @Provides
+    @Singleton
+    fun provideVersion(
+        @ApplicationContext appContext: Context
+    ): VersionRepository {
+        val name = appContext.getPackageName()
+        val pkgManager = appContext.getPackageManager()
+        val pInfo: PackageInfo = pkgManager.getPackageInfo(name, 0)
+        return VersionRepository(pInfo.versionName ?: "Unknown")
+    }
+
 }

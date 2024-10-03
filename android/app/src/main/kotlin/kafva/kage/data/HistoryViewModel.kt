@@ -24,7 +24,5 @@ import kotlinx.coroutines.flow.stateIn
 
 @HiltViewModel
 class HistoryViewModel @Inject constructor(
-    private val gitRepository: GitRepository,
-) : ViewModel() {
-
-}
+    val gitRepository: GitRepository
+) : ViewModel() {}

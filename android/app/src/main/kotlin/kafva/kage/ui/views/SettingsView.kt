@@ -15,6 +15,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
@@ -33,9 +34,12 @@ import kafva.kage.data.SettingsViewModel
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.Row
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.focus.FocusDirection
 import androidx.navigation.NavHostController
+import android.content.pm.PackageInfo
+import androidx.compose.material3.ButtonDefaults
 
 @Composable
 fun SettingsView(
@@ -92,6 +96,11 @@ fun SettingsView(
             ),
         )
 
+        Text("Version: ${viewModel.versionRepository.versionName}",
+             modifier = Modifier.padding(top = 4.dp),
+             fontSize = 12.sp,
+             color = Color.Gray)
+
         TextButton(
             onClick = {
                 openAlertDialog.value = true
@@ -138,13 +147,13 @@ fun SettingsView(
             )
         }
 
-        Button(onClick = {
-            navController.navigate(Screen.History.route)
-        }) {
-            Row {
-                Icon(Icons.Filled.List, "History")
-                Text("History", modifier = Modifier.padding(start = 4.dp))
-            }
+        TextButton(
+            onClick = {
+                navController.navigate(Screen.History.route)
+            },
+            modifier = Modifier.padding(top = 4.dp)
+        ) {
+            Text("History")
         }
 
 
