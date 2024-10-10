@@ -40,6 +40,7 @@ import androidx.compose.ui.focus.FocusDirection
 import androidx.navigation.NavHostController
 import android.content.pm.PackageInfo
 import androidx.compose.material3.ButtonDefaults
+import kafva.kage.data.AppRepository
 
 @Composable
 fun SettingsView(
@@ -51,7 +52,7 @@ fun SettingsView(
 
     val openAlertDialog = remember { mutableStateOf(false) }
     val remoteAddress = remember { mutableStateOf("") }
-    val repoPath = remember { mutableStateOf("") }
+    val remoteRepoPath = remember { mutableStateOf("") }
 
     Column(modifier = Modifier.padding(top = 10.dp)) {
         TextField(
@@ -66,7 +67,7 @@ fun SettingsView(
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done, keyboardType = KeyboardType.Text),
             keyboardActions = KeyboardActions(
                 onDone = {
-                    val newSettings = Settings(remoteAddress.value, repoPath.value)
+                    val newSettings = Settings(remoteAddress.value, remoteRepoPath.value)
                     viewModel.updateSettings(newSettings)
                     focusManager.moveFocus(FocusDirection.Down)
                 }
@@ -74,11 +75,11 @@ fun SettingsView(
         )
 
         TextField(
-            value = repoPath.value,
+            value = remoteRepoPath.value,
             leadingIcon = { Icon(Icons.Filled.Person, "Repository") },
             label = { Text("Repository") },
             onValueChange = {
-                repoPath.value = it
+                remoteRepoPath.value = it
             },
             singleLine = true,
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done, keyboardType = KeyboardType.Text),
@@ -86,7 +87,7 @@ fun SettingsView(
                 onDone = {
                     // https://developer.android.com/studio/run/emulator-networking
                     // git://10.0.2.2:9418/james.git
-                    val newSettings = Settings(remoteAddress.value, repoPath.value)
+                    val newSettings = Settings(remoteAddress.value, remoteRepoPath.value)
                     viewModel.updateSettings(newSettings)
                     focusManager.moveFocus(FocusDirection.Down)
                     // focusManager.clearFocus()
@@ -96,7 +97,7 @@ fun SettingsView(
             ),
         )
 
-        Text("Version: ${viewModel.versionRepository.versionName}",
+        Text("Version: ${viewModel.appRepository.versionName}",
              modifier = Modifier.padding(top = 4.dp),
              fontSize = 12.sp,
              color = Color.Gray)
@@ -162,7 +163,7 @@ fun SettingsView(
             // datastore when the view appears.
             viewModel.settingsRepository.flow.collect { s ->
                 remoteAddress.value = s.remoteAddress
-                repoPath.value = s.repoPath
+                remoteRepoPath.value = s.remoteRepoPath
             }
         }
     }

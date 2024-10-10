@@ -13,6 +13,7 @@ import javax.inject.Singleton
 import java.io.File
 import javax.inject.Inject
 import kafva.kage.data.PwNode
+import kafva.kage.data.AppRepository
 import kafva.kage.Log
 import kafva.kage.jni.Git as Jni
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,10 +21,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kafva.kage.types.CommitInfo
 
 @Singleton
-class GitRepository @Inject constructor(val filesDir: String) {
-    val localRepoName = "git-adc83b19e"
-    val repoPath: File = File("${filesDir}/${localRepoName}")
-    val repoStr = repoPath.toPath().toString()
+class GitRepository @Inject constructor(private val appRepository: AppRepository) {
+    val repoStr = appRepository.localRepo.toPath().toString()
 
     private val _query = MutableStateFlow("")
     val query: StateFlow<String> = _query
@@ -36,7 +35,7 @@ class GitRepository @Inject constructor(val filesDir: String) {
 
     /// Load password tree recursively
     fun setup() {
-        _rootNode.value = PwNode(repoPath, listOf())
+        _rootNode.value = PwNode(appRepository.localRepo, listOf())
         // Populate the search result with all nodes
         _searchMatches.value = rootNode.value?.findChildren(_query.value) ?: listOf()
     }
@@ -49,8 +48,8 @@ class GitRepository @Inject constructor(val filesDir: String) {
 
     /// Reclone from URL
     fun clone(url: String): String? {
-        Log.v("Recloning into $repoPath...")
-        repoPath.deleteRecursively()
+        Log.v("Recloning into ${appRepository.localRepo}...")
+        appRepository.localRepo.deleteRecursively()
 
         val r = Jni.clone(url, repoStr)
         Log.v("Clone done: $r")

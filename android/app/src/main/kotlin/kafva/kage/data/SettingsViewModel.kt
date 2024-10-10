@@ -20,7 +20,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kafva.kage.data.GitRepository
-import kafva.kage.di.VersionRepository
+import kafva.kage.data.AppRepository
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
 
@@ -28,7 +28,7 @@ import kotlinx.coroutines.flow.stateIn
 class SettingsViewModel @Inject constructor(
     private val gitRepository: GitRepository,
     val settingsRepository: SettingsRepository,
-    val versionRepository: VersionRepository,
+    val appRepository: AppRepository,
 ) : ViewModel() {
 
     fun updateSettings(s: Settings) =
@@ -39,7 +39,7 @@ class SettingsViewModel @Inject constructor(
     fun clone() {
         viewModelScope.launch {
             settingsRepository.flow.collect { s ->
-                gitRepository.clone("git://${s.remoteAddress}/${s.repoPath}")
+                gitRepository.clone("git://${s.remoteAddress}/${s.remoteRepoPath}")
             }
         }
     }

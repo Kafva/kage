@@ -16,8 +16,8 @@ import javax.inject.Inject
 import kafva.kage.data.PwNode
 import kafva.kage.Log
 import kafva.kage.data.GitRepository
+import kafva.kage.data.AppRepository
 
-class VersionRepository constructor(val versionName: String) {}
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -30,19 +30,23 @@ object AppContextModule {
     fun provideGitContext(
         @ApplicationContext appContext: Context
     ): GitRepository = GitRepository(
-        appContext.filesDir.path
+        provideAppContext(appContext)
     )
 
 
     @Provides
     @Singleton
-    fun provideVersion(
+    fun provideAppContext(
         @ApplicationContext appContext: Context
-    ): VersionRepository {
+    ): AppRepository {
         val name = appContext.getPackageName()
         val pkgManager = appContext.getPackageManager()
         val pInfo: PackageInfo = pkgManager.getPackageInfo(name, 0)
-        return VersionRepository(pInfo.versionName ?: "Unknown")
+        val versionName = pInfo.versionName ?: "Unknown"
+
+        val filesDir = appContext.filesDir
+
+        return AppRepository(versionName, filesDir)
     }
 
     /// https://github.com/mbobiosio/AppFirstLaunch-Hilt-DataStore

@@ -20,7 +20,7 @@ import kafva.kage.Log
 
 data class Settings(
     val remoteAddress: String,
-    val repoPath: String
+    val remoteRepoPath: String
 )
 
 /// https://github.com/Kotlin-Android-Open-Source/DataStore-sample
@@ -30,22 +30,22 @@ class SettingsRepository @Inject constructor(
 ) {
     private object Keys {
         val remoteAddress = stringPreferencesKey("remoteAddress")
-        val repoPath = stringPreferencesKey("repoPath")
+        val remoteRepoPath = stringPreferencesKey("remoteRepoPath")
     }
 
     private inline val Preferences.remoteAddress
         get() = this[Keys.remoteAddress] ?: ""
 
-    private inline val Preferences.repoPath
-        get() = this[Keys.repoPath] ?: ""
+    private inline val Preferences.remoteRepoPath
+        get() = this[Keys.remoteRepoPath] ?: ""
 
 
     suspend fun updateSettings(s: Settings) {
         dataStore.edit {
             it[Keys.remoteAddress] = s.remoteAddress
-            it[Keys.repoPath] = s.repoPath
+            it[Keys.remoteRepoPath] = s.remoteRepoPath
         }
-        Log.i("Updated settings: ${s.remoteAddress}/${s.repoPath}")
+        Log.i("Updated settings: ${s.remoteAddress}/${s.remoteRepoPath}")
     }
 
     val flow: Flow<Settings> =
@@ -59,7 +59,7 @@ class SettingsRepository @Inject constructor(
             }.map { preferences ->
                 Settings(
                     remoteAddress = preferences.remoteAddress,
-                    repoPath = preferences.repoPath,
+                    remoteRepoPath = preferences.remoteRepoPath,
                 )
             }.distinctUntilChanged()
 }
