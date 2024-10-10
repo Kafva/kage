@@ -1,5 +1,3 @@
-@file:Suppress("ktlint:standard:function-naming")
-
 package kafva.kage
 
 import android.os.Bundle

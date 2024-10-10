@@ -18,8 +18,6 @@ plugins {
 android {
     namespace = "kafva.kage"
     compileSdk = 34
-    // XXX: Explicitly set the NDK version
-    ndkVersion = "27.0.12077973"
 
     defaultConfig {
         applicationId = "kafva.kage"
@@ -28,7 +26,6 @@ android {
         versionCode = 1
         versionName = "0.1.0" // XXX: Keep in sync manually
 
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary = true
         }
@@ -118,7 +115,6 @@ dependencies {
     // is preferred, the <group>, <name> and <version> are in this case instead
     // defined gradle/*libs*.version.toml.
     androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
