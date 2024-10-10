@@ -26,13 +26,20 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import kafva.kage.Log
+import kafva.kage.types.Screen
 import kafva.kage.data.PwNode
 import kafva.kage.data.TreeViewModel
 import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavHostController
+import android.content.Context
+import androidx.compose.ui.platform.LocalContext
 
 @Composable
-fun TreeView(viewModel: TreeViewModel = hiltViewModel()) {
+fun TreeView(
+    navController: NavHostController,
+    viewModel: TreeViewModel = hiltViewModel()
+) {
     val searchMatches by viewModel.gitRepository.searchMatches.collectAsStateWithLifecycle()
     val expandRecursively by viewModel.runtimeSettingsRepository
                                       .expandRecursively.collectAsStateWithLifecycle()
@@ -40,7 +47,7 @@ fun TreeView(viewModel: TreeViewModel = hiltViewModel()) {
     LazyColumn(modifier = Modifier.fillMaxWidth(0.85f).padding(top = 10.dp)) {
         searchMatches.forEach { child ->
             item {
-                TreeChildView(child, expandRecursively)
+                TreeChildView(navController, child, expandRecursively)
             }
         }
     }
@@ -48,10 +55,12 @@ fun TreeView(viewModel: TreeViewModel = hiltViewModel()) {
 
 @Composable
 private fun TreeChildView(
+    navController: NavHostController,
     node: PwNode,
     expandRecursively: Boolean,
     depth: Int = 0
 ) {
+    val context = LocalContext.current
     var isExpanded by remember { mutableStateOf(false) }
     val expanded = isExpanded || expandRecursively
     val isPassword = node.children.isEmpty()
@@ -77,7 +86,9 @@ private fun TreeChildView(
                            .clip(RoundedCornerShape(50))
                            .clickable {
             if (isPassword) {
-                Log.i("TODO")
+                val filesDir = "${context.filesDir.path}/"
+                val nodePath = node.pathString.removePrefix(filesDir).replace("/", "|")
+                navController.navigate("${Screen.Password.route}/${nodePath}")
             }
             else {
                 isExpanded = !isExpanded
@@ -89,7 +100,7 @@ private fun TreeChildView(
     )
     if (!isPassword && expanded) {
         node.children.forEach { child ->
-            TreeChildView(child, expandRecursively, depth + 1)
+            TreeChildView(navController, child, expandRecursively, depth + 1)
         }
     }
 }

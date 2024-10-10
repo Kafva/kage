@@ -28,6 +28,7 @@ data class PwNode(
     }
 
     val name = path.getName().removeSuffix(".age")
+    val pathString = path.toPath().toString()
 
     /// Recursively load the nodes under the current path
     init {

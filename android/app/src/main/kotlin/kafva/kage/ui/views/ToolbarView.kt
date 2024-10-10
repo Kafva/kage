@@ -101,7 +101,10 @@ fun ToolbarView(
                         }) {
                             Icon(Icons.Filled.KeyboardArrowLeft, "Go home")
                         }
-                        Text(currentRoute)
+
+                        if (!currentRoute.contains("/")) {
+                            Text(currentRoute)
+                        }
                     }
                 }
 

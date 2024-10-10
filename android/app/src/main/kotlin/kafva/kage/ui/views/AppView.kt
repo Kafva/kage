@@ -24,6 +24,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import kafva.kage.types.Screen
 import kafva.kage.ui.views.SettingsView
 import kafva.kage.ui.views.HistoryView
@@ -32,6 +33,7 @@ import kafva.kage.ui.views.ToolbarView
 
 @Composable
 fun AppView(navController: NavHostController = rememberNavController()) {
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
 
     ToolbarView(navController) { innerPadding ->
         Column(
@@ -43,13 +45,18 @@ fun AppView(navController: NavHostController = rememberNavController()) {
         ) {
             NavHost(navController = navController, Screen.Home.route) {
                 composable(Screen.Home.route) {
-                    TreeView()
+                    TreeView(navController)
                 }
                 composable(Screen.Settings.route) {
                     SettingsView(navController)
                 }
                 composable(Screen.History.route) {
                     HistoryView()
+                }
+                composable("${Screen.Password.route}/{nodePath}") { nodePath ->
+                    // TODO better error handling?
+                    val argument = navBackStackEntry?.arguments?.getString("nodePath") ?: ""
+                    PasswordView(argument)
                 }
             }
         }

@@ -14,5 +14,10 @@ sealed interface Screen {
     data object History : Screen {
         override val route = "History"
     }
+
+    data object Password : Screen {
+        override val route = "Password"
+    }
+
 }
 
