@@ -21,7 +21,9 @@ class VersionRepository constructor(val versionName: String) {}
 
 @Module
 @InstallIn(SingletonComponent::class)
-object GitContextModule {
+object AppContextModule {
+
+    private val Context.userPreference by preferencesDataStore(name = "preference")
 
     @Provides
     @Singleton
@@ -42,5 +44,15 @@ object GitContextModule {
         val pInfo: PackageInfo = pkgManager.getPackageInfo(name, 0)
         return VersionRepository(pInfo.versionName ?: "Unknown")
     }
+
+    /// https://github.com/mbobiosio/AppFirstLaunch-Hilt-DataStore
+    /// Dagger needs a way to construct every type that is provided in an
+    /// @Inject constructor(). This function provides dagger with a way to
+    /// provide a DataStore<Preferences> object.
+    @Provides
+    @Singleton
+    fun provideDataStore(
+        @ApplicationContext context: Context
+    ): DataStore<Preferences> = context.userPreference
 
 }
