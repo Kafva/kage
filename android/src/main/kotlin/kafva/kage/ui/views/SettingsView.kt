@@ -8,6 +8,7 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.List
+import androidx.compose.material3.Card
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -44,7 +45,9 @@ import androidx.compose.material3.ButtonDefaults
 import kafva.kage.data.AppRepository
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.runtime.MutableState
 import androidx.navigation.compose.rememberNavController
+import kotlinx.coroutines.flow.MutableStateFlow
 
 @Composable
 fun SettingsView(
@@ -53,6 +56,7 @@ fun SettingsView(
 ) {
     val focusManager = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
+    val openAlertDialog = remember { mutableStateOf(false) }
 
     val remoteAddress = remember { mutableStateOf("") }
     val remoteRepoPath = remember { mutableStateOf("") }
@@ -104,12 +108,30 @@ fun SettingsView(
         )
 
         Text("Version: ${viewModel.appRepository.versionName}",
-             modifier = Modifier.padding(top = 4.dp),
+             modifier = Modifier.padding(top = 4.dp, bottom = 10.dp),
              fontSize = 12.sp,
              color = Color.Gray)
 
 
-        CardView(navigateToHistory)
+        Card(modifier = Modifier.fillMaxWidth(0.85f).padding(top = 10.dp)) {
+            TextButton(
+                onClick = {
+                    openAlertDialog.value = true
+                },
+                modifier = Modifier.padding(top = 4.dp, start = 20.dp)
+            ) {
+                Text("Reset password repository")
+            }
+
+            TextButton(
+                onClick = navigateToHistory,
+                modifier = Modifier.padding(top = 4.dp, start = 20.dp)
+            ) {
+                Text("History")
+            }
+        }
+
+        AlertView(openAlertDialog)
 
         LaunchedEffect(Unit) {
             // Fill the textfields with the current configuration from the
@@ -123,65 +145,47 @@ fun SettingsView(
 }
 
 @Composable
-private fun CardView(
-    navigateToHistory: () -> Unit,
+private fun AlertView(
+    openAlertDialog: MutableState<Boolean>,
     viewModel: SettingsViewModel = hiltViewModel(),
 ) {
-    val openAlertDialog = remember { mutableStateOf(false) }
 
-    Column {
-        TextButton(
-            onClick = {
-                openAlertDialog.value = true
+    if (openAlertDialog.value) {
+        AlertDialog(
+            icon = {
+                Icon(Icons.Filled.Warning,
+                     contentDescription = "")
             },
-            modifier = Modifier.padding(top = 4.dp)
-        ) {
-            Text("Reset password repository")
-        }
-
-        if (openAlertDialog.value) {
-            AlertDialog(
-                icon = {
-                    Icon(Icons.Filled.Warning,
-                         contentDescription = "")
-                },
-                title = {
-                    Text(text = "Are you sure?")
-                },
-                text = {
-                    Text("This operation will delete the local checkout")
-                },
-                onDismissRequest = {
-                    openAlertDialog.value = false
-                },
-                confirmButton = {
-                    TextButton(
-                        onClick = {
-                            viewModel.clone()
-                            openAlertDialog.value = false
-                        }
-                    ) {
-                        Text("Yes", color = Color.Red)
+            title = {
+                Text(text = "Are you sure?")
+            },
+            text = {
+                Text("This operation will delete the local checkout")
+            },
+            onDismissRequest = {
+                openAlertDialog.value = false
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        viewModel.clone()
+                        openAlertDialog.value = false
                     }
-                },
-                dismissButton = {
-                    TextButton(
-                        onClick = {
-                            openAlertDialog.value = false
-                        }
-                    ) {
-                        Text("No")
+                ) {
+                    Text("Yes", color = Color.Red)
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        openAlertDialog.value = false
                     }
-                },
-            )
-        }
-
-        TextButton(
-            onClick = navigateToHistory,
-            modifier = Modifier.padding(top = 4.dp)
-        ) {
-            Text("History")
-        }
+                ) {
+                    Text("No")
+                }
+            },
+        )
     }
+
 
 }
