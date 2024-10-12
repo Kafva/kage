@@ -18,8 +18,8 @@ class AppRepository constructor(
     val identityIsUnlocked: StateFlow<Boolean> = _identityIsUnlocked
 
     fun unlockIdentity(passphrase: String): Boolean {
-        val encryptedIdentity = "${localRepo.toPath().toString()}/.age-identities"
-        Log.i(encryptedIdentity)
+        val encryptedIdentityPath = File("${localRepo.toPath()}/.age-identities")
+        val encryptedIdentity = encryptedIdentityPath.readText(Charsets.UTF_8)
         val r = Age.unlockIdentity(encryptedIdentity, passphrase)
         if (r == 0) {
             _identityIsUnlocked.value = true
@@ -35,12 +35,7 @@ class AppRepository constructor(
     }
 
     fun decrypt(nodePath: String): String? {
-        val str = Age.decrypt("${filesDir.toPath()}/${nodePath}")
-        if (str == null) {
-            Log.e("Decryption failed")
-        }
-        return str
+        return Age.decrypt("${filesDir.toPath()}/${nodePath}")
     }
-
 }
 

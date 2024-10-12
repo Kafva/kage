@@ -90,7 +90,13 @@ fun PasswordView(
                 keyboardActions = KeyboardActions(
                     onDone = {
                         if (viewModel.appRepository.unlockIdentity(passphrase.value)) {
-                            viewModel.appRepository.decrypt(nodePath)
+                            val p = viewModel.appRepository.decrypt(nodePath)
+                            if (p == null) {
+                                Log.e("Decryption failed")
+                            }
+                            else {
+                                plaintext.value = p
+                            }
                         }
                     }
                 ),
