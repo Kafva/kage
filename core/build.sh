@@ -27,10 +27,10 @@ android)
     TARGET_ARCH=${2:-"aarch64"}
 
     if [ "$TARGET_ARCH" = aarch64 ]; then
-        DIST=$SOURCE_ROOT/app/src/main/jniLibs/arm64-v8a
+        DIST=$SOURCE_ROOT/src/main/jniLibs/arm64-v8a
 
     elif [ "$TARGET_ARCH" = x86_64 ]; then
-        DIST=$SOURCE_ROOT/app/src/main/jniLibs/x86_64
+        DIST=$SOURCE_ROOT/src/main/jniLibs/x86_64
 
     else
         die "Unsupported architecture: '$TARGET_ARCH'"

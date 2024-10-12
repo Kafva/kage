@@ -43,9 +43,8 @@ The build process has only been tested to work on macOS.
 To build for Android you need to download a NDK manually.
 
 1. Download the ndk: `sdkmanager 'ndk;$VERSION'`
-2. Make sure `android/app/build.gradle.kts` points to the same version
-3. Set `export NDK_HOME=$HOME/Library/Android/Sdk/ndk/$VERSION`
-4. Build the library and app
+2. Set `export NDK_HOME=$HOME/Library/Android/Sdk/ndk/$VERSION`
+3. Build the library and app
 
 ```bash
 (cd android && ./gradlew build)
