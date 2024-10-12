@@ -78,22 +78,26 @@ fun ToolbarView(
 
                 when (currentRoute) {
                     Screen.Home.route -> {
+                        IconButton(onClick = {
+                            navController.navigate(Screen.Settings.route)
+                        },
+                            modifier = Modifier.padding(start = 5.dp, end = 15.dp)
+                        ) {
+                            Icon(Icons.Filled.Settings, "Settings")
+                        }
+
                         SearchField()
 
                         IconButton(onClick = {
                             viewModel.runtimeSettingsRepository.toggleExpandRecursively()
-                        }) {
+                        },
+                            modifier = Modifier.padding(start = 5.dp, end = 15.dp)) {
                             val treeExpansionIcon = if (expandRecursively)
                                             Icons.Filled.KeyboardArrowDown
                                        else Icons.Filled.KeyboardArrowRight
                             Icon(treeExpansionIcon, "Toggle tree expansion")
                         }
 
-                        IconButton(onClick = {
-                            navController.navigate(Screen.Settings.route)
-                        }) {
-                            Icon(Icons.Filled.Settings, "Settings")
-                        }
                     }
                     else -> {
                         IconButton(onClick = {
@@ -137,6 +141,5 @@ private fun SearchField(viewModel: ToolbarViewModel = hiltViewModel()) {
                 // focusManager.clearFocus()
             }
         ),
-        modifier = Modifier.padding(start = 30.dp)
     )
 }

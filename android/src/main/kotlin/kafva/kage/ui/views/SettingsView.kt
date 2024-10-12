@@ -37,10 +37,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.Alignment
 import androidx.navigation.NavHostController
 import android.content.pm.PackageInfo
 import androidx.compose.material3.ButtonDefaults
 import kafva.kage.data.AppRepository
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.Arrangement
 
 @Composable
 fun SettingsView(
@@ -54,7 +57,10 @@ fun SettingsView(
     val remoteAddress = remember { mutableStateOf("") }
     val remoteRepoPath = remember { mutableStateOf("") }
 
-    Column(modifier = Modifier.padding(top = 10.dp)) {
+    Column(modifier = Modifier.fillMaxWidth(0.85f).padding(top = 10.dp),
+           verticalArrangement = Arrangement.Center,
+           horizontalAlignment = Alignment.CenterHorizontally
+    ) {
         TextField(
             value = remoteAddress.value,
             leadingIcon = { Icon(Icons.Filled.Home, "Remote address") },

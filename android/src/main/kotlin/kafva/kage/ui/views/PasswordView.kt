@@ -101,14 +101,16 @@ fun PasswordView(
                     onDone = {
                         if (viewModel.appRepository.unlockIdentity(passphrase.value ?: "")) {
                             plaintext.value = viewModel.appRepository.decrypt(nodePath)
-                            if (plaintext.value == null) {
-                                Log.e("Decryption failed")
-                            }
                         }
                     }
                 ),
             )
+        }
 
+        LaunchedEffect(Unit) {
+            if (identityIsUnlocked.value) {
+                plaintext.value = viewModel.appRepository.decrypt(nodePath)
+            }
         }
     }
 
