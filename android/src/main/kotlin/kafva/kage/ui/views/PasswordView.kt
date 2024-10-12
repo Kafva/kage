@@ -45,11 +45,11 @@ import kafva.kage.types.CommitInfo
 import kafva.kage.data.PwNode
 import androidx.compose.ui.text.AnnotatedString
 import android.content.ClipData
+import androidx.navigation.compose.rememberNavController
 
 @Composable
 fun PasswordView(
     serialisedNodePath: String,
-    navController: NavHostController,
     viewModel: PasswordViewModel = hiltViewModel()
 ) {
     val nodePath = serialisedNodePath.replace("|", "/")
@@ -63,14 +63,6 @@ fun PasswordView(
             Text(nodePath)
             Text(plaintext.value ?: "")
             Row(modifier = Modifier.padding(horizontal = 4.dp)) {
-                TextButton(
-                    onClick = {
-                        navController.popBackStack()
-                    },
-                    modifier = Modifier.padding(top = 4.dp)
-                ) {
-                    Text("Dismiss")
-                }
                 TextButton(
                     onClick = {
                         if (plaintext.value != null) {

@@ -17,7 +17,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kafva.kage.ui.theme.KageTheme
-import kafva.kage.ui.views.AppView
 import androidx.compose.foundation.layout.padding
 
 import androidx.navigation.compose.NavHost
@@ -30,12 +29,20 @@ import kafva.kage.ui.views.SettingsView
 import kafva.kage.ui.views.HistoryView
 import kafva.kage.ui.views.TreeView
 import kafva.kage.ui.views.ToolbarView
+import kafva.kage.data.AppViewModel
 
 @Composable
-fun AppView(navController: NavHostController = rememberNavController()) {
+fun AppView(
+    navController: NavHostController = rememberNavController(),
+    viewModel: AppViewModel = hiltViewModel()
+) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route ?: Screen.Home.route
 
-    ToolbarView(navController) { innerPadding ->
+    ToolbarView(currentRoute,
+        { navController.navigate(Screen.Settings.route) },
+        { navController.popBackStack() },
+    ) { innerPadding ->
         Column(
             modifier = Modifier.fillMaxSize()
                                .background(MaterialTheme.colorScheme.surface)
@@ -45,10 +52,16 @@ fun AppView(navController: NavHostController = rememberNavController()) {
         ) {
             NavHost(navController = navController, Screen.Home.route) {
                 composable(Screen.Home.route) {
-                    TreeView(navController)
+                    TreeView({ node ->
+                        val filesDir = "${viewModel.appRepository.filesDir.path}/"
+                        val nodePath = node.pathString.removePrefix(filesDir).replace("/", "|")
+                        navController.navigate("${Screen.Password.route}/${nodePath}")
+                    })
                 }
                 composable(Screen.Settings.route) {
-                    SettingsView(navController)
+                    SettingsView(
+                        { navController.navigate(Screen.History.route) },
+                    )
                 }
                 composable(Screen.History.route) {
                     HistoryView()
@@ -56,7 +69,7 @@ fun AppView(navController: NavHostController = rememberNavController()) {
                 composable("${Screen.Password.route}/{nodePath}") { nodePath ->
                     // TODO better error handling?
                     val argument = navBackStackEntry?.arguments?.getString("nodePath") ?: ""
-                    PasswordView(argument, navController)
+                    PasswordView(argument)
                 }
             }
         }

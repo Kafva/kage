@@ -44,16 +44,16 @@ import androidx.compose.material3.ButtonDefaults
 import kafva.kage.data.AppRepository
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.Arrangement
+import androidx.navigation.compose.rememberNavController
 
 @Composable
 fun SettingsView(
-    navController: NavHostController,
+    navigateToHistory: () -> Unit,
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
     val focusManager = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
 
-    val openAlertDialog = remember { mutableStateOf(false) }
     val remoteAddress = remember { mutableStateOf("") }
     val remoteRepoPath = remember { mutableStateOf("") }
 
@@ -108,6 +108,28 @@ fun SettingsView(
              fontSize = 12.sp,
              color = Color.Gray)
 
+
+        CardView(navigateToHistory)
+
+        LaunchedEffect(Unit) {
+            // Fill the textfields with the current configuration from the
+            // datastore when the view appears.
+            viewModel.settingsRepository.flow.collect { s ->
+                remoteAddress.value = s.remoteAddress
+                remoteRepoPath.value = s.remoteRepoPath
+            }
+        }
+    }
+}
+
+@Composable
+private fun CardView(
+    navigateToHistory: () -> Unit,
+    viewModel: SettingsViewModel = hiltViewModel(),
+) {
+    val openAlertDialog = remember { mutableStateOf(false) }
+
+    Column {
         TextButton(
             onClick = {
                 openAlertDialog.value = true
@@ -155,23 +177,11 @@ fun SettingsView(
         }
 
         TextButton(
-            onClick = {
-                navController.navigate(Screen.History.route)
-            },
+            onClick = navigateToHistory,
             modifier = Modifier.padding(top = 4.dp)
         ) {
             Text("History")
         }
-
-
-        LaunchedEffect(Unit) {
-            // Fill the textfields with the current configuration from the
-            // datastore when the view appears.
-            viewModel.settingsRepository.flow.collect { s ->
-                remoteAddress.value = s.remoteAddress
-                remoteRepoPath.value = s.remoteRepoPath
-            }
-        }
     }
-}
 
+}

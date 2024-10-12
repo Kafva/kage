@@ -60,16 +60,14 @@ import kafva.kage.data.ToolbarViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ToolbarView(
-    navController: NavHostController,
+    currentRoute: String,
+    navigateToSettings: () -> Unit,
+    navigateBack: () -> Unit,
     viewModel: ToolbarViewModel = hiltViewModel(),
     content: @Composable (PaddingValues) -> Unit
 ) {
-    val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentRoute = navBackStackEntry?.destination?.route ?: Screen.Home.route
-
     val expandRecursively by viewModel.runtimeSettingsRepository
                                       .expandRecursively.collectAsStateWithLifecycle()
-
     Scaffold(
         topBar = {
             Row(modifier = Modifier.padding(top = 30.dp).fillMaxWidth(),
@@ -78,9 +76,7 @@ fun ToolbarView(
 
                 when (currentRoute) {
                     Screen.Home.route -> {
-                        IconButton(onClick = {
-                            navController.navigate(Screen.Settings.route)
-                        },
+                        IconButton(onClick = navigateToSettings,
                             modifier = Modifier.padding(start = 5.dp, end = 15.dp)
                         ) {
                             Icon(Icons.Filled.Settings, "Settings")
@@ -100,9 +96,7 @@ fun ToolbarView(
 
                     }
                     else -> {
-                        IconButton(onClick = {
-                            navController.popBackStack()
-                        }) {
+                        IconButton(onClick = navigateBack) {
                             Icon(Icons.Filled.KeyboardArrowLeft, "Go home")
                         }
 

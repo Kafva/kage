@@ -5,8 +5,10 @@ import kafva.kage.jni.Age
 import kafva.kage.Log
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import dagger.hilt.components.SingletonComponent
+import javax.inject.Singleton
 
-
+@Singleton
 class AppRepository constructor(
     val versionName: String,
     val filesDir: File,

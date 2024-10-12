@@ -32,12 +32,13 @@ import kafva.kage.data.TreeViewModel
 import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import android.content.Context
 import androidx.compose.ui.platform.LocalContext
 
 @Composable
 fun TreeView(
-    navController: NavHostController,
+    navigateToPassword: (node: PwNode) -> Unit,
     viewModel: TreeViewModel = hiltViewModel()
 ) {
     val searchMatches by viewModel.gitRepository.searchMatches.collectAsStateWithLifecycle()
@@ -47,7 +48,7 @@ fun TreeView(
     LazyColumn(modifier = Modifier.fillMaxWidth(0.85f).padding(top = 10.dp)) {
         searchMatches.forEach { child ->
             item {
-                TreeChildView(navController, child, expandRecursively)
+                TreeChildView(child, expandRecursively, navigateToPassword)
             }
         }
     }
@@ -55,12 +56,11 @@ fun TreeView(
 
 @Composable
 private fun TreeChildView(
-    navController: NavHostController,
     node: PwNode,
     expandRecursively: Boolean,
-    depth: Int = 0
+    navigateToPassword: (node: PwNode) -> Unit,
+    depth: Int = 0,
 ) {
-    val context = LocalContext.current
     var isExpanded by remember { mutableStateOf(false) }
     val expanded = isExpanded || expandRecursively
     val isPassword = node.children.isEmpty()
@@ -86,9 +86,7 @@ private fun TreeChildView(
                            .clip(RoundedCornerShape(50))
                            .clickable {
             if (isPassword) {
-                val filesDir = "${context.filesDir.path}/"
-                val nodePath = node.pathString.removePrefix(filesDir).replace("/", "|")
-                navController.navigate("${Screen.Password.route}/${nodePath}")
+                navigateToPassword(node)
             }
             else {
                 isExpanded = !isExpanded
@@ -100,7 +98,7 @@ private fun TreeChildView(
     )
     if (!isPassword && expanded) {
         node.children.forEach { child ->
-            TreeChildView(navController, child, expandRecursively, depth + 1)
+            TreeChildView(child, expandRecursively, navigateToPassword, depth + 1)
         }
     }
 }
