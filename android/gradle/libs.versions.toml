@@ -2,8 +2,6 @@
 agp = "8.5.0"
 kotlin = "2.0.20"
 coreKtx = "1.10.1"
-junit = "4.13.2"
-junitVersion = "1.1.5"
 lifecycleRuntimeKtx = "2.6.1"
 activityCompose = "1.8.0"
 composeBom = "2024.04.01"
@@ -19,12 +17,6 @@ materialIconsCore = "1.7.2"
 androidxNavigation = "2.8.0"
 
 [libraries]
-# Unit tests
-junit = { group = "junit", name = "junit", version.ref = "junit" }
-androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
-androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
-androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
-
 # Compose / UI
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }

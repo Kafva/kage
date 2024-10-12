@@ -102,7 +102,6 @@ dependencies {
     // Icons: https://developer.android.com/reference/kotlin/androidx/compose/material/icons/package-summary
 
     implementation(libs.androidx.material3)
-    testImplementation(libs.junit)
     // You can declare dependencies in gradle scripts like this:
     //
     //                             <group>          :<name>:<version>
@@ -114,11 +113,7 @@ dependencies {
     // However, the syntax with a version catalog reference 'libs'
     // is preferred, the <group>, <name> and <version> are in this case instead
     // defined gradle/*libs*.version.toml.
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(platform(libs.androidx.compose.bom))
-    androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
-    debugImplementation(libs.androidx.ui.test.manifest)
     implementation(libs.androidx.datastore)
 
     // dagger.hilt
