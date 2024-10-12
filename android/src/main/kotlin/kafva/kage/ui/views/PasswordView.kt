@@ -21,8 +21,11 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.Modifier
@@ -40,6 +43,8 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.navigation.NavHostController
 import kafva.kage.types.CommitInfo
 import kafva.kage.data.PwNode
+import androidx.compose.ui.text.AnnotatedString
+import android.content.ClipData
 
 @Composable
 fun PasswordView(
@@ -48,14 +53,15 @@ fun PasswordView(
     viewModel: PasswordViewModel = hiltViewModel()
 ) {
     val nodePath = serialisedNodePath.replace("|", "/")
-    val plaintext = remember { mutableStateOf("") }
-    val passphrase = remember { mutableStateOf("") }
+    val plaintext: MutableState<String?> = remember { mutableStateOf(null) }
+    val passphrase: MutableState<String?> = remember { mutableStateOf(null) }
+    val clipboardManager = LocalClipboardManager.current
     val identityIsUnlocked = viewModel.appRepository.identityIsUnlocked.collectAsState()
 
     Column(modifier = Modifier.padding(top = 10.dp)) {
         if (identityIsUnlocked.value) {
             Text(nodePath)
-            Text(plaintext.value)
+            Text(plaintext.value ?: "")
             Row(modifier = Modifier.padding(horizontal = 4.dp)) {
                 TextButton(
                     onClick = {
@@ -67,7 +73,11 @@ fun PasswordView(
                 }
                 TextButton(
                     onClick = {
-                        navController.popBackStack()
+                        if (plaintext.value != null) {
+                            val clipData = ClipData.newPlainText("plaintext", plaintext.value ?: "")
+                            val clipEntry = ClipEntry(clipData)
+                            clipboardManager.setClip(clipEntry)
+                        }
                     },
                     modifier = Modifier.padding(top = 4.dp)
                 ) {
@@ -78,7 +88,7 @@ fun PasswordView(
         else {
             Text("Authentication required")
             TextField(
-                value = passphrase.value,
+                value = passphrase.value ?: "",
                 label = { Text("Passphrase") },
                 singleLine = true,
                 onValueChange = {
@@ -89,13 +99,10 @@ fun PasswordView(
                                                   keyboardType = KeyboardType.Text),
                 keyboardActions = KeyboardActions(
                     onDone = {
-                        if (viewModel.appRepository.unlockIdentity(passphrase.value)) {
-                            val p = viewModel.appRepository.decrypt(nodePath)
-                            if (p == null) {
+                        if (viewModel.appRepository.unlockIdentity(passphrase.value ?: "")) {
+                            plaintext.value = viewModel.appRepository.decrypt(nodePath)
+                            if (plaintext.value == null) {
                                 Log.e("Decryption failed")
-                            }
-                            else {
-                                plaintext.value = p
                             }
                         }
                     }
