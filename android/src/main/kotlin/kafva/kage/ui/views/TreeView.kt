@@ -45,7 +45,7 @@ fun TreeView(
     val expandRecursively by viewModel.runtimeSettingsRepository
                                       .expandRecursively.collectAsStateWithLifecycle()
 
-    LazyColumn(modifier = Modifier.fillMaxWidth(0.85f).padding(top = 10.dp)) {
+    LazyColumn(modifier = Modifier.fillMaxWidth(0.85f).padding(top = 20.dp)) {
         searchMatches.forEach { child ->
             item {
                 TreeChildView(child, expandRecursively, navigateToPassword)

@@ -18,6 +18,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kafva.kage.ui.theme.KageTheme
 import androidx.compose.foundation.layout.padding
+import androidx.compose.runtime.LaunchedEffect
 import kafva.kage.ui.views.AppView
 
 import androidx.navigation.compose.NavHost
@@ -25,6 +26,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import kafva.kage.types.Screen
+import kafva.kage.Log
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {

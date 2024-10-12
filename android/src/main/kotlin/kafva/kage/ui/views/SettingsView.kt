@@ -61,7 +61,7 @@ fun SettingsView(
     val remoteAddress = remember { mutableStateOf("") }
     val remoteRepoPath = remember { mutableStateOf("") }
 
-    Column(modifier = Modifier.fillMaxWidth(0.85f).padding(top = 10.dp),
+    Column(modifier = Modifier.fillMaxWidth(0.85f).padding(top = 20.dp),
            verticalArrangement = Arrangement.Center,
            horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -107,13 +107,7 @@ fun SettingsView(
             ),
         )
 
-        Text("Version: ${viewModel.appRepository.versionName}",
-             modifier = Modifier.padding(top = 4.dp, bottom = 10.dp),
-             fontSize = 12.sp,
-             color = Color.Gray)
-
-
-        Card(modifier = Modifier.fillMaxWidth(0.85f).padding(top = 10.dp)) {
+        Card(modifier = Modifier.fillMaxWidth(0.85f).padding(top = 15.dp)) {
             TextButton(
                 onClick = {
                     openAlertDialog.value = true
@@ -129,6 +123,11 @@ fun SettingsView(
             ) {
                 Text("History")
             }
+
+            Text("Version: ${viewModel.appRepository.versionName}",
+                 modifier = Modifier.padding(top = 4.dp, bottom = 10.dp, start = 30.dp),
+                 fontSize = 12.sp,
+                 color = Color.Gray)
         }
 
         AlertView(openAlertDialog)

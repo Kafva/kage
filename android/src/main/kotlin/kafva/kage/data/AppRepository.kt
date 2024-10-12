@@ -6,6 +6,8 @@ import kafva.kage.Log
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import dagger.hilt.components.SingletonComponent
+import java.time.Instant
+import java.util.Date
 import javax.inject.Singleton
 
 @Singleton
@@ -16,23 +18,23 @@ class AppRepository constructor(
     val localRepoName = "git-adc83b19e"
     val localRepo: File = File("${filesDir}/${localRepoName}")
 
-    private val _identityIsUnlocked = MutableStateFlow<Boolean>(false)
-    val identityIsUnlocked: StateFlow<Boolean> = _identityIsUnlocked
+    private val _identityUnlockedAt = MutableStateFlow<Long?>(null)
+    val identityUnlockedAt: StateFlow<Long?> = _identityUnlockedAt
 
     fun unlockIdentity(passphrase: String): Boolean {
         val encryptedIdentityPath = File("${localRepo.toPath()}/.age-identities")
         val encryptedIdentity = encryptedIdentityPath.readText(Charsets.UTF_8)
         val r = Age.unlockIdentity(encryptedIdentity, passphrase)
         if (r == 0) {
-            _identityIsUnlocked.value = true
+            _identityUnlockedAt.value = Instant.now().epochSecond
         }
-        return _identityIsUnlocked.value
+        return _identityUnlockedAt.value != null
     }
 
     fun lockIdentity() {
         val r = Age.lockIdentity()
         if (r == 0) {
-            _identityIsUnlocked.value = false
+            _identityUnlockedAt.value = null
         }
     }
 

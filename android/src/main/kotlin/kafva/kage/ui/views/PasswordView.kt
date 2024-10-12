@@ -35,6 +35,7 @@ import kafva.kage.data.PasswordViewModel
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -45,6 +46,10 @@ import kafva.kage.types.CommitInfo
 import kafva.kage.data.PwNode
 import androidx.compose.ui.text.AnnotatedString
 import android.content.ClipData
+import androidx.compose.foundation.clickable
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.text.font.FontStyle
 import androidx.navigation.compose.rememberNavController
 
 @Composable
@@ -56,29 +61,36 @@ fun PasswordView(
     val plaintext: MutableState<String?> = remember { mutableStateOf(null) }
     val passphrase: MutableState<String?> = remember { mutableStateOf(null) }
     val clipboardManager = LocalClipboardManager.current
-    val identityIsUnlocked = viewModel.appRepository.identityIsUnlocked.collectAsState()
+    val identityUnlockedAt = viewModel.appRepository.identityUnlockedAt.collectAsState()
+    val hidePlaintext: MutableState<Boolean> = remember { mutableStateOf(true) }
 
-    Column(modifier = Modifier.padding(top = 10.dp)) {
-        if (identityIsUnlocked.value) {
-            Text(nodePath)
-            Text(plaintext.value ?: "")
-            Row(modifier = Modifier.padding(horizontal = 4.dp)) {
-                TextButton(
-                    onClick = {
-                        if (plaintext.value != null) {
-                            val clipData = ClipData.newPlainText("plaintext", plaintext.value ?: "")
-                            val clipEntry = ClipEntry(clipData)
-                            clipboardManager.setClip(clipEntry)
-                        }
-                    },
-                    modifier = Modifier.padding(top = 4.dp)
-                ) {
-                    Text("Copy...")
+    Column(
+        modifier = Modifier.padding(top = 10.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        if (identityUnlockedAt.value != null) {
+            val name = nodePath.split("/").last().removeSuffix(".age")
+            Text(name, fontSize = 20.sp, modifier = Modifier.padding(bottom = 20.dp))
+            Text(if (hidePlaintext.value) "********" else plaintext.value ?: "",
+                 fontSize = 18.sp,
+                 color = MaterialTheme.colorScheme.primary,
+                 modifier = Modifier.padding(bottom = 15.dp)
+                                    .clickable(true) { hidePlaintext.value = !hidePlaintext.value }
+            )
+            TextButton(
+                onClick = {
+                    if (plaintext.value != null) {
+                        val clipData = ClipData.newPlainText("plaintext", plaintext.value ?: "")
+                        val clipEntry = ClipEntry(clipData)
+                        clipboardManager.setClip(clipEntry)
+                    }
                 }
+            ) {
+                Text("Copy...")
             }
         }
         else {
-            Text("Authentication required")
+            Text("Authentication required", fontSize = 20.sp, modifier = Modifier.padding(bottom = 12.dp))
             TextField(
                 value = passphrase.value ?: "",
                 label = { Text("Passphrase") },
@@ -100,7 +112,7 @@ fun PasswordView(
         }
 
         LaunchedEffect(Unit) {
-            if (identityIsUnlocked.value) {
+            if (identityUnlockedAt.value != null) {
                 plaintext.value = viewModel.appRepository.decrypt(nodePath)
             }
         }

@@ -34,22 +34,38 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.sp
 import kafva.kage.types.CommitInfo
 
 @Composable
 fun HistoryView(
     viewModel: HistoryViewModel = hiltViewModel()
 ) {
-    LazyColumn(modifier = Modifier.fillMaxWidth(0.85f).padding(top = 10.dp)) {
+    LazyColumn(modifier = Modifier.fillMaxWidth(0.75f).padding(top = 20.dp)) {
         viewModel.gitRepository.log().forEach { log ->
             item {
-                Column {
-                    Text(log.summary)
-                    Text(log.revstr)
-                    Text(log.date)
-                }
+                ListItem(
+                    headlineContent = { Text(text = log.summary,
+                                             maxLines = 1,
+                                             overflow = TextOverflow.Ellipsis) },
+                    leadingContent = {
+                        Text(log.date, fontSize = 12.sp,
+                             color = Color.Gray,
+                             maxLines = 1,
+                             overflow = TextOverflow.Ellipsis)
+                    },
+                    modifier = Modifier.padding(bottom = 10.dp).clip(RoundedCornerShape(50)),
+                    colors = ListItemDefaults.colors(
+                      containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                    )
+                )
             }
         }
     }
 }
-
