@@ -18,11 +18,11 @@ import android.content.Context
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
-import kafva.kage.data.GitRepository
+import kafva.kage.data.AppRepository
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
 
 @HiltViewModel
 class PasswordViewModel @Inject constructor(
-    val gitRepository: GitRepository
+    val appRepository: AppRepository
 ) : ViewModel() {}

@@ -56,7 +56,7 @@ fun AppView(navController: NavHostController = rememberNavController()) {
                 composable("${Screen.Password.route}/{nodePath}") { nodePath ->
                     // TODO better error handling?
                     val argument = navBackStackEntry?.arguments?.getString("nodePath") ?: ""
-                    PasswordView(argument)
+                    PasswordView(argument, navController)
                 }
             }
         }

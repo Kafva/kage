@@ -1,6 +1,7 @@
 package kafva.kage.ui.views
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -34,14 +35,69 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
+import androidx.navigation.NavHostController
 import kafva.kage.types.CommitInfo
 import kafva.kage.data.PwNode
 
 @Composable
 fun PasswordView(
-    nodeName: String,
+    serialisedNodePath: String,
+    navController: NavHostController,
     viewModel: PasswordViewModel = hiltViewModel()
 ) {
-    Text("${nodeName}")
+    val nodePath = serialisedNodePath.replace("|", "/")
+    val plaintext = remember { mutableStateOf("") }
+    val passphrase = remember { mutableStateOf("") }
+    val identityIsUnlocked = viewModel.appRepository.identityIsUnlocked.collectAsState()
+
+    Column(modifier = Modifier.padding(top = 10.dp)) {
+        if (identityIsUnlocked.value) {
+            Text(nodePath)
+            Text(plaintext.value)
+            Row(modifier = Modifier.padding(horizontal = 4.dp)) {
+                TextButton(
+                    onClick = {
+                        navController.popBackStack()
+                    },
+                    modifier = Modifier.padding(top = 4.dp)
+                ) {
+                    Text("Dismiss")
+                }
+                TextButton(
+                    onClick = {
+                        navController.popBackStack()
+                    },
+                    modifier = Modifier.padding(top = 4.dp)
+                ) {
+                    Text("Copy...")
+                }
+            }
+        }
+        else {
+            Text("Authentication required")
+            TextField(
+                value = passphrase.value,
+                label = { Text("Passphrase") },
+                singleLine = true,
+                onValueChange = {
+                    passphrase.value = it
+                },
+                visualTransformation = PasswordVisualTransformation(Char(0x2A)),
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done,
+                                                  keyboardType = KeyboardType.Text),
+                keyboardActions = KeyboardActions(
+                    onDone = {
+                        if (viewModel.appRepository.unlockIdentity(passphrase.value)) {
+                            viewModel.appRepository.decrypt(nodePath)
+                        }
+                    }
+                ),
+            )
+
+        }
+    }
+
 }
 
