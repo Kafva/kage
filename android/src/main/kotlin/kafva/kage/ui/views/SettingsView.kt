@@ -31,7 +31,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import kafva.kage.data.Settings
 import kafva.kage.types.Screen
 import kafva.kage.Log
-import kafva.kage.data.SettingsViewModel
+import kafva.kage.models.SettingsViewModel
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.Row
 import androidx.compose.ui.unit.dp

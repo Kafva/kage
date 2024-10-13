@@ -43,7 +43,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.hilt.navigation.compose.hiltViewModel
-import kafva.kage.data.TreeViewModel
+import kafva.kage.models.TreeViewModel
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalFocusManager
@@ -54,7 +54,7 @@ import kafva.kage.types.Screen
 import androidx.navigation.NavHostController
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kafva.kage.Log
-import kafva.kage.data.ToolbarViewModel
+import kafva.kage.models.ToolbarViewModel
 
 
 @OptIn(ExperimentalMaterial3Api::class)

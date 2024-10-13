@@ -1,4 +1,4 @@
-package kafva.kage.data
+package kafva.kage.models
 
 import javax.inject.Inject
 import dagger.hilt.android.lifecycle.HiltViewModel

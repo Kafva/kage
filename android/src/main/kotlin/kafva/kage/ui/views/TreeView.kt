@@ -28,7 +28,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import kafva.kage.Log
 import kafva.kage.types.Screen
 import kafva.kage.data.PwNode
-import kafva.kage.data.TreeViewModel
+import kafva.kage.models.TreeViewModel
 import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController

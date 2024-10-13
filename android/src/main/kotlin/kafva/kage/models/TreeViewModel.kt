@@ -1,4 +1,4 @@
-package kafva.kage.data
+package kafva.kage.models
 
 import android.content.Context
 import androidx.lifecycle.ViewModel
