@@ -52,6 +52,7 @@ fun HistoryView(
             item {
                 ListItem(
                     headlineContent = { Text(text = log.summary,
+                                             fontSize = 14.sp,
                                              maxLines = 1,
                                              overflow = TextOverflow.Ellipsis) },
                     leadingContent = {

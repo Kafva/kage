@@ -57,25 +57,29 @@ fun PasswordView(
     serialisedNodePath: String,
     viewModel: PasswordViewModel = hiltViewModel()
 ) {
-    val nodePath = serialisedNodePath.replace("|", "/")
     val plaintext: MutableState<String?> = remember { mutableStateOf(null) }
     val passphrase: MutableState<String?> = remember { mutableStateOf(null) }
     val clipboardManager = LocalClipboardManager.current
     val identityUnlockedAt = viewModel.appRepository.identityUnlockedAt.collectAsState()
     val hidePlaintext: MutableState<Boolean> = remember { mutableStateOf(true) }
+    val nodePath = PwNode.fromRoutePath(serialisedNodePath)
 
     Column(
         modifier = Modifier.padding(top = 10.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         if (identityUnlockedAt.value != null) {
-            val name = nodePath.split("/").last().removeSuffix(".age")
-            Text(name, fontSize = 20.sp, modifier = Modifier.padding(bottom = 20.dp))
+            Text(PwNode.prettyName(nodePath),
+                 fontSize = 20.sp,
+                 modifier = Modifier.padding(bottom = 20.dp)
+            )
             Text(if (hidePlaintext.value) "********" else plaintext.value ?: "",
                  fontSize = 18.sp,
                  color = MaterialTheme.colorScheme.primary,
                  modifier = Modifier.padding(bottom = 15.dp)
-                                    .clickable(true) { hidePlaintext.value = !hidePlaintext.value }
+                                    .clickable(true) {
+                                        hidePlaintext.value = !hidePlaintext.value
+                                    }
             )
             TextButton(
                 onClick = {
@@ -117,6 +121,5 @@ fun PasswordView(
             }
         }
     }
-
 }
 

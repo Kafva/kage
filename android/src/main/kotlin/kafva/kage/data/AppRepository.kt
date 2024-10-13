@@ -15,6 +15,7 @@ class AppRepository constructor(
     val versionName: String,
     val filesDir: File,
 ) {
+    val autoLockSeconds: Long = 120
     val localRepoName = "git-adc83b19e"
     val localRepo: File = File("${filesDir}/${localRepoName}")
 

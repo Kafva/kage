@@ -35,7 +35,7 @@ import kafva.kage.ui.views.SettingsView
 import kafva.kage.ui.views.HistoryView
 import kafva.kage.ui.views.TreeView
 import kafva.kage.ui.views.ToolbarView
-import kafva.kage.data.AppViewModel
+import kafva.kage.models.AppViewModel
 import java.time.Instant
 
 @Composable
@@ -45,7 +45,6 @@ fun AppView(
 ) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route ?: Screen.Home.route
-    val identityUnlockedAt = viewModel.appRepository.identityUnlockedAt.collectAsState()
     val lifecycleOwner = LocalLifecycleOwner.current
     val lifecycleState by lifecycleOwner.lifecycle.currentStateFlow.collectAsState()
 
@@ -63,8 +62,7 @@ fun AppView(
             NavHost(navController = navController, Screen.Home.route) {
                 composable(Screen.Home.route) {
                     TreeView({ node ->
-                        val filesDir = "${viewModel.appRepository.filesDir.path}/"
-                        val nodePath = node.pathString.removePrefix(filesDir).replace("/", "|")
+                        val nodePath = node.toRoutePath(viewModel.appRepository.filesDir)
                         navController.navigate("${Screen.Password.route}/${nodePath}")
                     })
                 }
@@ -77,23 +75,19 @@ fun AppView(
                     HistoryView()
                 }
                 composable("${Screen.Password.route}/{nodePath}") { nodePath ->
-                    // TODO better error handling?
-                    val argument = navBackStackEntry?.arguments?.getString("nodePath") ?: ""
-                    PasswordView(argument)
+                    val argument = navBackStackEntry?.arguments?.getString("nodePath")
+                    if (argument != null) {
+                        PasswordView(argument)
+                    }
+                    else {
+                        Log.e("Bad path encountered: $nodePath")
+                    }
                 }
             }
         }
     }
 
     LaunchedEffect(lifecycleState) {
-        Log.i("State change: $lifecycleState")
-
-        if (identityUnlockedAt.value != null) {
-            val distance = Instant.now().epochSecond - (identityUnlockedAt.value ?: 0)
-            if (distance >= 2*60) {
-                viewModel.appRepository.lockIdentity()
-                Log.i("Locked identity due to timeout")
-            }
-        }
+        viewModel.onStateChange(lifecycleState)
     }
 }

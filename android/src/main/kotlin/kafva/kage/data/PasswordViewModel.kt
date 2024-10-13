@@ -21,8 +21,23 @@ import kotlinx.coroutines.flow.first
 import kafva.kage.data.AppRepository
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleResumeEffect
+import androidx.lifecycle.compose.LocalLifecycleOwner
 
 @HiltViewModel
 class PasswordViewModel @Inject constructor(
     val appRepository: AppRepository
-) : ViewModel() {}
+) : ViewModel() {
+
+    // fun onStateChange(lifecycleState: Lifecycle.State) {
+    //     Log.d("State change: $lifecycleState")
+    //     if (appRepository.identityUnlockedAt.value == null) {
+    //         plaintext.value = null
+    //     }
+    //     else {
+    //         plaintext.value = viewModel.appRepository.decrypt(nodePath)
+    //     }
+    // }
+
+}

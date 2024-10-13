@@ -6,7 +6,7 @@ data class PwNode(
     private val path: File,
     var children: List<PwNode>,
 ) {
-    private companion object {
+    companion object {
 
         private fun loadChildren(path: File): List<PwNode> {
             if (!path.isDirectory()) {
@@ -25,10 +25,22 @@ data class PwNode(
 
             return mutableChildren.toList()
         }
+
+        fun fromRoutePath(serialisedNodePath: String): String {
+            return serialisedNodePath.replace("|", "/")
+        }
+
+        fun prettyName(nodePath: String): String {
+            return nodePath.split("/").last().removeSuffix(".age")
+        }
     }
 
     val name = path.getName().removeSuffix(".age")
     val pathString = path.toPath().toString()
+
+    fun toRoutePath(filesDir: File): String {
+        return pathString.removePrefix("${filesDir.path}/").replace("/", "|")
+    }
 
     /// Recursively load the nodes under the current path
     init {
