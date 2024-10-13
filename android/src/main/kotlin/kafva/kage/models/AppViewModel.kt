@@ -40,6 +40,9 @@ class AppViewModel @Inject constructor(
         val distance = Instant.now().epochSecond - (ageRepository.identityUnlockedAt.value ?: 0)
         if (distance >= ageRepository.autoLockSeconds) {
             ageRepository.lockIdentity()
+            // Clear any decrypted plaintext from memory, the passphrase has
+            // already been cleared.
+            ageRepository.clearPlaintext()
             Log.d("Locked identity due to timeout [alive for $distance sec]")
         }
     }

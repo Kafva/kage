@@ -35,6 +35,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -115,6 +116,7 @@ fun ToolbarView(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun SearchField(viewModel: ToolbarViewModel = hiltViewModel()) {
     //val keyboardController = LocalSoftwareKeyboardController.current
@@ -128,12 +130,19 @@ private fun SearchField(viewModel: ToolbarViewModel = hiltViewModel()) {
         },
         placeholder = { Text("Search...") },
         singleLine = true,
+        shape = RoundedCornerShape(8.dp),
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done, keyboardType = KeyboardType.Text),
         keyboardActions = KeyboardActions(
             onDone = {
                 // keyboardController?.hide()
                 // focusManager.clearFocus()
             }
+        ),
+        // Remove underline from textbox
+        colors = TextFieldDefaults.colors(
+            focusedIndicatorColor = Color.Transparent,
+            unfocusedIndicatorColor = Color.Transparent,
+            disabledIndicatorColor = Color.Transparent
         ),
     )
 }

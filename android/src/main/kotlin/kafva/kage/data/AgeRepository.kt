@@ -24,6 +24,14 @@ class AgeRepository @Inject constructor(private val appRepository: AppRepository
     private val _passphrase = MutableStateFlow<String?>(null)
     val passphrase: StateFlow<String?> = _passphrase
 
+    fun clearPlaintext() {
+        _plaintext.value = null
+    }
+
+    fun setPassphrase(value: String?) {
+        _passphrase.value = value
+    }
+
     fun unlockIdentity(passphrase: String): Boolean {
         val encryptedIdentityPath = File("${appRepository.localRepo.toPath()}/.age-identities")
         val encryptedIdentity = encryptedIdentityPath.readText(Charsets.UTF_8)
@@ -41,8 +49,11 @@ class AgeRepository @Inject constructor(private val appRepository: AppRepository
         }
     }
 
-    fun decrypt(nodePath: String): String? {
-        return Age.decrypt("${appRepository.filesDir.toPath()}/${nodePath}")
+    fun decrypt(nodePath: String) {
+        if (identityUnlockedAt.value == null) {
+            return
+        }
+        _plaintext.value = Age.decrypt("${appRepository.filesDir.toPath()}/${nodePath}")
     }
 }
 

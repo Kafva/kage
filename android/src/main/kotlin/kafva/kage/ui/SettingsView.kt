@@ -45,6 +45,7 @@ import androidx.compose.material3.ButtonDefaults
 import kafva.kage.data.AppRepository
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.MutableState
 import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -72,8 +73,9 @@ fun SettingsView(
             onValueChange = {
                 remoteAddress.value = it
             },
-
             singleLine = true,
+            shape = RoundedCornerShape(8.dp),
+            modifier = Modifier.padding(bottom = 10.dp),
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done, keyboardType = KeyboardType.Text),
             keyboardActions = KeyboardActions(
                 onDone = {
@@ -82,6 +84,11 @@ fun SettingsView(
                     focusManager.moveFocus(FocusDirection.Down)
                 }
             ),
+            // Remove underline from textbox
+            colors = TextFieldDefaults.colors(
+                unfocusedIndicatorColor = Color.Transparent,
+                disabledIndicatorColor = Color.Transparent
+            )
         )
 
         TextField(
@@ -92,6 +99,8 @@ fun SettingsView(
                 remoteRepoPath.value = it
             },
             singleLine = true,
+            shape = RoundedCornerShape(8.dp),
+            modifier = Modifier.padding(bottom = 10.dp),
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done, keyboardType = KeyboardType.Text),
             keyboardActions = KeyboardActions(
                 onDone = {
@@ -105,6 +114,11 @@ fun SettingsView(
                     // focusManager.clearFocus()
                 }
             ),
+            // Remove underline from textbox
+            colors = TextFieldDefaults.colors(
+                unfocusedIndicatorColor = Color.Transparent,
+                disabledIndicatorColor = Color.Transparent
+            )
         )
 
         Card(modifier = Modifier.fillMaxWidth(0.85f).padding(top = 15.dp)) {

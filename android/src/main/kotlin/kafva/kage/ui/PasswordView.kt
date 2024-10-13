@@ -47,19 +47,22 @@ import kafva.kage.types.PwNode
 import androidx.compose.ui.text.AnnotatedString
 import android.content.ClipData
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.font.FontStyle
 import androidx.navigation.compose.rememberNavController
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PasswordView(
     serialisedNodePath: String,
     viewModel: PasswordViewModel = hiltViewModel()
 ) {
-    val plaintext: MutableState<String?> = remember { mutableStateOf(null) }
-    val passphrase: MutableState<String?> = remember { mutableStateOf(null) }
     val clipboardManager = LocalClipboardManager.current
+    val plaintext = viewModel.ageRepository.plaintext.collectAsState()
+    val passphrase = viewModel.ageRepository.passphrase.collectAsState()
     val identityUnlockedAt = viewModel.ageRepository.identityUnlockedAt.collectAsState()
     val hidePlaintext: MutableState<Boolean> = remember { mutableStateOf(true) }
     val nodePath = PwNode.fromRoutePath(serialisedNodePath)
@@ -99,26 +102,32 @@ fun PasswordView(
                 value = passphrase.value ?: "",
                 label = { Text("Passphrase") },
                 singleLine = true,
+                shape = RoundedCornerShape(8.dp),
                 onValueChange = {
-                    passphrase.value = it
+                    viewModel.ageRepository.setPassphrase(it)
                 },
                 visualTransformation = PasswordVisualTransformation(Char(0x2A)),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done,
                                                   keyboardType = KeyboardType.Text),
                 keyboardActions = KeyboardActions(
                     onDone = {
-                        if (viewModel.ageRepository.unlockIdentity(passphrase.value ?: "")) {
-                            plaintext.value = viewModel.ageRepository.decrypt(nodePath)
-                        }
+                        viewModel.ageRepository.unlockIdentity(passphrase.value ?: "")
+                        // Clear passphrase after trying it
+                        viewModel.ageRepository.setPassphrase(null)
+                        viewModel.ageRepository.decrypt(nodePath)
                     }
                 ),
+                // Remove underline from textbox
+                colors = TextFieldDefaults.colors(
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent,
+                    disabledIndicatorColor = Color.Transparent
+                )
             )
         }
 
         LaunchedEffect(Unit) {
-            if (identityUnlockedAt.value != null) {
-                plaintext.value = viewModel.ageRepository.decrypt(nodePath)
-            }
+            viewModel.ageRepository.decrypt(nodePath)
         }
     }
 }
