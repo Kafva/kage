@@ -1,4 +1,4 @@
-package kafva.kage.ui.views
+package kafva.kage.ui
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -31,10 +31,10 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import kafva.kage.Log
 import kafva.kage.types.Screen
-import kafva.kage.ui.views.SettingsView
-import kafva.kage.ui.views.HistoryView
-import kafva.kage.ui.views.TreeView
-import kafva.kage.ui.views.ToolbarView
+import kafva.kage.ui.SettingsView
+import kafva.kage.ui.HistoryView
+import kafva.kage.ui.TreeView
+import kafva.kage.ui.ToolbarView
 import kafva.kage.models.AppViewModel
 import java.time.Instant
 

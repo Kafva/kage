@@ -1,4 +1,4 @@
-package kafva.kage.ui.views
+package kafva.kage.ui
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.text.KeyboardActions

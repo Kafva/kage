@@ -1,4 +1,4 @@
-package kafva.kage.ui.views
+package kafva.kage.ui
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -43,7 +43,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.navigation.NavHostController
 import kafva.kage.types.CommitInfo
-import kafva.kage.data.PwNode
+import kafva.kage.types.PwNode
 import androidx.compose.ui.text.AnnotatedString
 import android.content.ClipData
 import androidx.compose.foundation.clickable

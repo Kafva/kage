@@ -1,4 +1,4 @@
-package kafva.kage.ui.views
+package kafva.kage.ui
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.text.KeyboardActions
@@ -28,7 +28,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
-import kafva.kage.data.Settings
+import kafva.kage.types.Settings
 import kafva.kage.types.Screen
 import kafva.kage.Log
 import kafva.kage.models.SettingsViewModel

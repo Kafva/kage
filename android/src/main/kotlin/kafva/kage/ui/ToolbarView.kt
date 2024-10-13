@@ -1,4 +1,4 @@
-package kafva.kage.ui.views
+package kafva.kage.ui
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.PaddingValues

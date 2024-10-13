@@ -16,12 +16,8 @@ import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Singleton
 import kafva.kage.Log
+import kafva.kage.types.Settings
 
-
-data class Settings(
-    val remoteAddress: String,
-    val remoteRepoPath: String
-)
 
 /// https://github.com/Kotlin-Android-Open-Source/DataStore-sample
 @Singleton

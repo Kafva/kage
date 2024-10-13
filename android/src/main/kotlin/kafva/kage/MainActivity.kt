@@ -19,7 +19,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kafva.kage.ui.theme.KageTheme
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.LaunchedEffect
-import kafva.kage.ui.views.AppView
+import kafva.kage.ui.AppView
 
 import androidx.navigation.compose.NavHost
 import androidx.navigation.NavHostController

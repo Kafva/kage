@@ -17,7 +17,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import kafva.kage.Log
 import kotlinx.coroutines.flow.stateIn
-import kafva.kage.data.PwNode
+import kafva.kage.types.PwNode
 import kotlin.text.lowercase
 import kafva.kage.data.AppRepository
 import kafva.kage.data.AgeRepository

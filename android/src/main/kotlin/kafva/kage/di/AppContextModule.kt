@@ -13,7 +13,7 @@ import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 import java.io.File
 import javax.inject.Inject
-import kafva.kage.data.PwNode
+import kafva.kage.types.PwNode
 import kafva.kage.Log
 import kafva.kage.data.GitRepository
 import kafva.kage.data.AppRepository

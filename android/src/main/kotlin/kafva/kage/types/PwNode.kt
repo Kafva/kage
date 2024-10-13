@@ -1,4 +1,4 @@
-package kafva.kage.data
+package kafva.kage.types
 
 import java.io.File
 

@@ -21,6 +21,8 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kafva.kage.data.GitRepository
 import kafva.kage.data.AppRepository
+import kafva.kage.data.SettingsRepository
+import kafva.kage.types.Settings
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
 
