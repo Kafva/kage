@@ -1,4 +1,4 @@
-.PHONY: clean cleanup_libs all
+.PHONY: clean cleanup_libs android ios
 
 # Make sure we find `cargo'
 export PATH := $(HOME)/.cargo/bin:$(PATH)
@@ -10,24 +10,25 @@ CARGO_RUSTC_FLAGS += --release
 CARGO_RUSTC_FLAGS += --crate-type $(CARGO_CRATE_TYPE)
 CARGO_RUSTC_FLAGS += --target $(CARGO_TARGET)
 
-ifeq ($(TARGET),ios)
+ifeq ($(filter ios,$(MAKECMDGOALS)),ios)
 include .ios.mk
-else ifeq ($(TARGET),android)
+else ifeq ($(filter android,$(MAKECMDGOALS)),android)
 include .android.mk
 else
-$(error Please set TARGET to 'android' or 'ios')
+$(error Please build the `android' or `ios' target)
 endif
 
-all: $(DIST)/$(LIB)
+android: $(DIST)/$(LIB)
+ios: $(DIST)/$(LIB)
 
 # `-C' is an unstable option
-$(DIST)/$(LIB): cleanup_libs
+$(DIST)/$(LIB): cleanup_lib
 	cargo -Z unstable-options -C $(CURDIR) rustc $(CARGO_RUSTC_FLAGS)
 	mkdir -p $(dir $@)
 	install -m644 $(CURDIR)/target/$(CARGO_TARGET)/release/$(LIB) $@
 
-clean: cleanup_libs
+clean: cleanup_lib
 	cargo -Z unstable-options -C $(CURDIR) clean
 
-cleanup_libs:
-	rm -f $(DIST)/*.a $(DIST)/*.so $(DIST)/*.rlib
+cleanup_lib:
+	rm -f $(DIST)/$(LIB)

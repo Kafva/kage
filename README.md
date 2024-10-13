@@ -39,11 +39,10 @@ server to be running on localhost
 ```
 
 ### Android
-The build process has only been tested to work on macOS.
 To build for Android you need to download a NDK manually.
 
 1. Download the ndk: `sdkmanager 'ndk;$VERSION'`
-2. Set `export NDK_HOME=$HOME/Library/Android/Sdk/ndk/$VERSION`
+2. Set `export NDK_HOME=$HOME/Library/Android/Sdk/ndk/$VERSION` (macOS)
 3. Build the library and app
 
 ```bash

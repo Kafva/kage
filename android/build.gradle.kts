@@ -76,8 +76,7 @@ task<Exec>("rebuildCore") {
 
     // https://docs.gradle.org/current/userguide/build_lifecycle.html
     doFirst {
-        commandLine("make", "-C", "${project.rootDir}/../core")
-        environment("TARGET", "android")
+        commandLine("make", "-C", "${project.rootDir}/../core", "android")
         environment("ANDROID_TARGET_ARCH", targetArch)
     }
 }
