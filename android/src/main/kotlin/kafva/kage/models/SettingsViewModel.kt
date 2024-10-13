@@ -16,6 +16,7 @@ import kafva.kage.Log
 import dagger.hilt.android.qualifiers.ApplicationContext
 import android.content.Context
 import android.content.pm.PackageInfo
+import androidx.compose.runtime.MutableState
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
@@ -25,6 +26,7 @@ import kafva.kage.data.SettingsRepository
 import kafva.kage.types.Settings
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
+import kafva.kage.data.GitException
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
@@ -38,10 +40,18 @@ class SettingsViewModel @Inject constructor(
             settingsRepository.updateSettings(s)
         }
 
-    fun clone() {
+    @Throws(GitException::class)
+    fun clone(currentError: MutableState<String?>) {
         viewModelScope.launch {
             settingsRepository.flow.collect { s ->
-                gitRepository.clone("git://${s.remoteAddress}/${s.remoteRepoPath}")
+                try {
+                    gitRepository.clone("git://${s.remoteAddress}/${s.remoteRepoPath}")
+                    currentError.value = null
+                }
+                catch (e: GitException) {
+                    currentError.value = e.message
+                    Log.e(e.message ?: "Unknown error")
+                }
             }
         }
     }

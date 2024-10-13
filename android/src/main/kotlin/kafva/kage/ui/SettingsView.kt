@@ -44,9 +44,11 @@ import androidx.navigation.NavHostController
 import android.content.pm.PackageInfo
 import androidx.compose.material3.ButtonDefaults
 import kafva.kage.data.AppRepository
+import kafva.kage.data.GitException
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.clickable
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.runtime.MutableState
@@ -63,6 +65,8 @@ fun SettingsView(
     val openAlertDialog = remember { mutableStateOf(false) }
     val remoteAddress = remember { mutableStateOf("") }
     val remoteRepoPath = remember { mutableStateOf("") }
+    val currentError: MutableState<String?> = remember { mutableStateOf(null) }
+    val passwordCount = viewModel.gitRepository.count.collectAsState()
 
     Column(modifier = G.containerModifier,
            verticalArrangement = Arrangement.Center,
@@ -80,7 +84,7 @@ fun SettingsView(
         )
 
         TextFieldView(
-            text = remoteAddress,
+            text = remoteRepoPath,
             leadingIcon =  { Icon(Icons.Filled.Person, "Repository") },
             label =  { Text("Repository") },
             onDone = {
@@ -90,7 +94,7 @@ fun SettingsView(
             }
         )
 
-        Card(modifier = Modifier.fillMaxWidth(0.85f).padding(top = 15.dp)) {
+        Card(modifier = G.containerModifier) {
             TextButton(
                 onClick = {
                     openAlertDialog.value = true
@@ -113,18 +117,33 @@ fun SettingsView(
                 }
             }
 
-            Text("Storage: ${viewModel.gitRepository.count()} password(s)",
-                 modifier = Modifier.padding(top = 4.dp, bottom = 10.dp, start = 35.dp),
+            Text("Storage: ${passwordCount.value} password(s)",
+                 modifier = Modifier.padding(top = 8.dp, start = 35.dp),
                  fontSize = 12.sp,
+                 maxLines = 1,
                  color = Color.Gray)
 
             Text("Version: ${viewModel.appRepository.versionName}",
-                 modifier = Modifier.padding(top = 4.dp, bottom = 10.dp, start = 35.dp),
+                 modifier = Modifier.padding(start = 35.dp, bottom = 10.dp),
                  fontSize = 12.sp,
+                 maxLines = 1,
                  color = Color.Gray)
         }
 
-        AlertView(openAlertDialog)
+        if (currentError.value != null) {
+            Text("Error: ${currentError.value}",
+                 color = MaterialTheme.colorScheme.error,
+                 fontSize = 14.sp,
+                 modifier = Modifier.padding(start = 35.dp,
+                                             top = 10.dp,
+                                             end = 20.dp)
+                                    .clickable(true) {
+                     currentError.value = null
+                 }
+             )
+        }
+
+        AlertView(openAlertDialog, currentError)
 
         LaunchedEffect(Unit) {
             // Fill the text fields with the current configuration from the
@@ -133,6 +152,7 @@ fun SettingsView(
                 remoteAddress.value = s.remoteAddress
                 remoteRepoPath.value = s.remoteRepoPath
             }
+            currentError.value = null
         }
     }
 }
@@ -140,9 +160,9 @@ fun SettingsView(
 @Composable
 private fun AlertView(
     openAlertDialog: MutableState<Boolean>,
+    currentError: MutableState<String?>,
     viewModel: SettingsViewModel = hiltViewModel(),
 ) {
-
     if (openAlertDialog.value) {
         AlertDialog(
             icon = {
@@ -161,7 +181,7 @@ private fun AlertView(
             confirmButton = {
                 TextButton(
                     onClick = {
-                        viewModel.clone()
+                        viewModel.clone(currentError)
                         openAlertDialog.value = false
                     }
                 ) {

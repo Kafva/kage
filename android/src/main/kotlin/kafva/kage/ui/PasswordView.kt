@@ -54,6 +54,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.font.FontStyle
 import androidx.navigation.compose.rememberNavController
 import kafva.kage.G
+import kafva.kage.data.AgeException
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -67,6 +68,7 @@ fun PasswordView(
     val identityUnlockedAt = viewModel.ageRepository.identityUnlockedAt.collectAsState()
     val hidePlaintext: MutableState<Boolean> = remember { mutableStateOf(true) }
     val nodePath = PwNode.fromRoutePath(serialisedNodePath)
+    val currentError: MutableState<String?> = remember { mutableStateOf(null) }
 
     Column(
         modifier = G.containerModifier,
@@ -98,7 +100,10 @@ fun PasswordView(
             }
         }
         else {
-            Text("Authentication required", fontSize = 20.sp, modifier = Modifier.padding(bottom = 12.dp))
+            Text("Authentication required",
+                 fontSize = 20.sp,
+                 modifier = Modifier.padding(bottom = 12.dp)
+            )
             TextField(
                 value = passphrase.value ?: "",
                 label = { Text("Passphrase") },
@@ -112,10 +117,17 @@ fun PasswordView(
                                                   keyboardType = KeyboardType.Text),
                 keyboardActions = KeyboardActions(
                     onDone = {
-                        viewModel.ageRepository.unlockIdentity(passphrase.value ?: "")
-                        // Clear passphrase after trying it
-                        viewModel.ageRepository.setPassphrase(null)
-                        viewModel.ageRepository.decrypt(nodePath)
+                        try {
+                            viewModel.ageRepository.unlockIdentity(passphrase.value ?: "")
+                            // Clear passphrase after trying it
+                            viewModel.ageRepository.setPassphrase(null)
+                            viewModel.ageRepository.decrypt(nodePath)
+                            currentError.value = null
+
+                        } catch (e: AgeException) {
+                            currentError.value = e.message
+                            Log.e(e.message ?: "Unknown error")
+                        }
                     }
                 ),
                 // Remove underline from textbox
@@ -127,10 +139,25 @@ fun PasswordView(
             )
         }
 
+        if (currentError.value != null) {
+            Text("Error: ${currentError.value}",
+                 color = MaterialTheme.colorScheme.error,
+                 fontSize = 14.sp,
+                 modifier = Modifier.padding(top = 10.dp).clickable(true) {
+                     currentError.value = null
+                 },
+             )
+        }
+
         LaunchedEffect(Unit) {
-            // Automatically decrypt when the view appears if the identity is
-            // already unlocked
-            viewModel.ageRepository.decrypt(nodePath)
+            try {
+                // Automatically decrypt when the view appears if the identity is
+                // already unlocked
+                viewModel.ageRepository.decrypt(nodePath)
+            } catch (e: AgeException) {
+                Log.e(e.message ?: "Unknown error")
+            }
+            currentError.value = null
         }
     }
 }

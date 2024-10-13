@@ -1,21 +1,22 @@
 package kafva.kage.ui
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material3.Button
+import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -25,24 +26,17 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import kafva.kage.Log
-import kafva.kage.types.Screen
-import kafva.kage.types.PwNode
-import kafva.kage.models.TreeViewModel
-import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
-import android.content.Context
-import androidx.compose.ui.platform.LocalContext
 import kafva.kage.G
+import kafva.kage.models.TreeViewModel
+import kafva.kage.types.PwNode
 
 @Composable
 fun TreeView(
     navigateToPassword: (node: PwNode) -> Unit,
     viewModel: TreeViewModel = hiltViewModel()
 ) {
-    val searchMatches by viewModel.gitRepository.searchMatches.collectAsStateWithLifecycle()
+    val searchMatches by viewModel.gitRepository.searchMatches.collectAsState()
     val expandRecursively by viewModel.runtimeSettingsRepository
                                       .expandRecursively.collectAsStateWithLifecycle()
 
@@ -69,12 +63,12 @@ private fun TreeChildView(
     val desc: String
 
     if (isPassword) {
-        icon = Icons.Filled.Person
+        icon = Icons.Outlined.Lock
         desc = "Password"
     }
     else {
         icon = if (expanded) Icons.Filled.KeyboardArrowDown else
-                             Icons.Filled.KeyboardArrowRight
+                             Icons.AutoMirrored.Filled.KeyboardArrowRight
         desc = "Folder"
     }
 

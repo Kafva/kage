@@ -4,7 +4,6 @@ use jni::JNIEnv;
 
 use crate::git::git_clone;
 use crate::git::git_log;
-use crate::git::git_pull;
 use crate::git::git_setup;
 use crate::git::git_try_lock;
 use crate::git_call;
@@ -38,26 +37,6 @@ pub extern "system" fn Java_kafva_kage_jni_Git_clone<'local>(
     };
 
     git_call!(git_clone(url, into), git_last_error) as jint
-}
-
-#[no_mangle]
-pub extern "system" fn Java_kafva_kage_jni_Git_pull<'local>(
-    mut env: JNIEnv<'local>,
-    _class: JClass<'local>,
-    repo_path: JString<'local>,
-) -> jint {
-    let Some(mut git_last_error) = git_try_lock() else {
-        return KAGE_ERROR_LOCK_TAKEN as jint;
-    };
-
-    let Ok(repo_path) = env.get_string(&repo_path) else {
-        return -1 as jint;
-    };
-    let Ok(repo_path) = repo_path.to_str() else {
-        return -1 as jint;
-    };
-
-    git_call!(git_pull(repo_path), git_last_error) as jint
 }
 
 #[no_mangle]

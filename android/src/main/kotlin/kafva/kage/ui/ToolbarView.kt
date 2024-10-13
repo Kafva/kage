@@ -57,6 +57,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kafva.kage.Log
 import kafva.kage.models.ToolbarViewModel
 import android.os.Build;
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -92,14 +94,14 @@ fun ToolbarView(
                             modifier = Modifier.padding(start = 5.dp, end = 15.dp)) {
                             val treeExpansionIcon = if (expandRecursively)
                                             Icons.Filled.KeyboardArrowDown
-                                       else Icons.Filled.KeyboardArrowRight
+                                       else Icons.AutoMirrored.Filled.KeyboardArrowRight
                             Icon(treeExpansionIcon, "Toggle tree expansion")
                         }
 
                     }
                     else -> {
                         IconButton(onClick = navigateBack) {
-                            Icon(Icons.Filled.KeyboardArrowLeft, "Go home")
+                            Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, "Go home")
                         }
 
                         if (!currentRoute.contains("/")) {
@@ -118,7 +120,7 @@ fun ToolbarView(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun SearchField(viewModel: ToolbarViewModel = hiltViewModel()) {
-    val query = viewModel.gitRepository.query.collectAsStateWithLifecycle()
+    val query = viewModel.gitRepository.query.collectAsState()
 
     TextField(
         value = query.value,

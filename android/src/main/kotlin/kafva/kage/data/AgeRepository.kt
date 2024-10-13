@@ -1,7 +1,7 @@
 package kafva.kage.data
 
 import java.io.File
-import kafva.kage.jni.Age
+import kafva.kage.jni.Age as Jni
 import kafva.kage.Log
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -10,6 +10,8 @@ import java.time.Instant
 import java.util.Date
 import javax.inject.Singleton
 import javax.inject.Inject
+
+class AgeException(message: String): Exception(message)
 
 @Singleton
 class AgeRepository @Inject constructor(private val appRepository: AppRepository) {
@@ -32,28 +34,49 @@ class AgeRepository @Inject constructor(private val appRepository: AppRepository
         _passphrase.value = value
     }
 
-    fun unlockIdentity(passphrase: String): Boolean {
+    @Throws(AgeException::class)
+    fun unlockIdentity(passphrase: String) {
         val encryptedIdentityPath = File("${appRepository.localRepo.toPath()}/.age-identities")
         val encryptedIdentity = encryptedIdentityPath.readText(Charsets.UTF_8)
-        val r = Age.unlockIdentity(encryptedIdentity, passphrase)
-        if (r == 0) {
+        val r = Jni.unlockIdentity(encryptedIdentity, passphrase)
+        if (r != 0) {
+            raiseError()
+        }
+        else {
             _identityUnlockedAt.value = Instant.now().epochSecond
         }
-        return _identityUnlockedAt.value != null
     }
 
     fun lockIdentity() {
-        val r = Age.lockIdentity()
+        val r = Jni.lockIdentity()
         if (r == 0) {
             _identityUnlockedAt.value = null
         }
     }
 
+    @Throws(AgeException::class)
     fun decrypt(nodePath: String) {
         if (identityUnlockedAt.value == null) {
             return
         }
-        _plaintext.value = Age.decrypt("${appRepository.filesDir.toPath()}/${nodePath}")
+        val value = Jni.decrypt("${appRepository.filesDir.toPath()}/${nodePath}")
+        if (value == null) {
+            raiseError()
+        }
+        else {
+            _plaintext.value = value
+        }
+    }
+
+    @Throws(AgeException::class)
+    private fun raiseError() {
+        val message = Jni.strerror()
+        if (message != null) {
+            throw AgeException(message)
+        }
+        else {
+            throw AgeException("Unknown error")
+        }
     }
 }
 

@@ -20,6 +20,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kafva.kage.types.CommitInfo
 
+class GitException(message: String): Exception(message)
+
 @Singleton
 class GitRepository @Inject constructor(private val appRepository: AppRepository) {
     val repoStr = appRepository.localRepo.toPath().toString()
@@ -33,11 +35,15 @@ class GitRepository @Inject constructor(private val appRepository: AppRepository
     private val _rootNode = MutableStateFlow<PwNode?>(null)
     val rootNode: StateFlow<PwNode?> = _rootNode
 
+    private val _count = MutableStateFlow<Int>(0)
+    val count: StateFlow<Int> = _count
+
     /// Load password tree recursively
     fun setup() {
         _rootNode.value = PwNode(appRepository.localRepo, listOf())
         // Populate the search result with all nodes
         _searchMatches.value = rootNode.value?.findChildren(_query.value) ?: listOf()
+        _count.value = _rootNode.value?.count() ?: 0
     }
 
     fun updateMatches(text: String) {
@@ -47,27 +53,35 @@ class GitRepository @Inject constructor(private val appRepository: AppRepository
     }
 
     /// Reclone from URL
-    fun clone(url: String): String? {
+    @Throws(GitException::class)
+    fun clone(url: String) {
         Log.v("Recloning into ${appRepository.localRepo}...")
         appRepository.localRepo.deleteRecursively()
 
         val r = Jni.clone(url, repoStr)
-        Log.v("Clone done: $r")
-        if (r != 0) return Jni.strerror() ?: "Unknown error" else return null
-    }
-
-    fun pull(): String? {
-        val r = Jni.pull(repoStr)
-        Log.v("Pull done: $r")
-        if (r != 0) return Jni.strerror() ?: "Unknown error" else return null
+        if (r != 0) {
+            raiseError()
+        }
+        else {
+            Log.d("Clone ok")
+            _count.value = _rootNode.value?.count() ?: 0
+        }
     }
 
     fun log(): List<CommitInfo> {
         return Jni.log(repoStr).map { logStr -> CommitInfo(logStr) }
     }
 
-    fun count(): Int {
-        return _rootNode.value?.count() ?: 0
+
+    @Throws(GitException::class)
+    private fun raiseError() {
+        val message = Jni.strerror()
+        if (message != null) {
+            throw GitException(message)
+        }
+        else {
+            throw GitException("Unknown error")
+        }
     }
 
 }
