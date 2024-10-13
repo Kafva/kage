@@ -60,7 +60,7 @@ fun PasswordView(
     val plaintext: MutableState<String?> = remember { mutableStateOf(null) }
     val passphrase: MutableState<String?> = remember { mutableStateOf(null) }
     val clipboardManager = LocalClipboardManager.current
-    val identityUnlockedAt = viewModel.appRepository.identityUnlockedAt.collectAsState()
+    val identityUnlockedAt = viewModel.ageRepository.identityUnlockedAt.collectAsState()
     val hidePlaintext: MutableState<Boolean> = remember { mutableStateOf(true) }
     val nodePath = PwNode.fromRoutePath(serialisedNodePath)
 
@@ -107,8 +107,8 @@ fun PasswordView(
                                                   keyboardType = KeyboardType.Text),
                 keyboardActions = KeyboardActions(
                     onDone = {
-                        if (viewModel.appRepository.unlockIdentity(passphrase.value ?: "")) {
-                            plaintext.value = viewModel.appRepository.decrypt(nodePath)
+                        if (viewModel.ageRepository.unlockIdentity(passphrase.value ?: "")) {
+                            plaintext.value = viewModel.ageRepository.decrypt(nodePath)
                         }
                     }
                 ),
@@ -117,7 +117,7 @@ fun PasswordView(
 
         LaunchedEffect(Unit) {
             if (identityUnlockedAt.value != null) {
-                plaintext.value = viewModel.appRepository.decrypt(nodePath)
+                plaintext.value = viewModel.ageRepository.decrypt(nodePath)
             }
         }
     }

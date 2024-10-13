@@ -18,7 +18,7 @@ import android.content.Context
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
-import kafva.kage.data.AppRepository
+import kafva.kage.data.AgeRepository
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
 import androidx.lifecycle.Lifecycle
@@ -27,7 +27,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 
 @HiltViewModel
 class PasswordViewModel @Inject constructor(
-    val appRepository: AppRepository
+    val ageRepository: AgeRepository
 ) : ViewModel() {
 
     // fun onStateChange(lifecycleState: Lifecycle.State) {

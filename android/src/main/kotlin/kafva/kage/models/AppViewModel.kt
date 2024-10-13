@@ -20,6 +20,7 @@ import kotlinx.coroutines.flow.stateIn
 import kafva.kage.data.PwNode
 import kotlin.text.lowercase
 import kafva.kage.data.AppRepository
+import kafva.kage.data.AgeRepository
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -27,17 +28,18 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 @HiltViewModel
 class AppViewModel @Inject constructor(
     val appRepository: AppRepository,
+    val ageRepository: AgeRepository,
 ) : ViewModel() {
 
     fun onStateChange(lifecycleState: Lifecycle.State) {
         Log.d("State change: $lifecycleState")
 
-        if (appRepository.identityUnlockedAt.value == null) {
+        if (ageRepository.identityUnlockedAt.value == null) {
             return
         }
-        val distance = Instant.now().epochSecond - (appRepository.identityUnlockedAt.value ?: 0)
-        if (distance >= appRepository.autoLockSeconds) {
-            appRepository.lockIdentity()
+        val distance = Instant.now().epochSecond - (ageRepository.identityUnlockedAt.value ?: 0)
+        if (distance >= ageRepository.autoLockSeconds) {
+            ageRepository.lockIdentity()
             Log.d("Locked identity due to timeout [alive for $distance sec]")
         }
     }
