@@ -42,12 +42,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.sp
 import kafva.kage.types.CommitInfo
+import kafva.kage.G
 
 @Composable
 fun HistoryView(
     viewModel: HistoryViewModel = hiltViewModel()
 ) {
-    LazyColumn(modifier = Modifier.fillMaxWidth(0.75f).padding(top = 20.dp)) {
+    LazyColumn(modifier = G.containerModifier) {
         viewModel.gitRepository.log().forEach { log ->
             item {
                 ListItem(

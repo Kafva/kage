@@ -29,15 +29,4 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 class PasswordViewModel @Inject constructor(
     val ageRepository: AgeRepository
 ) : ViewModel() {
-
-    // fun onStateChange(lifecycleState: Lifecycle.State) {
-    //     Log.d("State change: $lifecycleState")
-    //     if (appRepository.identityUnlockedAt.value == null) {
-    //         plaintext.value = null
-    //     }
-    //     else {
-    //         plaintext.value = viewModel.appRepository.decrypt(nodePath)
-    //     }
-    // }
-
 }

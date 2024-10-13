@@ -65,4 +65,9 @@ class GitRepository @Inject constructor(private val appRepository: AppRepository
     fun log(): List<CommitInfo> {
         return Jni.log(repoStr).map { logStr -> CommitInfo(logStr) }
     }
+
+    fun count(): Int {
+        return _rootNode.value?.count() ?: 0
+    }
+
 }

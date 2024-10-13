@@ -56,6 +56,7 @@ import androidx.navigation.NavHostController
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kafva.kage.Log
 import kafva.kage.models.ToolbarViewModel
+import android.os.Build;
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -106,8 +107,6 @@ fun ToolbarView(
                         }
                     }
                 }
-
-
             }
         },
 
@@ -119,8 +118,6 @@ fun ToolbarView(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun SearchField(viewModel: ToolbarViewModel = hiltViewModel()) {
-    //val keyboardController = LocalSoftwareKeyboardController.current
-    //val focusManager = LocalFocusManager.current
     val query = viewModel.gitRepository.query.collectAsStateWithLifecycle()
 
     TextField(
@@ -132,12 +129,6 @@ private fun SearchField(viewModel: ToolbarViewModel = hiltViewModel()) {
         singleLine = true,
         shape = RoundedCornerShape(8.dp),
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done, keyboardType = KeyboardType.Text),
-        keyboardActions = KeyboardActions(
-            onDone = {
-                // keyboardController?.hide()
-                // focusManager.clearFocus()
-            }
-        ),
         // Remove underline from textbox
         colors = TextFieldDefaults.colors(
             focusedIndicatorColor = Color.Transparent,

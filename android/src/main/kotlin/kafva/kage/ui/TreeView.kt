@@ -35,6 +35,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import android.content.Context
 import androidx.compose.ui.platform.LocalContext
+import kafva.kage.G
 
 @Composable
 fun TreeView(
@@ -45,7 +46,7 @@ fun TreeView(
     val expandRecursively by viewModel.runtimeSettingsRepository
                                       .expandRecursively.collectAsStateWithLifecycle()
 
-    LazyColumn(modifier = Modifier.fillMaxWidth(0.85f).padding(top = 20.dp)) {
+    LazyColumn(modifier = G.containerModifier) {
         searchMatches.forEach { child ->
             item {
                 TreeChildView(child, expandRecursively, navigateToPassword)

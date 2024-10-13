@@ -28,7 +28,7 @@ import kotlinx.coroutines.flow.stateIn
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
-    private val gitRepository: GitRepository,
+    val gitRepository: GitRepository,
     val settingsRepository: SettingsRepository,
     val appRepository: AppRepository,
 ) : ViewModel() {

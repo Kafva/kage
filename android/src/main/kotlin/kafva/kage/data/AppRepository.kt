@@ -9,12 +9,12 @@ import dagger.hilt.components.SingletonComponent
 import java.time.Instant
 import java.util.Date
 import javax.inject.Singleton
+import kafva.kage.G
 
 @Singleton
 class AppRepository constructor(
     val versionName: String,
     val filesDir: File,
 ) {
-    val localRepoName = "git-adc83b19e"
-    val localRepo: File = File("${filesDir}/${localRepoName}")
+    val localRepo: File = File("${filesDir}/${G.LOCAL_REPO_NAME}")
 }

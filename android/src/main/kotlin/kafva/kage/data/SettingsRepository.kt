@@ -16,6 +16,7 @@ import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Singleton
 import kafva.kage.Log
+import kafva.kage.G
 import kafva.kage.types.Settings
 
 
@@ -29,11 +30,12 @@ class SettingsRepository @Inject constructor(
         val remoteRepoPath = stringPreferencesKey("remoteRepoPath")
     }
 
+    // https://developer.android.com/studio/run/emulator-networking
     private inline val Preferences.remoteAddress
-        get() = this[Keys.remoteAddress] ?: ""
+        get() = this[Keys.remoteAddress] ?: (if (G.isEmulator) "10.0.2.2" else  "")
 
     private inline val Preferences.remoteRepoPath
-        get() = this[Keys.remoteRepoPath] ?: ""
+        get() = this[Keys.remoteRepoPath] ?: (if (G.isEmulator) "james.git" else  "")
 
 
     suspend fun updateSettings(s: Settings) {

@@ -53,6 +53,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.font.FontStyle
 import androidx.navigation.compose.rememberNavController
+import kafva.kage.G
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -68,7 +69,7 @@ fun PasswordView(
     val nodePath = PwNode.fromRoutePath(serialisedNodePath)
 
     Column(
-        modifier = Modifier.padding(top = 10.dp),
+        modifier = G.containerModifier,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         if (identityUnlockedAt.value != null) {
@@ -127,6 +128,8 @@ fun PasswordView(
         }
 
         LaunchedEffect(Unit) {
+            // Automatically decrypt when the view appears if the identity is
+            // already unlocked
             viewModel.ageRepository.decrypt(nodePath)
         }
     }

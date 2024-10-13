@@ -3,6 +3,7 @@ package kafva.kage.ui
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.KeyboardActionScope
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Warning
@@ -46,9 +47,12 @@ import kafva.kage.data.AppRepository
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.runtime.MutableState
 import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.flow.MutableStateFlow
+import kafva.kage.G
 
 @Composable
 fun SettingsView(
@@ -56,69 +60,34 @@ fun SettingsView(
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
     val focusManager = LocalFocusManager.current
-    val keyboardController = LocalSoftwareKeyboardController.current
     val openAlertDialog = remember { mutableStateOf(false) }
-
     val remoteAddress = remember { mutableStateOf("") }
     val remoteRepoPath = remember { mutableStateOf("") }
 
-    Column(modifier = Modifier.fillMaxWidth(0.85f).padding(top = 20.dp),
+    Column(modifier = G.containerModifier,
            verticalArrangement = Arrangement.Center,
            horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        TextField(
-            value = remoteAddress.value,
-            leadingIcon = { Icon(Icons.Filled.Home, "Remote address") },
-            label = { Text("Remote address") },
-            onValueChange = {
-                remoteAddress.value = it
-            },
-            singleLine = true,
-            shape = RoundedCornerShape(8.dp),
-            modifier = Modifier.padding(bottom = 10.dp),
-            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done, keyboardType = KeyboardType.Text),
-            keyboardActions = KeyboardActions(
-                onDone = {
-                    val newSettings = Settings(remoteAddress.value, remoteRepoPath.value)
-                    viewModel.updateSettings(newSettings)
-                    focusManager.moveFocus(FocusDirection.Down)
-                }
-            ),
-            // Remove underline from textbox
-            colors = TextFieldDefaults.colors(
-                unfocusedIndicatorColor = Color.Transparent,
-                disabledIndicatorColor = Color.Transparent
-            )
+        TextFieldView(
+            text = remoteAddress,
+            leadingIcon =  { Icon(Icons.Filled.Home, "Remote address") },
+            label =  { Text("Remote address") },
+            onDone = {
+                val newSettings = Settings(remoteAddress.value, remoteRepoPath.value)
+                viewModel.updateSettings(newSettings)
+                focusManager.moveFocus(FocusDirection.Down)
+            }
         )
 
-        TextField(
-            value = remoteRepoPath.value,
-            leadingIcon = { Icon(Icons.Filled.Person, "Repository") },
-            label = { Text("Repository") },
-            onValueChange = {
-                remoteRepoPath.value = it
-            },
-            singleLine = true,
-            shape = RoundedCornerShape(8.dp),
-            modifier = Modifier.padding(bottom = 10.dp),
-            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done, keyboardType = KeyboardType.Text),
-            keyboardActions = KeyboardActions(
-                onDone = {
-                    // https://developer.android.com/studio/run/emulator-networking
-                    // git://10.0.2.2:9418/james.git
-                    val newSettings = Settings(remoteAddress.value, remoteRepoPath.value)
-                    viewModel.updateSettings(newSettings)
-                    focusManager.moveFocus(FocusDirection.Down)
-                    // focusManager.clearFocus()
-                    // keyboardController?.hide()
-                    // focusManager.clearFocus()
-                }
-            ),
-            // Remove underline from textbox
-            colors = TextFieldDefaults.colors(
-                unfocusedIndicatorColor = Color.Transparent,
-                disabledIndicatorColor = Color.Transparent
-            )
+        TextFieldView(
+            text = remoteAddress,
+            leadingIcon =  { Icon(Icons.Filled.Person, "Repository") },
+            label =  { Text("Repository") },
+            onDone = {
+                val newSettings = Settings(remoteAddress.value, remoteRepoPath.value)
+                viewModel.updateSettings(newSettings)
+                focusManager.moveFocus(FocusDirection.Down)
+            }
         )
 
         Card(modifier = Modifier.fillMaxWidth(0.85f).padding(top = 15.dp)) {
@@ -128,18 +97,29 @@ fun SettingsView(
                 },
                 modifier = Modifier.padding(top = 4.dp, start = 20.dp)
             ) {
-                Text("Reset password repository")
+                Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Icon(Icons.Filled.Refresh, "Reset")
+                    Text("Reset password repository")
+                }
             }
 
             TextButton(
                 onClick = navigateToHistory,
                 modifier = Modifier.padding(top = 4.dp, start = 20.dp)
             ) {
-                Text("History")
+                Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Icon(Icons.Filled.DateRange, "History")
+                    Text("History")
+                }
             }
 
+            Text("Storage: ${viewModel.gitRepository.count()} password(s)",
+                 modifier = Modifier.padding(top = 4.dp, bottom = 10.dp, start = 35.dp),
+                 fontSize = 12.sp,
+                 color = Color.Gray)
+
             Text("Version: ${viewModel.appRepository.versionName}",
-                 modifier = Modifier.padding(top = 4.dp, bottom = 10.dp, start = 30.dp),
+                 modifier = Modifier.padding(top = 4.dp, bottom = 10.dp, start = 35.dp),
                  fontSize = 12.sp,
                  color = Color.Gray)
         }
@@ -147,7 +127,7 @@ fun SettingsView(
         AlertView(openAlertDialog)
 
         LaunchedEffect(Unit) {
-            // Fill the textfields with the current configuration from the
+            // Fill the text fields with the current configuration from the
             // datastore when the view appears.
             viewModel.settingsRepository.flow.collect { s ->
                 remoteAddress.value = s.remoteAddress
@@ -173,7 +153,7 @@ private fun AlertView(
                 Text(text = "Are you sure?")
             },
             text = {
-                Text("This operation will delete the local checkout")
+                Text("This operation will delete the local checkout.")
             },
             onDismissRequest = {
                 openAlertDialog.value = false
@@ -199,6 +179,31 @@ private fun AlertView(
             },
         )
     }
+}
 
-
+@Composable
+private fun TextFieldView(
+    text: MutableState<String>,
+    label: @Composable () -> Unit,
+    leadingIcon: @Composable () -> Unit,
+    onDone: (KeyboardActionScope.() -> Unit)?
+) {
+    TextField(
+        value = text.value,
+        leadingIcon = leadingIcon,
+        label = label,
+        onValueChange = {
+            text.value = it
+        },
+        singleLine = true,
+        shape = RoundedCornerShape(8.dp),
+        modifier = Modifier.padding(bottom = 10.dp),
+        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done, keyboardType = KeyboardType.Text),
+        keyboardActions = KeyboardActions(onDone = onDone),
+        // Remove underline from textbox
+        colors = TextFieldDefaults.colors(
+            unfocusedIndicatorColor = Color.Transparent,
+            disabledIndicatorColor = Color.Transparent
+        )
+    )
 }

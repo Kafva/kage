@@ -1,6 +1,7 @@
 package kafva.kage.types
 
 import java.io.File
+import kotlin.collections.sum
 
 data class PwNode(
     private val path: File,
@@ -35,6 +36,7 @@ data class PwNode(
         }
     }
 
+    val isPassword = path.getName().endsWith(".age")
     val name = path.getName().removeSuffix(".age")
     val pathString = path.toPath().toString()
 
@@ -75,5 +77,11 @@ data class PwNode(
         }
 
         return matches.toList()
+    }
+
+    /// Recursive count of children
+    fun count(): Int {
+        val childCount = children.filter { it.isPassword }.count()
+        return childCount + children.map { it.count() }.sum()
     }
 }
