@@ -3,6 +3,7 @@ package kafva.kage.data
 import java.io.File
 import kafva.kage.jni.Age as Jni
 import kafva.kage.Log
+import kafva.kage.G
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import dagger.hilt.components.SingletonComponent
@@ -10,12 +11,12 @@ import java.time.Instant
 import java.util.Date
 import javax.inject.Singleton
 import javax.inject.Inject
+import androidx.lifecycle.Lifecycle
 
 class AgeException(message: String): Exception(message)
 
 @Singleton
 class AgeRepository @Inject constructor(private val appRepository: AppRepository) {
-    val autoLockSeconds: Long = 120
 
     private val _identityUnlockedAt = MutableStateFlow<Long?>(null)
     val identityUnlockedAt: StateFlow<Long?> = _identityUnlockedAt
@@ -46,6 +47,23 @@ class AgeRepository @Inject constructor(private val appRepository: AppRepository
             _identityUnlockedAt.value = Instant.now().epochSecond
         }
     }
+
+    fun onStateChange(lifecycleState: Lifecycle.State) {
+        Log.d("State change: $lifecycleState")
+
+        if (identityUnlockedAt.value == null) {
+            return
+        }
+        val distance = Instant.now().epochSecond - (identityUnlockedAt.value ?: 0)
+        if (distance >= G.AUTO_LOCK_SECONDS) {
+            lockIdentity()
+            // Clear any decrypted plaintext from memory, the passphrase has
+            // already been cleared.
+            clearPlaintext()
+            Log.d("Locked identity due to timeout [alive for $distance sec]")
+        }
+    }
+
 
     fun lockIdentity() {
         val r = Jni.lockIdentity()

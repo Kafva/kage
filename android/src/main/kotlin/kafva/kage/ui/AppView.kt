@@ -88,6 +88,6 @@ fun AppView(
     }
 
     LaunchedEffect(lifecycleState) {
-        viewModel.onStateChange(lifecycleState)
+        viewModel.ageRepository.onStateChange(lifecycleState)
     }
 }

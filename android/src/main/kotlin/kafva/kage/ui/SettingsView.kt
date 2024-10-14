@@ -52,21 +52,36 @@ import androidx.compose.foundation.clickable
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
 import kafva.kage.G
+import kafva.kage.R
 
 @Composable
 fun SettingsView(
     navigateToHistory: () -> Unit,
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
+    val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
     val focusManager = LocalFocusManager.current
     val openAlertDialog = remember { mutableStateOf(false) }
     val remoteAddress = remember { mutableStateOf("") }
     val remoteRepoPath = remember { mutableStateOf("") }
     val currentError: MutableState<String?> = remember { mutableStateOf(null) }
-    val passwordCount = viewModel.gitRepository.count.collectAsState()
+    val passwordCount = viewModel.gitRepository.passwordCount.collectAsState()
+
+    val onDone: (KeyboardActionScope) -> Unit = {
+        coroutineScope.launch {
+            val newSettings = Settings(remoteAddress.value, remoteRepoPath.value)
+            viewModel.settingsRepository.updateSettings(newSettings)
+            focusManager.moveFocus(FocusDirection.Down)
+        }
+    }
 
     Column(modifier = G.containerModifier,
            verticalArrangement = Arrangement.Center,
@@ -74,24 +89,16 @@ fun SettingsView(
     ) {
         TextFieldView(
             text = remoteAddress,
-            leadingIcon =  { Icon(Icons.Filled.Home, "Remote address") },
-            label =  { Text("Remote address") },
-            onDone = {
-                val newSettings = Settings(remoteAddress.value, remoteRepoPath.value)
-                viewModel.updateSettings(newSettings)
-                focusManager.moveFocus(FocusDirection.Down)
-            }
+            leadingIcon =  { Icon(Icons.Filled.Home, stringResource(R.string.remote_address)) },
+            label =  { Text(stringResource(R.string.remote_address)) },
+            onDone = onDone
         )
 
         TextFieldView(
             text = remoteRepoPath,
-            leadingIcon =  { Icon(Icons.Filled.Person, "Repository") },
-            label =  { Text("Repository") },
-            onDone = {
-                val newSettings = Settings(remoteAddress.value, remoteRepoPath.value)
-                viewModel.updateSettings(newSettings)
-                focusManager.moveFocus(FocusDirection.Down)
-            }
+            leadingIcon =  { Icon(Icons.Filled.Person, stringResource(R.string.repository)) },
+            label =  { Text(stringResource(R.string.repository)) },
+            onDone = onDone
         )
 
         Card(modifier = G.containerModifier) {
@@ -102,8 +109,8 @@ fun SettingsView(
                 modifier = Modifier.padding(top = 4.dp, start = 20.dp)
             ) {
                 Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Icon(Icons.Filled.Refresh, "Reset")
-                    Text("Reset password repository")
+                    Icon(Icons.Filled.Refresh, stringResource(R.string.reset_repository))
+                    Text(stringResource(R.string.reset_repository))
                 }
             }
 
@@ -112,18 +119,18 @@ fun SettingsView(
                 modifier = Modifier.padding(top = 4.dp, start = 20.dp)
             ) {
                 Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Icon(Icons.Filled.DateRange, "History")
-                    Text("History")
+                    Icon(Icons.Filled.DateRange, stringResource(R.string.history))
+                    Text(stringResource(R.string.history))
                 }
             }
 
-            Text("Storage: ${passwordCount.value} password(s)",
+            Text(context.getString(R.string.password_count, passwordCount.value),
                  modifier = Modifier.padding(top = 8.dp, start = 35.dp),
                  fontSize = 12.sp,
                  maxLines = 1,
                  color = Color.Gray)
 
-            Text("Version: ${viewModel.appRepository.versionName}",
+            Text(context.getString(R.string.version, viewModel.appRepository.versionName),
                  modifier = Modifier.padding(start = 35.dp, bottom = 10.dp),
                  fontSize = 12.sp,
                  maxLines = 1,
@@ -163,6 +170,24 @@ private fun AlertView(
     currentError: MutableState<String?>,
     viewModel: SettingsViewModel = hiltViewModel(),
 ) {
+    val coroutineScope = rememberCoroutineScope()
+
+    val cloneOnClick: () -> Unit = {
+        coroutineScope.launch {
+            viewModel.settingsRepository.flow.collect { s ->
+                try {
+                    viewModel.gitRepository.clone(s.remoteAddress, s.remoteRepoPath)
+                    currentError.value = null
+                }
+                catch (e: GitException) {
+                    currentError.value = e.message
+                    Log.e(e.message ?: "Unknown error")
+                }
+            }
+            openAlertDialog.value = false
+        }
+    }
+
     if (openAlertDialog.value) {
         AlertDialog(
             icon = {
@@ -170,22 +195,17 @@ private fun AlertView(
                      contentDescription = "")
             },
             title = {
-                Text(text = "Are you sure?")
+                Text(stringResource(R.string.alert_title))
             },
             text = {
-                Text("This operation will delete the local checkout.")
+                Text(stringResource(R.string.alert_text))
             },
             onDismissRequest = {
                 openAlertDialog.value = false
             },
             confirmButton = {
-                TextButton(
-                    onClick = {
-                        viewModel.clone(currentError)
-                        openAlertDialog.value = false
-                    }
-                ) {
-                    Text("Yes", color = Color.Red)
+                TextButton(onClick = cloneOnClick) {
+                    Text(stringResource(R.string.yes), color = Color.Red)
                 }
             },
             dismissButton = {
@@ -194,7 +214,7 @@ private fun AlertView(
                         openAlertDialog.value = false
                     }
                 ) {
-                    Text("No")
+                    Text(stringResource(R.string.no))
                 }
             },
         )

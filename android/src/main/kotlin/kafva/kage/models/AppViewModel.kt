@@ -16,6 +16,7 @@ import java.time.Instant
 import javax.inject.Inject
 import javax.inject.Singleton
 import kafva.kage.Log
+import kafva.kage.G
 import kotlinx.coroutines.flow.stateIn
 import kafva.kage.types.PwNode
 import kotlin.text.lowercase
@@ -29,21 +30,4 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 class AppViewModel @Inject constructor(
     val appRepository: AppRepository,
     val ageRepository: AgeRepository,
-) : ViewModel() {
-
-    fun onStateChange(lifecycleState: Lifecycle.State) {
-        Log.d("State change: $lifecycleState")
-
-        if (ageRepository.identityUnlockedAt.value == null) {
-            return
-        }
-        val distance = Instant.now().epochSecond - (ageRepository.identityUnlockedAt.value ?: 0)
-        if (distance >= ageRepository.autoLockSeconds) {
-            ageRepository.lockIdentity()
-            // Clear any decrypted plaintext from memory, the passphrase has
-            // already been cleared.
-            ageRepository.clearPlaintext()
-            Log.d("Locked identity due to timeout [alive for $distance sec]")
-        }
-    }
-}
+) : ViewModel() {}

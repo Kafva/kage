@@ -57,8 +57,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kafva.kage.Log
 import kafva.kage.models.ToolbarViewModel
 import android.os.Build;
+import androidx.compose.foundation.Image
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.ui.res.painterResource
+import kafva.kage.R
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -85,6 +88,8 @@ fun ToolbarView(
                         ) {
                             Icon(Icons.Filled.Settings, "Settings")
                         }
+
+                        // Image(painterResource(id = R.drawable.lock_open_right), "Open lock")
 
                         SearchField()
 

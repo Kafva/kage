@@ -80,8 +80,8 @@ data class PwNode(
     }
 
     /// Recursive count of children
-    fun count(): Int {
+    fun passwordCount(): Int {
         val childCount = children.filter { it.isPassword }.count()
-        return childCount + children.map { it.count() }.sum()
+        return childCount + children.map { it.passwordCount() }.sum()
     }
 }

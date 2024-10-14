@@ -1,7 +1,9 @@
 package kafva.kage.ui
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -21,13 +23,18 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kafva.kage.G
+import kafva.kage.R
 import kafva.kage.models.TreeViewModel
 import kafva.kage.types.PwNode
 
@@ -46,6 +53,10 @@ fun TreeView(
                 TreeChildView(child, expandRecursively, navigateToPassword)
             }
         }
+    }
+
+    LaunchedEffect(Unit) {
+        viewModel.gitRepository.setup()
     }
 }
 
@@ -75,7 +86,7 @@ private fun TreeChildView(
     ListItem(
         headlineContent = { Text(text = node.name) },
         leadingContent = {
-            Icon(icon, contentDescription = desc)
+            Icon(icon, contentDescription = desc, modifier = Modifier.size(24.dp))
         },
         modifier = Modifier.padding(start = (depth * 15).dp, bottom = 10.dp)
                            .clip(RoundedCornerShape(50))

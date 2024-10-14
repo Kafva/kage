@@ -1,4 +1,8 @@
-# kage
+<p align="center">
+  <img src="ios/src/Assets.xcassets/AppIcon.appiconset/kage.png" width=128 height=128 />
+</p>
+<h1 align="center">kage</h1>
+
 Password manager for iOS and Android using age-encryption and git.
 The layout of the git repository that kage expects can be setup with:
 ```bash

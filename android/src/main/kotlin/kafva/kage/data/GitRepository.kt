@@ -22,6 +22,7 @@ import kafva.kage.types.CommitInfo
 
 class GitException(message: String): Exception(message)
 
+/// Keep mutable state flows private, and expose non-modifiable state-flows
 @Singleton
 class GitRepository @Inject constructor(private val appRepository: AppRepository) {
     val repoStr = appRepository.localRepo.toPath().toString()
@@ -35,36 +36,32 @@ class GitRepository @Inject constructor(private val appRepository: AppRepository
     private val _rootNode = MutableStateFlow<PwNode?>(null)
     val rootNode: StateFlow<PwNode?> = _rootNode
 
-    private val _count = MutableStateFlow<Int>(0)
-    val count: StateFlow<Int> = _count
+    private val _passwordCount = MutableStateFlow<Int>(0)
+    val passwordCount: StateFlow<Int> = _passwordCount
 
-    /// Load password tree recursively
+    /// (Re)load password tree from disk
     fun setup() {
         _rootNode.value = PwNode(appRepository.localRepo, listOf())
         // Populate the search result with all nodes
         _searchMatches.value = rootNode.value?.findChildren(_query.value) ?: listOf()
-        _count.value = _rootNode.value?.count() ?: 0
-    }
-
-    fun updateMatches(text: String) {
-        Log.d("Updated query: ${query.value}")
-        _query.value = text.lowercase()
-        _searchMatches.value = rootNode.value?.findChildren(query.value) ?: listOf()
+        // Update the password count
+        _passwordCount.value = _rootNode.value?.passwordCount() ?: 0
     }
 
     /// Reclone from URL
     @Throws(GitException::class)
-    fun clone(url: String) {
+    suspend fun clone(remoteAddress: String, remoteRepoPath: String) {
         Log.v("Recloning into ${appRepository.localRepo}...")
         appRepository.localRepo.deleteRecursively()
 
+        val url = "git://${remoteAddress}/${remoteRepoPath}"
         val r = Jni.clone(url, repoStr)
         if (r != 0) {
             raiseError()
         }
         else {
             Log.d("Clone ok")
-            _count.value = _rootNode.value?.count() ?: 0
+            setup()
         }
     }
 
@@ -72,6 +69,11 @@ class GitRepository @Inject constructor(private val appRepository: AppRepository
         return Jni.log(repoStr).map { logStr -> CommitInfo(logStr) }
     }
 
+    fun updateMatches(text: String) {
+        Log.d("Updated query: ${query.value}")
+        _query.value = text.lowercase()
+        _searchMatches.value = rootNode.value?.findChildren(query.value) ?: listOf()
+    }
 
     @Throws(GitException::class)
     private fun raiseError() {
@@ -83,5 +85,4 @@ class GitRepository @Inject constructor(private val appRepository: AppRepository
             throw GitException("Unknown error")
         }
     }
-
 }

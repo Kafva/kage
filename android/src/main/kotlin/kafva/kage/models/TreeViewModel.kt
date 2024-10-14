@@ -22,18 +22,9 @@ import kafva.kage.data.GitRepository
 import kafva.kage.data.AppRepository
 import kafva.kage.data.RuntimeSettingsRepository
 
-/// Keep mutable state flows private, and expose non-modifiable state-flows
 @HiltViewModel
 class TreeViewModel @Inject constructor(
     val appRepositoy: AppRepository,
     val gitRepository: GitRepository,
     val runtimeSettingsRepository: RuntimeSettingsRepository,
-) : ViewModel() {
-
-    init {
-        // Load nodes from git repository when initialising the view
-        viewModelScope.launch {
-            gitRepository.setup()
-        }
-    }
-}
+) : ViewModel() {}

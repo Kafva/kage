@@ -33,26 +33,5 @@ class SettingsViewModel @Inject constructor(
     val gitRepository: GitRepository,
     val settingsRepository: SettingsRepository,
     val appRepository: AppRepository,
-) : ViewModel() {
+) : ViewModel() {}
 
-    fun updateSettings(s: Settings) =
-        viewModelScope.launch {
-            settingsRepository.updateSettings(s)
-        }
-
-    @Throws(GitException::class)
-    fun clone(currentError: MutableState<String?>) {
-        viewModelScope.launch {
-            settingsRepository.flow.collect { s ->
-                try {
-                    gitRepository.clone("git://${s.remoteAddress}/${s.remoteRepoPath}")
-                    currentError.value = null
-                }
-                catch (e: GitException) {
-                    currentError.value = e.message
-                    Log.e(e.message ?: "Unknown error")
-                }
-            }
-        }
-    }
-}
