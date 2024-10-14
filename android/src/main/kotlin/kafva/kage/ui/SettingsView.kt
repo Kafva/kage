@@ -32,7 +32,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import kafva.kage.types.Settings
 import kafva.kage.types.Screen
 import kafva.kage.Log
-import kafva.kage.models.SettingsViewModel
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.Row
 import androidx.compose.ui.unit.dp
@@ -56,10 +55,22 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.compose.rememberNavController
+import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kafva.kage.G
 import kafva.kage.R
+import javax.inject.Inject
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kafva.kage.data.SettingsRepository
+import kafva.kage.data.GitRepository
+
+@HiltViewModel
+class SettingsViewModel @Inject constructor(
+    val gitRepository: GitRepository,
+    val settingsRepository: SettingsRepository,
+    val appRepository: AppRepository,
+) : ViewModel() {}
 
 @Composable
 fun SettingsView(

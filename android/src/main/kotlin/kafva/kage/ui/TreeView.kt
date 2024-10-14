@@ -33,10 +33,22 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.ViewModel
 import kafva.kage.G
 import kafva.kage.R
-import kafva.kage.models.TreeViewModel
 import kafva.kage.types.PwNode
+import javax.inject.Inject
+import kafva.kage.data.AppRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kafva.kage.data.GitRepository
+import kafva.kage.data.RuntimeSettingsRepository
+
+@HiltViewModel
+class TreeViewModel @Inject constructor(
+    val appRepositoy: AppRepository,
+    val gitRepository: GitRepository,
+    val runtimeSettingsRepository: RuntimeSettingsRepository,
+) : ViewModel() {}
 
 @Composable
 fun TreeView(

@@ -31,7 +31,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import kafva.kage.Log
-import kafva.kage.models.PasswordViewModel
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.ui.unit.dp
@@ -53,8 +52,18 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.font.FontStyle
 import androidx.navigation.compose.rememberNavController
+import androidx.lifecycle.ViewModel
 import kafva.kage.G
 import kafva.kage.data.AgeException
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
+import kafva.kage.data.AgeRepository
+
+@HiltViewModel
+class PasswordViewModel @Inject constructor(
+    val ageRepository: AgeRepository
+) : ViewModel() {}
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

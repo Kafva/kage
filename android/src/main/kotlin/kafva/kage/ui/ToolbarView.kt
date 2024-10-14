@@ -44,7 +44,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.hilt.navigation.compose.hiltViewModel
-import kafva.kage.models.TreeViewModel
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalFocusManager
@@ -55,13 +54,25 @@ import kafva.kage.types.Screen
 import androidx.navigation.NavHostController
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kafva.kage.Log
-import kafva.kage.models.ToolbarViewModel
 import android.os.Build;
 import androidx.compose.foundation.Image
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.ui.res.painterResource
 import kafva.kage.R
+import javax.inject.Inject
+import dagger.hilt.android.lifecycle.HiltViewModel
+import androidx.lifecycle.ViewModel
+import kafva.kage.data.RuntimeSettingsRepository
+import kafva.kage.data.AppRepository
+import kafva.kage.data.GitRepository
+
+@HiltViewModel
+class ToolbarViewModel @Inject constructor(
+    val appRepository: AppRepository,
+    val gitRepository: GitRepository,
+    val runtimeSettingsRepository: RuntimeSettingsRepository,
+) : ViewModel() {}
 
 
 @OptIn(ExperimentalMaterial3Api::class)
