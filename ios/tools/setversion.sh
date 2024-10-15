@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
-set -ex
+set -e
 #
 # This script runs automatically with each build and updates the Info.plist with
 # every new commit, exclude local changes to it with:
 #
 # git update-index --assume-unchanged src/Info.plist
 #
-INFO_PLIST="${SOURCE_ROOT?}/src/Info.plist"
-KEY="GitVersion"
-DIRTY=
+plist_cmd() {
+    /usr/libexec/PlistBuddy -c "$1" "${SOURCE_ROOT?}/src/Info.plist" 2> /dev/null || :
+}
 
 # Make sure the Xcode project version is up to date
 XCODE_VERSION="v$(awk '/MARKETING_VERSION/ {print substr($3,0,length($3)-1); exit}' \
@@ -20,15 +20,8 @@ if [ "$XCODE_VERSION" != "$GIT_VERSION" ]; then
     exit 1
 fi
 
-
 [ -n "$(git status -s)" ] && DIRTY="-dirty"
 
-# Add key if missing
-/usr/libexec/PlistBuddy -c \
-    "Add :$KEY string" \
-    "${INFO_PLIST}" 2> /dev/null || :
-
-# Update with current tag and commit
-/usr/libexec/PlistBuddy -c \
-    "Set :$KEY $(git describe --tags)$DIRTY" \
-    "${INFO_PLIST}"
+# Recreate the key with the current git version
+plist_cmd "Add :GitVersion string"
+plist_cmd "Set :GitVersion $(git describe --tags)$DIRTY"
