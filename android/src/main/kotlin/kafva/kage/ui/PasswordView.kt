@@ -49,10 +49,12 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.font.FontStyle
 import androidx.navigation.compose.rememberNavController
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kafva.kage.G
 import kafva.kage.data.AgeException
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -74,7 +76,7 @@ fun PasswordView(
     val clipboardManager = LocalClipboardManager.current
     val plaintext = viewModel.ageRepository.plaintext.collectAsState()
     val passphrase = viewModel.ageRepository.passphrase.collectAsState()
-    val identityUnlockedAt = viewModel.ageRepository.identityUnlockedAt.collectAsState()
+    val identityUnlockedAt by viewModel.ageRepository.identityUnlockedAt.collectAsStateWithLifecycle()
     val hidePlaintext: MutableState<Boolean> = remember { mutableStateOf(true) }
     val nodePath = PwNode.fromRoutePath(serialisedNodePath)
     val currentError: MutableState<String?> = remember { mutableStateOf(null) }
@@ -83,7 +85,7 @@ fun PasswordView(
         modifier = G.containerModifier,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        if (identityUnlockedAt.value != null) {
+        if (identityUnlockedAt != null) {
             Text(PwNode.prettyName(nodePath),
                  fontSize = 20.sp,
                  modifier = Modifier.padding(bottom = 20.dp)

@@ -64,6 +64,9 @@ import javax.inject.Inject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kafva.kage.data.SettingsRepository
 import kafva.kage.data.GitRepository
+import androidx.compose.foundation.Image
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.res.painterResource
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
@@ -130,7 +133,10 @@ fun SettingsView(
                 modifier = Modifier.padding(top = 4.dp, start = 20.dp)
             ) {
                 Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Icon(Icons.Filled.DateRange, stringResource(R.string.history))
+                    Image(
+                        painterResource(R.drawable.family_history),
+                        stringResource(R.string.history),
+                        colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary))
                     Text(stringResource(R.string.history))
                 }
             }
@@ -149,7 +155,7 @@ fun SettingsView(
         }
 
         if (currentError.value != null) {
-            Text("Error: ${currentError.value}",
+            Text(context.getString(R.string.error, currentError.value),
                  color = MaterialTheme.colorScheme.error,
                  fontSize = 14.sp,
                  modifier = Modifier.padding(start = 35.dp,
@@ -194,16 +200,15 @@ private fun AlertView(
                     currentError.value = e.message
                     Log.e(e.message ?: "Unknown error")
                 }
+                openAlertDialog.value = false
             }
-            openAlertDialog.value = false
         }
     }
 
     if (openAlertDialog.value) {
         AlertDialog(
             icon = {
-                Icon(Icons.Filled.Warning,
-                     contentDescription = "")
+                Icon(Icons.Filled.Warning, "Warning")
             },
             title = {
                 Text(stringResource(R.string.alert_title))

@@ -11,5 +11,6 @@
     <string name="alert_text">This operation will delete the local checkout.</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
+    <string name="error">Error: %1$s</string>
 
 </resources>

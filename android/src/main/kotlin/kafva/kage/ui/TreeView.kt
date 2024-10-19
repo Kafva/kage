@@ -82,23 +82,15 @@ private fun TreeChildView(
     var isExpanded by remember { mutableStateOf(false) }
     val expanded = isExpanded || expandRecursively
     val isPassword = node.children.isEmpty()
-    val icon: ImageVector
-    val desc: String
-
-    if (isPassword) {
-        icon = Icons.Outlined.Lock
-        desc = "Password"
-    }
-    else {
-        icon = if (expanded) Icons.Filled.KeyboardArrowDown else
-                             Icons.AutoMirrored.Filled.KeyboardArrowRight
-        desc = "Folder"
-    }
 
     ListItem(
         headlineContent = { Text(text = node.name) },
         leadingContent = {
-            Icon(icon, contentDescription = desc, modifier = Modifier.size(24.dp))
+            if (!isPassword) {
+                val icon = if (expanded) Icons.Filled.KeyboardArrowDown else
+                                         Icons.AutoMirrored.Filled.KeyboardArrowRight
+                Icon(icon, contentDescription = "Folder", modifier = Modifier.size(24.dp))
+            }
         },
         modifier = Modifier.padding(start = (depth * 15).dp, bottom = 10.dp)
                            .clip(RoundedCornerShape(50))

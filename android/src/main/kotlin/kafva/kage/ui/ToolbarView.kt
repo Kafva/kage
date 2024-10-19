@@ -58,7 +58,14 @@ import android.os.Build;
 import androidx.compose.foundation.Image
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material3.IconButtonColors
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextAlign
 import kafva.kage.R
 import javax.inject.Inject
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -66,11 +73,13 @@ import androidx.lifecycle.ViewModel
 import kafva.kage.data.RuntimeSettingsRepository
 import kafva.kage.data.AppRepository
 import kafva.kage.data.GitRepository
+import kafva.kage.data.AgeRepository
 
 @HiltViewModel
 class ToolbarViewModel @Inject constructor(
     val appRepository: AppRepository,
     val gitRepository: GitRepository,
+    val ageRepository: AgeRepository,
     val runtimeSettingsRepository: RuntimeSettingsRepository,
 ) : ViewModel() {}
 
@@ -84,38 +93,16 @@ fun ToolbarView(
     viewModel: ToolbarViewModel = hiltViewModel(),
     content: @Composable (PaddingValues) -> Unit
 ) {
-    val expandRecursively by viewModel.runtimeSettingsRepository
-                                      .expandRecursively.collectAsStateWithLifecycle()
     Scaffold(
         topBar = {
-            Row(modifier = Modifier.padding(top = 30.dp).fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Start) {
-
-                when (currentRoute) {
-                    Screen.Home.route -> {
-                        IconButton(onClick = navigateToSettings,
-                            modifier = Modifier.padding(start = 5.dp, end = 15.dp)
-                        ) {
-                            Icon(Icons.Filled.Settings, "Settings")
-                        }
-
-                        // Image(painterResource(id = R.drawable.lock_open_right), "Open lock")
-
+            when (currentRoute) {
+                Screen.Home.route -> {
+                    ToolbarRow(arrangement = Arrangement.Center) {
                         SearchField()
-
-                        IconButton(onClick = {
-                            viewModel.runtimeSettingsRepository.toggleExpandRecursively()
-                        },
-                            modifier = Modifier.padding(start = 5.dp, end = 15.dp)) {
-                            val treeExpansionIcon = if (expandRecursively)
-                                            Icons.Filled.KeyboardArrowDown
-                                       else Icons.AutoMirrored.Filled.KeyboardArrowRight
-                            Icon(treeExpansionIcon, "Toggle tree expansion")
-                        }
-
                     }
-                    else -> {
+                }
+                else -> {
+                    ToolbarRow(arrangement = Arrangement.Start) {
                         IconButton(onClick = navigateBack) {
                             Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, "Go home")
                         }
@@ -127,9 +114,81 @@ fun ToolbarView(
                 }
             }
         },
+        bottomBar = {
+            when (currentRoute) {
+                Screen.Home.route -> {
+                    ToolbarRow(arrangement = Arrangement.SpaceBetween) {
+                        BottomBar(navigateToSettings)
+                    }
+                }
+                else -> {}
+            }
+
+        }
 
     ) { innerPadding ->
         content(innerPadding)
+    }
+}
+
+@Composable
+private fun ToolbarRow(
+    arrangement: Arrangement.Horizontal,
+    viewModel: ToolbarViewModel = hiltViewModel(),
+    content: @Composable () -> Unit
+) {
+    Row(modifier = Modifier.padding(top = 30.dp, bottom = 30.dp).fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = arrangement) {
+        content()
+    }
+}
+
+@Composable
+private fun BottomBar(
+    navigateToSettings: () -> Unit,
+    viewModel: ToolbarViewModel = hiltViewModel(),
+    ) {
+    val expandRecursively by viewModel.runtimeSettingsRepository
+        .expandRecursively.collectAsStateWithLifecycle()
+
+    val identityUnlockedAt by viewModel.ageRepository.identityUnlockedAt
+                                       .collectAsStateWithLifecycle()
+    IconButton(onClick = navigateToSettings,
+        modifier = Modifier.padding(start = 10.dp)
+    ) {
+        Icon(Icons.Filled.Settings, "Settings")
+    }
+
+    Row {
+        IconButton(onClick = {
+            viewModel.runtimeSettingsRepository.toggleExpandRecursively()
+        },
+            modifier = Modifier.padding(end = 10.dp)) {
+            val icon = if (expandRecursively)
+                            painterResource(R.drawable.collapse_all)
+                       else painterResource(R.drawable.expand_all)
+            Image(icon, "Toggle tree expansion")
+        }
+
+        IconButton(onClick = {
+                viewModel.ageRepository.lockIdentity()
+            },
+            modifier = Modifier.padding(end = 10.dp),
+            enabled = identityUnlockedAt != null
+        ) {
+            val icon: Painter
+            val colorFilter: ColorFilter
+            if (identityUnlockedAt != null) {
+                icon = painterResource(R.drawable.lock_open_right)
+                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary)
+            }
+            else {
+                icon = painterResource(R.drawable.lock)
+                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.surfaceDim)
+            }
+            Image(icon, colorFilter = colorFilter, contentDescription = "Toggle lock")
+        }
     }
 }
 
@@ -153,5 +212,6 @@ private fun SearchField(viewModel: ToolbarViewModel = hiltViewModel()) {
             unfocusedIndicatorColor = Color.Transparent,
             disabledIndicatorColor = Color.Transparent
         ),
+        textStyle = TextStyle(textAlign = TextAlign.Center)
     )
 }
