@@ -61,5 +61,6 @@ To build for Android you need to download a NDK manually.
 3. Build the library and app
 
 ```bash
-(cd android && ./gradlew build)
+(cd android && ./gradlew assembleRelease)
+# => android/build/outputs/apk/release/kage-release-unsigned.apk
 ```
