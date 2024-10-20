@@ -69,13 +69,16 @@ fun ToolbarView(
                 Screen.Home.route -> {
                     ToolbarRow(
                         arrangement = Arrangement.Center,
-                        bottomPadding = 5.dp
+                        bottomPadding = 5.dp,
                     ) {
                         SearchField()
                     }
                 }
                 else -> {
-                    ToolbarRow(arrangement = Arrangement.Start) {
+                    ToolbarRow(
+                        arrangement = Arrangement.Start,
+                        bottomPadding = 5.dp,
+                    ) {
                         IconButton(onClick = navigateBack) {
                             Icon(
                                 Icons.AutoMirrored.Filled.KeyboardArrowLeft,
@@ -200,7 +203,6 @@ private fun BottomBar(
 @Composable
 private fun SearchField(viewModel: ToolbarViewModel = hiltViewModel()) {
     val query = viewModel.gitRepository.query.collectAsState()
-    val expandRecursively = viewModel.runtimeSettingsRepository.expandRecursively.collectAsState()
 
     TextField(
         value = query.value,
@@ -208,8 +210,7 @@ private fun SearchField(viewModel: ToolbarViewModel = hiltViewModel()) {
             if (it.isEmpty()) {
                 // Disable autoexpansion when there is no query
                 viewModel.runtimeSettingsRepository.setExpandRecursively(false)
-            }
-            else {
+            } else {
                 // Autoexpand when there is a query string
                 viewModel.runtimeSettingsRepository.setExpandRecursively(true)
             }
