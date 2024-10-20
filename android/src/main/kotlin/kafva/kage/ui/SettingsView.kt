@@ -122,7 +122,7 @@ fun SettingsView(
                 },
                 modifier = Modifier.padding(top = 4.dp, start = 20.dp)
             ) {
-                Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     Icon(Icons.Filled.Refresh, stringResource(R.string.reset_repository))
                     Text(stringResource(R.string.reset_repository))
                 }
@@ -132,7 +132,7 @@ fun SettingsView(
                 onClick = navigateToHistory,
                 modifier = Modifier.padding(top = 4.dp, start = 20.dp)
             ) {
-                Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     Image(
                         painterResource(R.drawable.family_history),
                         stringResource(R.string.history),

@@ -64,6 +64,7 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import kafva.kage.R
@@ -90,7 +91,6 @@ fun ToolbarView(
     currentRoute: String,
     navigateToSettings: () -> Unit,
     navigateBack: () -> Unit,
-    viewModel: ToolbarViewModel = hiltViewModel(),
     content: @Composable (PaddingValues) -> Unit
 ) {
     Scaffold(
@@ -192,7 +192,6 @@ private fun BottomBar(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun SearchField(viewModel: ToolbarViewModel = hiltViewModel()) {
     val query = viewModel.gitRepository.query.collectAsState()
@@ -202,7 +201,13 @@ private fun SearchField(viewModel: ToolbarViewModel = hiltViewModel()) {
         onValueChange = {
             viewModel.gitRepository.updateMatches(it)
         },
-        placeholder = { Text("Search...") },
+        placeholder = {
+            Text(
+                stringResource(R.string.search_placeholder),
+                modifier = Modifier.fillMaxWidth(0.65f),
+                textAlign = TextAlign.Center
+            )
+        },
         singleLine = true,
         shape = RoundedCornerShape(8.dp),
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done, keyboardType = KeyboardType.Text),

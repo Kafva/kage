@@ -21,6 +21,7 @@ import kafva.kage.ui.theme.KageTheme
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -48,6 +49,7 @@ class AppViewModel @Inject constructor(
     val ageRepository: AgeRepository,
 ) : ViewModel() {}
 
+@Preview
 @Composable
 fun AppView(
     navController: NavHostController = rememberNavController(),
@@ -88,9 +90,6 @@ fun AppView(
                     val argument = navBackStackEntry?.arguments?.getString("nodePath")
                     if (argument != null) {
                         PasswordView(argument)
-                    }
-                    else {
-                        Log.e("Bad path encountered: $nodePath")
                     }
                 }
             }

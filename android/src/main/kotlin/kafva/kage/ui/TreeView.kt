@@ -84,7 +84,7 @@ private fun TreeChildView(
     val isPassword = node.children.isEmpty()
 
     ListItem(
-        headlineContent = { Text(text = node.name) },
+        headlineContent = { Text(text = node.name, maxLines = 1) },
         leadingContent = {
             if (!isPassword) {
                 val icon = if (expanded) Icons.Filled.KeyboardArrowDown else

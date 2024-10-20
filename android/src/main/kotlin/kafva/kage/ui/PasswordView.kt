@@ -51,6 +51,8 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.navigation.compose.rememberNavController
 import androidx.lifecycle.ViewModel
@@ -58,6 +60,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kafva.kage.G
 import kafva.kage.data.AgeException
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kafva.kage.R
 import javax.inject.Inject
 import kafva.kage.data.AgeRepository
 
@@ -73,6 +76,7 @@ fun PasswordView(
     serialisedNodePath: String,
     viewModel: PasswordViewModel = hiltViewModel()
 ) {
+    val context = LocalContext.current
     val clipboardManager = LocalClipboardManager.current
     val plaintext = viewModel.ageRepository.plaintext.collectAsState()
     val passphrase = viewModel.ageRepository.passphrase.collectAsState()
@@ -90,7 +94,9 @@ fun PasswordView(
                  fontSize = 20.sp,
                  modifier = Modifier.padding(bottom = 20.dp)
             )
-            Text(if (hidePlaintext.value) "********" else plaintext.value ?: "",
+            Text(if (hidePlaintext.value)
+                    stringResource(R.string.password_placeholder) else
+                    plaintext.value ?: "",
                  fontSize = 18.sp,
                  color = MaterialTheme.colorScheme.primary,
                  modifier = Modifier.padding(bottom = 15.dp)
@@ -107,17 +113,17 @@ fun PasswordView(
                     }
                 }
             ) {
-                Text("Copy...")
+                Text(stringResource(R.string.copy))
             }
         }
         else {
-            Text("Authentication required",
+            Text(stringResource(R.string.authentication),
                  fontSize = 20.sp,
                  modifier = Modifier.padding(bottom = 12.dp)
             )
             TextField(
                 value = passphrase.value ?: "",
-                label = { Text("Passphrase") },
+                label = { Text(stringResource(R.string.passphrase)) },
                 singleLine = true,
                 shape = RoundedCornerShape(8.dp),
                 onValueChange = {
@@ -151,7 +157,7 @@ fun PasswordView(
         }
 
         if (currentError.value != null) {
-            Text("Error: ${currentError.value}",
+            Text(context.getString(R.string.error, currentError.value),
                  color = MaterialTheme.colorScheme.error,
                  fontSize = 14.sp,
                  modifier = Modifier.padding(top = 10.dp).clickable(true) {
