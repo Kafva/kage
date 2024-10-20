@@ -136,7 +136,10 @@ private fun BottomBar(
             val icon = if (expandRecursively)
                             painterResource(R.drawable.collapse_all)
                        else painterResource(R.drawable.expand_all)
-            Image(icon, "Toggle tree expansion")
+            Image(icon,
+                "Toggle tree expansion",
+                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onBackground)
+            )
         }
 
         IconButton(onClick = {
@@ -153,7 +156,7 @@ private fun BottomBar(
             }
             else {
                 icon = painterResource(R.drawable.lock)
-                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.surfaceDim)
+                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onBackground)
             }
             Image(icon, colorFilter = colorFilter, contentDescription = "Toggle lock")
         }
