@@ -5,7 +5,7 @@ import java.io.File
 import javax.inject.Singleton
 
 @Singleton
-class AppRepository constructor(
+class AppRepository(
     val versionName: String,
     val filesDir: File,
 ) {

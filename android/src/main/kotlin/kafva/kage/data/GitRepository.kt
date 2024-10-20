@@ -13,7 +13,7 @@ class GitException(
     message: String,
 ) : Exception(message)
 
-// / Keep mutable state flows private, and expose non-modifiable state-flows
+// Keep mutable state flows private, and expose non-modifiable state-flows
 @Singleton
 class GitRepository
     @Inject
@@ -30,10 +30,10 @@ class GitRepository
         private val _searchMatches = MutableStateFlow<List<PwNode>>(listOf())
         val searchMatches: StateFlow<List<PwNode>> = _searchMatches
 
-        private val _passwordCount = MutableStateFlow<Int>(0)
+        private val _passwordCount = MutableStateFlow(0)
         val passwordCount: StateFlow<Int> = _passwordCount
 
-        // / (Re)load password tree from disk
+        /** (Re)load password tree from disk */
         fun setup() {
             rootNode.value = PwNode(appRepository.localRepo, listOf())
             // Populate the search result with all nodes
@@ -43,7 +43,7 @@ class GitRepository
             _passwordCount.value = rootNode.value?.passwordCount() ?: 0
         }
 
-        // / Reclone from URL
+        /** Reclone from URL */
         @Throws(GitException::class)
         fun clone(
             remoteAddress: String,

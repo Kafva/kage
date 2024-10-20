@@ -4,6 +4,7 @@ import android.util.Log as AndroidLog
 
 const val TAG = "kafva.kage" // XXX
 
+@Suppress("unused")
 class Log {
     companion object {
         fun d(msg: String) {

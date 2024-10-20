@@ -30,7 +30,7 @@ class AgeRepository
         private val _passphrase = MutableStateFlow<String?>(null)
         val passphrase: StateFlow<String?> = _passphrase
 
-        fun clearPlaintext() {
+        private fun clearPlaintext() {
             _plaintext.value = null
         }
 

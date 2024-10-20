@@ -39,12 +39,12 @@ data class PwNode(
     fun toRoutePath(filesDir: File): String =
         pathString.removePrefix("${filesDir.path}/").replace("/", "|")
 
-    // / Recursively load the nodes under the current path
+    /** Recursively load the nodes under the current path */
     init {
-        children = PwNode.loadChildren(path)
+        children = loadChildren(path)
     }
 
-    // / Predicate should be provided in lowercase!
+    /** Predicate should be provided in lowercase! */
     fun findChildren(predicate: String): List<PwNode> {
         // Include all of the children if there is no query
         if (predicate.isEmpty()) {
@@ -74,9 +74,9 @@ data class PwNode(
         return matches.toList()
     }
 
-    // / Recursive count of children
+    /** Recursive count of children */
     fun passwordCount(): Int {
-        val childCount = children.filter { it.isPassword }.count()
-        return childCount + children.map { it.passwordCount() }.sum()
+        val childCount = children.count { it.isPassword }
+        return childCount + children.sumOf { it.passwordCount() }
     }
 }

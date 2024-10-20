@@ -1,11 +1,9 @@
-<resources>
-    <string name="app_name">kage</string>
-
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="remote_address">Remote address</string>
     <string name="reset_repository">Reset password repository</string>
     <string name="repository">Repository</string>
     <string name="history">History</string>
-    <string name="password_count">Storage: %1$d password(s)</string>
+    <string name="password_count" tools:ignore="PluralsCandidate">Storage: %1$d password(s)</string>
     <string name="version">Version: %1$s</string>
     <string name="alert_title">Are you sure?</string>
     <string name="alert_text">This operation will delete the local checkout.</string>
@@ -13,9 +11,8 @@
     <string name="no">No</string>
     <string name="error">Error: %1$s</string>
     <string name="authentication">Authentication required</string>
-    <string name="copy">Copy...</string>
+    <string name="copy">Copy…</string>
     <string name="passphrase">Passphrase</string>
     <string name="password_placeholder">**********</string>
-    <string name="search_placeholder">Search...</string>
-
+    <string name="search_placeholder">Search…</string>
 </resources>

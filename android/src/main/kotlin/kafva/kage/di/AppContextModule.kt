@@ -22,10 +22,12 @@ object AppContextModule {
         name = "preference",
     )
 
-    // / https://github.com/mbobiosio/AppFirstLaunch-Hilt-DataStore
-    // / Dagger needs a way to construct every type that is provided in an
-    // / @Inject constructor(). This function provides dagger with a way to
-    // / provide a DataStore<Preferences> object.
+    /**
+     * https://github.com/mbobiosio/AppFirstLaunch-Hilt-DataStore
+     * Dagger needs a way to construct every type that is provided in an
+     * @Inject constructor(). This function provides dagger with a way to
+     * provide a DataStore<Preferences> object.
+     */
     @Provides
     @Singleton
     fun provideDataStore(

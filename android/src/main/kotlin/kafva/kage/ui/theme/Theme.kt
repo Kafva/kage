@@ -92,8 +92,7 @@ private val darkScheme =
 fun KageTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     content:
-        @Composable()
-        () -> Unit,
+        @Composable () -> Unit,
 ) {
     val colorScheme =
         when {

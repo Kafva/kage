@@ -4,8 +4,10 @@ import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
-// / Create an object from a newline seperated string on the format
-// / `<epoch>\n<oid>\n<summary>`
+/**
+ * Create an object from a newline separated string on the format
+ * `<epoch>\n<oid>\n<summary>`
+ */
 class CommitInfo(
     str: String,
 ) {

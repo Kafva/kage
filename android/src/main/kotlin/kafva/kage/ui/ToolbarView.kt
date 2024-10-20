@@ -40,7 +40,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kafva.kage.R
 import kafva.kage.data.AgeRepository
-import kafva.kage.data.AppRepository
 import kafva.kage.data.GitRepository
 import kafva.kage.data.RuntimeSettingsRepository
 import kafva.kage.types.Screen
@@ -50,7 +49,6 @@ import javax.inject.Inject
 class ToolbarViewModel
     @Inject
     constructor(
-        val appRepository: AppRepository,
         val gitRepository: GitRepository,
         val ageRepository: AgeRepository,
         val runtimeSettingsRepository: RuntimeSettingsRepository,

@@ -5,12 +5,12 @@ import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject
 import javax.inject.Singleton
 
-// / Singleton to make sure all view models use the same backing object
+/** Singleton to make sure all view models use the same backing object */
 @Singleton
 class RuntimeSettingsRepository
     @Inject
     constructor() {
-        private val _expandRecursively = MutableStateFlow<Boolean>(false)
+        private val _expandRecursively = MutableStateFlow(false)
         val expandRecursively: StateFlow<Boolean> = _expandRecursively
 
         fun setExpandRecursively(value: Boolean) {

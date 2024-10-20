@@ -16,7 +16,7 @@ import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Singleton
 
-// / https://github.com/Kotlin-Android-Open-Source/DataStore-sample
+// https://github.com/Kotlin-Android-Open-Source/DataStore-sample
 @Singleton
 class SettingsRepository
     @Inject
