@@ -19,6 +19,17 @@ wrapper yourself or use [passage](https://github.com/FiloSottile/passage):
 PASSAGE_DIR=$NAME PASSAGE_IDENTITIES_FILE=$NAME/.age-identities passage
 ```
 
+The client only fetches passwords over `git://`:
+```bash
+git daemon --base-path="$NAME" \
+           --verbose \
+           --export-all \
+           --reuseaddr \
+           --informative-errors
+```
+To enable anonymous pushing(!) pass `--enable=receive-pack`, this is not
+relevant for the Android client since it does not support making local changes.
+
 ## Development notes
 
 ### Core library
