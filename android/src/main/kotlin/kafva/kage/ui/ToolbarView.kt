@@ -67,7 +67,10 @@ fun ToolbarView(
         topBar = {
             when (currentRoute) {
                 Screen.Home.route -> {
-                    ToolbarRow(arrangement = Arrangement.Center) {
+                    ToolbarRow(
+                        arrangement = Arrangement.Center,
+                        bottomPadding = 5.dp
+                    ) {
                         SearchField()
                     }
                 }
@@ -109,6 +112,7 @@ fun ToolbarView(
 private fun ToolbarRow(
     arrangement: Arrangement.Horizontal,
     topPadding: Dp = 30.dp,
+    bottomPadding: Dp = 30.dp,
     content: @Composable () -> Unit,
 ) {
     Row(
@@ -116,7 +120,7 @@ private fun ToolbarRow(
             Modifier
                 .padding(
                     top = topPadding,
-                    bottom = 30.dp,
+                    bottom = bottomPadding,
                 ).fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = arrangement,
@@ -196,10 +200,19 @@ private fun BottomBar(
 @Composable
 private fun SearchField(viewModel: ToolbarViewModel = hiltViewModel()) {
     val query = viewModel.gitRepository.query.collectAsState()
+    val expandRecursively = viewModel.runtimeSettingsRepository.expandRecursively.collectAsState()
 
     TextField(
         value = query.value,
         onValueChange = {
+            if (it.isEmpty()) {
+                // Disable autoexpansion when there is no query
+                viewModel.runtimeSettingsRepository.setExpandRecursively(false)
+            }
+            else {
+                // Autoexpand when there is a query string
+                viewModel.runtimeSettingsRepository.setExpandRecursively(true)
+            }
             viewModel.gitRepository.updateMatches(it)
         },
         placeholder = {

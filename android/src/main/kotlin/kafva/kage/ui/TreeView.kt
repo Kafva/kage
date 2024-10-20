@@ -95,7 +95,6 @@ private fun TreeChildView(
         modifier =
             Modifier
                 .padding(start = (depth * 15).dp, bottom = 10.dp)
-                .clip(RoundedCornerShape(50))
                 .clickable {
                     if (isPassword) {
                         navigateToPassword(node)
@@ -103,10 +102,6 @@ private fun TreeChildView(
                         isExpanded = !isExpanded
                     }
                 },
-        colors =
-            ListItemDefaults.colors(
-                containerColor = MaterialTheme.colorScheme.surfaceVariant,
-            ),
     )
     if (!isPassword && expanded) {
         node.children.forEach { child ->

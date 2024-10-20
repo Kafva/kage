@@ -13,6 +13,10 @@ class RuntimeSettingsRepository
         private val _expandRecursively = MutableStateFlow<Boolean>(false)
         val expandRecursively: StateFlow<Boolean> = _expandRecursively
 
+        fun setExpandRecursively(value: Boolean) {
+            _expandRecursively.value = value
+        }
+
         fun toggleExpandRecursively() {
             _expandRecursively.value = !_expandRecursively.value
         }
