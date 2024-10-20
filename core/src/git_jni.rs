@@ -79,29 +79,23 @@ pub extern "system" fn Java_kafva_kage_jni_Git_log<'local>(
         Ok(arr) => {
             let size = arr.len() as jsize;
 
-            let Some(first) = arr.first() else {
-                error!("Empty commit log");
+            let Ok(initial_value) = env.new_string("") else {
+                error!("Error creating empty Java string");
                 return JObjectArray::default();
             };
-
-            let Ok(s) = env.new_string(first) else {
-                error!("Error creating Java string from: '{}'", first);
-                return JObjectArray::default();
-            };
-
-            let Ok(outarr) = env.new_object_array(size, "java/lang/String", s)
+            let Ok(outarr) = env.new_object_array(size, "java/lang/String", initial_value)
             else {
                 error!("Error creating Java object array");
                 return JObjectArray::default();
             };
 
-            for item in arr.into_iter().skip(1) {
+            for (i,item) in arr.into_iter().enumerate() {
                 let Ok(s) = env.new_string(&item) else {
                     error!("Error creating Java string from: '{}'", item);
                     return JObjectArray::default();
                 };
 
-                let Ok(_) = env.set_object_array_element(&outarr, 0, s) else {
+                let Ok(_) = env.set_object_array_element(&outarr, i as i32, s) else {
                     error!("Error adding Java string to array: '{}'", item);
                     return JObjectArray::default();
                 };

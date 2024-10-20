@@ -4,7 +4,7 @@ use std::sync::Mutex;
 use std::sync::MutexGuard;
 use std::sync::Once;
 
-use git2::build::{CheckoutBuilder, RepoBuilder};
+use git2::build::RepoBuilder;
 use git2::opts::{
     get_server_connect_timeout_in_milliseconds,
     get_server_timeout_in_milliseconds,
@@ -13,6 +13,9 @@ use git2::opts::{
 };
 
 use git2::{FetchOptions, RemoteCallbacks, Repository};
+
+#[cfg(not(target_os = "android"))]
+use git2::build::CheckoutBuilder;
 
 use crate::*;
 
@@ -69,6 +72,7 @@ pub fn git_setup() {
     ONCE.call_once(|| git_init_opts().expect("Error initializing libgit2"));
 }
 
+#[cfg(not(target_os = "android"))]
 pub fn git_pull(repo_path: &str) -> Result<(), git2::Error> {
     let repo = Repository::open(repo_path)?;
     let mut remote = repo.find_remote(GIT_REMOTE)?;
