@@ -17,4 +17,3 @@ object G {
     // Very basic check if we are on emulator
     val isEmulator = Build.MODEL.startsWith("sdk_gphone")
 }
-

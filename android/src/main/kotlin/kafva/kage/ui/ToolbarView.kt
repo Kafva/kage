@@ -47,19 +47,21 @@ import kafva.kage.types.Screen
 import javax.inject.Inject
 
 @HiltViewModel
-class ToolbarViewModel @Inject constructor(
-    val appRepository: AppRepository,
-    val gitRepository: GitRepository,
-    val ageRepository: AgeRepository,
-    val runtimeSettingsRepository: RuntimeSettingsRepository,
-) : ViewModel()
+class ToolbarViewModel
+    @Inject
+    constructor(
+        val appRepository: AppRepository,
+        val gitRepository: GitRepository,
+        val ageRepository: AgeRepository,
+        val runtimeSettingsRepository: RuntimeSettingsRepository,
+    ) : ViewModel()
 
 @Composable
 fun ToolbarView(
     currentRoute: String,
     navigateToSettings: () -> Unit,
     navigateBack: () -> Unit,
-    content: @Composable (PaddingValues) -> Unit
+    content: @Composable (PaddingValues) -> Unit,
 ) {
     Scaffold(
         topBar = {
@@ -72,7 +74,10 @@ fun ToolbarView(
                 else -> {
                     ToolbarRow(arrangement = Arrangement.Start) {
                         IconButton(onClick = navigateBack) {
-                            Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, "Go home")
+                            Icon(
+                                Icons.AutoMirrored.Filled.KeyboardArrowLeft,
+                                "Go home",
+                            )
                         }
 
                         if (!currentRoute.contains("/")) {
@@ -85,15 +90,16 @@ fun ToolbarView(
         bottomBar = {
             when (currentRoute) {
                 Screen.Home.route -> {
-                    ToolbarRow(arrangement = Arrangement.SpaceBetween, topPadding = 5.dp) {
+                    ToolbarRow(
+                        arrangement = Arrangement.SpaceBetween,
+                        topPadding = 5.dp,
+                    ) {
                         BottomBar(navigateToSettings)
                     }
                 }
                 else -> {}
             }
-
-        }
-
+        },
     ) { innerPadding ->
         content(innerPadding)
     }
@@ -103,11 +109,18 @@ fun ToolbarView(
 private fun ToolbarRow(
     arrangement: Arrangement.Horizontal,
     topPadding: Dp = 30.dp,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
-    Row(modifier = Modifier.padding(top = topPadding, bottom = 30.dp).fillMaxWidth(),
+    Row(
+        modifier =
+            Modifier
+                .padding(
+                    top = topPadding,
+                    bottom = 30.dp,
+                ).fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = arrangement) {
+        horizontalArrangement = arrangement,
+    ) {
         content()
     }
 }
@@ -116,49 +129,66 @@ private fun ToolbarRow(
 private fun BottomBar(
     navigateToSettings: () -> Unit,
     viewModel: ToolbarViewModel = hiltViewModel(),
-    ) {
+) {
     val expandRecursively by viewModel.runtimeSettingsRepository
-        .expandRecursively.collectAsStateWithLifecycle()
+        .expandRecursively
+        .collectAsStateWithLifecycle()
 
     val identityUnlockedAt by viewModel.ageRepository.identityUnlockedAt
-                                       .collectAsStateWithLifecycle()
-    IconButton(onClick = navigateToSettings,
-        modifier = Modifier.padding(start = 10.dp)
+        .collectAsStateWithLifecycle()
+    IconButton(
+        onClick = navigateToSettings,
+        modifier = Modifier.padding(start = 10.dp),
     ) {
         Icon(Icons.Filled.Settings, "Settings")
     }
 
     Row {
-        IconButton(onClick = {
-            viewModel.runtimeSettingsRepository.toggleExpandRecursively()
-        },
-            modifier = Modifier.padding(end = 10.dp)) {
-            val icon = if (expandRecursively)
-                            painterResource(R.drawable.collapse_all)
-                       else painterResource(R.drawable.expand_all)
-            Image(icon,
+        IconButton(
+            onClick = {
+                viewModel.runtimeSettingsRepository.toggleExpandRecursively()
+            },
+            modifier = Modifier.padding(end = 10.dp),
+        ) {
+            val icon =
+                if (expandRecursively) {
+                    painterResource(R.drawable.collapse_all)
+                } else {
+                    painterResource(R.drawable.expand_all)
+                }
+            Image(
+                icon,
                 "Toggle tree expansion",
-                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onBackground)
+                colorFilter =
+                    ColorFilter.tint(
+                        MaterialTheme.colorScheme.onBackground,
+                    ),
             )
         }
 
-        IconButton(onClick = {
+        IconButton(
+            onClick = {
                 viewModel.ageRepository.lockIdentity()
             },
             modifier = Modifier.padding(end = 10.dp),
-            enabled = identityUnlockedAt != null
+            enabled = identityUnlockedAt != null,
         ) {
             val icon: Painter
             val colorFilter: ColorFilter
             if (identityUnlockedAt != null) {
                 icon = painterResource(R.drawable.lock_open_right)
-                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary)
-            }
-            else {
+                colorFilter =
+                    ColorFilter.tint(MaterialTheme.colorScheme.primary)
+            } else {
                 icon = painterResource(R.drawable.lock)
-                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onBackground)
+                colorFilter =
+                    ColorFilter.tint(MaterialTheme.colorScheme.onBackground)
             }
-            Image(icon, colorFilter = colorFilter, contentDescription = "Toggle lock")
+            Image(
+                icon,
+                colorFilter = colorFilter,
+                contentDescription = "Toggle lock",
+            )
         }
     }
 }
@@ -176,18 +206,23 @@ private fun SearchField(viewModel: ToolbarViewModel = hiltViewModel()) {
             Text(
                 stringResource(R.string.search_placeholder),
                 modifier = Modifier.fillMaxWidth(0.65f),
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
             )
         },
         singleLine = true,
         shape = RoundedCornerShape(8.dp),
-        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done, keyboardType = KeyboardType.Text),
+        keyboardOptions =
+            KeyboardOptions(
+                imeAction = ImeAction.Done,
+                keyboardType = KeyboardType.Text,
+            ),
         // Remove underline from textbox
-        colors = TextFieldDefaults.colors(
-            focusedIndicatorColor = Color.Transparent,
-            unfocusedIndicatorColor = Color.Transparent,
-            disabledIndicatorColor = Color.Transparent
-        ),
-        textStyle = TextStyle(textAlign = TextAlign.Center)
+        colors =
+            TextFieldDefaults.colors(
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent,
+                disabledIndicatorColor = Color.Transparent,
+            ),
+        textStyle = TextStyle(textAlign = TextAlign.Center),
     )
 }

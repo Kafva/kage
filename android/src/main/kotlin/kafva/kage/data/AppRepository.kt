@@ -9,5 +9,5 @@ class AppRepository constructor(
     val versionName: String,
     val filesDir: File,
 ) {
-    val localRepo: File = File("${filesDir}/${G.LOCAL_REPO_NAME}")
+    val localRepo: File = File("$filesDir/${G.LOCAL_REPO_NAME}")
 }

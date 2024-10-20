@@ -58,16 +58,18 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class SettingsViewModel @Inject constructor(
-    val gitRepository: GitRepository,
-    val settingsRepository: SettingsRepository,
-    val appRepository: AppRepository,
-) : ViewModel()
+class SettingsViewModel
+    @Inject
+    constructor(
+        val gitRepository: GitRepository,
+        val settingsRepository: SettingsRepository,
+        val appRepository: AppRepository,
+    ) : ViewModel()
 
 @Composable
 fun SettingsView(
     navigateToHistory: () -> Unit,
-    viewModel: SettingsViewModel = hiltViewModel()
+    viewModel: SettingsViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
@@ -80,28 +82,34 @@ fun SettingsView(
 
     val onDone: (KeyboardActionScope) -> Unit = {
         coroutineScope.launch {
-            val newSettings = Settings(remoteAddress.value, remoteRepoPath.value)
+            val newSettings =
+                Settings(remoteAddress.value, remoteRepoPath.value)
             viewModel.settingsRepository.updateSettings(newSettings)
             focusManager.moveFocus(FocusDirection.Down)
         }
     }
 
-    Column(modifier = G.containerModifier,
-           verticalArrangement = Arrangement.Center,
-           horizontalAlignment = Alignment.CenterHorizontally
+    Column(
+        modifier = G.containerModifier,
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         TextFieldView(
             text = remoteAddress,
-            leadingIcon =  { Icon(Icons.Filled.Home, stringResource(R.string.remote_address)) },
-            label =  { Text(stringResource(R.string.remote_address)) },
-            onDone = onDone
+            leadingIcon = {
+                Icon(Icons.Filled.Home, stringResource(R.string.remote_address))
+            },
+            label = { Text(stringResource(R.string.remote_address)) },
+            onDone = onDone,
         )
 
         TextFieldView(
             text = remoteRepoPath,
-            leadingIcon =  { Icon(Icons.Filled.Person, stringResource(R.string.repository)) },
-            label =  { Text(stringResource(R.string.repository)) },
-            onDone = onDone
+            leadingIcon = {
+                Icon(Icons.Filled.Person, stringResource(R.string.repository))
+            },
+            label = { Text(stringResource(R.string.repository)) },
+            onDone = onDone,
         )
 
         Card(modifier = G.containerModifier) {
@@ -109,51 +117,69 @@ fun SettingsView(
                 onClick = {
                     openAlertDialog.value = true
                 },
-                modifier = Modifier.padding(top = 4.dp, start = 20.dp)
+                modifier = Modifier.padding(top = 4.dp, start = 20.dp),
             ) {
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    Icon(Icons.Filled.Refresh, stringResource(R.string.reset_repository))
+                    Icon(
+                        Icons.Filled.Refresh,
+                        stringResource(R.string.reset_repository),
+                    )
                     Text(stringResource(R.string.reset_repository))
                 }
             }
 
             TextButton(
                 onClick = navigateToHistory,
-                modifier = Modifier.padding(top = 4.dp, start = 20.dp)
+                modifier = Modifier.padding(top = 4.dp, start = 20.dp),
             ) {
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     Image(
                         painterResource(R.drawable.family_history),
                         stringResource(R.string.history),
-                        colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary))
+                        colorFilter =
+                            ColorFilter.tint(
+                                MaterialTheme.colorScheme.primary,
+                            ),
+                    )
                     Text(stringResource(R.string.history))
                 }
             }
 
-            Text(context.getString(R.string.password_count, passwordCount.value),
-                 modifier = Modifier.padding(top = 8.dp, start = 35.dp),
-                 fontSize = 12.sp,
-                 maxLines = 1,
-                 color = Color.Gray)
+            Text(
+                context.getString(R.string.password_count, passwordCount.value),
+                modifier = Modifier.padding(top = 8.dp, start = 35.dp),
+                fontSize = 12.sp,
+                maxLines = 1,
+                color = Color.Gray,
+            )
 
-            Text(context.getString(R.string.version, viewModel.appRepository.versionName),
-                 modifier = Modifier.padding(start = 35.dp, bottom = 10.dp),
-                 fontSize = 12.sp,
-                 maxLines = 1,
-                 color = Color.Gray)
+            Text(
+                context.getString(
+                    R.string.version,
+                    viewModel.appRepository.versionName,
+                ),
+                modifier = Modifier.padding(start = 35.dp, bottom = 10.dp),
+                fontSize = 12.sp,
+                maxLines = 1,
+                color = Color.Gray,
+            )
         }
 
         if (currentError.value != null) {
-            Text(context.getString(R.string.error, currentError.value),
-                 color = MaterialTheme.colorScheme.error,
-                 fontSize = 14.sp,
-                 modifier = Modifier.padding(start = 35.dp,
-                                             top = 10.dp,
-                                             end = 20.dp)
-                                    .clickable(true) {
-                     currentError.value = null
-                 }
-             )
+            Text(
+                context.getString(R.string.error, currentError.value),
+                color = MaterialTheme.colorScheme.error,
+                fontSize = 14.sp,
+                modifier =
+                    Modifier
+                        .padding(
+                            start = 35.dp,
+                            top = 10.dp,
+                            end = 20.dp,
+                        ).clickable(true) {
+                            currentError.value = null
+                        },
+            )
         }
 
         AlertView(openAlertDialog, currentError)
@@ -182,10 +208,12 @@ private fun AlertView(
         coroutineScope.launch {
             viewModel.settingsRepository.flow.collect { s ->
                 try {
-                    viewModel.gitRepository.clone(s.remoteAddress, s.remoteRepoPath)
+                    viewModel.gitRepository.clone(
+                        s.remoteAddress,
+                        s.remoteRepoPath,
+                    )
                     currentError.value = null
-                }
-                catch (e: GitException) {
+                } catch (e: GitException) {
                     currentError.value = e.message
                     Log.e(e.message ?: "Unknown error")
                 }
@@ -217,7 +245,7 @@ private fun AlertView(
                 TextButton(
                     onClick = {
                         openAlertDialog.value = false
-                    }
+                    },
                 ) {
                     Text(stringResource(R.string.no))
                 }
@@ -231,7 +259,7 @@ private fun TextFieldView(
     text: MutableState<String>,
     label: @Composable () -> Unit,
     leadingIcon: @Composable () -> Unit,
-    onDone: (KeyboardActionScope.() -> Unit)?
+    onDone: (KeyboardActionScope.() -> Unit)?,
 ) {
     TextField(
         value = text.value,
@@ -243,12 +271,17 @@ private fun TextFieldView(
         singleLine = true,
         shape = RoundedCornerShape(8.dp),
         modifier = Modifier.padding(bottom = 10.dp),
-        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done, keyboardType = KeyboardType.Text),
+        keyboardOptions =
+            KeyboardOptions(
+                imeAction = ImeAction.Done,
+                keyboardType = KeyboardType.Text,
+            ),
         keyboardActions = KeyboardActions(onDone = onDone),
         // Remove underline from textbox
-        colors = TextFieldDefaults.colors(
-            unfocusedIndicatorColor = Color.Transparent,
-            disabledIndicatorColor = Color.Transparent
-        )
+        colors =
+            TextFieldDefaults.colors(
+                unfocusedIndicatorColor = Color.Transparent,
+                disabledIndicatorColor = Color.Transparent,
+            ),
     )
 }

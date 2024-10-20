@@ -34,19 +34,22 @@ import kafva.kage.types.PwNode
 import javax.inject.Inject
 
 @HiltViewModel
-class TreeViewModel @Inject constructor(
-    val gitRepository: GitRepository,
-    val runtimeSettingsRepository: RuntimeSettingsRepository,
-) : ViewModel()
+class TreeViewModel
+    @Inject
+    constructor(
+        val gitRepository: GitRepository,
+        val runtimeSettingsRepository: RuntimeSettingsRepository,
+    ) : ViewModel()
 
 @Composable
 fun TreeView(
     navigateToPassword: (node: PwNode) -> Unit,
-    viewModel: TreeViewModel = hiltViewModel()
+    viewModel: TreeViewModel = hiltViewModel(),
 ) {
     val searchMatches by viewModel.gitRepository.searchMatches.collectAsState()
     val expandRecursively by viewModel.runtimeSettingsRepository
-                                      .expandRecursively.collectAsStateWithLifecycle()
+        .expandRecursively
+        .collectAsStateWithLifecycle()
 
     LazyColumn(modifier = G.containerModifier) {
         searchMatches.forEach { child ->
@@ -76,28 +79,43 @@ private fun TreeChildView(
         headlineContent = { Text(text = node.name, maxLines = 1) },
         leadingContent = {
             if (!isPassword) {
-                val icon = if (expanded) Icons.Filled.KeyboardArrowDown else
-                                         Icons.AutoMirrored.Filled.KeyboardArrowRight
-                Icon(icon, contentDescription = "Folder", modifier = Modifier.size(24.dp))
+                val icon =
+                    if (expanded) {
+                        Icons.Filled.KeyboardArrowDown
+                    } else {
+                        Icons.AutoMirrored.Filled.KeyboardArrowRight
+                    }
+                Icon(
+                    icon,
+                    contentDescription = "Folder",
+                    modifier = Modifier.size(24.dp),
+                )
             }
         },
-        modifier = Modifier.padding(start = (depth * 15).dp, bottom = 10.dp)
-                           .clip(RoundedCornerShape(50))
-                           .clickable {
-            if (isPassword) {
-                navigateToPassword(node)
-            }
-            else {
-                isExpanded = !isExpanded
-            }
-        },
-        colors = ListItemDefaults.colors(
-          containerColor = MaterialTheme.colorScheme.surfaceVariant,
-        )
+        modifier =
+            Modifier
+                .padding(start = (depth * 15).dp, bottom = 10.dp)
+                .clip(RoundedCornerShape(50))
+                .clickable {
+                    if (isPassword) {
+                        navigateToPassword(node)
+                    } else {
+                        isExpanded = !isExpanded
+                    }
+                },
+        colors =
+            ListItemDefaults.colors(
+                containerColor = MaterialTheme.colorScheme.surfaceVariant,
+            ),
     )
     if (!isPassword && expanded) {
         node.children.forEach { child ->
-            TreeChildView(child, expandRecursively, navigateToPassword, depth + 1)
+            TreeChildView(
+                child,
+                expandRecursively,
+                navigateToPassword,
+                depth + 1,
+            )
         }
     }
 }

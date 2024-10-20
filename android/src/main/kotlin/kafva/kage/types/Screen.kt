@@ -19,4 +19,3 @@ sealed interface Screen {
         override val route = "Password"
     }
 }
-

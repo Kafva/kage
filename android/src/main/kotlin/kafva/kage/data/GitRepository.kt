@@ -9,69 +9,76 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import kafva.kage.jni.Git as Jni
 
-class GitException(message: String): Exception(message)
+class GitException(
+    message: String,
+) : Exception(message)
 
-/// Keep mutable state flows private, and expose non-modifiable state-flows
+// / Keep mutable state flows private, and expose non-modifiable state-flows
 @Singleton
-class GitRepository @Inject constructor(private val appRepository: AppRepository) {
-    private val repoStr = appRepository.localRepo.toPath().toString()
+class GitRepository
+    @Inject
+    constructor(
+        private val appRepository: AppRepository,
+    ) {
+        private val repoStr = appRepository.localRepo.toPath().toString()
 
-    private val _query = MutableStateFlow("")
-    val query: StateFlow<String> = _query
+        private val rootNode = MutableStateFlow<PwNode?>(null)
 
-    private val _searchMatches = MutableStateFlow<List<PwNode>>(listOf())
-    val searchMatches: StateFlow<List<PwNode>> = _searchMatches
+        private val _query = MutableStateFlow("")
+        val query: StateFlow<String> = _query
 
-    private val _rootNode = MutableStateFlow<PwNode?>(null)
-    private val rootNode: StateFlow<PwNode?> = _rootNode
+        private val _searchMatches = MutableStateFlow<List<PwNode>>(listOf())
+        val searchMatches: StateFlow<List<PwNode>> = _searchMatches
 
-    private val _passwordCount = MutableStateFlow<Int>(0)
-    val passwordCount: StateFlow<Int> = _passwordCount
+        private val _passwordCount = MutableStateFlow<Int>(0)
+        val passwordCount: StateFlow<Int> = _passwordCount
 
-    /// (Re)load password tree from disk
-    fun setup() {
-        _rootNode.value = PwNode(appRepository.localRepo, listOf())
-        // Populate the search result with all nodes
-        _searchMatches.value = rootNode.value?.findChildren(_query.value) ?: listOf()
-        // Update the password count
-        _passwordCount.value = _rootNode.value?.passwordCount() ?: 0
-    }
-
-    /// Reclone from URL
-    @Throws(GitException::class)
-    fun clone(remoteAddress: String, remoteRepoPath: String) {
-        Log.v("Recloning into ${appRepository.localRepo}...")
-        appRepository.localRepo.deleteRecursively()
-
-        val url = "git://${remoteAddress}/${remoteRepoPath}"
-        val r = Jni.clone(url, repoStr)
-        if (r != 0) {
-            raiseError()
+        // / (Re)load password tree from disk
+        fun setup() {
+            rootNode.value = PwNode(appRepository.localRepo, listOf())
+            // Populate the search result with all nodes
+            _searchMatches.value =
+                rootNode.value?.findChildren(_query.value) ?: listOf()
+            // Update the password count
+            _passwordCount.value = rootNode.value?.passwordCount() ?: 0
         }
-        else {
-            Log.d("Clone ok")
-            setup()
+
+        // / Reclone from URL
+        @Throws(GitException::class)
+        fun clone(
+            remoteAddress: String,
+            remoteRepoPath: String,
+        ) {
+            Log.v("Recloning into ${appRepository.localRepo}...")
+            appRepository.localRepo.deleteRecursively()
+
+            val url = "git://$remoteAddress/$remoteRepoPath"
+            val r = Jni.clone(url, repoStr)
+            if (r != 0) {
+                raiseError()
+            } else {
+                Log.d("Clone ok")
+                setup()
+            }
+        }
+
+        fun log(): List<CommitInfo> =
+            Jni.log(repoStr).map { logStr -> CommitInfo(logStr) }
+
+        fun updateMatches(text: String) {
+            Log.d("Updated query: ${query.value}")
+            _query.value = text.lowercase()
+            _searchMatches.value =
+                rootNode.value?.findChildren(query.value) ?: listOf()
+        }
+
+        @Throws(GitException::class)
+        private fun raiseError() {
+            val message = Jni.strerror()
+            if (message != null) {
+                throw GitException(message)
+            } else {
+                throw GitException("Unknown error")
+            }
         }
     }
-
-    fun log(): List<CommitInfo> {
-        return Jni.log(repoStr).map { logStr -> CommitInfo(logStr) }
-    }
-
-    fun updateMatches(text: String) {
-        Log.d("Updated query: ${query.value}")
-        _query.value = text.lowercase()
-        _searchMatches.value = rootNode.value?.findChildren(query.value) ?: listOf()
-    }
-
-    @Throws(GitException::class)
-    private fun raiseError() {
-        val message = Jni.strerror()
-        if (message != null) {
-            throw GitException(message)
-        }
-        else {
-            throw GitException("Unknown error")
-        }
-    }
-}

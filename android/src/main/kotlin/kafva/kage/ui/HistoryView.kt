@@ -22,32 +22,45 @@ import kafva.kage.data.GitRepository
 import javax.inject.Inject
 
 @HiltViewModel
-class HistoryViewModel @Inject constructor(
-    val gitRepository: GitRepository
-) : ViewModel()
+class HistoryViewModel
+    @Inject
+    constructor(
+        val gitRepository: GitRepository,
+    ) : ViewModel()
 
 @Composable
-fun HistoryView(
-    viewModel: HistoryViewModel = hiltViewModel()
-) {
+fun HistoryView(viewModel: HistoryViewModel = hiltViewModel()) {
     LazyColumn(modifier = G.containerModifier) {
         viewModel.gitRepository.log().forEach { log ->
             item {
                 ListItem(
-                    headlineContent = { Text(text = log.summary,
-                                             fontSize = 14.sp,
-                                             maxLines = 1,
-                                             overflow = TextOverflow.Ellipsis) },
-                    leadingContent = {
-                        Text(log.date, fontSize = 12.sp,
-                             color = Color.Gray,
-                             maxLines = 1,
-                             overflow = TextOverflow.Ellipsis)
+                    headlineContent = {
+                        Text(
+                            text = log.summary,
+                            fontSize = 14.sp,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
                     },
-                    modifier = Modifier.padding(bottom = 10.dp).clip(RoundedCornerShape(50)),
-                    colors = ListItemDefaults.colors(
-                      containerColor = MaterialTheme.colorScheme.surfaceContainer,
-                    )
+                    leadingContent = {
+                        Text(
+                            log.date,
+                            fontSize = 12.sp,
+                            color = Color.Gray,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                    },
+                    modifier =
+                        Modifier
+                            .padding(
+                                bottom = 10.dp,
+                            ).clip(RoundedCornerShape(50)),
+                    colors =
+                        ListItemDefaults.colors(
+                            containerColor =
+                                MaterialTheme.colorScheme.surfaceContainer,
+                        ),
                 )
             }
         }

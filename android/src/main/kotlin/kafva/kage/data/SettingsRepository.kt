@@ -16,45 +16,49 @@ import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Singleton
 
-
-/// https://github.com/Kotlin-Android-Open-Source/DataStore-sample
+// / https://github.com/Kotlin-Android-Open-Source/DataStore-sample
 @Singleton
-class SettingsRepository @Inject constructor(
-    private val dataStore: DataStore<Preferences>,
-) {
-    private object Keys {
-        val remoteAddress = stringPreferencesKey("remoteAddress")
-        val remoteRepoPath = stringPreferencesKey("remoteRepoPath")
-    }
-
-    // https://developer.android.com/studio/run/emulator-networking
-    private inline val Preferences.remoteAddress
-        get() = this[Keys.remoteAddress] ?: (if (G.isEmulator) "10.0.2.2" else  "")
-
-    private inline val Preferences.remoteRepoPath
-        get() = this[Keys.remoteRepoPath] ?: (if (G.isEmulator) "james.git" else  "")
-
-
-    suspend fun updateSettings(s: Settings) {
-        dataStore.edit {
-            it[Keys.remoteAddress] = s.remoteAddress
-            it[Keys.remoteRepoPath] = s.remoteRepoPath
+class SettingsRepository
+    @Inject
+    constructor(
+        private val dataStore: DataStore<Preferences>,
+    ) {
+        private object Keys {
+            val remoteAddress = stringPreferencesKey("remoteAddress")
+            val remoteRepoPath = stringPreferencesKey("remoteRepoPath")
         }
-        Log.i("Updated settings: ${s.remoteAddress}/${s.remoteRepoPath}")
-    }
 
-    val flow: Flow<Settings> =
-        dataStore.data
-            .catch {
-                if (it is IOException) {
-                    emit(emptyPreferences())
-                } else {
-                    throw it
-                }
-            }.map { preferences ->
-                Settings(
-                    remoteAddress = preferences.remoteAddress,
-                    remoteRepoPath = preferences.remoteRepoPath,
-                )
-            }.distinctUntilChanged()
-}
+        // https://developer.android.com/studio/run/emulator-networking
+        private inline val Preferences.remoteAddress
+            get() =
+                this[Keys.remoteAddress]
+                    ?: (if (G.isEmulator) "10.0.2.2" else "")
+
+        private inline val Preferences.remoteRepoPath
+            get() =
+                this[Keys.remoteRepoPath]
+                    ?: (if (G.isEmulator) "james.git" else "")
+
+        suspend fun updateSettings(s: Settings) {
+            dataStore.edit {
+                it[Keys.remoteAddress] = s.remoteAddress
+                it[Keys.remoteRepoPath] = s.remoteRepoPath
+            }
+            Log.i("Updated settings: ${s.remoteAddress}/${s.remoteRepoPath}")
+        }
+
+        val flow: Flow<Settings> =
+            dataStore.data
+                .catch {
+                    if (it is IOException) {
+                        emit(emptyPreferences())
+                    } else {
+                        throw it
+                    }
+                }.map { preferences ->
+                    Settings(
+                        remoteAddress = preferences.remoteAddress,
+                        remoteRepoPath = preferences.remoteRepoPath,
+                    )
+                }.distinctUntilChanged()
+    }

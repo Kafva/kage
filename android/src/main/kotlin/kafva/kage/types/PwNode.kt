@@ -7,7 +7,6 @@ data class PwNode(
     var children: List<PwNode>,
 ) {
     companion object {
-
         private fun loadChildren(path: File): List<PwNode> {
             if (!path.isDirectory()) {
                 return listOf()
@@ -26,29 +25,26 @@ data class PwNode(
             return mutableChildren.toList()
         }
 
-        fun fromRoutePath(serialisedNodePath: String): String {
-            return serialisedNodePath.replace("|", "/")
-        }
+        fun fromRoutePath(serialisedNodePath: String): String =
+            serialisedNodePath.replace("|", "/")
 
-        fun prettyName(nodePath: String): String {
-            return nodePath.split("/").last().removeSuffix(".age")
-        }
+        fun prettyName(nodePath: String): String =
+            nodePath.split("/").last().removeSuffix(".age")
     }
 
     val name = path.getName().removeSuffix(".age")
     private val isPassword = path.getName().endsWith(".age")
     private val pathString = path.toPath().toString()
 
-    fun toRoutePath(filesDir: File): String {
-        return pathString.removePrefix("${filesDir.path}/").replace("/", "|")
-    }
+    fun toRoutePath(filesDir: File): String =
+        pathString.removePrefix("${filesDir.path}/").replace("/", "|")
 
-    /// Recursively load the nodes under the current path
+    // / Recursively load the nodes under the current path
     init {
         children = PwNode.loadChildren(path)
     }
 
-    /// Predicate should be provided in lowercase!
+    // / Predicate should be provided in lowercase!
     fun findChildren(predicate: String): List<PwNode> {
         // Include all of the children if there is no query
         if (predicate.isEmpty()) {
@@ -78,7 +74,7 @@ data class PwNode(
         return matches.toList()
     }
 
-    /// Recursive count of children
+    // / Recursive count of children
     fun passwordCount(): Int {
         val childCount = children.filter { it.isPassword }.count()
         return childCount + children.map { it.passwordCount() }.sum()
