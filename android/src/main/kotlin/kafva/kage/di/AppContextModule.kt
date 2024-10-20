@@ -10,14 +10,10 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import javax.inject.Singleton
-import java.io.File
-import javax.inject.Inject
-import kafva.kage.types.PwNode
-import kafva.kage.Log
-import kafva.kage.data.GitRepository
-import kafva.kage.data.AppRepository
 import kafva.kage.data.AgeRepository
+import kafva.kage.data.AppRepository
+import kafva.kage.data.GitRepository
+import javax.inject.Singleton
 
 
 @Module
@@ -56,9 +52,8 @@ object AppContextModule {
     fun provideAppContext(
         @ApplicationContext appContext: Context
     ): AppRepository {
-        val name = appContext.getPackageName()
-        val pkgManager = appContext.getPackageManager()
-        val pInfo: PackageInfo = pkgManager.getPackageInfo(name, 0)
+        val name = appContext.packageName
+        val pInfo: PackageInfo = appContext.packageManager.getPackageInfo(name, 0)
         val versionName = pInfo.versionName ?: "Unknown"
 
         val filesDir = appContext.filesDir

@@ -1,7 +1,6 @@
 package kafva.kage.types
 
 import java.io.File
-import kotlin.collections.sum
 
 data class PwNode(
     private val path: File,
@@ -19,7 +18,7 @@ data class PwNode(
             path.listFiles()?.forEach {
                 val name = it.getName() ?: ""
                 if (name != "" && !name.startsWith(".")) {
-                    val child: PwNode = PwNode(it, listOf())
+                    val child = PwNode(it, listOf())
                     mutableChildren.add(child)
                 }
             }
@@ -36,9 +35,9 @@ data class PwNode(
         }
     }
 
-    val isPassword = path.getName().endsWith(".age")
     val name = path.getName().removeSuffix(".age")
-    val pathString = path.toPath().toString()
+    private val isPassword = path.getName().endsWith(".age")
+    private val pathString = path.toPath().toString()
 
     fun toRoutePath(filesDir: File): String {
         return pathString.removePrefix("${filesDir.path}/").replace("/", "|")
@@ -56,7 +55,7 @@ data class PwNode(
             return children
         }
 
-        var matches: MutableList<PwNode> = mutableListOf()
+        val matches: MutableList<PwNode> = mutableListOf()
 
         // If the parent does not match the predicate, check each child
         for (child in children) {
@@ -67,11 +66,11 @@ data class PwNode(
             }
 
             // Check children recursively if the current child was not a match
-            var childMatches = child.findChildren(predicate)
+            val childMatches = child.findChildren(predicate)
 
             // Include the child with the subset of the child nodes that match the query
-            if (!childMatches.isEmpty()) {
-                var subsetChild = PwNode(child.path, childMatches.toList())
+            if (childMatches.isNotEmpty()) {
+                val subsetChild = PwNode(child.path, childMatches.toList())
                 matches.add(subsetChild)
             }
         }

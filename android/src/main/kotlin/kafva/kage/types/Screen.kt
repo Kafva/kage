@@ -18,6 +18,5 @@ sealed interface Screen {
     data object Password : Screen {
         override val route = "Password"
     }
-
 }
 

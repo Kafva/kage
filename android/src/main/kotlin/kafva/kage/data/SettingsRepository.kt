@@ -2,22 +2,19 @@ package kafva.kage.data
 
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.stringPreferencesKey
-import androidx.datastore.preferences.core.edit
+import kafva.kage.G
+import kafva.kage.Log
+import kafva.kage.types.Settings
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.collectLatest
 import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Singleton
-import kafva.kage.Log
-import kafva.kage.G
-import kafva.kage.types.Settings
 
 
 /// https://github.com/Kotlin-Android-Open-Source/DataStore-sample

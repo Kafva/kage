@@ -1,80 +1,50 @@
 package kafva.kage.ui
 
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.FloatingActionButtonDefaults
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.KeyboardArrowRight
-import androidx.compose.material.icons.filled.KeyboardArrowLeft
-import androidx.compose.material3.BottomAppBarDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.SearchBar
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.graphics.Color
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.Alignment
-import androidx.navigation.compose.rememberNavController
-import androidx.navigation.compose.currentBackStackEntryAsState
-import kafva.kage.types.Screen
-import androidx.navigation.NavHostController
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import kafva.kage.Log
-import android.os.Build;
-import androidx.compose.foundation.Image
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
-import androidx.compose.material3.IconButtonColors
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
-import kafva.kage.R
-import javax.inject.Inject
-import dagger.hilt.android.lifecycle.HiltViewModel
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
-import kafva.kage.data.RuntimeSettingsRepository
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kafva.kage.R
+import kafva.kage.data.AgeRepository
 import kafva.kage.data.AppRepository
 import kafva.kage.data.GitRepository
-import kafva.kage.data.AgeRepository
+import kafva.kage.data.RuntimeSettingsRepository
+import kafva.kage.types.Screen
+import javax.inject.Inject
 
 @HiltViewModel
 class ToolbarViewModel @Inject constructor(
@@ -82,10 +52,8 @@ class ToolbarViewModel @Inject constructor(
     val gitRepository: GitRepository,
     val ageRepository: AgeRepository,
     val runtimeSettingsRepository: RuntimeSettingsRepository,
-) : ViewModel() {}
+) : ViewModel()
 
-
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ToolbarView(
     currentRoute: String,
@@ -117,7 +85,7 @@ fun ToolbarView(
         bottomBar = {
             when (currentRoute) {
                 Screen.Home.route -> {
-                    ToolbarRow(arrangement = Arrangement.SpaceBetween) {
+                    ToolbarRow(arrangement = Arrangement.SpaceBetween, topPadding = 5.dp) {
                         BottomBar(navigateToSettings)
                     }
                 }
@@ -134,10 +102,10 @@ fun ToolbarView(
 @Composable
 private fun ToolbarRow(
     arrangement: Arrangement.Horizontal,
-    viewModel: ToolbarViewModel = hiltViewModel(),
+    topPadding: Dp = 30.dp,
     content: @Composable () -> Unit
 ) {
-    Row(modifier = Modifier.padding(top = 30.dp, bottom = 30.dp).fillMaxWidth(),
+    Row(modifier = Modifier.padding(top = topPadding, bottom = 30.dp).fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = arrangement) {
         content()

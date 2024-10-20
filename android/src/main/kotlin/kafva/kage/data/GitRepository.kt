@@ -39,7 +39,7 @@ class GitRepository @Inject constructor(private val appRepository: AppRepository
 
     /// Reclone from URL
     @Throws(GitException::class)
-    suspend fun clone(remoteAddress: String, remoteRepoPath: String) {
+    fun clone(remoteAddress: String, remoteRepoPath: String) {
         Log.v("Recloning into ${appRepository.localRepo}...")
         appRepository.localRepo.deleteRecursively()
 
