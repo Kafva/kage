@@ -1,17 +1,15 @@
 package kafva.kage.data
 
-import java.io.File
-import kafva.kage.jni.Age as Jni
-import kafva.kage.Log
+import androidx.lifecycle.Lifecycle
 import kafva.kage.G
+import kafva.kage.Log
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import dagger.hilt.components.SingletonComponent
+import java.io.File
 import java.time.Instant
-import java.util.Date
-import javax.inject.Singleton
 import javax.inject.Inject
-import androidx.lifecycle.Lifecycle
+import javax.inject.Singleton
+import kafva.kage.jni.Age as Jni
 
 class AgeException(message: String): Exception(message)
 

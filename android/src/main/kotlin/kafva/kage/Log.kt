@@ -2,7 +2,7 @@ package kafva.kage
 
 import android.util.Log as AndroidLog
 
-const val TAG = "kafva.kage"
+const val TAG = "kafva.kage" // XXX
 
 class Log {
     companion object {

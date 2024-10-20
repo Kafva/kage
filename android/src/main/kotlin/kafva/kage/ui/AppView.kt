@@ -49,7 +49,6 @@ class AppViewModel @Inject constructor(
     val ageRepository: AgeRepository,
 ) : ViewModel() {}
 
-@Preview
 @Composable
 fun AppView(
     navController: NavHostController = rememberNavController(),
@@ -86,7 +85,7 @@ fun AppView(
                 composable(Screen.History.route) {
                     HistoryView()
                 }
-                composable("${Screen.Password.route}/{nodePath}") { nodePath ->
+                composable("${Screen.Password.route}/{nodePath}") { _ ->
                     val argument = navBackStackEntry?.arguments?.getString("nodePath")
                     if (argument != null) {
                         PasswordView(argument)
