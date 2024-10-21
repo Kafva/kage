@@ -21,7 +21,6 @@ class GitRepository
         private val appRepository: AppRepository,
     ) {
         private val repoStr = appRepository.localRepo.toPath().toString()
-
         private val rootNode = MutableStateFlow<PwNode?>(null)
 
         private val _query = MutableStateFlow("")
@@ -48,11 +47,17 @@ class GitRepository
         fun clone(
             remoteAddress: String,
             remoteRepoPath: String,
+            localClone: Boolean,
         ) {
-            Log.v("Recloning into ${appRepository.localRepo}...")
             appRepository.localRepo.deleteRecursively()
 
-            val url = "git://$remoteAddress/$remoteRepoPath"
+            val url =
+                when (localClone) {
+                    true -> "file://$remoteRepoPath"
+                    else -> "git://$remoteAddress/$remoteRepoPath"
+                }
+            Log.d("Cloning $url into ${appRepository.localRepo}...")
+
             val r = Jni.clone(url, repoStr)
             if (r != 0) {
                 raiseError()

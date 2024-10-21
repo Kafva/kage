@@ -30,6 +30,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
@@ -227,6 +228,8 @@ private fun SearchField(viewModel: ToolbarViewModel = hiltViewModel()) {
             KeyboardOptions(
                 imeAction = ImeAction.Done,
                 keyboardType = KeyboardType.Text,
+                capitalization = KeyboardCapitalization.None,
+                autoCorrectEnabled = false,
             ),
         // Remove underline from textbox
         colors =

@@ -27,6 +27,7 @@ import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
@@ -125,6 +126,8 @@ fun PasswordView(
                     KeyboardOptions(
                         imeAction = ImeAction.Done,
                         keyboardType = KeyboardType.Text,
+                        capitalization = KeyboardCapitalization.None,
+                        autoCorrectEnabled = false,
                     ),
                 keyboardActions =
                     KeyboardActions(
