@@ -72,7 +72,8 @@ task<Exec>("rebuildCore") {
         standardOutput = output
         isIgnoreExitValue = true
     }
-    val targetArch = output.toString().trim()
+    val outStr = output.toString().trim()
+    val targetArch = if (outStr.isEmpty()) "aarch64" else outStr
 
     // https://docs.gradle.org/current/userguide/build_lifecycle.html
     doFirst {
