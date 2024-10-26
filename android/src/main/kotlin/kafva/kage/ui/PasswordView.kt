@@ -4,7 +4,9 @@ import android.content.ClipData
 import android.content.ClipDescription
 import android.os.PersistableBundle
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -28,6 +30,7 @@ import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
@@ -105,34 +108,36 @@ private fun PlaintextView(
     viewModel: PasswordViewModel = hiltViewModel(),
 ) {
     val clipboardManager = LocalClipboardManager.current
+    val interactionSource = remember { MutableInteractionSource() }
     val hidePlaintext: MutableState<Boolean> = remember { mutableStateOf(true) }
     val plaintext = viewModel.ageRepository.plaintext.collectAsState()
 
     Text(
         PwNode.prettyName(nodePath),
         fontSize = G.TITLE_FONT_SIZE.sp,
+        fontWeight = FontWeight.Bold,
         modifier = Modifier.padding(bottom = 30.dp),
     )
 
-    TextButton(
-        onClick = {
-            hidePlaintext.value = !hidePlaintext.value
+    Text(
+        if (hidePlaintext.value) {
+            stringResource(R.string.password_placeholder)
+        } else {
+            plaintext.value ?: ""
         },
-        modifier = Modifier.padding(top = 15.dp, bottom = 15.dp),
-    ) {
-        val text =
-            if (hidePlaintext.value) {
-                stringResource(R.string.password_placeholder)
-            } else {
-                plaintext.value ?: ""
-            }
-
-        Text(
-            text,
-            fontSize = G.BODY_FONT_SIZE.sp,
-            color = MaterialTheme.colorScheme.primary,
-        )
-    }
+        fontSize = G.TITLE2_FONT_SIZE.sp,
+        color = MaterialTheme.colorScheme.primary,
+        modifier =
+            Modifier
+                .padding(top = 15.dp, bottom = 15.dp)
+                .height(60.dp)
+                .clickable(
+                    indication = null,
+                    interactionSource = interactionSource,
+                ) {
+                    hidePlaintext.value = !hidePlaintext.value
+                },
+    )
 
     TextButton(
         onClick = {
@@ -166,7 +171,7 @@ private fun UnlockView(
     Text(
         stringResource(R.string.authentication),
         fontSize = G.TITLE_FONT_SIZE.sp,
-        modifier = Modifier.padding(bottom = 12.dp),
+        modifier = Modifier.padding(bottom = 30.dp),
     )
     TextField(
         value = passphrase.value ?: "",

@@ -1,6 +1,8 @@
 package kafva.kage.ui
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -12,18 +14,17 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -80,39 +81,36 @@ fun ToolbarView(
                     }
                 }
                 else -> {
+                    val interactionSource =
+                        remember { MutableInteractionSource() }
                     ToolbarRowView(
                         arrangement = Arrangement.Start,
-                        modifier = Modifier.fillMaxWidth(),
+                        // Disable ripple effect on interaction
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .clickable(
+                                    indication = null,
+                                    interactionSource = interactionSource,
+                                ) { navigateBack() },
                     ) {
-                        TextButton(
-                            onClick = { navigateBack() },
-                            colors =
-                                ButtonColors(
-                                    contentColor =
-                                        MaterialTheme.colorScheme.onBackground,
-                                    containerColor = Color.Transparent,
-                                    disabledContentColor = Color.Transparent,
-                                    disabledContainerColor = Color.Transparent,
-                                ),
-                        ) {
-                            Icon(
-                                Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-                                "Go home",
-                                modifier =
-                                    Modifier
-                                        .size(
-                                            G.LARGE_ICON_SIZE.dp,
-                                        ).padding(end = 10.dp),
-                            )
+                        Icon(
+                            Icons.AutoMirrored.Filled.KeyboardArrowLeft,
+                            "Go home",
+                            modifier =
+                                Modifier
+                                    .size(
+                                        G.LARGE_ICON_SIZE.dp,
+                                    ).padding(start = 10.dp, end = 10.dp),
+                        )
 
-                            if (currentRoute.contains("/")) {
-                                Text("Back", fontSize = G.TITLE_FONT_SIZE.sp)
-                            } else {
-                                Text(
-                                    currentRoute,
-                                    fontSize = G.TITLE_FONT_SIZE.sp,
-                                )
-                            }
+                        if (currentRoute.contains("/")) {
+                            Text("Back", fontSize = G.TITLE2_FONT_SIZE.sp)
+                        } else {
+                            Text(
+                                currentRoute,
+                                fontSize = G.TITLE_FONT_SIZE.sp,
+                            )
                         }
                     }
                 }
@@ -140,7 +138,7 @@ fun ToolbarView(
 @Composable
 private fun ToolbarRowView(
     arrangement: Arrangement.Horizontal,
-    topPadding: Dp = 10.dp,
+    topPadding: Dp = 30.dp,
     bottomPadding: Dp = 30.dp,
     modifier: Modifier? = null,
     content: @Composable () -> Unit,

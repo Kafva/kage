@@ -225,7 +225,11 @@ private fun AlertView(
 private fun TextFooterView(text: String) {
     Text(
         text,
-        modifier = Modifier.padding(start = LEADING_PADDING.dp, bottom = 10.dp),
+        modifier =
+            Modifier.padding(
+                start = (LEADING_PADDING + 12).dp,
+                bottom = 10.dp,
+            ),
         fontSize = G.FOOTNOTE_FONT_SIZE.sp,
         maxLines = 1,
         color = MaterialTheme.colorScheme.outline,
@@ -244,6 +248,7 @@ private fun TextLinkView(
         modifier =
             Modifier
                 .height(75.dp)
+                .fillMaxWidth(0.95f)
                 .padding(start = LEADING_PADDING.dp, bottom = 10.dp)
                 .clip(RoundedCornerShape(8.dp))
                 .clickable(true) { action() },
