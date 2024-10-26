@@ -4,9 +4,6 @@
 //
 // We use ONE build.gradle file, we only have one module.
 
-import com.android.build.gradle.internal.cxx.logging.warnln
-import java.io.ByteArrayOutputStream
-
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)

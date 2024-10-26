@@ -34,6 +34,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -95,6 +96,10 @@ fun SettingsView(
                 Image(
                     painterResource(R.drawable.my_location),
                     stringResource(R.string.repository),
+                    colorFilter =
+                        ColorFilter.tint(
+                            MaterialTheme.colorScheme.onBackground,
+                        ),
                 )
             },
             label = { Text(stringResource(R.string.repository)) },
@@ -104,15 +109,14 @@ fun SettingsView(
         Card(modifier = G.containerModifier) {
             Spacer(modifier = Modifier.height(20.dp))
 
-            TextLinkView(stringResource(R.string.reset_repository), {
+            TextLinkView(stringResource(R.string.reset_repository)) {
                 openAlertDialog.value =
                     true
-            })
+            }
 
             TextLinkView(
                 stringResource(R.string.history),
-                { navigateToHistory() },
-            )
+            ) { navigateToHistory() }
 
             TextFooterView(
                 context.getString(R.string.password_count, passwordCount.value),
