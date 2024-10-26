@@ -1,0 +1,4 @@
+<resources>
+    <!-- Splash screen color to match app icon -->
+    <color name="splashBackground">#181616</color>
+</resources>

@@ -21,6 +21,7 @@ android {
     defaultConfig {
         applicationId = "kafva.kage"
         minSdk = 34
+        //noinspection OldTargetApi
         targetSdk = 34
         versionCode = 1
         versionName = "0.1.0" // XXX: Keep in sync manually

@@ -16,7 +16,6 @@ object G {
     const val BODY_FONT_SIZE = 18
     const val FOOTNOTE_FONT_SIZE = 14
 
-    const val LARGE_ICON_SIZE = 65
     const val MEDIUM_ICON_SIZE = 30
     const val ICON_SIZE = 20
 
@@ -28,7 +27,7 @@ object G {
         Modifier
             .fillMaxWidth(
                 0.85f,
-            ).padding(top = 75.dp)
+            ).padding(top = 60.dp)
 
     // Very basic check if we are on emulator
     val isEmulator = Build.MODEL.startsWith("sdk_gphone")

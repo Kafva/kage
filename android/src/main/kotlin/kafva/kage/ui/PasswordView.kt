@@ -125,7 +125,12 @@ private fun PlaintextView(
         } else {
             plaintext.value ?: ""
         },
-        fontSize = G.TITLE2_FONT_SIZE.sp,
+        fontSize =
+            if (hidePlaintext.value) {
+                35.sp // Placeholder dots are small
+            } else {
+                G.TITLE2_FONT_SIZE.sp
+            },
         color = MaterialTheme.colorScheme.primary,
         modifier =
             Modifier

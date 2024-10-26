@@ -15,7 +15,6 @@ import androidx.compose.foundation.text.KeyboardActionScope
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
@@ -37,6 +36,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -114,11 +114,17 @@ fun SettingsView(
         Card(modifier = G.containerModifier) {
             Spacer(modifier = Modifier.height(20.dp))
 
-            TextLinkView(stringResource(R.string.reset_repository)) {
+            TextLinkView(
+                stringResource(R.string.reset_repository),
+                painterResource(R.drawable.settings_backup_restore),
+            ) {
                 openAlertDialog.value = true
             }
 
-            TextLinkView(stringResource(R.string.history)) {
+            TextLinkView(
+                stringResource(R.string.history),
+                painterResource(R.drawable.linked_services),
+            ) {
                 navigateToHistory()
             }
 
@@ -214,7 +220,10 @@ private fun AlertView(
                         openAlertDialog.value = false
                     },
                 ) {
-                    Text(stringResource(R.string.no))
+                    Text(
+                        stringResource(R.string.no),
+                        color = MaterialTheme.colorScheme.onBackground,
+                    )
                 }
             },
         )
@@ -239,6 +248,7 @@ private fun TextFooterView(text: String) {
 @Composable
 private fun TextLinkView(
     text: String,
+    painter: Painter,
     action: (() -> Unit),
 ) {
     Row(
@@ -247,9 +257,9 @@ private fun TextLinkView(
         // Expand the area of the ripple click effect
         modifier =
             Modifier
-                .height(75.dp)
-                .fillMaxWidth(0.95f)
-                .padding(start = LEADING_PADDING.dp, bottom = 10.dp)
+                .height(50.dp)
+                .fillMaxWidth(0.85f)
+                .padding(start = LEADING_PADDING.dp, bottom = 4.dp)
                 .clip(RoundedCornerShape(8.dp))
                 .clickable(true) { action() },
     ) {
@@ -258,15 +268,24 @@ private fun TextLinkView(
             fontSize = G.BODY_FONT_SIZE.sp,
             color = MaterialTheme.colorScheme.onSurface,
             maxLines = 1,
-            modifier = Modifier.padding(start = 12.dp, end = 12.dp),
+            modifier = Modifier.padding(start = 12.dp),
         )
 
-        Icon(
-            Icons.AutoMirrored.Filled.KeyboardArrowRight,
-            text,
-            tint = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.padding(start = 12.dp, end = 12.dp),
-        )
+        Row(modifier = Modifier.padding(end = 12.dp)) {
+            Image(
+                painter,
+                "Link",
+                colorFilter =
+                    ColorFilter.tint(
+                        MaterialTheme.colorScheme.onBackground,
+                    ),
+                modifier =
+                    Modifier
+                        .size(
+                            G.ICON_SIZE.dp,
+                        ),
+            )
+        }
     }
 }
 

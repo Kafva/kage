@@ -61,7 +61,12 @@ fun AppView(
             verticalArrangement = Arrangement.spacedBy(10.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            NavHost(navController = navController, Screen.Home.route) {
+            NavHost(
+                navController = navController,
+                startDestination = Screen.Home.route,
+                // enterTransition = { EnterTransition.None },
+                // exitTransition = { ExitTransition.None },
+            ) {
                 composable(Screen.Home.route) {
                     TreeView({ node ->
                         val nodePath =

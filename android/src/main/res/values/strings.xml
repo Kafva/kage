@@ -11,7 +11,7 @@
     <string name="error">Error: %1$s</string>
     <string name="authentication">Authentication required</string>
     <string name="copy">Copy…</string>
-    <string name="passphrase">Passphrase…</string>
+    <string name="passphrase">Passphrase</string>
     <string name="password_placeholder">•••••••••</string>
     <string name="search_placeholder">Search…</string>
 </resources>

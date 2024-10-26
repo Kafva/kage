@@ -93,19 +93,17 @@ fun ToolbarView(
                                     indication = null,
                                     interactionSource = interactionSource,
                                 ) { navigateBack() },
+                        topPadding = 10.dp,
                     ) {
                         Icon(
                             Icons.AutoMirrored.Filled.KeyboardArrowLeft,
                             "Go home",
                             modifier =
-                                Modifier
-                                    .size(
-                                        G.LARGE_ICON_SIZE.dp,
-                                    ).padding(start = 10.dp, end = 10.dp),
+                                Modifier.size(50.dp).padding(start = 10.dp),
                         )
 
                         if (currentRoute.contains("/")) {
-                            Text("Back", fontSize = G.TITLE2_FONT_SIZE.sp)
+                            Text("Back", fontSize = G.BODY_FONT_SIZE.sp)
                         } else {
                             Text(
                                 currentRoute,
@@ -251,8 +249,9 @@ private fun SearchView(viewModel: ToolbarViewModel = hiltViewModel()) {
             Text(
                 stringResource(R.string.search_placeholder),
                 modifier = Modifier.fillMaxWidth(0.65f),
-                textAlign = TextAlign.Center,
+                textAlign = TextAlign.Start,
                 fontSize = G.TITLE2_FONT_SIZE.sp,
+                color = MaterialTheme.colorScheme.outline,
             )
         },
         singleLine = true,
@@ -273,8 +272,9 @@ private fun SearchView(viewModel: ToolbarViewModel = hiltViewModel()) {
             ),
         textStyle =
             TextStyle(
-                textAlign = TextAlign.Center,
+                textAlign = TextAlign.Start,
                 fontSize = G.TITLE2_FONT_SIZE.sp,
             ),
+        modifier = Modifier.fillMaxWidth(0.6f),
     )
 }
