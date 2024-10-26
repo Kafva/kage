@@ -84,7 +84,7 @@ private fun TreeChildView(
                 Icon(
                     icon,
                     contentDescription = "Folder",
-                    modifier = Modifier.size(24.dp),
+                    modifier = Modifier.size(G.LARGE_ICON_SIZE.dp),
                 )
             }
         },

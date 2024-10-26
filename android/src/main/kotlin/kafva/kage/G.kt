@@ -11,8 +11,21 @@ object G {
 
     const val AUTO_LOCK_SECONDS: Long = 120
 
+    const val TITLE_FONT_SIZE = 26
+    const val TITLE2_FONT_SIZE = 22
+    const val BODY_FONT_SIZE = 18
+    const val FOOTNOTE_FONT_SIZE = 14
+
+    const val LARGE_ICON_SIZE = 30
+    const val ICON_SIZE = 20
+
     // Spacing modifier to apply on the main container element for each view
     val containerModifier = Modifier.fillMaxWidth(0.85f).padding(top = 20.dp)
+    val containerModifierCentered =
+        Modifier
+            .fillMaxWidth(
+                0.85f,
+            ).padding(top = 200.dp)
 
     // Very basic check if we are on emulator
     val isEmulator = Build.MODEL.startsWith("sdk_gphone")

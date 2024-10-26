@@ -61,7 +61,6 @@ class GitRepository
             Jni.log(repoStr)?.map { logStr -> CommitInfo(logStr) } ?: listOf()
 
         fun updateMatches(text: String) {
-            Log.d("Updated query: ${query.value}")
             _query.value = text.lowercase()
             _searchMatches.value =
                 rootNode.value?.findChildren(query.value) ?: listOf()

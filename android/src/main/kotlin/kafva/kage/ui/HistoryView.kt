@@ -36,7 +36,7 @@ fun HistoryView(viewModel: HistoryViewModel = hiltViewModel()) {
                     headlineContent = {
                         Text(
                             text = log.summary,
-                            fontSize = 14.sp,
+                            fontSize = G.BODY_FONT_SIZE.sp,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
                         )
@@ -44,7 +44,7 @@ fun HistoryView(viewModel: HistoryViewModel = hiltViewModel()) {
                     leadingContent = {
                         Text(
                             log.date,
-                            fontSize = 12.sp,
+                            fontSize = G.FOOTNOTE_FONT_SIZE.sp,
                             color = MaterialTheme.colorScheme.outline,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,

@@ -1,11 +1,13 @@
 package kafva.kage.ui
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -35,10 +37,12 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kafva.kage.G
 import kafva.kage.R
 import kafva.kage.data.AgeRepository
 import kafva.kage.data.GitRepository
@@ -66,27 +70,29 @@ fun ToolbarView(
         topBar = {
             when (currentRoute) {
                 Screen.Home.route -> {
-                    ToolbarRow(
+                    ToolbarRowView(
                         arrangement = Arrangement.Center,
                         bottomPadding = 5.dp,
                     ) {
-                        SearchField()
+                        SearchView()
                     }
                 }
                 else -> {
-                    ToolbarRow(
-                        arrangement = Arrangement.Start,
-                        bottomPadding = 5.dp,
+                    Row(
+                        horizontalArrangement = Arrangement.Start,
+                        modifier = Modifier.clickable(true) { navigateBack() },
                     ) {
-                        IconButton(onClick = navigateBack) {
-                            Icon(
-                                Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-                                "Go home",
-                            )
-                        }
+                        Icon(
+                            Icons.AutoMirrored.Filled.KeyboardArrowLeft,
+                            "Go home",
+                            modifier =
+                                Modifier.size(
+                                    (G.LARGE_ICON_SIZE + 10).dp,
+                                ),
+                        )
 
                         if (!currentRoute.contains("/")) {
-                            Text(currentRoute)
+                            Text(currentRoute, fontSize = G.TITLE_FONT_SIZE.sp)
                         }
                     }
                 }
@@ -95,11 +101,11 @@ fun ToolbarView(
         bottomBar = {
             when (currentRoute) {
                 Screen.Home.route -> {
-                    ToolbarRow(
+                    ToolbarRowView(
                         arrangement = Arrangement.SpaceBetween,
                         topPadding = 5.dp,
                     ) {
-                        BottomBar(navigateToSettings)
+                        BottomBarView(navigateToSettings)
                     }
                 }
                 else -> {}
@@ -111,10 +117,11 @@ fun ToolbarView(
 }
 
 @Composable
-private fun ToolbarRow(
+private fun ToolbarRowView(
     arrangement: Arrangement.Horizontal,
-    topPadding: Dp = 30.dp,
+    topPadding: Dp = 50.dp,
     bottomPadding: Dp = 30.dp,
+    action: (() -> Unit)? = null,
     content: @Composable () -> Unit,
 ) {
     Row(
@@ -132,7 +139,7 @@ private fun ToolbarRow(
 }
 
 @Composable
-private fun BottomBar(
+private fun BottomBarView(
     navigateToSettings: () -> Unit,
     viewModel: ToolbarViewModel = hiltViewModel(),
 ) {
@@ -146,7 +153,11 @@ private fun BottomBar(
         onClick = navigateToSettings,
         modifier = Modifier.padding(start = 10.dp),
     ) {
-        Icon(Icons.Filled.Settings, "Settings")
+        Icon(
+            Icons.Filled.Settings,
+            "Settings",
+            modifier = Modifier.size(G.LARGE_ICON_SIZE.dp),
+        )
     }
 
     Row {
@@ -169,6 +180,7 @@ private fun BottomBar(
                     ColorFilter.tint(
                         MaterialTheme.colorScheme.onBackground,
                     ),
+                modifier = Modifier.size(G.LARGE_ICON_SIZE.dp),
             )
         }
 
@@ -194,13 +206,14 @@ private fun BottomBar(
                 icon,
                 colorFilter = colorFilter,
                 contentDescription = "Toggle lock",
+                modifier = Modifier.size(G.LARGE_ICON_SIZE.dp),
             )
         }
     }
 }
 
 @Composable
-private fun SearchField(viewModel: ToolbarViewModel = hiltViewModel()) {
+private fun SearchView(viewModel: ToolbarViewModel = hiltViewModel()) {
     val query = viewModel.gitRepository.query.collectAsState()
 
     TextField(
@@ -220,6 +233,7 @@ private fun SearchField(viewModel: ToolbarViewModel = hiltViewModel()) {
                 stringResource(R.string.search_placeholder),
                 modifier = Modifier.fillMaxWidth(0.65f),
                 textAlign = TextAlign.Center,
+                fontSize = G.TITLE2_FONT_SIZE.sp,
             )
         },
         singleLine = true,
@@ -238,6 +252,10 @@ private fun SearchField(viewModel: ToolbarViewModel = hiltViewModel()) {
                 unfocusedIndicatorColor = Color.Transparent,
                 disabledIndicatorColor = Color.Transparent,
             ),
-        textStyle = TextStyle(textAlign = TextAlign.Center),
+        textStyle =
+            TextStyle(
+                textAlign = TextAlign.Center,
+                fontSize = G.TITLE2_FONT_SIZE.sp,
+            ),
     )
 }

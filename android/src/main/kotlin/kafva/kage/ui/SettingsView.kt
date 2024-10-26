@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActionScope
 import androidx.compose.foundation.text.KeyboardActions
@@ -33,6 +34,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
@@ -86,7 +88,7 @@ fun SettingsView(
     }
 
     Column(
-        modifier = G.containerModifier,
+        modifier = G.containerModifierCentered,
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
@@ -100,6 +102,7 @@ fun SettingsView(
                         ColorFilter.tint(
                             MaterialTheme.colorScheme.onBackground,
                         ),
+                    modifier = Modifier.size(G.ICON_SIZE.dp),
                 )
             },
             label = { Text(stringResource(R.string.repository)) },
@@ -110,13 +113,12 @@ fun SettingsView(
             Spacer(modifier = Modifier.height(20.dp))
 
             TextLinkView(stringResource(R.string.reset_repository)) {
-                openAlertDialog.value =
-                    true
+                openAlertDialog.value = true
             }
 
-            TextLinkView(
-                stringResource(R.string.history),
-            ) { navigateToHistory() }
+            TextLinkView(stringResource(R.string.history)) {
+                navigateToHistory()
+            }
 
             TextFooterView(
                 context.getString(R.string.password_count, passwordCount.value),
@@ -136,7 +138,7 @@ fun SettingsView(
             Text(
                 context.getString(R.string.error, currentError.value),
                 color = MaterialTheme.colorScheme.error,
-                fontSize = 14.sp,
+                fontSize = G.BODY_FONT_SIZE.sp,
                 modifier =
                     Modifier
                         .padding(
@@ -221,8 +223,8 @@ private fun AlertView(
 private fun TextFooterView(text: String) {
     Text(
         text,
-        modifier = Modifier.padding(start = 35.dp, bottom = 10.dp),
-        fontSize = 12.sp,
+        modifier = Modifier.padding(start = (35 + 8).dp, bottom = 10.dp),
+        fontSize = G.FOOTNOTE_FONT_SIZE.sp,
         maxLines = 1,
         color = MaterialTheme.colorScheme.outline,
     )
@@ -236,25 +238,28 @@ private fun TextLinkView(
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween,
+        // Expand the area of the ripple click effect
         modifier =
             Modifier
-                .fillMaxWidth(
-                    0.95f,
-                ).padding(bottom = 20.dp, start = 35.dp)
+                .height(75.dp)
+                // .width(200.dp)
+                .padding(start = 35.dp, bottom = 10.dp)
+                .clip(RoundedCornerShape(8.dp))
                 .clickable(true) { action() },
     ) {
         Text(
             text,
-            fontSize = 14.sp,
+            fontSize = G.BODY_FONT_SIZE.sp,
             color = MaterialTheme.colorScheme.onSurface,
             maxLines = 1,
-            modifier = Modifier.padding(end = 4.dp),
+            modifier = Modifier.padding(start = 12.dp),
         )
 
         Icon(
             Icons.AutoMirrored.Filled.KeyboardArrowRight,
             text,
             tint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.padding(end = 12.dp),
         )
     }
 }

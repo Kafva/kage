@@ -30,16 +30,6 @@ android {
         }
     }
 
-    buildTypes {
-        release {
-            isMinifyEnabled = true
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
-        }
-    }
-
     signingConfigs {
         create("release") {
             keyAlias = "kage"
@@ -47,6 +37,13 @@ android {
             // Default password from tools/genkey
             keyPassword = "password"
             storePassword = "password"
+        }
+    }
+
+    buildTypes {
+        release {
+            isMinifyEnabled = true
+            signingConfig = signingConfigs.getByName("release")
         }
     }
 

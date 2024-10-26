@@ -57,110 +57,26 @@ fun PasswordView(
     viewModel: PasswordViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
-    val clipboardManager = LocalClipboardManager.current
-    val plaintext = viewModel.ageRepository.plaintext.collectAsState()
-    val passphrase = viewModel.ageRepository.passphrase.collectAsState()
     val identityUnlockedAt by viewModel.ageRepository.identityUnlockedAt
         .collectAsStateWithLifecycle()
-    val hidePlaintext: MutableState<Boolean> = remember { mutableStateOf(true) }
     val nodePath = PwNode.fromRoutePath(serialisedNodePath)
     val currentError: MutableState<String?> = remember { mutableStateOf(null) }
 
     Column(
-        modifier = G.containerModifier,
+        modifier = G.containerModifierCentered,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         if (identityUnlockedAt != null) {
-            Text(
-                PwNode.prettyName(nodePath),
-                fontSize = 20.sp,
-                modifier = Modifier.padding(bottom = 20.dp),
-            )
-            Text(
-                if (hidePlaintext.value) {
-                    stringResource(R.string.password_placeholder)
-                } else {
-                    plaintext.value ?: ""
-                },
-                fontSize = 18.sp,
-                color = MaterialTheme.colorScheme.primary,
-                modifier =
-                    Modifier
-                        .padding(bottom = 15.dp)
-                        .clickable(true) {
-                            hidePlaintext.value =
-                                !hidePlaintext.value
-                        },
-            )
-            TextButton(
-                onClick = {
-                    if (plaintext.value != null) {
-                        val clipData =
-                            ClipData.newPlainText(
-                                "plaintext",
-                                plaintext.value ?: "",
-                            )
-                        val clipEntry = ClipEntry(clipData)
-                        clipboardManager.setClip(clipEntry)
-                    }
-                },
-            ) {
-                Text(stringResource(R.string.copy))
-            }
+            PlaintextView(nodePath)
         } else {
-            Text(
-                stringResource(R.string.authentication),
-                fontSize = 20.sp,
-                modifier = Modifier.padding(bottom = 12.dp),
-            )
-            TextField(
-                value = passphrase.value ?: "",
-                label = { Text(stringResource(R.string.passphrase)) },
-                singleLine = true,
-                shape = RoundedCornerShape(8.dp),
-                onValueChange = {
-                    viewModel.ageRepository.setPassphrase(it)
-                },
-                visualTransformation = PasswordVisualTransformation(Char(0x2A)),
-                keyboardOptions =
-                    KeyboardOptions(
-                        imeAction = ImeAction.Done,
-                        keyboardType = KeyboardType.Text,
-                        capitalization = KeyboardCapitalization.None,
-                        autoCorrectEnabled = false,
-                    ),
-                keyboardActions =
-                    KeyboardActions(
-                        onDone = {
-                            try {
-                                viewModel.ageRepository.unlockIdentity(
-                                    passphrase.value ?: "",
-                                )
-                                // Clear passphrase after trying it
-                                viewModel.ageRepository.setPassphrase(null)
-                                viewModel.ageRepository.decrypt(nodePath)
-                                currentError.value = null
-                            } catch (e: AgeException) {
-                                currentError.value = e.message
-                                Log.e(e.message ?: "Unknown error")
-                            }
-                        },
-                    ),
-                // Remove underline from textbox
-                colors =
-                    TextFieldDefaults.colors(
-                        focusedIndicatorColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.Transparent,
-                        disabledIndicatorColor = Color.Transparent,
-                    ),
-            )
+            UnlockView(nodePath, currentError)
         }
 
         if (currentError.value != null) {
             Text(
                 context.getString(R.string.error, currentError.value),
                 color = MaterialTheme.colorScheme.error,
-                fontSize = 14.sp,
+                fontSize = G.BODY_FONT_SIZE.sp,
                 modifier =
                     Modifier.padding(top = 10.dp).clickable(true) {
                         currentError.value = null
@@ -179,4 +95,107 @@ fun PasswordView(
             currentError.value = null
         }
     }
+}
+
+@Composable
+private fun PlaintextView(
+    nodePath: String,
+    viewModel: PasswordViewModel = hiltViewModel(),
+) {
+    val clipboardManager = LocalClipboardManager.current
+    val hidePlaintext: MutableState<Boolean> = remember { mutableStateOf(true) }
+    val plaintext = viewModel.ageRepository.plaintext.collectAsState()
+
+    Text(
+        PwNode.prettyName(nodePath),
+        fontSize = G.TITLE_FONT_SIZE.sp,
+        modifier = Modifier.padding(bottom = 20.dp),
+    )
+    Text(
+        if (hidePlaintext.value) {
+            stringResource(R.string.password_placeholder)
+        } else {
+            plaintext.value ?: ""
+        },
+        fontSize = G.BODY_FONT_SIZE.sp,
+        color = MaterialTheme.colorScheme.primary,
+        modifier =
+            Modifier
+                .padding(bottom = 15.dp)
+                .clickable(true) {
+                    hidePlaintext.value =
+                        !hidePlaintext.value
+                },
+    )
+    TextButton(
+        onClick = {
+            if (plaintext.value != null) {
+                val clipData =
+                    ClipData.newPlainText(
+                        "plaintext",
+                        plaintext.value ?: "",
+                    )
+                val clipEntry = ClipEntry(clipData)
+                clipboardManager.setClip(clipEntry)
+            }
+        },
+    ) {
+        Text(stringResource(R.string.copy))
+    }
+}
+
+@Composable
+private fun UnlockView(
+    nodePath: String,
+    currentError: MutableState<String?>,
+    viewModel: PasswordViewModel = hiltViewModel(),
+) {
+    val passphrase = viewModel.ageRepository.passphrase.collectAsState()
+
+    Text(
+        stringResource(R.string.authentication),
+        fontSize = G.TITLE_FONT_SIZE.sp,
+        modifier = Modifier.padding(bottom = 12.dp),
+    )
+    TextField(
+        value = passphrase.value ?: "",
+        label = { Text(stringResource(R.string.passphrase)) },
+        singleLine = true,
+        shape = RoundedCornerShape(8.dp),
+        onValueChange = {
+            viewModel.ageRepository.setPassphrase(it)
+        },
+        visualTransformation = PasswordVisualTransformation(Char(0x2A)),
+        keyboardOptions =
+            KeyboardOptions(
+                imeAction = ImeAction.Done,
+                keyboardType = KeyboardType.Text,
+                capitalization = KeyboardCapitalization.None,
+                autoCorrectEnabled = false,
+            ),
+        keyboardActions =
+            KeyboardActions(
+                onDone = {
+                    try {
+                        viewModel.ageRepository.unlockIdentity(
+                            passphrase.value ?: "",
+                        )
+                        // Clear passphrase after trying it
+                        viewModel.ageRepository.setPassphrase(null)
+                        viewModel.ageRepository.decrypt(nodePath)
+                        currentError.value = null
+                    } catch (e: AgeException) {
+                        currentError.value = e.message
+                        Log.e(e.message ?: "Unknown error")
+                    }
+                },
+            ),
+        // Remove underline from textbox
+        colors =
+            TextFieldDefaults.colors(
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent,
+                disabledIndicatorColor = Color.Transparent,
+            ),
+    )
 }
