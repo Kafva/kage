@@ -1,5 +1,6 @@
 use once_cell::sync::Lazy;
 use std::path::Path;
+use std::fs;
 use std::sync::Mutex;
 use std::sync::MutexGuard;
 use std::sync::Once;
@@ -254,7 +255,40 @@ pub fn git_reset(repo_path: &str) -> Result<(), git2::Error> {
     repo.reset(&obj, git2::ResetType::Hard, None)
 }
 
+#[cfg(target_os = "android")]
+fn copy_dir_recursive(src: &Path, dst: &Path) -> std::io::Result<()> {
+    if !dst.exists() {
+        fs::create_dir(dst)?;
+    }
+
+    for entry in fs::read_dir(src)? {
+        let entry = entry?;
+        let path = entry.path();
+        let dest_path = dst.join(entry.file_name());
+
+        if path.is_dir() {
+            copy_dir_recursive(&path, &dest_path)?;
+        } else {
+            fs::copy(&path, &dest_path)?;
+        }
+    }
+    Ok(())
+}
+
 pub fn git_clone(url: &str, into: &str) -> Result<(), git2::Error> {
+    #[cfg(target_os = "android")] {
+        if url.starts_with("file:///") {
+            let src = url.replace("file://", "");
+            let src = Path::new(&src);
+            let dst = Path::new(into);
+            let r = copy_dir_recursive(src, dst);
+            if r.is_err() {
+                error!("{:#?}", r);
+                
+            }
+            return Ok(())
+        }
+    }
     let mut cb = RemoteCallbacks::new();
     cb.transfer_progress(|progress| transfer_progress(progress, "Cloning"));
 
