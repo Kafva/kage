@@ -66,30 +66,9 @@ android {
 }
 
 task<Exec>("rebuildCore") {
-    // Build for the currently connected device (if any)
-    lateinit var targetArch: String
-    try {
-        exec {
-            val output = ByteArrayOutputStream()
-            commandLine("adb", "shell", "uname", "-m")
-            standardOutput = output
-            isIgnoreExitValue = true
-
-            val outStr = output.toString().trim()
-
-            targetArch = outStr.ifEmpty { "aarch64" }
-            println("Building for $targetArch")
-        }
-    }
-    catch (_: Exception) {
-        targetArch = "aarch64"
-        warnln("Failed to determine target architechture: building for $targetArch")
-    }
-
     // https://docs.gradle.org/current/userguide/build_lifecycle.html
     doFirst {
         commandLine("make", "-C", "${project.rootDir}/../core", "android")
-        environment("ANDROID_TARGET_ARCH", targetArch)
     }
 }
 
