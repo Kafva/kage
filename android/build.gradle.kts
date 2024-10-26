@@ -4,6 +4,7 @@
 //
 // We use ONE build.gradle file, we only have one module.
 
+import com.android.build.gradle.internal.cxx.logging.warnln
 import java.io.ByteArrayOutputStream
 
 plugins {
@@ -66,14 +67,24 @@ android {
 
 task<Exec>("rebuildCore") {
     // Build for the currently connected device (if any)
-    val output = ByteArrayOutputStream()
-    exec {
-        commandLine("adb", "shell", "uname", "-m")
-        standardOutput = output
-        isIgnoreExitValue = true
+    lateinit var targetArch: String
+    try {
+        exec {
+            val output = ByteArrayOutputStream()
+            commandLine("adb", "shell", "uname", "-m")
+            standardOutput = output
+            isIgnoreExitValue = true
+
+            val outStr = output.toString().trim()
+
+            targetArch = outStr.ifEmpty { "aarch64" }
+            println("Building for $targetArch")
+        }
     }
-    val outStr = output.toString().trim()
-    val targetArch = if (outStr.isEmpty()) "aarch64" else outStr
+    catch (_: Exception) {
+        targetArch = "aarch64"
+        warnln("Failed to determine target architechture: building for $targetArch")
+    }
 
     // https://docs.gradle.org/current/userguide/build_lifecycle.html
     doFirst {
