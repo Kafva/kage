@@ -59,6 +59,8 @@ import kafva.kage.types.Settings
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+const val LEADING_PADDING = 35
+
 @HiltViewModel
 class SettingsViewModel
     @Inject
@@ -142,7 +144,7 @@ fun SettingsView(
                 modifier =
                     Modifier
                         .padding(
-                            start = 35.dp,
+                            start = LEADING_PADDING.dp,
                             top = 10.dp,
                             end = 20.dp,
                         ).clickable(true) {
@@ -223,7 +225,7 @@ private fun AlertView(
 private fun TextFooterView(text: String) {
     Text(
         text,
-        modifier = Modifier.padding(start = (35 + 8).dp, bottom = 10.dp),
+        modifier = Modifier.padding(start = LEADING_PADDING.dp, bottom = 10.dp),
         fontSize = G.FOOTNOTE_FONT_SIZE.sp,
         maxLines = 1,
         color = MaterialTheme.colorScheme.outline,
@@ -242,8 +244,7 @@ private fun TextLinkView(
         modifier =
             Modifier
                 .height(75.dp)
-                // .width(200.dp)
-                .padding(start = 35.dp, bottom = 10.dp)
+                .padding(start = LEADING_PADDING.dp, bottom = 10.dp)
                 .clip(RoundedCornerShape(8.dp))
                 .clickable(true) { action() },
     ) {
@@ -252,14 +253,14 @@ private fun TextLinkView(
             fontSize = G.BODY_FONT_SIZE.sp,
             color = MaterialTheme.colorScheme.onSurface,
             maxLines = 1,
-            modifier = Modifier.padding(start = 12.dp),
+            modifier = Modifier.padding(start = 12.dp, end = 12.dp),
         )
 
         Icon(
             Icons.AutoMirrored.Filled.KeyboardArrowRight,
             text,
             tint = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.padding(end = 12.dp),
+            modifier = Modifier.padding(start = 12.dp, end = 12.dp),
         )
     }
 }
@@ -280,7 +281,7 @@ private fun TextFieldView(
             text.value = it
         },
         singleLine = true,
-        shape = RoundedCornerShape(8.dp),
+        shape = RoundedCornerShape(G.CORNER_RADIUS),
         modifier = Modifier.padding(bottom = 10.dp).fillMaxWidth(0.85f),
         keyboardOptions =
             KeyboardOptions(

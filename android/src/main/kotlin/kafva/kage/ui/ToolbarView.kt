@@ -1,7 +1,6 @@
 package kafva.kage.ui
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -13,11 +12,13 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
@@ -73,26 +74,45 @@ fun ToolbarView(
                     ToolbarRowView(
                         arrangement = Arrangement.Center,
                         bottomPadding = 5.dp,
+                        modifier = Modifier.fillMaxWidth(),
                     ) {
                         SearchView()
                     }
                 }
                 else -> {
-                    Row(
-                        horizontalArrangement = Arrangement.Start,
-                        modifier = Modifier.clickable(true) { navigateBack() },
+                    ToolbarRowView(
+                        arrangement = Arrangement.Start,
+                        modifier = Modifier.fillMaxWidth(),
                     ) {
-                        Icon(
-                            Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-                            "Go home",
-                            modifier =
-                                Modifier.size(
-                                    (G.LARGE_ICON_SIZE + 10).dp,
+                        TextButton(
+                            onClick = { navigateBack() },
+                            colors =
+                                ButtonColors(
+                                    contentColor =
+                                        MaterialTheme.colorScheme.onBackground,
+                                    containerColor = Color.Transparent,
+                                    disabledContentColor = Color.Transparent,
+                                    disabledContainerColor = Color.Transparent,
                                 ),
-                        )
+                        ) {
+                            Icon(
+                                Icons.AutoMirrored.Filled.KeyboardArrowLeft,
+                                "Go home",
+                                modifier =
+                                    Modifier
+                                        .size(
+                                            G.LARGE_ICON_SIZE.dp,
+                                        ).padding(end = 10.dp),
+                            )
 
-                        if (!currentRoute.contains("/")) {
-                            Text(currentRoute, fontSize = G.TITLE_FONT_SIZE.sp)
+                            if (currentRoute.contains("/")) {
+                                Text("Back", fontSize = G.TITLE_FONT_SIZE.sp)
+                            } else {
+                                Text(
+                                    currentRoute,
+                                    fontSize = G.TITLE_FONT_SIZE.sp,
+                                )
+                            }
                         }
                     }
                 }
@@ -104,6 +124,7 @@ fun ToolbarView(
                     ToolbarRowView(
                         arrangement = Arrangement.SpaceBetween,
                         topPadding = 5.dp,
+                        modifier = Modifier.fillMaxWidth(),
                     ) {
                         BottomBarView(navigateToSettings)
                     }
@@ -119,18 +140,18 @@ fun ToolbarView(
 @Composable
 private fun ToolbarRowView(
     arrangement: Arrangement.Horizontal,
-    topPadding: Dp = 50.dp,
+    topPadding: Dp = 10.dp,
     bottomPadding: Dp = 30.dp,
-    action: (() -> Unit)? = null,
+    modifier: Modifier? = null,
     content: @Composable () -> Unit,
 ) {
     Row(
         modifier =
-            Modifier
+            (modifier ?: Modifier)
                 .padding(
                     top = topPadding,
                     bottom = bottomPadding,
-                ).fillMaxWidth(),
+                ),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = arrangement,
     ) {
@@ -156,7 +177,7 @@ private fun BottomBarView(
         Icon(
             Icons.Filled.Settings,
             "Settings",
-            modifier = Modifier.size(G.LARGE_ICON_SIZE.dp),
+            modifier = Modifier.size(G.MEDIUM_ICON_SIZE.dp),
         )
     }
 
@@ -180,7 +201,7 @@ private fun BottomBarView(
                     ColorFilter.tint(
                         MaterialTheme.colorScheme.onBackground,
                     ),
-                modifier = Modifier.size(G.LARGE_ICON_SIZE.dp),
+                modifier = Modifier.size(G.MEDIUM_ICON_SIZE.dp),
             )
         }
 
@@ -206,7 +227,7 @@ private fun BottomBarView(
                 icon,
                 colorFilter = colorFilter,
                 contentDescription = "Toggle lock",
-                modifier = Modifier.size(G.LARGE_ICON_SIZE.dp),
+                modifier = Modifier.size(G.MEDIUM_ICON_SIZE.dp),
             )
         }
     }

@@ -1,6 +1,8 @@
 package kafva.kage.ui
 
 import android.content.ClipData
+import android.content.ClipDescription
+import android.os.PersistableBundle
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
@@ -109,24 +111,29 @@ private fun PlaintextView(
     Text(
         PwNode.prettyName(nodePath),
         fontSize = G.TITLE_FONT_SIZE.sp,
-        modifier = Modifier.padding(bottom = 20.dp),
+        modifier = Modifier.padding(bottom = 30.dp),
     )
-    Text(
-        if (hidePlaintext.value) {
-            stringResource(R.string.password_placeholder)
-        } else {
-            plaintext.value ?: ""
+
+    TextButton(
+        onClick = {
+            hidePlaintext.value = !hidePlaintext.value
         },
-        fontSize = G.BODY_FONT_SIZE.sp,
-        color = MaterialTheme.colorScheme.primary,
-        modifier =
-            Modifier
-                .padding(bottom = 15.dp)
-                .clickable(true) {
-                    hidePlaintext.value =
-                        !hidePlaintext.value
-                },
-    )
+        modifier = Modifier.padding(top = 15.dp, bottom = 15.dp),
+    ) {
+        val text =
+            if (hidePlaintext.value) {
+                stringResource(R.string.password_placeholder)
+            } else {
+                plaintext.value ?: ""
+            }
+
+        Text(
+            text,
+            fontSize = G.BODY_FONT_SIZE.sp,
+            color = MaterialTheme.colorScheme.primary,
+        )
+    }
+
     TextButton(
         onClick = {
             if (plaintext.value != null) {
@@ -135,12 +142,16 @@ private fun PlaintextView(
                         "plaintext",
                         plaintext.value ?: "",
                     )
+                clipData.description.extras =
+                    PersistableBundle().apply {
+                        putBoolean(ClipDescription.EXTRA_IS_SENSITIVE, true)
+                    }
                 val clipEntry = ClipEntry(clipData)
                 clipboardManager.setClip(clipEntry)
             }
         },
     ) {
-        Text(stringResource(R.string.copy))
+        Text(stringResource(R.string.copy), fontSize = G.BODY_FONT_SIZE.sp)
     }
 }
 
@@ -161,7 +172,7 @@ private fun UnlockView(
         value = passphrase.value ?: "",
         label = { Text(stringResource(R.string.passphrase)) },
         singleLine = true,
-        shape = RoundedCornerShape(8.dp),
+        shape = RoundedCornerShape(G.CORNER_RADIUS),
         onValueChange = {
             viewModel.ageRepository.setPassphrase(it)
         },
