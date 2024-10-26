@@ -44,18 +44,8 @@ class GitRepository
 
         /** Reclone from URL */
         @Throws(GitException::class)
-        fun clone(
-            remoteAddress: String,
-            remoteRepoPath: String,
-            localClone: Boolean,
-        ) {
+        fun clone(url: String) {
             appRepository.localRepo.deleteRecursively()
-
-            val url =
-                when (localClone) {
-                    true -> "file://$remoteRepoPath"
-                    else -> "git://$remoteAddress/$remoteRepoPath"
-                }
             Log.d("Cloning $url into ${appRepository.localRepo}...")
 
             val r = Jni.clone(url, repoStr)
@@ -68,7 +58,7 @@ class GitRepository
         }
 
         fun log(): List<CommitInfo> =
-            Jni.log(repoStr).map { logStr -> CommitInfo(logStr) }
+            Jni.log(repoStr)?.map { logStr -> CommitInfo(logStr) } ?: listOf()
 
         fun updateMatches(text: String) {
             Log.d("Updated query: ${query.value}")

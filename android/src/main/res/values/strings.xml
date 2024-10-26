@@ -1,7 +1,5 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <string name="remote_address">Remote address</string>
-    <string name="repository">Repository</string>
-    <string name="local_path">Local path</string>
+    <string name="repository">Repository location</string>
     <string name="reset_repository">Reset password repository</string>
     <string name="history">History</string>
     <string name="password_count" tools:ignore="PluralsCandidate">Storage: %1$d password(s)</string>
@@ -16,5 +14,4 @@
     <string name="passphrase">Passphrase</string>
     <string name="password_placeholder">**********</string>
     <string name="search_placeholder">Search…</string>
-    <string name="local_clone">Clone from local storage</string>
 </resources>

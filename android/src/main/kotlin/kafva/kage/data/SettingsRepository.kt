@@ -2,7 +2,6 @@ package kafva.kage.data
 
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.stringPreferencesKey
@@ -25,39 +24,26 @@ class SettingsRepository
         private val dataStore: DataStore<Preferences>,
     ) {
         private object Keys {
-            val remoteAddress = stringPreferencesKey("remoteAddress")
-            val remoteRepoPath = stringPreferencesKey("remoteRepoPath")
-            val localClone = booleanPreferencesKey("localClone")
+            val cloneUrl = stringPreferencesKey("cloneUrl")
         }
 
         // https://developer.android.com/studio/run/emulator-networking
-        private inline val Preferences.remoteAddress
+        private inline val Preferences.cloneUrl
             get() =
-                this[Keys.remoteAddress]
-                    ?: (if (G.isEmulator) "10.0.2.2" else "")
-
-        private inline val Preferences.remoteRepoPath
-            get() =
-                this[Keys.remoteRepoPath]
-                    ?: (if (G.isEmulator) "james.git" else "")
-
-        private inline val Preferences.localClone
-            get() =
-                this[Keys.localClone] ?: false
+                this[Keys.cloneUrl]
+                    ?: (
+                        if (G.isEmulator) {
+                            "git://10.0.2.2/james.git"
+                        } else {
+                            "file:///data/user/0/kafva.kage/files/kage-store.git"
+                        }
+                    )
 
         suspend fun updateSettings(s: Settings) {
             dataStore.edit {
-                it[Keys.remoteAddress] = s.remoteAddress
-                it[Keys.remoteRepoPath] = s.remoteRepoPath
-                it[Keys.localClone] = s.localClone
+                it[Keys.cloneUrl] = s.cloneUrl
             }
-            if (s.localClone) {
-                Log.d("Updated settings: ${s.remoteRepoPath} [local]")
-            } else {
-                Log.d(
-                    "Updated settings: ${s.remoteAddress}/${s.remoteRepoPath} [remote]",
-                )
-            }
+            Log.d("Updated settings: ${s.cloneUrl}")
         }
 
         val flow: Flow<Settings> =
@@ -70,9 +56,7 @@ class SettingsRepository
                     }
                 }.map { preferences ->
                     Settings(
-                        remoteAddress = preferences.remoteAddress,
-                        remoteRepoPath = preferences.remoteRepoPath,
-                        localClone = preferences.localClone,
+                        cloneUrl = preferences.cloneUrl,
                     )
                 }.distinctUntilChanged()
     }

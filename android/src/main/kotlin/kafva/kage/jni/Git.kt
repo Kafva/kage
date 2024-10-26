@@ -6,7 +6,7 @@ object Git {
         into: String,
     ): Int
 
-    external fun log(localRepoPath: String): Array<String>
+    external fun log(localRepoPath: String): Array<String>?
 
     external fun strerror(): String?
 }

@@ -5,7 +5,9 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActionScope
@@ -13,14 +15,10 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
-import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -35,10 +33,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -76,25 +72,15 @@ fun SettingsView(
 ) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
-    val focusManager = LocalFocusManager.current
     val openAlertDialog = remember { mutableStateOf(false) }
-    val remoteAddress = remember { mutableStateOf("") }
-    val remoteRepoPath = remember { mutableStateOf("") }
+    val cloneUrl = remember { mutableStateOf("") }
     val currentError: MutableState<String?> = remember { mutableStateOf(null) }
     val passwordCount = viewModel.gitRepository.passwordCount.collectAsState()
-    val localClone = remember { mutableStateOf(false) }
-    val bodyFontSize = 14.sp
 
     val onDone: (KeyboardActionScope) -> Unit = {
         coroutineScope.launch {
-            val newSettings =
-                Settings(
-                    remoteAddress.value,
-                    remoteRepoPath.value,
-                    localClone.value,
-                )
+            val newSettings = Settings(cloneUrl.value)
             viewModel.settingsRepository.updateSettings(newSettings)
-            // focusManager.moveFocus(FocusDirection.Down)
         }
     }
 
@@ -104,148 +90,42 @@ fun SettingsView(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         TextFieldView(
-            text = remoteAddress,
+            text = cloneUrl,
             leadingIcon = {
-                Icon(Icons.Filled.Home, stringResource(R.string.remote_address))
-            },
-            label = { Text(stringResource(R.string.remote_address)) },
-            onDone = onDone,
-            enabled = !localClone.value,
-        )
-
-        TextFieldView(
-            text = remoteRepoPath,
-            leadingIcon = {
-                if (localClone.value) {
-                    Image(
-                        painterResource(R.drawable.folder),
-                        stringResource(R.string.local_path),
-                    )
-                } else {
-                    Icon(
-                        Icons.Filled.Person,
-                        stringResource(R.string.repository),
-                    )
-                }
-            },
-            label = {
-                Text(
-                    stringResource(
-                        if (localClone.value) {
-                            R.string.local_path
-                        } else {
-                            R.string.repository
-                        },
-                    ),
+                Image(
+                    painterResource(R.drawable.my_location),
+                    stringResource(R.string.repository),
                 )
             },
+            label = { Text(stringResource(R.string.repository)) },
             onDone = onDone,
         )
 
         Card(modifier = G.containerModifier) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier =
-                    Modifier
-                        .fillMaxWidth(
-                            0.95f,
-                        ).padding(top = 8.dp, start = 35.dp),
-            ) {
-                Text(
-                    stringResource(R.string.local_clone),
-                    fontSize = bodyFontSize,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    maxLines = 1,
-                    modifier = Modifier.padding(end = 4.dp),
-                )
-                Checkbox(
-                    checked = localClone.value,
-                    onCheckedChange = {
-                        localClone.value = it
-                        coroutineScope.launch {
-                            val newSettings =
-                                Settings(
-                                    remoteAddress.value,
-                                    remoteRepoPath.value,
-                                    localClone.value,
-                                )
-                            viewModel.settingsRepository.updateSettings(
-                                newSettings,
-                            )
-                        }
-                    },
-                    modifier = Modifier.scale(bodyFontSize.value / 16),
-                )
-            }
+            Spacer(modifier = Modifier.height(20.dp))
 
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween,
-                modifier =
-                    Modifier
-                        .fillMaxWidth(
-                            0.95f,
-                        ).padding(top = 8.dp, start = 35.dp),
-            ) {
-                Text(
-                    stringResource(R.string.reset_repository),
-                    fontSize = bodyFontSize,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    maxLines = 1,
-                    modifier = Modifier.padding(end = 4.dp),
-                )
-                IconButton(onClick = { openAlertDialog.value = true }) {
-                    Icon(
-                        Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                        stringResource(R.string.reset_repository),
-                        tint = MaterialTheme.colorScheme.primary,
-                    )
-                }
-            }
+            TextLinkView(stringResource(R.string.reset_repository), {
+                openAlertDialog.value =
+                    true
+            })
 
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween,
-                modifier =
-                    Modifier
-                        .fillMaxWidth(
-                            0.95f,
-                        ).padding(top = 8.dp, start = 35.dp),
-            ) {
-                Text(
-                    stringResource(R.string.history),
-                    fontSize = bodyFontSize,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    maxLines = 1,
-                    modifier = Modifier.padding(end = 4.dp),
-                )
-                IconButton(onClick = navigateToHistory) {
-                    Icon(
-                        Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                        stringResource(R.string.reset_repository),
-                        tint = MaterialTheme.colorScheme.primary,
-                    )
-                }
-            }
-
-            Text(
-                context.getString(R.string.password_count, passwordCount.value),
-                modifier = Modifier.padding(start = 35.dp),
-                fontSize = 12.sp,
-                maxLines = 1,
-                color = MaterialTheme.colorScheme.outline,
+            TextLinkView(
+                stringResource(R.string.history),
+                { navigateToHistory() },
             )
 
-            Text(
+            TextFooterView(
+                context.getString(R.string.password_count, passwordCount.value),
+            )
+
+            TextFooterView(
                 context.getString(
                     R.string.version,
                     viewModel.appRepository.versionName,
                 ),
-                modifier = Modifier.padding(start = 35.dp, bottom = 10.dp),
-                fontSize = 12.sp,
-                maxLines = 1,
-                color = MaterialTheme.colorScheme.outline,
             )
+
+            Spacer(modifier = Modifier.height(10.dp))
         }
 
         if (currentError.value != null) {
@@ -271,9 +151,7 @@ fun SettingsView(
             // Fill the text fields with the current configuration from the
             // datastore when the view appears.
             viewModel.settingsRepository.flow.collect { s ->
-                remoteAddress.value = s.remoteAddress
-                remoteRepoPath.value = s.remoteRepoPath
-                localClone.value = s.localClone
+                cloneUrl.value = s.cloneUrl
             }
             currentError.value = null
         }
@@ -292,11 +170,7 @@ private fun AlertView(
         coroutineScope.launch {
             viewModel.settingsRepository.flow.collect { s ->
                 try {
-                    viewModel.gitRepository.clone(
-                        s.remoteAddress,
-                        s.remoteRepoPath,
-                        s.localClone,
-                    )
+                    viewModel.gitRepository.clone(s.cloneUrl)
                     currentError.value = null
                 } catch (e: GitException) {
                     currentError.value = e.message
@@ -340,6 +214,48 @@ private fun AlertView(
 }
 
 @Composable
+private fun TextFooterView(text: String) {
+    Text(
+        text,
+        modifier = Modifier.padding(start = 35.dp, bottom = 10.dp),
+        fontSize = 12.sp,
+        maxLines = 1,
+        color = MaterialTheme.colorScheme.outline,
+    )
+}
+
+@Composable
+private fun TextLinkView(
+    text: String,
+    action: (() -> Unit),
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween,
+        modifier =
+            Modifier
+                .fillMaxWidth(
+                    0.95f,
+                ).padding(bottom = 20.dp, start = 35.dp)
+                .clickable(true) { action() },
+    ) {
+        Text(
+            text,
+            fontSize = 14.sp,
+            color = MaterialTheme.colorScheme.onSurface,
+            maxLines = 1,
+            modifier = Modifier.padding(end = 4.dp),
+        )
+
+        Icon(
+            Icons.AutoMirrored.Filled.KeyboardArrowRight,
+            text,
+            tint = MaterialTheme.colorScheme.primary,
+        )
+    }
+}
+
+@Composable
 private fun TextFieldView(
     text: MutableState<String>,
     label: @Composable () -> Unit,
@@ -356,7 +272,7 @@ private fun TextFieldView(
         },
         singleLine = true,
         shape = RoundedCornerShape(8.dp),
-        modifier = Modifier.padding(bottom = 10.dp),
+        modifier = Modifier.padding(bottom = 10.dp).fillMaxWidth(0.85f),
         keyboardOptions =
             KeyboardOptions(
                 imeAction = ImeAction.Done,
