@@ -62,6 +62,6 @@ To build for Android you need to download a NDK manually.
 
 ```bash
 (cd android && ./tools/genkey)
-(cd android && ./gradlew assembleRelease)
+(cd android && ./gradlew build assembleRelease)
 # => android/build/outputs/apk/release/kage-release.apk
 ```

@@ -94,8 +94,10 @@ task<Exec>("setVersion") {
 // NOTE: if you run `build` and `installDebug` in the same invocation the
 // .so is generally not copied into place in time, run `build` and
 // `installDebug` separately to ensure that changes appear on target.
-tasks.named("build") { dependsOn("rebuildCore") }
-tasks.named("build") { dependsOn("setVersion") }
+tasks.named("build") {
+    dependsOn("rebuildCore")
+    dependsOn("setVersion")
+}
 
 dependencies {
     implementation(libs.androidx.core.ktx)
