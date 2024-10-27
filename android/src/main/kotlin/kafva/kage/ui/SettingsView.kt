@@ -139,7 +139,7 @@ fun SettingsView(
                     } else {
                         R.string.version_release
                     },
-                    viewModel.appRepository.versionName,
+                    stringResource(R.string.git_version),
                 ),
             )
 
