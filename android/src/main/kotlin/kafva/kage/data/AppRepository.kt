@@ -7,6 +7,7 @@ import javax.inject.Singleton
 @Singleton
 class AppRepository(
     val versionName: String,
+    val isDebug: Boolean,
     val filesDir: File,
 ) {
     val localRepo: File = File("$filesDir/${G.LOCAL_REPO_NAME}")

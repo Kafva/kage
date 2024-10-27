@@ -3,7 +3,8 @@
     <string name="reset_repository">Reset repository</string>
     <string name="history">History</string>
     <string name="password_count" tools:ignore="PluralsCandidate">Storage: %1$d password(s)</string>
-    <string name="version">Version: %1$s</string>
+    <string name="version_debug">Version: %1$s (debug)</string>
+    <string name="version_release">Version: %1$s (release)</string>
     <string name="alert_title">Are you sure?</string>
     <string name="alert_text">This operation will delete the local checkout.</string>
     <string name="yes">Yes</string>

@@ -1,6 +1,7 @@
 package kafva.kage.di
 
 import android.content.Context
+import android.content.pm.ApplicationInfo
 import android.content.pm.PackageInfo
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
@@ -64,9 +65,14 @@ object AppContextModule {
                 0,
             )
         val versionName = pInfo.versionName ?: "Unknown"
+        val isDebug =
+            (
+                pInfo.applicationInfo.flags and
+                    ApplicationInfo.FLAG_DEBUGGABLE
+            ) != 0
 
         val filesDir = appContext.filesDir
 
-        return AppRepository(versionName, filesDir)
+        return AppRepository(versionName, isDebug, filesDir)
     }
 }

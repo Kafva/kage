@@ -134,7 +134,11 @@ fun SettingsView(
 
             TextFooterView(
                 context.getString(
-                    R.string.version,
+                    if (viewModel.appRepository.isDebug) {
+                        R.string.version_debug
+                    } else {
+                        R.string.version_release
+                    },
                     viewModel.appRepository.versionName,
                 ),
             )
