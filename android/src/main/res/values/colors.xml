@@ -1,4 +1,5 @@
 <resources>
-    <!-- Splash screen color to match app icon -->
+    <!-- Launch screen background color, configured to match app icon -->
     <color name="splashBackground">#181616</color>
+    <color name="ic_launcher_background">#FF0000</color>
 </resources>
