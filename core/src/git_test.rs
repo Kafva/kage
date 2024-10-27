@@ -3,7 +3,6 @@ use crate::error;
 use crate::git::*;
 use std::fs;
 use std::process::Command;
-use std::path::Path;
 
 const GIT_USERNAME: &'static str = env!("KAGE_TEST_GIT_REPONAME");
 const GIT_REMOTE_CLONE_URL: &'static str =
