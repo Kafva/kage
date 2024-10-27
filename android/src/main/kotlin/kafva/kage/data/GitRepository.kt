@@ -5,6 +5,7 @@ import kafva.kage.types.CommitInfo
 import kafva.kage.types.PwNode
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
 import kafva.kage.jni.Git as Jni
@@ -48,13 +49,27 @@ class GitRepository
             appRepository.localRepo.deleteRecursively()
             Log.d("Cloning $url into ${appRepository.localRepo}...")
 
-            val r = Jni.clone(url, repoStr)
-            if (r != 0) {
-                raiseError()
+            // If a file:/// URL is provided, simply copy from that location.
+            // Cloning from file:/// paths generally does not work due to
+            // the default `safe.directory` configuration in git.
+            if (url.startsWith("file://")) {
+                val srcdir = File(url.removePrefix("file://"))
+                srcdir
+                    .copyRecursively(appRepository.localRepo, true, onError = {
+                        _,
+                        e,
+                        ->
+                        throw GitException(e.message ?: "Unknown error")
+                    })
             } else {
-                Log.d("Clone ok")
-                setup()
+                val r = Jni.clone(url, repoStr)
+                if (r != 0) {
+                    raiseError()
+                }
             }
+
+            Log.d("Clone ok")
+            setup()
         }
 
         fun log(): List<CommitInfo> =

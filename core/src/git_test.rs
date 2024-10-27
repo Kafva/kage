@@ -415,41 +415,6 @@ fn git_bad_clone_test() {
     assert_err(git_clone("git://169.254.111.111/bad_host", repo_path));
 }
 
-#[test]
-/// Should be equivilieent to `cp -r srcdir/ destdir/`
-fn git_clone_from_file_test() {
-    let clientdir = Path::new(GIT_CLIENT_DIR);
-    let testdir = clientdir.join("clone_from_file_test");
-
-    // Setup srcdir/
-    let srcdir = testdir.join("srcdir");
-    let child1 = srcdir.join("child1");
-    let child2 = srcdir.join("child2");
-    let file1 = child1.join("file1");
-    let file2 = child2.join("file2");
-    let hidden_file = child2.join(".hidden");
-
-    fs::create_dir_all(child1).expect("Error creating directory");
-    fs::create_dir_all(child2).expect("Error creating directory");
-
-    fs::write(file1, "file1").expect("Error writing to file");
-    fs::write(file2, "file2").expect("Error writing to file");
-    fs::write(hidden_file, "hidden_file").expect("Error writing to file");
-
-    // Copy from srcdir/ to destdir/
-    let destdir = testdir.join("leading/path/destdir");
-    let file1_dest = destdir.join("child1/file1");
-    let file2_dest = destdir.join("child2/file2");
-    let hidden_file_dest = destdir.join("child2/.hidden");
-
-    let result = cp_r(&srcdir, &destdir);
-
-    assert!(result.is_ok());
-    assert!(file1_dest.is_file());
-    assert!(file2_dest.is_file());
-    assert!(hidden_file_dest.is_file());
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 
 fn assert_ok(result: Result<(), git2::Error>) {

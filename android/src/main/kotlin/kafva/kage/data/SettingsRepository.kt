@@ -35,7 +35,7 @@ class SettingsRepository
                         if (G.isEmulator) {
                             "git://10.0.2.2/james.git"
                         } else {
-                            "file:///sdcard/kage-store.git"
+                            "file:///data/local/tmp/kage-store.git"
                         }
                     )
 
