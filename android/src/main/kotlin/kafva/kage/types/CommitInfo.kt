@@ -12,6 +12,7 @@ class CommitInfo(
     str: String,
 ) {
     val date: String
+    val revision: String
     val summary: String
 
     init {
@@ -23,6 +24,7 @@ class CommitInfo(
                 .format(
                     DateTimeFormatter.ofPattern("MMM d HH:mm:ss yyyy"),
                 )
+        revision = spl[1]
         summary = spl[2]
     }
 }
