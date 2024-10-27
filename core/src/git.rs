@@ -18,6 +18,9 @@ use git2::{FetchOptions, RemoteCallbacks, Repository};
 #[cfg(not(target_os = "android"))]
 use git2::build::CheckoutBuilder;
 
+//#[cfg(target_os = "android")]
+use std::io::ErrorKind;
+
 use crate::*;
 
 const TRANSFER_STAGES: usize = 4;
@@ -255,37 +258,13 @@ pub fn git_reset(repo_path: &str) -> Result<(), git2::Error> {
     repo.reset(&obj, git2::ResetType::Hard, None)
 }
 
-#[cfg(target_os = "android")]
-fn copy_dir_recursive(src: &Path, dst: &Path) -> std::io::Result<()> {
-    if !dst.exists() {
-        fs::create_dir(dst)?;
-    }
-
-    for entry in fs::read_dir(src)? {
-        let entry = entry?;
-        let path = entry.path();
-        let dest_path = dst.join(entry.file_name());
-
-        if path.is_dir() {
-            copy_dir_recursive(&path, &dest_path)?;
-        } else {
-            fs::copy(&path, &dest_path)?;
-        }
-    }
-    Ok(())
-}
-
 pub fn git_clone(url: &str, into: &str) -> Result<(), git2::Error> {
     #[cfg(target_os = "android")] {
-        if url.starts_with("file:///") {
-            let src = url.replace("file://", "");
-            let src = Path::new(&src);
-            let dst = Path::new(into);
-            let r = copy_dir_recursive(src, dst);
-            if r.is_err() {
-                error!("{:#?}", r);
-                
-            }
+        if url.starts_with("file://") {
+            let srcdir = url.replace("file://", "");
+            let srcdir = Path::new(&srcdir);
+            let destdir = Path::new(&into);
+            let _ = cp_r(&srcdir, &destdir);
             return Ok(())
         }
     }
@@ -436,3 +415,37 @@ fn transfer_progress(progress: git2::Progress, _label: &str) -> bool {
 
     true
 }
+
+//#[cfg(target_os = "android")]
+pub fn cp_r(srcdir: &Path, destdir: &Path) -> std::io::Result<()> {
+    if !srcdir.is_dir() {
+        return Err(std::io::Error::new(ErrorKind::NotFound, "Source directory does not exist"));
+    }
+
+    let Some(srcdir_str) = srcdir.to_str() else {
+        return Err(std::io::Error::new(ErrorKind::Other, "Internal error"));
+    };
+
+    fs::create_dir_all(destdir)?;
+
+    for entry in fs::read_dir(srcdir)? {
+        let entry = entry?;
+        let path = entry.path();
+
+        let Ok(relative_path) = path.strip_prefix(srcdir_str) else {
+            return Err(std::io::Error::new(ErrorKind::Other, "Internal error"));
+        };
+
+        let dest_path = destdir.join(relative_path);
+
+        if path.is_dir() {
+            cp_r(&path, &dest_path)?;
+        }
+        else {
+            fs::copy(&path, &dest_path)?;
+        }
+    }
+
+    Ok(())
+}
+
