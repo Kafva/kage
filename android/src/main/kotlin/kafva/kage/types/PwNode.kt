@@ -7,24 +7,6 @@ data class PwNode(
     var children: List<PwNode>,
 ) {
     companion object {
-        private fun loadChildren(path: File): List<PwNode> {
-            if (!path.isDirectory()) {
-                return listOf()
-            }
-
-            val mutableChildren: MutableList<PwNode> = mutableListOf()
-
-            path.listFiles()?.forEach {
-                val name = it.getName() ?: ""
-                if (name != "" && !name.startsWith(".")) {
-                    val child = PwNode(it, listOf())
-                    mutableChildren.add(child)
-                }
-            }
-
-            return mutableChildren.toList()
-        }
-
         fun fromRoutePath(serialisedNodePath: String): String =
             serialisedNodePath.replace("|", "/")
 
@@ -39,9 +21,29 @@ data class PwNode(
     fun toRoutePath(filesDir: File): String =
         pathString.removePrefix("${filesDir.path}/").replace("/", "|")
 
-    /** Recursively load the nodes under the current path */
-    init {
-        children = loadChildren(path)
+    init {}
+
+    /**
+     * Recursively load the nodes under the current path, needs to be called
+     * explicitly after creating an object.
+     */
+    fun loadChildren() {
+        if (!path.isDirectory()) {
+            return
+        }
+
+        val mutableChildren: MutableList<PwNode> = mutableListOf()
+
+        path.listFiles()?.forEach {
+            val name = it.getName() ?: ""
+            if (name != "" && !name.startsWith(".")) {
+                val child = PwNode(it, listOf())
+                child.loadChildren()
+                mutableChildren.add(child)
+            }
+        }
+
+        children = mutableChildren.toList()
     }
 
     /** Predicate should be provided in lowercase! */

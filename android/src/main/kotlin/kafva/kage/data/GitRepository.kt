@@ -35,7 +35,10 @@ class GitRepository
 
         /** (Re)load password tree from disk */
         fun setup() {
-            rootNode.value = PwNode(appRepository.localRepo, listOf())
+            val node = PwNode(appRepository.localRepo, listOf())
+            // Load child nodes recursively
+            node.loadChildren()
+            rootNode.value = node
             // Populate the search result with all nodes
             _searchMatches.value =
                 rootNode.value?.findChildren(_query.value) ?: listOf()
