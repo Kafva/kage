@@ -21,8 +21,6 @@ data class PwNode(
     fun toRoutePath(filesDir: File): String =
         pathString.removePrefix("${filesDir.path}/").replace("/", "|")
 
-    init {}
-
     /**
      * Recursively load the nodes under the current path, needs to be called
      * explicitly after creating an object.

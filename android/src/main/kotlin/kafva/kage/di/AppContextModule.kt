@@ -64,7 +64,6 @@ object AppContextModule {
                 name,
                 0,
             )
-        val versionName = pInfo.versionName ?: "Unknown"
         val isDebug =
             (
                 pInfo.applicationInfo.flags and
@@ -73,6 +72,6 @@ object AppContextModule {
 
         val filesDir = appContext.filesDir
 
-        return AppRepository(versionName, isDebug, filesDir)
+        return AppRepository(isDebug, filesDir)
     }
 }

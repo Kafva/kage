@@ -6,7 +6,6 @@ import javax.inject.Singleton
 
 @Singleton
 class AppRepository(
-    val versionName: String,
     val isDebug: Boolean,
     val filesDir: File,
 ) {
