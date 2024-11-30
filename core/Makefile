@@ -1,8 +1,5 @@
 .PHONY: clean cleanup_libs android ios
 
-# Make sure we find `cargo'
-export PATH := $(HOME)/.cargo/bin:$(PATH)
-
 CARGO_RUSTC_FLAGS = --lib
 # Always build with --release when bundling for ffi, debug builds
 # have issues on iOS.
@@ -23,12 +20,14 @@ ios: $(DIST)/$(LIB)
 
 # `-C' is an unstable option
 $(DIST)/$(LIB): cleanup_lib
-	cargo -Z unstable-options -C $(CURDIR) rustc $(CARGO_RUSTC_FLAGS)
+	PATH="$(HOME)/.cargo/bin:$(PATH)" \
+		 cargo -Z unstable-options -C $(CURDIR) rustc $(CARGO_RUSTC_FLAGS)
 	mkdir -p $(dir $@)
 	install -m644 $(CURDIR)/target/$(CARGO_TARGET)/release/$(LIB) $@
 
 clean: cleanup_lib
-	cargo -Z unstable-options -C $(CURDIR) clean
+	PATH="$(HOME)/.cargo/bin:$(PATH)" \
+		cargo -Z unstable-options -C $(CURDIR) clean
 
 cleanup_lib:
 	rm -f $(DIST)/$(LIB)
