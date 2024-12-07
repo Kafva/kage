@@ -4,11 +4,15 @@
 
 package kafva.kage.ui.theme
 
+import android.app.Activity
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalView
+import androidx.core.view.WindowCompat
 
 private val lightScheme =
     lightColorScheme(
@@ -99,6 +103,16 @@ fun KageTheme(
             darkTheme -> darkScheme
             else -> lightScheme
         }
+
+    // Set status bar color to match background color
+    val view = LocalView.current
+    val window = (view.context as Activity).window
+    val insetsController = WindowCompat.getInsetsController(window, view)
+
+    // Set foreground color of status bar to match system theme
+    window.statusBarColor = colorScheme.background.toArgb()
+    insetsController.isAppearanceLightStatusBars = !darkTheme
+
     MaterialTheme(
         colorScheme = colorScheme,
         content = content,
