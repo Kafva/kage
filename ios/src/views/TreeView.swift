@@ -8,8 +8,11 @@ struct TreeView: View {
     @Binding var currentError: String?
 
     var body: some View {
+        let sortedSearchResults = searchResults.sorted {
+            $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending
+        }
         List {
-            ForEach(searchResults, id: \.id) { child in
+            ForEach(sortedSearchResults, id: \.id) { child in
                 TreeNodeView(
                     node: child,
                     searchText: $searchText,
@@ -53,13 +56,16 @@ private struct TreeNodeView: View {
             PwNodeTreeItemView(node: node, currentError: $currentError)
         }
         else {
+            let sortedChildren = (node.children ?? []).sorted {
+                $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending
+            }
             // Force all nodes into their expanded state when there is a search query
             // or the 'expand all' switch is active.
             let isExpanded =
                 (!searchText.isEmpty || expandTree)
                 ? Binding.constant(true) : $isExpanded
             DisclosureGroup(isExpanded: isExpanded) {
-                ForEach(node.children ?? [], id: \.id) { child in
+                ForEach(sortedChildren, id: \.id) { child in
                     TreeNodeView(
                         node: child,
                         searchText: $searchText,

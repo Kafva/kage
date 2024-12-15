@@ -49,8 +49,16 @@ fun TreeView(
         .expandRecursively
         .collectAsStateWithLifecycle()
 
+    val sortedMatches =
+        searchMatches.sortedWith(
+            compareBy(
+                String.CASE_INSENSITIVE_ORDER,
+            ) {
+                it.name
+            },
+        )
     LazyColumn(modifier = G.containerModifier) {
-        searchMatches.forEach { child ->
+        sortedMatches.forEach { child ->
             item {
                 TreeChildView(child, expandRecursively, navigateToPassword)
             }
@@ -103,7 +111,15 @@ private fun TreeChildView(
                 },
     )
     if (!isPassword && expanded) {
-        node.children.forEach { child ->
+        val sortedChildren =
+            node.children.sortedWith(
+                compareBy(
+                    String.CASE_INSENSITIVE_ORDER,
+                ) {
+                    it.name
+                },
+            )
+        sortedChildren.forEach { child ->
             TreeChildView(
                 child,
                 expandRecursively,
