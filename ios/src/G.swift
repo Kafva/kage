@@ -1,5 +1,6 @@
 import Foundation
 import SwiftUI
+import System
 import UIKit
 
 /// Global constants
@@ -8,9 +9,8 @@ enum G {
 
     static let rootNodeName = "/"
     static let gitDirName = "git-adc83b19e"
-    static let gitDir = FileManager.default.appDataDirectory.appending(
-        path: G.gitDirName
-    ).standardizedFileURL
+    static let gitDir: FilePath = FileManager.default.appDataDirectory
+        .appending(G.gitDirName)
 
     static let maxTreeDepth: Int = 15
     static let maxPasswordLength: Int = 1024

@@ -114,7 +114,7 @@ struct PasswordView: View {
             return
         }
         do {
-            plaintext = try Age.decrypt(node.url)
+            plaintext = try Age.decrypt(node.path)
             if plaintext == "" {
                 currentError = uiError("No data retrieved")
             }

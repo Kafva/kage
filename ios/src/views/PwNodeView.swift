@@ -207,7 +207,8 @@ struct PwNodeView: View {
             }
 
             if let newPwNode {
-                try? FileManager.default.removeItem(at: newPwNode.url)
+                try? FileManager.default.removeItem(
+                    atPath: newPwNode.path.string)
             }
         }
     }

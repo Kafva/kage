@@ -9,7 +9,8 @@ struct TreeView: View {
 
     var body: some View {
         let sortedSearchResults = searchResults.sorted {
-            $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending
+            $0.name.localizedCaseInsensitiveCompare($1.name)
+                == .orderedAscending
         }
         List {
             ForEach(sortedSearchResults, id: \.id) { child in
@@ -57,7 +58,8 @@ private struct TreeNodeView: View {
         }
         else {
             let sortedChildren = (node.children ?? []).sorted {
-                $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending
+                $0.name.localizedCaseInsensitiveCompare($1.name)
+                    == .orderedAscending
             }
             // Force all nodes into their expanded state when there is a search query
             // or the 'expand all' switch is active.

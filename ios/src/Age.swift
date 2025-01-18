@@ -1,4 +1,5 @@
 import Foundation
+import System
 
 @_silgen_name("ffi_age_unlock_identity")
 func ffi_age_unlock_identity(
@@ -12,7 +13,7 @@ func ffi_age_lock_identity() -> CInt
 @_silgen_name("ffi_age_encrypt")
 func ffi_age_encrypt(
     plaintext: UnsafePointer<CChar>,
-    recepient: UnsafePointer<CChar>,
+    recipient: UnsafePointer<CChar>,
     outpath: UnsafePointer<CChar>
 ) -> CInt
 
@@ -28,11 +29,11 @@ func ffi_age_strerror() -> UnsafeMutablePointer<CChar>?
 enum Age {
 
     static func unlockIdentity(
-        _ encryptedIdentity: URL,
+        _ encryptedIdentityPath: FilePath,
         passphrase: String
     ) throws {
         let encryptedIdentity = try String(
-            contentsOf: encryptedIdentity,
+            contentsOfFile: encryptedIdentityPath.string,
             encoding: .utf8)
         let encryptedIdentityC = try encryptedIdentity.toCString()
         let passphraseC = try passphrase.toCString()
@@ -55,9 +56,8 @@ enum Age {
         G.logger.debug("OK: identity locked")
     }
 
-    static func decrypt(_ at: URL) throws -> String {
-        let pathC = try at.standardizedFileURL.path().toCString()
-
+    static func decrypt(_ at: FilePath) throws -> String {
+        let pathC = try at.string.toCString()
         let plaintextC = ffi_age_decrypt(encryptedFilepath: pathC)
 
         guard let plaintextC else {
@@ -73,24 +73,26 @@ enum Age {
         return plaintext
     }
 
+    // recipient
     static func encrypt(
-        recipient: URL,
-        outpath: URL,
+        recipientPath: FilePath,
+        outPath: FilePath,
         plaintext: String
     ) throws {
-        let recepient = (try String(contentsOf: recipient, encoding: .utf8))
+        let recipient =
+            (try String(contentsOfFile: recipientPath.string, encoding: .utf8))
             .trimmingCharacters(in: .whitespacesAndNewlines)
 
-        let recepientC = try recepient.toCString()
+        let recepientC = try recipient.toCString()
         let plaintextC =
             try plaintext
             .trimmingCharacters(in: .whitespacesAndNewlines)
             .toCString()
-        let outpathC = try outpath.path().toCString()
+        let outpathC = try outPath.string.toCString()
 
         let r = ffi_age_encrypt(
             plaintext: plaintextC,
-            recepient: recepientC,
+            recipient: recepientC,
             outpath: outpathC)
         if r != 0 {
             try throwError(code: r)

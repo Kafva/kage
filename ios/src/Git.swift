@@ -62,7 +62,7 @@ enum Git {
 
     /// Remove a file or folder and create a commit with the change
     static func rmCommit(node: PwNode) throws {
-        try FileManager.default.removeItem(at: node.url)
+        try FileManager.default.removeItem(atPath: node.path.string)
         try Git.stage(relativePath: node.relativePath)
         try Git.commit(message: "Deleted \(node.relativePathNoExtension)")
     }
@@ -70,8 +70,8 @@ enum Git {
     /// Move a file or folder and create a commit with the change
     static func mvCommit(fromNode: PwNode, toNode: PwNode) throws {
         try FileManager.default.moveItem(
-            at: fromNode.url,
-            to: toNode.url)
+            atPath: fromNode.path.string,
+            toPath: toNode.path.string)
 
         try Git.stage(relativePath: fromNode.relativePath)
         try Git.stage(relativePath: toNode.relativePath)
@@ -82,7 +82,7 @@ enum Git {
     }
 
     static func clone(remote: String) throws {
-        let repoC = try repo.path().toCString()
+        let repoC = try repo.string.toCString()
         let urlC = try remote.toCString()
 
         G.logger.debug("Cloning from: \(remote)")
@@ -94,7 +94,7 @@ enum Git {
     }
 
     static func pull() throws {
-        let repoC = try repo.path().toCString()
+        let repoC = try repo.string.toCString()
         let r = ffi_git_pull(repoC)
         if r != 0 {
             try throwError(code: r)
@@ -103,7 +103,7 @@ enum Git {
     }
 
     static func push() throws {
-        let repoC = try repo.path().toCString()
+        let repoC = try repo.string.toCString()
         let r = ffi_git_push(repoC)
         if r != 0 {
             try throwError(code: r)
@@ -112,7 +112,7 @@ enum Git {
     }
 
     static func localHeadMatchesRemote() throws -> Bool {
-        let repoC = try repo.path().toCString()
+        let repoC = try repo.string.toCString()
         let r = ffi_git_local_head_matches_remote(repoC)
         if r != 0 && r != 1 {
             try throwError(code: r)
@@ -122,7 +122,7 @@ enum Git {
 
     static func reset() throws {
         G.logger.warning("Resetting to local HEAD")
-        let repoC = try repo.path().toCString()
+        let repoC = try repo.string.toCString()
         let r = ffi_git_reset(repoC)
         if r != 0 {
             try throwError(code: r)
@@ -130,7 +130,7 @@ enum Git {
     }
 
     static func configSetUser(username: String) throws {
-        let repoC = try repo.path().toCString()
+        let repoC = try repo.string.toCString()
         let usernameC = try username.toCString()
         let r = ffi_git_config_set_user(repoC, username: usernameC)
         if r != 0 {
@@ -142,7 +142,7 @@ enum Git {
         G.logger.debug("Fetching commit messages")
         var messages = [CommitInfo]()
 
-        let repoC = try repo.path().toCString()
+        let repoC = try repo.string.toCString()
         let arr = ffi_git_log(repoC)
         if arr.len < 0 {
             try throwError(code: arr.len)
@@ -163,14 +163,14 @@ enum Git {
     }
 
     static func repoIsInitialized() -> Bool {
-        let idents = G.gitDir.appending(path: ".age-identities")
-        let recips = G.gitDir.appending(path: ".age-recipients")
+        let idents = G.gitDir.appending(".age-identities")
+        let recips = G.gitDir.appending(".age-recipients")
         return FileManager.default.isFile(idents)
             && FileManager.default.isFile(recips)
     }
 
     static private func commit(message: String) throws {
-        let repoC = try repo.path().toCString()
+        let repoC = try repo.string.toCString()
         let messageC = try message.toCString()
 
         let r = ffi_git_commit(repoC, message: messageC)
@@ -180,7 +180,7 @@ enum Git {
     }
 
     static private func stage(relativePath: String) throws {
-        let repoC = try repo.path().toCString()
+        let repoC = try repo.string.toCString()
         let relativePathC = try relativePath.toCString()
 
         let r = ffi_git_stage(repoC, relativePath: relativePathC)

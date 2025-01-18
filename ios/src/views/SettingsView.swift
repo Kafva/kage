@@ -210,7 +210,7 @@ struct SettingsView: View {
             return
         }
 
-        try? FileManager.default.removeItem(at: G.gitDir)
+        try? FileManager.default.removeItem(atPath: G.gitDir.string)
         do {
             try Git.clone(remote: remote)
             try Git.configSetUser(username: repoPath)
@@ -219,7 +219,7 @@ struct SettingsView: View {
             currentError = nil
         }
         catch {
-            try? FileManager.default.removeItem(at: G.gitDir)
+            try? FileManager.default.removeItem(atPath: G.gitDir.string)
             currentError = uiError("\(error.localizedDescription)")
         }
     }

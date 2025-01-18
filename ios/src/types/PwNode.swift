@@ -1,13 +1,17 @@
 import Foundation
 import SwiftUI
+import System
 
 struct PwNode: Identifiable, Hashable {
     let id = UUID()
-    let url: URL
+    /// `URL` objects are always url encoded, we have no need for this,
+    /// use the `FilePath` representation instead.
+    let path: FilePath
     let children: [PwNode]?
 
+    /// Name without file extension
     var name: String {
-        let name = url.deletingPathExtension().lastPathComponent
+        let name = (path.lastComponent?.string ?? "").deletingSuffix(".age")
         if name == G.gitDirName {
             return G.rootNodeName
         }
@@ -18,24 +22,22 @@ struct PwNode: Identifiable, Hashable {
         if self.name == G.gitDirName {
             return G.rootNodeName
         }
-        return url.deletingLastPathComponent().lastPathComponent
+        return path.removingLastComponent().lastComponent?.string ?? ""
     }
 
     var parentRelativePath: String {
-        if url.lastPathComponent == G.gitDirName
-            || url.lastPathComponent == G.rootNodeName
-        {
+        if parentName == G.gitDirName || name == G.rootNodeName {
             return G.rootNodeName
         }
         else {
-            let parentURL = url.deletingLastPathComponent()
-            return PwNode(url: parentURL, children: []).relativePath
+            return relativePath
         }
     }
 
     /// Path relative to git root
     var relativePath: String {
-        let s = url.standardizedFileURL.path().deletingPrefix(G.gitDir.path())
+        let s = path.string
+            .deletingPrefix(G.gitDir.string)
             .trimmingCharacters(in: CharacterSet(charactersIn: "/"))
         if s.isEmpty {
             return G.rootNodeName
@@ -48,44 +50,51 @@ struct PwNode: Identifiable, Hashable {
     }
 
     var isPassword: Bool {
-        return url.path().hasSuffix(".age")
+        return path.string.hasSuffix(".age")
     }
 
     /// Validate that the given node path is OK to be inserted
     static func loadValidatedFrom(
-        name: String, relativePath: String, expectPassword: Bool,
-        checkParents: Bool, allowNameTaken: Bool
+        name: String,
+        relativePath: String,
+        expectPassword: Bool,
+        checkParents: Bool,
+        allowNameTaken: Bool
     ) throws -> Self {
         if name.contains("/") {
             throw AppError.invalidNodePath("Node name cannot contain: '/'")
         }
-        // XXX: We need to check for '..' before creating a URL
-        if name.starts(with: ".") || name.hasSuffix(".")
+        // Check for '..' before creating a filepath
+        if name.hasPrefix(".") || name.hasSuffix(".")
+            || relativePath.hasPrefix(".") || relativePath.hasSuffix(".")
             || relativePath.contains("./") || relativePath.contains("/.")
         {
             throw AppError.invalidNodePath(
                 "Node name(s) cannot begin or end with: '.'")
         }
-        let url = createURL(
-            name: name, relativePath: relativePath,
+        let path = createAbsPath(
+            name: name,
+            relativePath: relativePath,
             expectPassword: expectPassword)
 
         try checkLeaf(
-            url: url, expectPassword: expectPassword,
+            path: path,
+            expectPassword: expectPassword,
             allowNameTaken: allowNameTaken)
-        var parentURL = url
+        var parentPath = path
 
         // Do not iterate forever if we are in a bad state where gitDir is missing
         for _ in 0...G.maxTreeDepth {
-            parentURL.deleteLastPathComponent()
-            if parentURL.lastPathComponent == G.gitDirName {
+            parentPath.removeLastComponent()
+            let parentName = parentPath.lastComponent?.string ?? ""
+            if parentName == G.gitDirName {
                 break
             }
 
             // Each parent must exist
-            if !FileManager.default.isDir(parentURL) {
+            if !FileManager.default.isDir(parentPath) {
                 throw AppError.invalidNodePath(
-                    "Missing parent path: '\(parentURL.path())'")
+                    "Missing parent path: '\(parentPath.string)'")
             }
 
             // Each parent must have a valid name
@@ -93,65 +102,60 @@ struct PwNode: Identifiable, Hashable {
                 continue
             }
             try checkLeaf(
-                url: parentURL, expectPassword: false, allowNameTaken: true)
+                path: parentPath, expectPassword: false, allowNameTaken: true)
 
         }
 
-        return PwNode(url: url.standardizedFileURL, children: [])
+        return PwNode(path: path, children: [])
     }
 
-    static func loadRecursivelyFrom(_ fromDir: URL) throws -> Self {
+    static func loadRecursivelyFrom(_ fromDir: FilePath) throws -> Self {
         var children: [Self] = []
 
-        for url in try FileManager.default.ls(fromDir) {
+        for path in try FileManager.default.ls(fromDir) {
             let node: PwNode
-            let expectPassword = !FileManager.default.isDir(url)
+            let expectPassword = !FileManager.default.isDir(path)
 
             // Validate every leaf node as we traverse the tree
             try checkLeaf(
-                url: url, expectPassword: expectPassword, allowNameTaken: true)
+                path: path, expectPassword: expectPassword, allowNameTaken: true
+            )
 
             if expectPassword {
-                node = PwNode(url: url.standardizedFileURL, children: [])
+                node = PwNode(path: path, children: [])
             }
             else {
-                node = try loadRecursivelyFrom(url)
+                node = try loadRecursivelyFrom(path)
             }
             children.append(node)
         }
 
-        return PwNode(url: fromDir.standardizedFileURL, children: children)
+        return PwNode(path: fromDir, children: children)
     }
 
-    static func createURL(
+    static func createAbsPath(
         name: String, relativePath: String, expectPassword: Bool
-    ) -> URL {
+    ) -> FilePath {
         return G.gitDir.appending(
-            path: "\(relativePath)/\(name)\(expectPassword ? ".age" : "")"
-        ).standardizedFileURL
+            "\(relativePath)/\(name)\(expectPassword ? ".age" : "")"
+        )
     }
 
     private static func checkLeaf(
-        url: URL, expectPassword: Bool, allowNameTaken: Bool
+        path: FilePath, expectPassword: Bool, allowNameTaken: Bool
     )
         throws
     {
-        let name = url.lastPathComponent
+        let name = path.lastComponent?.string ?? ""
         if name.isEmpty || name == ".age" || name == G.gitDirName {
             throw AppError.invalidNodePath("No name provided")
         }
 
-        guard let urlNoSuffix = URL(string: url.path().deletingSuffix(".age"))
-        else {
-            throw AppError.invalidNodePath("Bad URL: '\(url.path())'")
-        }
-        guard let urlSuffix = URL(string: urlNoSuffix.path() + ".age")
-        else {
-            throw AppError.invalidNodePath("Bad URL: '\(url.path())'")
-        }
+        let filepathNoSuffix = FilePath(path.string.deletingSuffix(".age"))
+        let filepathSuffix = FilePath(filepathNoSuffix.string + ".age")
 
         // The name should not contain '.age' after we strip away the suffix
-        if urlNoSuffix.lastPathComponent.hasSuffix(".age") {
+        if filepathNoSuffix.string.hasSuffix(".age") {
             throw AppError.invalidNodePath(
                 "Node name cannot end with '.age': '\(name)'")
         }
@@ -175,19 +179,19 @@ struct PwNode: Identifiable, Hashable {
 
         if allowNameTaken {
             // Make sure that files and folder nodes do not overlap
-            if expectPassword && FileManager.default.isDir(urlNoSuffix) {
+            if expectPassword && FileManager.default.isDir(filepathNoSuffix) {
                 throw AppError.invalidNodePath(
-                    "Password node conflict with existing folder: '\(urlNoSuffix.path())'"
+                    "Password node conflict with existing folder: '\(filepathNoSuffix)'"
                 )
             }
-            if !expectPassword && FileManager.default.isFile(urlSuffix) {
+            if !expectPassword && FileManager.default.isFile(filepathSuffix) {
                 throw AppError.invalidNodePath(
-                    "Directory node conflict with existing file: '\(urlSuffix.path())'"
+                    "Directory node conflict with existing file: '\(filepathSuffix)'"
                 )
             }
         }
-        else if FileManager.default.exists(urlSuffix)
-            || FileManager.default.exists(urlNoSuffix)
+        else if FileManager.default.exists(filepathSuffix)
+            || FileManager.default.exists(filepathNoSuffix)
         {
             throw AppError.invalidNodePath("Name already taken: '\(name)'")
         }
@@ -195,11 +199,11 @@ struct PwNode: Identifiable, Hashable {
 
     /// Retrieve a list of all folder paths in the tree
     func flatFolders() -> [PwNode] {
-        if !FileManager.default.isDir(url) {
+        if !FileManager.default.isDir(path) {
             return []
         }
 
-        let node = PwNode(url: self.url, children: [])
+        let node = PwNode(path: self.path, children: [])
         var folders: [PwNode] = [node]
 
         for child in children ?? [] {
@@ -234,7 +238,8 @@ struct PwNode: Identifiable, Hashable {
 
             // Include the child with the subset of the child nodes that match the query
             if !childMatches.isEmpty {
-                let subsetChild = PwNode(url: child.url, children: childMatches)
+                let subsetChild = PwNode(
+                    path: child.path, children: childMatches)
                 matches.append(subsetChild)
             }
         }

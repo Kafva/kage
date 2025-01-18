@@ -12,12 +12,13 @@ enum PwManager {
         generate: Bool = false
     ) throws -> PwNode {
         // Selected name is only allowed to be taken if it is equal to the currentPwNode
-        let url = PwNode.createURL(
-            name: selectedName, relativePath: selectedRelativePath,
+        let selectedPath = PwNode.createAbsPath(
+            name: selectedName,
+            relativePath: selectedRelativePath,
             expectPassword: !selectedDirectory)
-        let allowNameTaken = url == currentPwNode?.url.standardizedFileURL
+        let allowNameTaken = selectedPath == currentPwNode?.path
 
-        // The `newPwNode` and `node` are equal if we are modifying an existing node
+        // The `newPwNode` and `currentPwNode` are equal if we are modifying an existing node
         let newPwNode = try PwNode.loadValidatedFrom(
             name: selectedName,
             relativePath: selectedRelativePath,
@@ -55,10 +56,10 @@ enum PwManager {
     /// Remove the provided node from the tree
     static func remove(node: PwNode) throws {
         if !node.isPassword {
-            if (try? FileManager.default.findFirstFile(node.url)) == nil {
+            if (try? FileManager.default.findFirstFile(node.path)) == nil {
                 // Remove the node without creating a commit if there are no
                 // files beneath it
-                try FileManager.default.removeItem(at: node.url)
+                try FileManager.default.removeItem(atPath: node.path.string)
                 return
             }
         }
@@ -67,7 +68,7 @@ enum PwManager {
 
     private static func addFolder(newPwNode: PwNode) throws {
         try FileManager.default.createDirectory(
-            at: newPwNode.url,
+            atPath: newPwNode.path.string,
             withIntermediateDirectories: false)
     }
 
@@ -75,11 +76,12 @@ enum PwManager {
         currentPwNode: PwNode,
         newPwNode: PwNode
     ) throws {
-        if (try? FileManager.default.findFirstFile(currentPwNode.url)) == nil {
+        if (try? FileManager.default.findFirstFile(currentPwNode.path)) == nil {
             // Move the node without creating a commit if there are no
             // files beneath it
             try FileManager.default.moveItem(
-                at: currentPwNode.url, to: newPwNode.url)
+                atPath: currentPwNode.path.string,
+                toPath: newPwNode.path.string)
             return
         }
         try Git.mvCommit(fromNode: currentPwNode, toNode: newPwNode)
@@ -93,18 +95,18 @@ enum PwManager {
         password: String
     ) throws {
         // Move the password node if the current and new node are different
-        if newPwNode.url != currentPwNode.url {
+        if newPwNode.path != currentPwNode.path {
             try Git.mvCommit(fromNode: currentPwNode, toNode: newPwNode)
         }
 
         // Update the password if one was provided
         if !password.isEmpty {
             try checkPassword(password: password)
-            let recipient = G.gitDir.appending(path: ".age-recipients")
+            let recipientPath = G.gitDir.appending(".age-recipients")
 
             try Age.encrypt(
-                recipient: recipient,
-                outpath: newPwNode.url,
+                recipientPath: recipientPath,
+                outPath: newPwNode.path,
                 plaintext: password)
 
             try Git.addCommit(node: newPwNode, nodeIsNew: false)
@@ -119,12 +121,12 @@ enum PwManager {
             try checkPassword(password: password)
         }
 
-        let recipient = G.gitDir.appending(path: ".age-recipients")
+        let recipientPath = G.gitDir.appending(".age-recipients")
         let plaintext = generate ? randomString(20) : password
 
         try Age.encrypt(
-            recipient: recipient,
-            outpath: newPwNode.url,
+            recipientPath: recipientPath,
+            outPath: newPwNode.path,
             plaintext: plaintext)
 
         try Git.addCommit(node: newPwNode, nodeIsNew: true)

@@ -6,7 +6,7 @@ func ffi_free_cstring(_ ptr: UnsafeMutablePointer<CChar>?)
 
 class AppState: ObservableObject {
     @Published var identityUnlockedAt: Date? = nil
-    @Published var rootNode: PwNode = PwNode(url: G.gitDir, children: [])
+    @Published var rootNode: PwNode = PwNode(path: G.gitDir, children: [])
     @Published var localHeadMatchesRemote: Bool = true
 
     var identityIsUnlocked: Bool {
@@ -19,7 +19,7 @@ class AppState: ObservableObject {
     }
 
     func unlockIdentity(passphrase: String) throws {
-        let encryptedIdentity = G.gitDir.appending(path: ".age-identities")
+        let encryptedIdentity = G.gitDir.appending(".age-identities")
         try Age.unlockIdentity(
             encryptedIdentity,
             passphrase: passphrase)
