@@ -30,8 +30,7 @@ class Log {
         private fun getPrefix(): String {
             // getPrefix -> (d,v,i,w,e) -> calling method
             val stackTrace = Throwable().stackTrace[2]
-            val location =
-                stackTrace.fileName ?: stackTrace.className ?: "Unknown"
+            val location = stackTrace.fileName ?: "Unknown"
             return "$location:${stackTrace.lineNumber}"
         }
     }
