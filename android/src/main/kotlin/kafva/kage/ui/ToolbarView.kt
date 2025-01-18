@@ -103,10 +103,27 @@ fun ToolbarView(
                         )
 
                         if (currentRoute.contains("/")) {
-                            Text("Back", fontSize = G.BODY_FONT_SIZE.sp)
-                        } else {
                             Text(
-                                currentRoute,
+                                stringResource(R.string.back),
+                                fontSize = G.BODY_FONT_SIZE.sp,
+                            )
+                        } else {
+                            val title =
+                                when (currentRoute) {
+                                    Screen.History.route ->
+                                        stringResource(
+                                            R.string.history,
+                                        )
+                                    Screen.Settings.route ->
+                                        stringResource(
+                                            R.string.settings,
+                                        )
+                                    else -> {
+                                        ""
+                                    }
+                                }
+                            Text(
+                                title,
                                 fontSize = G.TITLE_FONT_SIZE.sp,
                             )
                         }

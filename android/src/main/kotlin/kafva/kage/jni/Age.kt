@@ -3,7 +3,7 @@ package kafva.kage.jni
 object Age {
     external fun unlockIdentity(
         encryptedIdentity: String,
-        passphrase: String,
+        password: String,
     ): Int
 
     external fun lockIdentity(): Int

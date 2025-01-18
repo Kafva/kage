@@ -78,8 +78,14 @@ fun PasswordView(
         }
 
         if (currentError.value != null) {
+            val msg =
+                if (currentError.value == "Decryption failed") {
+                    stringResource(R.string.decryption_failed)
+                } else {
+                    currentError.value
+                }
             Text(
-                context.getString(R.string.error, currentError.value),
+                context.getString(R.string.error, msg),
                 color = MaterialTheme.colorScheme.error,
                 fontSize = G.BODY_FONT_SIZE.sp,
                 modifier =
@@ -171,7 +177,7 @@ private fun UnlockView(
     currentError: MutableState<String?>,
     viewModel: PasswordViewModel = hiltViewModel(),
 ) {
-    val passphrase = viewModel.ageRepository.passphrase.collectAsState()
+    val password = viewModel.ageRepository.password.collectAsState()
 
     Text(
         stringResource(R.string.authentication),
@@ -179,12 +185,12 @@ private fun UnlockView(
         modifier = Modifier.padding(bottom = 30.dp),
     )
     TextField(
-        value = passphrase.value ?: "",
-        label = { Text(stringResource(R.string.passphrase)) },
+        value = password.value ?: "",
+        label = { Text(stringResource(R.string.password)) },
         singleLine = true,
         shape = RoundedCornerShape(G.CORNER_RADIUS),
         onValueChange = {
-            viewModel.ageRepository.setPassphrase(it)
+            viewModel.ageRepository.setPassword(it)
         },
         visualTransformation = PasswordVisualTransformation(Char(0x2A)),
         keyboardOptions =
@@ -199,10 +205,10 @@ private fun UnlockView(
                 onDone = {
                     try {
                         viewModel.ageRepository.unlockIdentity(
-                            passphrase.value ?: "",
+                            password.value ?: "",
                         )
-                        // Clear passphrase after trying it
-                        viewModel.ageRepository.setPassphrase(null)
+                        // Clear password after trying it
+                        viewModel.ageRepository.setPassword(null)
                         viewModel.ageRepository.decrypt(nodePath)
                         currentError.value = null
                     } catch (e: AgeException) {

@@ -7,7 +7,7 @@ VERSION=$(git describe --tags)
 [ -n "$(git status -s)" ] && DIRTY="-dirty"
 
 cat << EOF > $XML
-<resources xmlns:tools="http://schemas.android.com/tools">
-    <string name="git_version">${VERSION}${DIRTY}</string>
+<resources>
+    <string name="git_version" translatable="false">${VERSION}${DIRTY}</string>
 </resources>
 EOF

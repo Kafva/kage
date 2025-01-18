@@ -27,26 +27,26 @@ class AgeRepository
         private val _plaintext = MutableStateFlow<String?>(null)
         val plaintext: StateFlow<String?> = _plaintext
 
-        private val _passphrase = MutableStateFlow<String?>(null)
-        val passphrase: StateFlow<String?> = _passphrase
+        private val _password = MutableStateFlow<String?>(null)
+        val password: StateFlow<String?> = _password
 
         private fun clearPlaintext() {
             _plaintext.value = null
         }
 
-        fun setPassphrase(value: String?) {
-            _passphrase.value = value
+        fun setPassword(value: String?) {
+            _password.value = value
         }
 
         @Throws(AgeException::class)
-        fun unlockIdentity(passphrase: String) {
+        fun unlockIdentity(password: String) {
             val encryptedIdentityPath =
                 File("${appRepository.localRepo.toPath()}/.age-identities")
             val encryptedIdentity =
                 encryptedIdentityPath.readText(
                     Charsets.UTF_8,
                 )
-            val r = Jni.unlockIdentity(encryptedIdentity, passphrase)
+            val r = Jni.unlockIdentity(encryptedIdentity, password)
             if (r != 0) {
                 raiseError()
             } else {
@@ -64,7 +64,7 @@ class AgeRepository
                 Instant.now().epochSecond - (identityUnlockedAt.value ?: 0)
             if (distance >= G.AUTO_LOCK_SECONDS) {
                 lockIdentity()
-                // Clear any decrypted plaintext from memory, the passphrase has
+                // Clear any decrypted plaintext from memory, the password has
                 // already been cleared.
                 clearPlaintext()
                 Log.d(
