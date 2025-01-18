@@ -33,6 +33,7 @@
 		DD5DC7FA2C78E243004DC4A8 /* CommitInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4093DCFAB0E3D446DF6E07A0 /* CommitInfo.swift */; };
 		DD6D27002C5E5C5700B8089C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DD6D26FF2C5E5C5700B8089C /* Assets.xcassets */; };
 		DD728F762B9392EF00A4BC99 /* libiconv.2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = DD728F752B9392DA00A4BC99 /* libiconv.2.tbd */; };
+		DD8895D02D3BFB0300D41F00 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = DD8895CF2D3BFB0300D41F00 /* Localizable.xcstrings */; };
 		DDBC8BA370FC2B4A8BEB153F /* CommitInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4093DCFAB0E3D446DF6E07A0 /* CommitInfo.swift */; };
 		DDC228C62C82F17D00A51E1C /* PasswordView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDC228C52C82F17D00A51E1C /* PasswordView.swift */; };
 		DDD52A572C79C1F70008CE73 /* PwManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDD52A562C79C1F70008CE73 /* PwManager.swift */; };
@@ -78,6 +79,7 @@
 		DD0DFB202C78A0920055B83E /* kageTests.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = kageTests.xctestplan; sourceTree = "<group>"; };
 		DD6D26FF2C5E5C5700B8089C /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		DD728F752B9392DA00A4BC99 /* libiconv.2.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libiconv.2.tbd; path = usr/lib/libiconv.2.tbd; sourceTree = SDKROOT; };
+		DD8895CF2D3BFB0300D41F00 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; name = Localizable.xcstrings; path = locale/Localizable.xcstrings; sourceTree = "<group>"; };
 		DDA4B6292AFDF6A00046DFCE /* kage.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = kage.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DDC228C52C82F17D00A51E1C /* PasswordView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PasswordView.swift; path = views/PasswordView.swift; sourceTree = "<group>"; };
 		DDC84DF42C730C25003E009D /* kageTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = kageTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -130,6 +132,7 @@
 		DD0ADA602C57580E0006B2E8 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				DD8895CF2D3BFB0300D41F00 /* Localizable.xcstrings */,
 				DDC228C52C82F17D00A51E1C /* PasswordView.swift */,
 				DDD52A6B2C7B2FA00008CE73 /* ScenePhase.swift */,
 				DDD52A6C2C7B2FA00008CE73 /* View.swift */,
@@ -232,7 +235,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1600;
-				LastUpgradeCheck = 1500;
+				LastUpgradeCheck = 1620;
 				TargetAttributes = {
 					DDA4B6282AFDF6A00046DFCE = {
 						CreatedOnToolsVersion = 15.0.1;
@@ -250,6 +253,7 @@
 			knownRegions = (
 				en,
 				Base,
+				sv,
 			);
 			mainGroup = DDA4B6202AFDF6A00046DFCE;
 			productRefGroup = DDA4B62A2AFDF6A00046DFCE /* Products */;
@@ -267,6 +271,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DD8895D02D3BFB0300D41F00 /* Localizable.xcstrings in Resources */,
 				DD6D27002C5E5C5700B8089C /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -388,6 +393,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -442,6 +448,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
 			name = Debug;
@@ -451,6 +458,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -498,6 +506,7 @@
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_EMIT_LOC_STRINGS = YES;
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;

@@ -62,7 +62,8 @@ struct PwNode: Identifiable, Hashable {
         allowNameTaken: Bool
     ) throws -> Self {
         if name.contains("/") {
-            throw AppError.invalidNodePath("Node name cannot contain: '/'")
+            throw AppError.invalidNodePath(
+                String(localized: "Node name cannot contain: ‘/‘"))
         }
         // Check for '..' before creating a filepath
         if name.hasPrefix(".") || name.hasSuffix(".")
@@ -70,7 +71,7 @@ struct PwNode: Identifiable, Hashable {
             || relativePath.contains("./") || relativePath.contains("/.")
         {
             throw AppError.invalidNodePath(
-                "Node name(s) cannot begin or end with: '.'")
+                String(localized: "A node name cannot begin or end with: ‘.‘"))
         }
         let path = createAbsPath(
             name: name,
@@ -172,7 +173,8 @@ struct PwNode: Identifiable, Hashable {
 
         let regexName = /^[-_.@åäöÅÄÖa-zA-Z0-9+]{1,64}$/
         if (try? regexName.wholeMatch(in: name)) == nil {
-            throw AppError.invalidNodePath("Bad name: '\(name)'")
+            throw AppError.invalidNodePath(
+                String(localized: "Bad name: ‘\(name)‘"))
         }
 
         if allowNameTaken {
@@ -191,7 +193,8 @@ struct PwNode: Identifiable, Hashable {
         else if FileManager.default.exists(filepathSuffix)
             || FileManager.default.exists(filepathNoSuffix)
         {
-            throw AppError.invalidNodePath("Name already taken: '\(name)'")
+            throw AppError.invalidNodePath(
+                String(localized: "Name already taken: ‘\(name)‘"))
         }
     }
 

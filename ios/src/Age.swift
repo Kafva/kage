@@ -1,6 +1,7 @@
 import Foundation
 import System
 
+// periphery: ignore
 @_silgen_name("ffi_age_unlock_identity")
 func ffi_age_unlock_identity(
     encryptedIdentity: UnsafePointer<CChar>,
@@ -10,6 +11,7 @@ func ffi_age_unlock_identity(
 @_silgen_name("ffi_age_lock_identity")
 func ffi_age_lock_identity() -> CInt
 
+// periphery: ignore
 @_silgen_name("ffi_age_encrypt")
 func ffi_age_encrypt(
     plaintext: UnsafePointer<CChar>,
@@ -17,6 +19,7 @@ func ffi_age_encrypt(
     outpath: UnsafePointer<CChar>
 ) -> CInt
 
+// periphery: ignore
 @_silgen_name("ffi_age_decrypt")
 func ffi_age_decrypt(encryptedFilepath: UnsafePointer<CChar>)
     -> UnsafeMutablePointer<CChar>?
@@ -108,7 +111,12 @@ enum Age {
         let msg = String(cString: s)
         ffi_free_cstring(s)
 
-        throw AppError.ageError(msg)
+        if msg == "Decryption failed" {
+            throw AppError.ageError(String(localized: "Decryption failed"))
+        }
+        else {
+            throw AppError.ageError(msg)
+        }
     }
 
 }

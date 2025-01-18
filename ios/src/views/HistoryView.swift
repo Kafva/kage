@@ -1,9 +1,7 @@
 import SwiftUI
 
 struct HistoryView: View {
-    @EnvironmentObject var appState: AppState
     @State private var commits = [CommitInfo]()
-    @State private var currentError: String?
 
     var body: some View {
         return List(commits) { commit in

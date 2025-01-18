@@ -87,11 +87,11 @@ struct SettingsView: View {
 
         if !isInitialized {
             iconName = "square.and.arrow.down"
-            text = "Fetch password repository"
+            text = String(localized: "Fetch password repository")
         }
         else {
             iconName = "arrow.triangle.2.circlepath"
-            text = "Reset password repository"
+            text = String(localized: "Reset password repository")
         }
 
         return TileView(iconName: iconName) {
@@ -141,8 +141,9 @@ struct SettingsView: View {
 
     private var passwordCountTile: some View {
         let passwords = try? FileManager.default.findFiles(G.gitDir)
+        let count = passwords?.count ?? 0
         return TileView(iconName: nil) {
-            Text("Storage: \(passwords?.count ?? 0) password(s)")
+            Text(String(localized: "Storage: \(count) password"))
                 .font(G.captionFont)
                 .foregroundColor(.gray)
                 .frame(alignment: .leading)

@@ -7,7 +7,7 @@ struct SearchView: View {
         let background = RoundedRectangle(cornerRadius: 5)
             .fill(G.textFieldBgColor)
 
-        return TextField("Search...", text: $searchText)
+        return TextField("Search…", text: $searchText)
             .textContentType(.oneTimeCode)
             .multilineTextAlignment(.center)
             .font(G.title3Font)

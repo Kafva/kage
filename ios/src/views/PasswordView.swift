@@ -16,14 +16,14 @@ struct PasswordView: View {
         let headerText: String
 
         if appState.identityIsUnlocked {
-            submitText = "Copy..."
-            dismissText = "Dismiss"
+            submitText = String(localized: "Copy…")
+            dismissText = String(localized: "Dismiss")
             headerText = node.name
         }
         else {
             submitText = "Ok"
-            dismissText = "Cancel"
-            headerText = "Authentication required"
+            dismissText = String(localized: "Cancel")
+            headerText = String(localized: "Authentication required")
         }
 
         return VStack(alignment: .center) {

@@ -15,13 +15,13 @@ enum AppError: Error, LocalizedError, Equatable {
         case .cStringError:
             return "Cstring conversion failure"
         case .ageError(let msg):
-            return "Cryptographic error: \(msg)"
+            return String(localized: "Cryptographic error: \(msg)")
         case .gitError(let msg):
             return "Git error: \(msg)"
         case .invalidNodePath(let msg):
-            return "Invalid node: \(msg)"
+            return String(localized: "Invalid node: \(msg)")
         case .invalidPasswordFormat:
-            return "Invalid password format"
+            return String(localized: "Invalid password format")
         }
     }
 }

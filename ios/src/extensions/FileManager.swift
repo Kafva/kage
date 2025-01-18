@@ -53,6 +53,7 @@ extension FileManager {
         return nil
     }
 
+    // periphery: ignore
     func mkdirp(_ at: FilePath) throws {
         if isDir(at) {
             return

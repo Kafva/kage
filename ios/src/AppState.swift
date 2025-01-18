@@ -1,6 +1,7 @@
 import Network
 import SwiftUI
 
+// periphery: ignore
 @_silgen_name("ffi_free_cstring")
 func ffi_free_cstring(_ ptr: UnsafeMutablePointer<CChar>?)
 

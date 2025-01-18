@@ -51,6 +51,7 @@ struct DeviceLogger {
 }
 
 extension OSLogEntryLog.Level {
+    // periphery: ignore
     public var description: String {
         switch self {
         case .debug:

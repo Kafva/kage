@@ -5,38 +5,47 @@ struct CStringArray {
     let len: CInt
 }
 
+// periphery: ignore
 @_silgen_name("ffi_git_clone")
 func ffi_git_clone(
     _ url: UnsafePointer<CChar>,
     into: UnsafePointer<CChar>
 ) -> CInt
+
+// periphery: ignore
 @_silgen_name("ffi_git_reset")
 func ffi_git_reset(_ repo: UnsafePointer<CChar>) -> CInt
 
+// periphery: ignore
 @_silgen_name("ffi_git_config_set_user")
 func ffi_git_config_set_user(
     _ repo: UnsafePointer<CChar>,
     username: UnsafePointer<CChar>
 ) -> CInt
 
+// periphery: ignore
 @_silgen_name("ffi_git_stage")
 func ffi_git_stage(
     _ repo: UnsafePointer<CChar>,
     relativePath: UnsafePointer<CChar>
 ) -> CInt
 
+// periphery: ignore
 @_silgen_name("ffi_git_commit")
 func ffi_git_commit(
     _ repo: UnsafePointer<CChar>,
     message: UnsafePointer<CChar>
 ) -> CInt
 
+// periphery: ignore
 @_silgen_name("ffi_git_push")
 func ffi_git_push(_ repo: UnsafePointer<CChar>) -> CInt
 
+// periphery: ignore
 @_silgen_name("ffi_git_local_head_matches_remote")
 func ffi_git_local_head_matches_remote(_ repo: UnsafePointer<CChar>) -> CInt
 
+// periphery: ignore
 @_silgen_name("ffi_git_log")
 func ffi_git_log(_ repo: UnsafePointer<CChar>) -> CStringArray
 

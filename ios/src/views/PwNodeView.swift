@@ -37,21 +37,21 @@ struct PwNodeView: View {
 
         if let node {
             if node.isPassword {
-                title = "Edit password '\(node.name)'"
+                title = String(localized: "Edit password ‘\(node.name)‘")
                 passwordIsOk = generate || !password.isEmpty
             }
             else {
-                title = "Edit folder '\(node.name)'"
+                title = String(localized: "Edit folder ‘\(node.name)‘")
                 passwordIsOk = true
             }
         }
         // No node currently selected
         else if nodeType == .folder {
-            title = "New item"
+            title = String(localized: "Create new item")
             passwordIsOk = true
         }
         else {
-            title = "New item"
+            title = String(localized: "Create new item")
             passwordIsOk = generate || !password.isEmpty
         }
 
@@ -102,7 +102,12 @@ struct PwNodeView: View {
     private var nodeTypePickerView: some View {
         Picker("", selection: $nodeType) {
             ForEach(PwNodeType.allCases) { p in
-                Text(p.rawValue.capitalized)
+                switch p {
+                case .password:
+                    Text("Password")
+                case .folder:
+                    Text("Folder")
+                }
             }
         }
         .pickerStyle(.segmented)
@@ -150,7 +155,8 @@ struct PwNodeView: View {
                 .listRowSeparator(.hidden)
             }
             if node != nil || !generate {
-                let placeholder = node != nil ? "New password" : "Password"
+                let placeholder = String(
+                    localized: node != nil ? "New password" : "Password")
                 TileView(iconName: "rectangle.and.pencil.and.ellipsis") {
                     ZStack(alignment: .trailing) {
                         Group {
