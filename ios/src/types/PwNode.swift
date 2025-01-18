@@ -170,8 +170,6 @@ struct PwNode: Identifiable, Hashable {
                 "Directory with '.age' suffix: '\(name)'")
         }
 
-        // Checks for '..' need to be done before this since we receive a URL
-        // (which resolves '..') as input.
         let regexName = /^[-_.@åäöÅÄÖa-zA-Z0-9+]{1,64}$/
         if (try? regexName.wholeMatch(in: name)) == nil {
             throw AppError.invalidNodePath("Bad name: '\(name)'")

@@ -5,6 +5,7 @@ import SwiftUI
 func ffi_free_cstring(_ ptr: UnsafeMutablePointer<CChar>?)
 
 class AppState: ObservableObject {
+    @Published var backgroundTaskInProgress = false
     @Published var identityUnlockedAt: Date? = nil
     @Published var rootNode: PwNode = PwNode(path: G.gitDir, children: [])
     @Published var localHeadMatchesRemote: Bool = true

@@ -31,9 +31,6 @@ func ffi_git_commit(
     message: UnsafePointer<CChar>
 ) -> CInt
 
-@_silgen_name("ffi_git_pull")
-func ffi_git_pull(_ repo: UnsafePointer<CChar>) -> CInt
-
 @_silgen_name("ffi_git_push")
 func ffi_git_push(_ repo: UnsafePointer<CChar>) -> CInt
 
@@ -91,15 +88,6 @@ enum Git {
         if r != 0 {
             try throwError(code: r)
         }
-    }
-
-    static func pull() throws {
-        let repoC = try repo.string.toCString()
-        let r = ffi_git_pull(repoC)
-        if r != 0 {
-            try throwError(code: r)
-        }
-        G.logger.debug("Pull successful")
     }
 
     static func push() throws {

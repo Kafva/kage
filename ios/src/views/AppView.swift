@@ -40,6 +40,8 @@ struct AppView: View {
                     currentError = uiError("\(error.localizedDescription)")
                 }
             }
+            // Ignore interactions when a background task is running
+            .disabled(appState.backgroundTaskInProgress)
         }
     }
 
@@ -119,12 +121,30 @@ struct AppView: View {
     }
 
     private func handleGitPush() {
-        do {
-            try Git.push()
-            try appState.reloadGitTree()
-        }
-        catch {
-            currentError = uiError("\(error.localizedDescription)")
+        appState.backgroundTaskInProgress = true
+        #if targetEnvironment(simulator)
+            let deadline: DispatchTime = .now() + 2
+        #else
+            let deadline: DispatchTime = .now()
+        #endif
+
+        // Delay for testing on simulator
+        DispatchQueue.global(qos: .userInitiated).asyncAfter(deadline: deadline)
+        {
+            do {
+                try Git.push()
+                try appState.reloadGitTree()
+                DispatchQueue.main.async {
+                    currentError = nil
+                    appState.backgroundTaskInProgress = false
+                }
+            }
+            catch {
+                DispatchQueue.main.async {
+                    currentError = uiError("\(error.localizedDescription)")
+                    appState.backgroundTaskInProgress = false
+                }
+            }
         }
     }
 

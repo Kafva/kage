@@ -9,7 +9,6 @@ struct SettingsView: View {
     @State private var remoteAddress: String = ""
     @State private var repoPath: String = ""
     @State private var showAlert: Bool = false
-    @State private var inProgress: Bool = false
     @State private var currentError: String?
 
     var body: some View {
@@ -62,6 +61,8 @@ struct SettingsView: View {
             remoteAddress = remoteAddressStore
             repoPath = repoPathStore
         }
+        // Ignore interactions when a background task is running
+        .disabled(appState.backgroundTaskInProgress)
     }
 
     private var remoteInfoTile: some View {
@@ -97,21 +98,14 @@ struct SettingsView: View {
             Button {
                 hideKeyboard()
                 if !isInitialized {
-                    Task {
-                        inProgress = true
-                        #if targetEnvironment(simulator)
-                            try? await Task.sleep(nanoseconds: 2000_000_000)
-                        #endif
-                        handleGitClone()
-                        inProgress = false
-                    }
+                    handleGitClone()
                 }
                 else {
                     showAlert = true
                 }
             } label: {
-                if inProgress {
-                    Text("Loading...")
+                if appState.backgroundTaskInProgress {
+                    Text("Loading…")
                 }
                 else {
                     Text(text).lineLimit(1)
@@ -121,17 +115,10 @@ struct SettingsView: View {
             .alert("Replace all local data?", isPresented: $showAlert) {
                 Button("Yes", role: .destructive) {
                     hideKeyboard()
-                    Task {
-                        inProgress = true
-                        #if targetEnvironment(simulator)
-                            try? await Task.sleep(nanoseconds: 2000_000_000)
-                        #endif
-                        handleGitClone()
-                        inProgress = false
-                    }
+                    handleGitClone()
                 }
             }
-            .disabled(!remoteIsValid || inProgress)
+            .disabled(!remoteIsValid)
         }
     }
 
@@ -210,17 +197,40 @@ struct SettingsView: View {
             return
         }
 
-        try? FileManager.default.removeItem(atPath: G.gitDir.string)
-        do {
-            try Git.clone(remote: remote)
-            try Git.configSetUser(username: repoPath)
-            try appState.reloadGitTree()
-            // Clear out any prior errors
-            currentError = nil
-        }
-        catch {
-            try? FileManager.default.removeItem(atPath: G.gitDir.string)
-            currentError = uiError("\(error.localizedDescription)")
+        #if targetEnvironment(simulator)
+            let deadline: DispatchTime = .now() + 2
+        #else
+            let deadline: DispatchTime = .now()
+        #endif
+
+        appState.backgroundTaskInProgress = true
+        DispatchQueue.global(qos: .userInitiated).asyncAfter(deadline: deadline)
+        {
+            do {
+
+                try? FileManager.default.removeItem(atPath: G.gitDir.string)
+                try Git.clone(remote: remote)
+                try Git.configSetUser(username: repoPath)
+
+                DispatchQueue.main.async { @MainActor in
+                    do {
+                        try appState.reloadGitTree()
+                        // Clear out any prior errors
+                        currentError = nil
+                    }
+                    catch {
+                        currentError = uiError("\(error.localizedDescription)")
+                    }
+                    appState.backgroundTaskInProgress = false
+                }
+            }
+            catch {
+                try? FileManager.default.removeItem(atPath: G.gitDir.string)
+                DispatchQueue.main.async { @MainActor in
+                    currentError = uiError("\(error.localizedDescription)")
+                    appState.backgroundTaskInProgress = false
+                }
+            }
         }
     }
 }
