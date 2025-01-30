@@ -30,5 +30,7 @@ object G {
             ).padding(top = 60.dp)
 
     // Very basic check if we are on emulator
-    val isEmulator = Build.MODEL.startsWith("sdk_gphone")
+    val isEmulator =
+        Build.MODEL.startsWith("sdk_gphone") ||
+            Build.MODEL.startsWith("Android SDK")
 }
