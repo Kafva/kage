@@ -52,7 +52,6 @@ fun AppView(
     ToolbarView(
         currentRoute,
         { navController.navigate(Screen.Settings.route) },
-        { navController.popBackStack() },
     ) { innerPadding ->
         Column(
             modifier =

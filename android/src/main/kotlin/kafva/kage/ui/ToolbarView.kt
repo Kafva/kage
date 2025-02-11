@@ -1,8 +1,6 @@
 package kafva.kage.ui
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -12,7 +10,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -24,7 +21,6 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -65,7 +61,6 @@ class ToolbarViewModel
 fun ToolbarView(
     currentRoute: String,
     navigateToSettings: () -> Unit,
-    navigateBack: () -> Unit,
     content: @Composable (PaddingValues) -> Unit,
 ) {
     Scaffold(
@@ -80,55 +75,7 @@ fun ToolbarView(
                         SearchView()
                     }
                 }
-                else -> {
-                    val interactionSource =
-                        remember { MutableInteractionSource() }
-                    ToolbarRowView(
-                        arrangement = Arrangement.Start,
-                        // Disable ripple effect on interaction
-                        modifier =
-                            Modifier
-                                .fillMaxWidth()
-                                .clickable(
-                                    indication = null,
-                                    interactionSource = interactionSource,
-                                ) { navigateBack() },
-                        topPadding = 10.dp,
-                    ) {
-                        Icon(
-                            Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-                            "Go home",
-                            modifier =
-                                Modifier.size(50.dp).padding(start = 10.dp),
-                        )
-
-                        if (currentRoute.contains("/")) {
-                            Text(
-                                stringResource(R.string.back),
-                                fontSize = G.BODY_FONT_SIZE.sp,
-                            )
-                        } else {
-                            val title =
-                                when (currentRoute) {
-                                    Screen.History.route ->
-                                        stringResource(
-                                            R.string.history,
-                                        )
-                                    Screen.Settings.route ->
-                                        stringResource(
-                                            R.string.settings,
-                                        )
-                                    else -> {
-                                        ""
-                                    }
-                                }
-                            Text(
-                                title,
-                                fontSize = G.TITLE_FONT_SIZE.sp,
-                            )
-                        }
-                    }
-                }
+                else -> {}
             }
         },
         bottomBar = {

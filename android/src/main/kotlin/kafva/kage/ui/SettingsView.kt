@@ -59,7 +59,7 @@ import kafva.kage.types.Settings
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-const val LEADING_PADDING = 35
+const val LEADING_PADDING = 10
 
 @HiltViewModel
 class SettingsViewModel
@@ -147,20 +147,25 @@ fun SettingsView(
         }
 
         if (currentError.value != null) {
-            Text(
-                context.getString(R.string.error, currentError.value),
-                color = MaterialTheme.colorScheme.error,
-                fontSize = G.BODY_FONT_SIZE.sp,
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Start,
                 modifier =
                     Modifier
-                        .padding(
-                            start = LEADING_PADDING.dp,
-                            top = 10.dp,
-                            end = 20.dp,
-                        ).clickable(true) {
+                        .fillMaxWidth(0.85f)
+                        .padding(top = 12.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .clickable(true) {
                             currentError.value = null
                         },
-            )
+            ) {
+                Text(
+                    context.getString(R.string.error, currentError.value),
+                    color = MaterialTheme.colorScheme.error,
+                    fontSize = G.BODY_FONT_SIZE.sp,
+                    modifier = Modifier.padding(start = 4.dp),
+                )
+            }
         }
 
         AlertView(openAlertDialog, currentError)
@@ -230,6 +235,7 @@ private fun AlertView(
                     )
                 }
             },
+            modifier = Modifier.fillMaxWidth(0.95f),
         )
     }
 }
@@ -257,25 +263,17 @@ private fun TextLinkView(
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween,
+        horizontalArrangement = Arrangement.Start,
         // Expand the area of the ripple click effect
         modifier =
             Modifier
                 .height(50.dp)
                 .fillMaxWidth(0.85f)
-                .padding(start = LEADING_PADDING.dp, bottom = 4.dp)
+                .padding(start = LEADING_PADDING.dp, bottom = 8.dp)
                 .clip(RoundedCornerShape(8.dp))
                 .clickable(true) { action() },
     ) {
-        Text(
-            text,
-            fontSize = G.BODY_FONT_SIZE.sp,
-            color = MaterialTheme.colorScheme.onSurface,
-            maxLines = 1,
-            modifier = Modifier.padding(start = 12.dp),
-        )
-
-        Row(modifier = Modifier.padding(end = 12.dp)) {
+        Row(modifier = Modifier.padding(start = 12.dp)) {
             Image(
                 painter,
                 "Link",
@@ -290,6 +288,14 @@ private fun TextLinkView(
                         ),
             )
         }
+
+        Text(
+            text,
+            fontSize = G.BODY_FONT_SIZE.sp,
+            color = MaterialTheme.colorScheme.onSurface,
+            maxLines = 1,
+            modifier = Modifier.padding(start = 12.dp, end = 12.dp),
+        )
     }
 }
 
