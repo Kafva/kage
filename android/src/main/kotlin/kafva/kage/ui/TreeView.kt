@@ -20,6 +20,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
@@ -82,7 +83,13 @@ private fun TreeChildView(
     val isPassword = node.children.isEmpty()
 
     ListItem(
-        headlineContent = { Text(text = node.name, maxLines = 1) },
+        headlineContent = {
+            Text(
+                text = node.name,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+        },
         leadingContent = {
             if (!isPassword) {
                 val icon =

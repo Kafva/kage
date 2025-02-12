@@ -66,10 +66,11 @@ _age_generate_files() {
     local folder="$1"
     local pubkey="$2"
     local cnt="${3:-5}"
+    local prefix="${4:-pass}"
     mkdir -p "$folder"
     for i in $(seq 1 $cnt); do
         age -r "$(cat $pubkey)" \
-            -o "$folder/pass$i.age" - <<< "password-$i"
+            -o "$folder/${prefix}$i.age" - <<< "password-$i"
     done
 }
 
@@ -97,7 +98,7 @@ git_server_setup() {
 
     _age_generate_keys "$JAMES_KEY" "$JAMES_PUBKEY"
     _age_generate_files "$JAMES_REPO_CLIENT/red" "$JAMES_PUBKEY"
-    _age_generate_files "$JAMES_REPO_CLIENT/red/a" "$JAMES_PUBKEY"
+    _age_generate_files "$JAMES_REPO_CLIENT/red/a" "$JAMES_PUBKEY" 3 longer-password-prefix-name
     _age_generate_files "$JAMES_REPO_CLIENT/green/a" "$JAMES_PUBKEY"
     _age_generate_files "$JAMES_REPO_CLIENT/green/b" "$JAMES_PUBKEY"
     _age_generate_files "$JAMES_REPO_CLIENT/blue/a" "$JAMES_PUBKEY"

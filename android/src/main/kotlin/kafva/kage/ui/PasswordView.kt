@@ -35,6 +35,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -123,6 +124,8 @@ private fun PlaintextView(
         fontSize = G.TITLE_FONT_SIZE.sp,
         fontWeight = FontWeight.Bold,
         modifier = Modifier.padding(bottom = 30.dp),
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
     )
 
     Text(
@@ -183,6 +186,8 @@ private fun UnlockView(
         stringResource(R.string.authentication),
         fontSize = G.TITLE_FONT_SIZE.sp,
         modifier = Modifier.padding(bottom = 30.dp),
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
     )
     TextField(
         value = password.value ?: "",
