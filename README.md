@@ -38,7 +38,7 @@ relevant for the Android client since it does not support making local changes.
 ./tools/serverdevel -d unit
 
 # To show stdout/stderr: cargo test -- --nocapture
-(cd core && cargo test)
+make -C core test
 
 # Run tests with coverage information
 cargo install cargo-llvm-cov

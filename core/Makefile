@@ -1,5 +1,6 @@
 .PHONY: clean cleanup_libs android ios
 
+CARGO = cargo +stable
 CARGO_RUSTC_FLAGS = --lib
 # Always build with --release when bundling for ffi, debug builds
 # have issues on iOS.
@@ -11,20 +12,21 @@ ifeq ($(filter ios,$(MAKECMDGOALS)),ios)
 include .ios.mk
 else ifeq ($(filter android,$(MAKECMDGOALS)),android)
 include .android.mk
-else
-$(error Please build the `android' or `ios' target)
 endif
 
 android: $(DIST)/$(LIB)
 ios: $(DIST)/$(LIB)
 
 $(DIST)/$(LIB): cleanup_lib
-	cd $(CURDIR) && cargo +stable rustc $(CARGO_RUSTC_FLAGS)
+	cd $(CURDIR) && $(CARGO) rustc $(CARGO_RUSTC_FLAGS)
 	mkdir -p $(dir $@)
 	install -m644 $(CURDIR)/target/$(CARGO_TARGET)/release/$(LIB) $@
 
+test:
+	cd $(CURDIR) && $(CARGO) test
+
 clean: cleanup_lib
-	cd $(CURDIR) && cargo +stable clean
+	cd $(CURDIR) && $(CARGO) clean
 
 cleanup_lib:
 	rm -f $(DIST)/$(LIB)
