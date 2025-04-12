@@ -12,11 +12,7 @@ name = "kage_core"
 #   Android: dylib
 
 [package.metadata]
-# Use stable channel, the curve25519-dalek dependency fails to build with the
-# nightly toolchain:
-#   error[E0658]: use of unstable library feature 'stdsimd'
-# https://github.com/dalek-cryptography/curve25519-dalek/pull/619#issuecomment-1931198286
-rust = "1.75.0"
+rust = "1.86.0"
 
 [dependencies]
 zeroize = "1.7.0"
@@ -25,7 +21,7 @@ zeroize = "1.7.0"
 once_cell = "1.19.0"
 
 # With support for the ASCII armored format
-age = { version = "0.10.0", features = ["armor"] }
+age = { version = "0.10.1", features = ["armor"] }
 
 # libgit2 depends on:
 #    - libiconv2
