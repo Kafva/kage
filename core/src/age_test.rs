@@ -3,7 +3,7 @@ use crate::age_error::AgeError;
 use crate::error;
 
 use age;
-use age::secrecy::Secret;
+use age::secrecy::SecretString;
 
 const PLAINTEXT: &str = "!\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
 const PASSPHRASE: &str = "pass: !#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
@@ -46,7 +46,7 @@ fn age_encrypted_key_test() {
     // Encrypt the identity with a passphrase
     let encrypted_identity = state.encrypt_passphrase_armored(
         key.as_bytes(),
-        Secret::new(PASSPHRASE.to_owned()),
+        SecretString::from(PASSPHRASE.to_owned()),
     );
     assert_ok(&encrypted_identity);
 

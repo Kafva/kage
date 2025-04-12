@@ -5,7 +5,7 @@
 //!                  This should be in the ascii-armored format, i.e. created with `age -a`
 
 use std::io::Read; // For .read_to_end()
-#[cfg(not(target_os = "android"))]
+#[cfg(test)]
 use std::io::Write; // For .write_all()
 
 use crate::age_error::AgeError;
@@ -14,7 +14,7 @@ use crate::age_error::AgeError;
 use crate::{error, level_to_color, log, log_prefix};
 
 use age;
-use age::secrecy::Secret;
+use age::secrecy::SecretString;
 use once_cell::sync::Lazy;
 use std::sync::{Mutex, MutexGuard};
 use zeroize::Zeroize;
@@ -44,19 +44,13 @@ impl AgeState {
     fn decrypt_passphrase_armored(
         &mut self,
         ciphertext: &[u8],
-        passphrase: Secret<String>,
+        passphrase: SecretString,
     ) -> Result<Vec<u8>, AgeError> {
-        let armored_reader = age::armor::ArmoredReader::new(ciphertext);
-        let decryptor = match age::Decryptor::new(armored_reader)? {
-            age::Decryptor::Passphrase(decryptor) => decryptor,
-            _ => return Err(AgeError::BadCipherInput),
-        };
-
-        let mut decrypted = vec![];
-        let mut reader = decryptor.decrypt(&passphrase, None)?;
-        let _ = reader.read_to_end(&mut decrypted);
-
-        Ok(decrypted)
+        let ident = age::scrypt::Identity::new(passphrase);
+        match age::decrypt(&ident, ciphertext) {
+            Ok(decrypted) => return Ok(decrypted),
+            Err(e) => return Err(AgeError::DecryptError(e))
+        }
     }
 
     /// Unlock `encrypted_identity` using `passphrase` and save the result
@@ -66,10 +60,9 @@ impl AgeState {
         passphrase: &str,
     ) -> Result<(), AgeError> {
         let ciphertext = encrypted_identity.as_bytes();
-        let passphrase = Secret::new(passphrase.to_owned());
+        let passphrase = SecretString::from(passphrase.to_owned());
 
-        let age_key =
-            self.decrypt_passphrase_armored(ciphertext, passphrase)?;
+        let age_key = self.decrypt_passphrase_armored(ciphertext, passphrase)?;
 
         let mut age_key = String::from_utf8(age_key.to_vec())?;
 
@@ -97,9 +90,8 @@ impl AgeState {
             return Err(AgeError::NoIdentity);
         };
 
-        let decryptor = match age::Decryptor::new(ciphertext)? {
-            age::Decryptor::Recipients(decryptor) => decryptor,
-            _ => return Err(AgeError::BadCipherInput),
+        let Ok(decryptor) = age::Decryptor::new(ciphertext) else {
+            return Err(AgeError::BadCipherInput)
         };
 
         let mut decrypted = vec![];
@@ -117,30 +109,24 @@ impl AgeState {
         recepient: &str,
     ) -> Result<Vec<u8>, AgeError> {
         match recepient.parse::<age::x25519::Recipient>() {
-            Ok(pubkey) => {
-                if let Some(encryptor) =
-                    age::Encryptor::with_recipients(vec![Box::new(pubkey)])
-                {
-                    let mut encrypted = vec![];
-                    let mut writer = encryptor.wrap_output(&mut encrypted)?;
-                    writer.write_all(plaintext.as_bytes())?;
-                    writer.finish()?;
-                    return Ok(encrypted);
-                }
-            }
+            Ok(recp) => {
+                match age::encrypt(&recp, plaintext.as_bytes()) {
+                    Ok(ciphertext) => return Ok(ciphertext),
+                    Err(e) => return Err(AgeError::EncryptError(e))
+                };
+            },
             Err(e) => {
                 error!("{}", e);
+                return Err(AgeError::BadRecepient)
             }
         }
-
-        Err(AgeError::BadRecepient)
     }
 
     #[cfg(test)]
     pub fn encrypt_passphrase_armored(
         &self,
         plaintext: &[u8],
-        passphrase: Secret<String>,
+        passphrase: SecretString,
     ) -> Result<Vec<u8>, AgeError> {
         let encryptor = age::Encryptor::with_user_passphrase(passphrase);
 
