@@ -47,6 +47,12 @@ rustup component add llvm-tools-preview
 ```
 
 ### iOS
+The stable rust toolchain is needed to build
+```bash
+rustup target add --toolchain stable aarch64-apple-ios
+rustup target add --toolchain stable aarch64-apple-ios-sim
+```
+
 Unit tests can be ran from within Xcode, the tests expect the development
 server to be running on localhost
 ```bash
@@ -54,7 +60,12 @@ server to be running on localhost
 ```
 
 ### Android
-To build for Android you need to download a NDK manually.
+The stable rust toolchain is needed to build:
+```bash
+rustup target add --toolchain stable aarch64-linux-android
+```
+
+You need to download a NDK manually.
 
 1. Download the ndk: `sdkmanager 'ndk;$VERSION'`
 2. Set `export NDK_HOME=$HOME/Library/Android/Sdk/ndk/$VERSION` (macOS)
