@@ -129,7 +129,7 @@ git_server_unit() {
     rm -rf "${TOP?}/.testenv"
 
     # Make sure the tests compile
-    (cd $TOP/core && cargo test --no-run -- -q --list) || die "Error compiling tests"
+    (cd $TOP/core && cargo +stable test --no-run -- -q --list) || die "Error compiling tests"
 
     mkdir -p $TOP/.testenv/kage-store
     mkdir -p $TOP/.testenv/kage-client
@@ -153,7 +153,7 @@ git_server_unit() {
         git -C $tmpdir push origin main
         rm -rf $tmpdir
 
-    done < <(cd $TOP/core && cargo test -- -q --list 2> /dev/null | grep '^git_test::')
+    done < <(cd $TOP/core && cargo +stable test -- -q --list 2> /dev/null | grep '^git_test::')
 
     # Create ONE repo for the ios unit tests
     info "Creating $IOS_REPO_CLIENT"

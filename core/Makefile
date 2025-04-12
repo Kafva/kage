@@ -18,16 +18,13 @@ endif
 android: $(DIST)/$(LIB)
 ios: $(DIST)/$(LIB)
 
-# `-C' is an unstable option
 $(DIST)/$(LIB): cleanup_lib
-	PATH="$(HOME)/.cargo/bin:$(PATH)" \
-		 cargo -Z unstable-options -C $(CURDIR) rustc $(CARGO_RUSTC_FLAGS)
+	cd $(CURDIR) && cargo +stable rustc $(CARGO_RUSTC_FLAGS)
 	mkdir -p $(dir $@)
 	install -m644 $(CURDIR)/target/$(CARGO_TARGET)/release/$(LIB) $@
 
 clean: cleanup_lib
-	PATH="$(HOME)/.cargo/bin:$(PATH)" \
-		cargo -Z unstable-options -C $(CURDIR) clean
+	cd $(CURDIR) && cargo +stable clean
 
 cleanup_lib:
 	rm -f $(DIST)/$(LIB)
