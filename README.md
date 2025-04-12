@@ -1,6 +1,7 @@
 <p align="center">
-  <img src="ios/src/Assets.xcassets/AppIcon.appiconset/kage.png" width=128 height=128 />
+  <img src="https://github.com/user-attachments/assets/44d91fdd-a53a-45a2-b5e5-11286edb1f10" width=128 height=128 />
 </p>
+
 <h1 align="center">kage</h1>
 
 Password manager for iOS and Android using age-encryption and git.
