@@ -303,7 +303,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/bash;
-			shellScript = "make -C $SRCROOT/../core ios\n";
+			shellScript = "env -i PATH=/bin:/usr/bin:/usr/sbin:/sbin:$HOME/.cargo/bin make -C ../core ios\n";
 		};
 		DD65F7532BD3954000D91387 /* Add version string to Info.plist */ = {
 			isa = PBXShellScriptBuildPhase;

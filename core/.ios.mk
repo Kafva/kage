@@ -27,6 +27,3 @@ ifeq ($(CONFIGURATION),Release)
 # Disable default debug_logs feature for release builds
 CARGO_RUSTC_FLAGS += --no-default-features
 endif
-
-# Library path must be set explicitly when the build is triggered from Xcode
-export LIBRARY_PATH = /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib
