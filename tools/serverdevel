@@ -122,7 +122,7 @@ git_server_setup() {
     sleep 1
 
     info "Pushing first commit"
-    git -C $JAMES_REPO_CLIENT push --set-upstream origin main
+    git -C $JAMES_REPO_CLIENT push -q --set-upstream origin main
 }
 
 git_server_unit() {
@@ -150,7 +150,7 @@ git_server_unit() {
         echo "File for first commit" > "$tmpdir/.$testname"
         git -C $tmpdir add .
         git -C $tmpdir commit --no-gpg-sign -m "First commit"
-        git -C $tmpdir push origin main
+        git -C $tmpdir push -q origin main
         rm -rf $tmpdir
 
     done < <(cd $TOP/core && cargo +stable test -- -q --list 2> /dev/null | grep '^git_test::')
@@ -179,7 +179,7 @@ git_server_unit() {
     sleep 1
 
     info "Pushing first commit"
-    git -C $IOS_REPO_CLIENT push --set-upstream origin main
+    git -C $IOS_REPO_CLIENT push -q --set-upstream origin main
 
     tree -L 1 "$TOP/.testenv/kage-store"
 }
