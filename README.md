@@ -38,8 +38,11 @@ relevant for the Android client since it does not support making local changes.
 # Start git-daemon for unit tests
 ./tools/serverdevel -d unit
 
-# To show stdout/stderr: cargo test -- --nocapture
+# Run tests
 make -C core test
+
+# Note: the test cases run in parallel, this sometimes causes random failures on macOS:
+#   error receiving data from socket: Connection reset by peer; class=Net (12)
 
 # Run tests with coverage information
 cargo install cargo-llvm-cov

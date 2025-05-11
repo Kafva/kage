@@ -23,6 +23,7 @@ $(DIST)/$(LIB): cleanup_lib
 	install -m644 $(CURDIR)/target/$(CARGO_TARGET)/release/$(LIB) $@
 
 test:
+	@# To show stdout/stderr: cargo test -- --nocapture
 	cd $(CURDIR) && $(CARGO) test
 
 clean: cleanup_lib

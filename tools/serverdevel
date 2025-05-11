@@ -196,7 +196,7 @@ git_server_exit() {
 }
 
 git_server_stop() {
-    echox killall -SIGTERM git-daemon || :
+    echox pkill git-daemon || :
 }
 
 git_server_add() {
