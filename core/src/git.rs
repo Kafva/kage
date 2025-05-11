@@ -1,4 +1,4 @@
-use once_cell::sync::Lazy;
+use std::sync::LazyLock;
 use std::path::Path;
 use std::sync::Mutex;
 use std::sync::MutexGuard;
@@ -37,8 +37,8 @@ pub const GIT_BRANCH: &'static str = env!("KAGE_GIT_BRANCH");
 /// The git2::Error::last_error() method does not fit our needs, the error
 /// message we want to show tends to be overwritten from later successful
 /// invocations of git functions before we can retrieve it.
-static GIT_LAST_ERROR: Lazy<Mutex<Option<git2::Error>>> =
-    Lazy::new(|| Mutex::new(None));
+static GIT_LAST_ERROR: LazyLock<Mutex<Option<git2::Error>>> =
+    LazyLock::new(|| Mutex::new(None));
 
 static ONCE: Once = Once::new();
 

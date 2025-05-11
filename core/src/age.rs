@@ -15,14 +15,14 @@ use crate::{error, level_to_color, log, log_prefix};
 
 use age;
 use age::secrecy::SecretString;
-use once_cell::sync::Lazy;
+use std::sync::LazyLock;
 use std::sync::{Mutex, MutexGuard};
 use zeroize::Zeroize;
 
 /// Persistent library state, the lock on this global state must
 /// be acquired before it is used in a multithreaded context.
-pub static AGE_STATE: Lazy<Mutex<AgeState>> =
-    Lazy::new(|| Mutex::new(AgeState::default()));
+pub static AGE_STATE: LazyLock<Mutex<AgeState>> =
+    LazyLock::new(|| Mutex::new(AgeState::default()));
 
 pub struct AgeState {
     /// Identity to use for decryption (public during tests)
