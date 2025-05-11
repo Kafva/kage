@@ -336,8 +336,9 @@ pub fn git_log(repo_path: &str) -> Result<Vec<String>, git2::Error> {
     Ok(arr)
 }
 
-/// Acquire the last error mutex, should be called before each method call
-/// in a multithreaded environment.
+/// Acquire the last error mutex, should be called before each method call in a
+/// multithreaded environment. The lock is released once the returned
+/// `MutexGuard` is dropped, i.e. goes out of scope.
 pub fn git_try_lock() -> Option<MutexGuard<'static, Option<git2::Error>>> {
     let Ok(git_last_error) = GIT_LAST_ERROR.try_lock() else {
         error!("Mutex lock already taken");

@@ -143,6 +143,8 @@ impl AgeState {
     }
 }
 
+/// The lock is released once the returned `MutexGuard` is dropped, i.e. goes
+/// out of scope.
 pub fn age_try_lock() -> Option<MutexGuard<'static, AgeState>> {
     let Ok(age_state) = AGE_STATE.try_lock() else {
         error!("Mutex lock already taken");
