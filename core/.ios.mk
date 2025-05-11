@@ -1,10 +1,10 @@
-# Xcode sets SOURCE_ROOT, PLATFORM_DISPLAY_NAME, CONFIGURATION etc.
-SOURCE_ROOT ?= $(CURDIR)/../ios
+# Xcode sets: PLATFORM_DISPLAY_NAME and CONFIGURATION.
+# These need to be passed from the build script!
 PLATFORM_DISPLAY_NAME ?= iOS Simulator
 CONFIGURATION ?= Debug
 
 CARGO_CRATE_TYPE = staticlib
-DIST = $(SOURCE_ROOT)/dist
+DIST = $(CURDIR)/../ios/dist
 LIB = libkage_core.a
 
 ifeq ($(PLATFORM_DISPLAY_NAME),iOS Simulator)
