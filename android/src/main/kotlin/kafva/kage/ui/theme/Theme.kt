@@ -10,7 +10,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
@@ -109,8 +108,6 @@ fun KageTheme(
     val window = (view.context as Activity).window
     val insetsController = WindowCompat.getInsetsController(window, view)
 
-    // Set foreground color of status bar to match system theme
-    window.statusBarColor = colorScheme.background.toArgb()
     insetsController.isAppearanceLightStatusBars = !darkTheme
 
     MaterialTheme(
