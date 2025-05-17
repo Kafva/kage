@@ -65,10 +65,10 @@ object AppContextModule {
                 0,
             )
         val isDebug =
-            (
-                pInfo.applicationInfo.flags and
-                    ApplicationInfo.FLAG_DEBUGGABLE
-            ) != 0
+            pInfo.applicationInfo?.flags?.and(
+                ApplicationInfo.FLAG_DEBUGGABLE,
+            ) !=
+                0
 
         val filesDir = appContext.filesDir
 

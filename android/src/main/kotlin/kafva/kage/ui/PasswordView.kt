@@ -23,11 +23,12 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ClipEntry
-import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -48,6 +49,7 @@ import kafva.kage.R
 import kafva.kage.data.AgeException
 import kafva.kage.data.AgeRepository
 import kafva.kage.types.PwNode
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -114,7 +116,8 @@ private fun PlaintextView(
     nodePath: String,
     viewModel: PasswordViewModel = hiltViewModel(),
 ) {
-    val clipboardManager = LocalClipboardManager.current
+    val clipboard = LocalClipboard.current
+    val coroutineScope = rememberCoroutineScope()
     val interactionSource = remember { MutableInteractionSource() }
     val hidePlaintext: MutableState<Boolean> = remember { mutableStateOf(true) }
     val plaintext = viewModel.ageRepository.plaintext.collectAsState()
@@ -166,7 +169,9 @@ private fun PlaintextView(
                         putBoolean(ClipDescription.EXTRA_IS_SENSITIVE, true)
                     }
                 val clipEntry = ClipEntry(clipData)
-                clipboardManager.setClip(clipEntry)
+                coroutineScope.launch {
+                    clipboard.setClipEntry(clipEntry)
+                }
             }
         },
     ) {

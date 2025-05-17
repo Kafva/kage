@@ -16,13 +16,12 @@ plugins {
 
 android {
     namespace = "kafva.kage"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "kafva.kage"
-        minSdk = 34
-        //noinspection OldTargetApi
-        targetSdk = 34
+        minSdk = 35
+        targetSdk = 35
         versionCode = 1
         versionName = "0.2.0" // XXX: Keep in sync manually
 
@@ -63,12 +62,6 @@ android {
 
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.1"
-    }
-
-    packaging {
-        resources {
-            excludes += "/META-INF/{AL2.0,LGPL2.1}"
-        }
     }
 
     lint {

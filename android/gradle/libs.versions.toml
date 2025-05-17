@@ -1,18 +1,18 @@
 [versions]
 agp = "8.6.1"
 kotlin = "2.0.20"
-coreKtx = "1.13.1"
-lifecycleRuntimeKtx = "2.8.6"
-activityCompose = "1.9.3"
-composeBom = "2024.10.00"
+coreKtx = "1.16.0"
+lifecycleRuntimeKtx = "2.9.0"
+activityCompose = "1.10.1"
+composeBom = "2025.05.00"
 hilt = "2.51.1"
 # Kotlin version must be at least 2.0.20 (+ Java version >=17) for this to work
 ksp = "2.0.20-1.0.24"
 androidxHiltNavigationCompose = "1.2.0"
-datastorePreferences = "1.1.1"
-androidx-lifecycle-compose = "2.8.6"
-androidx-lifecycle-runtime-compose = "2.8.6"
-androidxNavigation = "2.8.3"
+datastorePreferences = "1.1.6"
+androidx-lifecycle-compose = "2.9.0"
+androidx-lifecycle-runtime-compose = "2.9.0"
+androidxNavigation = "2.9.0"
 
 [libraries]
 # Compose / UI

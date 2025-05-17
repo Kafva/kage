@@ -14,6 +14,5 @@
     <string name="copy">Kopiera…</string>
     <string name="password">Lösenord</string>
     <string name="search_placeholder">Sök…</string>
-    <string name="settings">Inställningar</string>
     <string name="decryption_failed">Dekryptering misslyckades</string>
 </resources>
