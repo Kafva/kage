@@ -47,6 +47,13 @@ android {
         }
     }
 
+    sourceSets {
+        getByName("main") {
+            // Location to look for jniLibs in
+            jniLibs.srcDirs("build/jniLibs")
+        }
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17

@@ -25,7 +25,6 @@ captures
 .cxx
 local.properties
 .jdbrc
-jniLibs
 .kotlin
 
 # Xcode

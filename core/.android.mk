@@ -14,10 +14,10 @@ LIB = libkage_core.so
 CARGO_TARGET = $(ANDROID_TARGET_ARCH)-linux-android
 
 ifeq ($(ANDROID_TARGET_ARCH),aarch64)
-DIST = $(SOURCE_ROOT)/src/main/jniLibs/arm64-v8a
+DIST = $(SOURCE_ROOT)/build/jniLibs/arm64-v8a
 
 else ifeq ($(ANDROID_TARGET_ARCH),x86_64)
-DIST = $(SOURCE_ROOT)/src/main/jniLibs/x86_64
+DIST = $(SOURCE_ROOT)/build/jniLibs/x86_64
 
 else
 $(error Unsupported architecture: '$(ANDROID_TARGET_ARCH)')
