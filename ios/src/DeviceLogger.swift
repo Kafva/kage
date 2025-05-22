@@ -14,7 +14,9 @@ struct DeviceLogger {
         _ message: String, line: Int = #line, fileID: String = #fileID
     ) {
         #if DEBUG
-            logger.debug("\(fileID):\(line):\t\(message, privacy: .public)")
+            logger.debug(
+                "\(fileID, privacy: .public):\(line, privacy: .public):\t\(message, privacy: .public)"
+            )
         #else
             logger.debug("\(fileID):\(line):\t\(message)")
         #endif
@@ -24,7 +26,9 @@ struct DeviceLogger {
         _ message: String, line: Int = #line, fileID: String = #fileID
     ) {
         #if DEBUG
-            logger.info("\(fileID):\(line):\t\(message, privacy: .public)")
+            logger.info(
+                "\(fileID, privacy: .public):\(line, privacy: .public):\t\(message, privacy: .public)"
+            )
         #else
             logger.info("\(fileID):\(line):\t\(message)")
         #endif
@@ -35,7 +39,8 @@ struct DeviceLogger {
     ) {
         #if DEBUG
             logger.warning(
-                "\(fileID):\(line):\t\(message, privacy: .public)")
+                "\(fileID, privacy: .public):\(line, privacy: .public):\t\(message, privacy: .public)"
+            )
         #else
             logger.warning("\(fileID):\(line):\t\(message)")
         #endif
@@ -43,7 +48,9 @@ struct DeviceLogger {
 
     func error(_ message: String, line: Int = #line, fileID: String = #fileID) {
         #if DEBUG
-            logger.error("\(fileID):\(line):\t\(message, privacy: .public)")
+            logger.error(
+                "\(fileID, privacy: .public):\(line, privacy: .public):\t\(message, privacy: .public)"
+            )
         #else
             logger.error("\(fileID):\(line):\t\(message)")
         #endif
