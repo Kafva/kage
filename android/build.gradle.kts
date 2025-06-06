@@ -15,11 +15,11 @@ plugins {
 }
 
 android {
-    namespace = "kafva.kage"
+    namespace = "one.kafva.kage"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "kafva.kage"
+        applicationId = "one.kafva.kage"
         minSdk = 35
         targetSdk = 35
         versionCode = 1

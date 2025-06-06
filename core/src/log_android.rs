@@ -27,7 +27,7 @@ macro_rules! android_level_to_prio {
 #[macro_export]
 macro_rules! android_tag {
     () => {
-        "kafva.kage\0"
+        "one.kafva.kage\0"
     };
 }
 

@@ -10,7 +10,7 @@ use crate::git_call;
 use crate::KAGE_ERROR_LOCK_TAKEN;
 
 #[no_mangle]
-pub extern "system" fn Java_kafva_kage_jni_Git_clone<'local>(
+pub extern "system" fn Java_one_kafva_kage_jni_Git_clone<'local>(
     mut env: JNIEnv<'local>,
     _class: JClass<'local>,
     url: JString<'local>,
@@ -40,7 +40,7 @@ pub extern "system" fn Java_kafva_kage_jni_Git_clone<'local>(
 }
 
 #[no_mangle]
-pub extern "system" fn Java_kafva_kage_jni_Git_strerror<'local>(
+pub extern "system" fn Java_one_kafva_kage_jni_Git_strerror<'local>(
     env: JNIEnv<'local>,
     _class: JClass<'local>,
 ) -> JString<'local> {
@@ -59,7 +59,7 @@ pub extern "system" fn Java_kafva_kage_jni_Git_strerror<'local>(
 }
 
 #[no_mangle]
-pub extern "system" fn Java_kafva_kage_jni_Git_log<'local>(
+pub extern "system" fn Java_one_kafva_kage_jni_Git_log<'local>(
     mut env: JNIEnv<'local>,
     _class: JClass<'local>,
     repo_path: JString<'local>,
