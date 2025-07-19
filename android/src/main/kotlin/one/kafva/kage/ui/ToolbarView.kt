@@ -69,6 +69,7 @@ fun ToolbarView(
                 Screen.Home.route -> {
                     ToolbarRowView(
                         arrangement = Arrangement.Center,
+                        topPadding = 60.dp,
                         bottomPadding = 5.dp,
                         modifier = Modifier.fillMaxWidth(),
                     ) {
