@@ -3,7 +3,7 @@ $(error NDK_HOME is unset)
 endif # NDK_HOME
 
 SOURCE_ROOT = $(CURDIR)/../android
-ANDROID_TARGET_ARCH = $(shell adb shell uname -m 2> /dev/null)
+ANDROID_TARGET_ARCH ?= $(shell adb shell uname -m 2> /dev/null)
 ifeq ($(ANDROID_TARGET_ARCH),)
 ANDROID_TARGET_ARCH = aarch64
 endif

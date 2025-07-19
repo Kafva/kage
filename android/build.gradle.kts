@@ -23,7 +23,7 @@ android {
         minSdk = 35
         targetSdk = 35
         versionCode = 1
-        versionName = "0.2.0" // XXX: Keep in sync manually
+        versionName = "0.2.1" // XXX: Keep in sync manually
 
         vectorDrawables {
             useSupportLibrary = true

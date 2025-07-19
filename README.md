@@ -74,6 +74,9 @@ rustup target add --toolchain stable aarch64-linux-android
 4. Build the library and app
 
 ```bash
+# Make sure the library is built for all archs *before* creating the APK
+ANDROID_TARGET_ARCH=aarch64 make -C core android
+ANDROID_TARGET_ARCH=x86_64 make -C core android
 (cd android && ./tools/genkey.sh)
 (cd android && ./gradlew build assembleRelease)
 # => android/build/outputs/apk/release/kage-release.apk
