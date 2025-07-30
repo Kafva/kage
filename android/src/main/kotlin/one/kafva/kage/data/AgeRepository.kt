@@ -3,7 +3,7 @@ package one.kafva.kage.data
 import androidx.lifecycle.Lifecycle
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import one.kafva.kage.G
+import one.kafva.kage.AUTO_LOCK_SECONDS
 import one.kafva.kage.Log
 import java.io.File
 import java.time.Instant
@@ -62,7 +62,7 @@ class AgeRepository
             }
             val distance =
                 Instant.now().epochSecond - (identityUnlockedAt.value ?: 0)
-            if (distance >= G.AUTO_LOCK_SECONDS) {
+            if (distance >= AUTO_LOCK_SECONDS) {
                 lockIdentity()
                 // Clear any decrypted plaintext from memory, the password has
                 // already been cleared.

@@ -22,7 +22,10 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
-import one.kafva.kage.G
+import one.kafva.kage.BODY_FONT_SIZE
+import one.kafva.kage.CONTAINER_MODIFIER
+import one.kafva.kage.CORNER_RADIUS
+import one.kafva.kage.FOOTNOTE_FONT_SIZE
 import one.kafva.kage.data.GitRepository
 import one.kafva.kage.types.CommitInfo
 import javax.inject.Inject
@@ -38,7 +41,7 @@ class HistoryViewModel
 fun HistoryView(viewModel: HistoryViewModel = hiltViewModel()) {
     val expandEntry: MutableState<String?> = remember { mutableStateOf(null) }
 
-    LazyColumn(modifier = G.containerModifier) {
+    LazyColumn(modifier = CONTAINER_MODIFIER) {
         viewModel.gitRepository.log().forEach { log ->
             item {
                 if (log.revision == expandEntry.value) {
@@ -60,7 +63,7 @@ private fun ExpandedEntryView(
         headlineContent = {
             Text(
                 text = log.summary,
-                fontSize = G.BODY_FONT_SIZE.sp,
+                fontSize = BODY_FONT_SIZE.sp,
                 maxLines = 3,
                 overflow = TextOverflow.Ellipsis,
             )
@@ -69,14 +72,14 @@ private fun ExpandedEntryView(
             Column {
                 Text(
                     log.date,
-                    fontSize = G.FOOTNOTE_FONT_SIZE.sp,
+                    fontSize = FOOTNOTE_FONT_SIZE.sp,
                     color = MaterialTheme.colorScheme.outline,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
                 Text(
                     log.revision,
-                    fontSize = G.FOOTNOTE_FONT_SIZE.sp,
+                    fontSize = FOOTNOTE_FONT_SIZE.sp,
                     color = MaterialTheme.colorScheme.outline,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
@@ -88,7 +91,7 @@ private fun ExpandedEntryView(
                 .height(200.dp)
                 .padding(
                     bottom = 10.dp,
-                ).clip(RoundedCornerShape(G.CORNER_RADIUS))
+                ).clip(RoundedCornerShape(CORNER_RADIUS))
                 .clickable(true) {
                     expandEntry.value = null
                 },
@@ -109,7 +112,7 @@ private fun EntryView(
         headlineContent = {
             Text(
                 text = log.summary,
-                fontSize = G.BODY_FONT_SIZE.sp,
+                fontSize = BODY_FONT_SIZE.sp,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
@@ -117,7 +120,7 @@ private fun EntryView(
         leadingContent = {
             Text(
                 log.date,
-                fontSize = G.FOOTNOTE_FONT_SIZE.sp,
+                fontSize = FOOTNOTE_FONT_SIZE.sp,
                 color = MaterialTheme.colorScheme.outline,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
@@ -127,7 +130,7 @@ private fun EntryView(
             Modifier
                 .padding(
                     bottom = 10.dp,
-                ).clip(RoundedCornerShape(G.CORNER_RADIUS))
+                ).clip(RoundedCornerShape(CORNER_RADIUS))
                 .clickable(true) {
                     expandEntry.value = log.revision
                 },

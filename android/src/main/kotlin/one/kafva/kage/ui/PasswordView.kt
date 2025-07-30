@@ -44,9 +44,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import one.kafva.kage.G
+import one.kafva.kage.BODY_FONT_SIZE
+import one.kafva.kage.CONTAINER_MODIFIER_CENTERED
+import one.kafva.kage.CORNER_RADIUS
 import one.kafva.kage.Log
 import one.kafva.kage.R
+import one.kafva.kage.TITLE2_FONT_SIZE
+import one.kafva.kage.TITLE_FONT_SIZE
 import one.kafva.kage.data.AgeException
 import one.kafva.kage.data.AgeRepository
 import one.kafva.kage.types.PwNode
@@ -71,7 +75,7 @@ fun PasswordView(
     val currentError: MutableState<String?> = remember { mutableStateOf(null) }
 
     Column(
-        modifier = G.containerModifierCentered,
+        modifier = CONTAINER_MODIFIER_CENTERED,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         if (identityUnlockedAt != null) {
@@ -90,7 +94,7 @@ fun PasswordView(
             Text(
                 context.getString(R.string.error, msg),
                 color = MaterialTheme.colorScheme.error,
-                fontSize = G.BODY_FONT_SIZE.sp,
+                fontSize = BODY_FONT_SIZE.sp,
                 modifier =
                     Modifier.padding(top = 10.dp).clickable(true) {
                         currentError.value = null
@@ -124,7 +128,7 @@ private fun PlaintextView(
 
     Text(
         PwNode.prettyName(nodePath),
-        fontSize = G.TITLE_FONT_SIZE.sp,
+        fontSize = TITLE_FONT_SIZE.sp,
         fontWeight = FontWeight.Bold,
         modifier = Modifier.padding(bottom = 30.dp),
         maxLines = 1,
@@ -141,7 +145,7 @@ private fun PlaintextView(
             if (hidePlaintext.value) {
                 35.sp // Placeholder dots are small
             } else {
-                G.TITLE2_FONT_SIZE.sp
+                TITLE2_FONT_SIZE.sp
             },
         color = MaterialTheme.colorScheme.primary,
         modifier =
@@ -175,7 +179,7 @@ private fun PlaintextView(
             }
         },
     ) {
-        Text(stringResource(R.string.copy), fontSize = G.BODY_FONT_SIZE.sp)
+        Text(stringResource(R.string.copy), fontSize = BODY_FONT_SIZE.sp)
     }
 }
 
@@ -189,7 +193,7 @@ private fun UnlockView(
 
     Text(
         stringResource(R.string.authentication),
-        fontSize = G.TITLE_FONT_SIZE.sp,
+        fontSize = TITLE_FONT_SIZE.sp,
         modifier = Modifier.padding(bottom = 30.dp),
         maxLines = 1,
         overflow = TextOverflow.Ellipsis,
@@ -198,7 +202,7 @@ private fun UnlockView(
         value = password.value ?: "",
         label = { Text(stringResource(R.string.password)) },
         singleLine = true,
-        shape = RoundedCornerShape(G.CORNER_RADIUS),
+        shape = RoundedCornerShape(CORNER_RADIUS),
         onValueChange = {
             viewModel.ageRepository.setPassword(it)
         },

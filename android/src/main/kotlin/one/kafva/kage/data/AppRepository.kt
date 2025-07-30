@@ -1,6 +1,6 @@
 package one.kafva.kage.data
 
-import one.kafva.kage.G
+import one.kafva.kage.LOCAL_REPO_NAME
 import java.io.File
 import javax.inject.Singleton
 
@@ -9,5 +9,5 @@ class AppRepository(
     val isDebug: Boolean,
     val filesDir: File,
 ) {
-    val localRepo: File = File("$filesDir/${G.LOCAL_REPO_NAME}")
+    val localRepo: File = File("$filesDir/${LOCAL_REPO_NAME}")
 }

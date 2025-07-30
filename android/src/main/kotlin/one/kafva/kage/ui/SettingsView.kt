@@ -49,7 +49,12 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import one.kafva.kage.G
+import one.kafva.kage.BODY_FONT_SIZE
+import one.kafva.kage.CONTAINER_MODIFIER
+import one.kafva.kage.CONTAINER_MODIFIER_CENTERED
+import one.kafva.kage.CORNER_RADIUS
+import one.kafva.kage.FOOTNOTE_FONT_SIZE
+import one.kafva.kage.ICON_SIZE
 import one.kafva.kage.Log
 import one.kafva.kage.R
 import one.kafva.kage.data.AppRepository
@@ -90,7 +95,7 @@ fun SettingsView(
     }
 
     Column(
-        modifier = G.containerModifierCentered,
+        modifier = CONTAINER_MODIFIER_CENTERED,
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
@@ -104,14 +109,14 @@ fun SettingsView(
                         ColorFilter.tint(
                             MaterialTheme.colorScheme.onBackground,
                         ),
-                    modifier = Modifier.size(G.ICON_SIZE.dp),
+                    modifier = Modifier.size(ICON_SIZE.dp),
                 )
             },
             label = { Text(stringResource(R.string.repository)) },
             onDone = onDone,
         )
 
-        Card(modifier = G.containerModifier) {
+        Card(modifier = CONTAINER_MODIFIER) {
             Spacer(modifier = Modifier.height(20.dp))
 
             TextLinkView(
@@ -162,7 +167,7 @@ fun SettingsView(
                 Text(
                     context.getString(R.string.error, currentError.value),
                     color = MaterialTheme.colorScheme.error,
-                    fontSize = G.BODY_FONT_SIZE.sp,
+                    fontSize = BODY_FONT_SIZE.sp,
                     modifier = Modifier.padding(start = 4.dp),
                 )
             }
@@ -249,7 +254,7 @@ private fun TextFooterView(text: String) {
                 start = (LEADING_PADDING + 12).dp,
                 bottom = 10.dp,
             ),
-        fontSize = G.FOOTNOTE_FONT_SIZE.sp,
+        fontSize = FOOTNOTE_FONT_SIZE.sp,
         maxLines = 1,
         color = MaterialTheme.colorScheme.outline,
     )
@@ -284,14 +289,14 @@ private fun TextLinkView(
                 modifier =
                     Modifier
                         .size(
-                            G.ICON_SIZE.dp,
+                            ICON_SIZE.dp,
                         ),
             )
         }
 
         Text(
             text,
-            fontSize = G.BODY_FONT_SIZE.sp,
+            fontSize = BODY_FONT_SIZE.sp,
             color = MaterialTheme.colorScheme.onSurface,
             maxLines = 1,
             modifier = Modifier.padding(start = 12.dp, end = 12.dp),
@@ -315,7 +320,7 @@ private fun TextFieldView(
             text.value = it
         },
         singleLine = true,
-        shape = RoundedCornerShape(G.CORNER_RADIUS),
+        shape = RoundedCornerShape(CORNER_RADIUS),
         modifier = Modifier.padding(bottom = 10.dp).fillMaxWidth(0.85f),
         keyboardOptions =
             KeyboardOptions(

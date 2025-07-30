@@ -40,8 +40,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dagger.hilt.android.lifecycle.HiltViewModel
-import one.kafva.kage.G
+import one.kafva.kage.MEDIUM_ICON_SIZE
 import one.kafva.kage.R
+import one.kafva.kage.TITLE2_FONT_SIZE
 import one.kafva.kage.data.AgeRepository
 import one.kafva.kage.data.GitRepository
 import one.kafva.kage.data.RuntimeSettingsRepository
@@ -138,7 +139,7 @@ private fun BottomBarView(
         Icon(
             Icons.Filled.Settings,
             "Settings",
-            modifier = Modifier.size(G.MEDIUM_ICON_SIZE.dp),
+            modifier = Modifier.size(MEDIUM_ICON_SIZE.dp),
         )
     }
 
@@ -162,7 +163,7 @@ private fun BottomBarView(
                     ColorFilter.tint(
                         MaterialTheme.colorScheme.onBackground,
                     ),
-                modifier = Modifier.size(G.MEDIUM_ICON_SIZE.dp),
+                modifier = Modifier.size(MEDIUM_ICON_SIZE.dp),
             )
         }
 
@@ -188,7 +189,7 @@ private fun BottomBarView(
                 icon,
                 colorFilter = colorFilter,
                 contentDescription = "Toggle lock",
-                modifier = Modifier.size(G.MEDIUM_ICON_SIZE.dp),
+                modifier = Modifier.size(MEDIUM_ICON_SIZE.dp),
             )
         }
     }
@@ -215,7 +216,7 @@ private fun SearchView(viewModel: ToolbarViewModel = hiltViewModel()) {
                 stringResource(R.string.search_placeholder),
                 modifier = Modifier.fillMaxWidth(0.65f),
                 textAlign = TextAlign.Start,
-                fontSize = G.TITLE2_FONT_SIZE.sp,
+                fontSize = TITLE2_FONT_SIZE.sp,
                 color = MaterialTheme.colorScheme.outline,
             )
         },
@@ -238,7 +239,7 @@ private fun SearchView(viewModel: ToolbarViewModel = hiltViewModel()) {
         textStyle =
             TextStyle(
                 textAlign = TextAlign.Start,
-                fontSize = G.TITLE2_FONT_SIZE.sp,
+                fontSize = TITLE2_FONT_SIZE.sp,
             ),
         modifier = Modifier.fillMaxWidth(0.6f),
     )

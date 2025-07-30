@@ -26,7 +26,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dagger.hilt.android.lifecycle.HiltViewModel
-import one.kafva.kage.G
+import one.kafva.kage.CONTAINER_MODIFIER
+import one.kafva.kage.CORNER_RADIUS
+import one.kafva.kage.MEDIUM_ICON_SIZE
 import one.kafva.kage.data.GitRepository
 import one.kafva.kage.data.RuntimeSettingsRepository
 import one.kafva.kage.types.PwNode
@@ -58,7 +60,7 @@ fun TreeView(
                 it.name
             },
         )
-    LazyColumn(modifier = G.containerModifier) {
+    LazyColumn(modifier = CONTAINER_MODIFIER) {
         sortedMatches.forEach { child ->
             item {
                 TreeChildView(child, expandRecursively, navigateToPassword)
@@ -101,14 +103,14 @@ private fun TreeChildView(
                 Icon(
                     icon,
                     contentDescription = "Folder",
-                    modifier = Modifier.size(G.MEDIUM_ICON_SIZE.dp),
+                    modifier = Modifier.size(MEDIUM_ICON_SIZE.dp),
                 )
             }
         },
         modifier =
             Modifier
                 .padding(start = (depth * 15).dp, bottom = 10.dp)
-                .clip(RoundedCornerShape(G.CORNER_RADIUS))
+                .clip(RoundedCornerShape(CORNER_RADIUS))
                 .clickable {
                     if (isPassword) {
                         navigateToPassword(node)

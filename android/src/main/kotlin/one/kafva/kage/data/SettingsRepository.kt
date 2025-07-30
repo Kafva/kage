@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
-import one.kafva.kage.G
+import one.kafva.kage.IS_EMULATOR
 import one.kafva.kage.Log
 import one.kafva.kage.types.Settings
 import java.io.IOException
@@ -32,7 +32,7 @@ class SettingsRepository
             get() =
                 this[Keys.cloneUrl]
                     ?: (
-                        if (G.isEmulator) {
+                        if (IS_EMULATOR) {
                             "git://10.0.2.2/james.git"
                         } else {
                             "file:///data/local/tmp/kage-store.git"
