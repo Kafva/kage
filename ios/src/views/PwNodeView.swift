@@ -145,7 +145,7 @@ struct PwNodeView: View {
             if node == nil {
                 TileView(iconName: "dice") {
                     HStack {
-                        Text("Autogenerate").font(G.bodyFont)
+                        Text("Autogenerate").font(BODY_FONT)
                             .foregroundColor(.gray)
 
                         Toggle(isOn: $generate) {}
@@ -209,7 +209,7 @@ struct PwNodeView: View {
                 try Git.reset()
             }
             catch {
-                G.logger.error("\(error.localizedDescription)")
+                LOG.error("\(error.localizedDescription)")
             }
 
             if let newPwNode {
@@ -224,19 +224,19 @@ struct PwNodeView: View {
         // folder selection
         guard let node else {
             if selectedRelativePath.isEmpty {
-                selectedRelativePath = G.rootNodeName
+                selectedRelativePath = ROOT_NODE_NAME
             }
             return
         }
 
-        G.logger.debug("Current node: '\(node.relativePath)'")
+        LOG.debug("Current node: '\(node.relativePath)'")
         if selectedName.isEmpty {
             selectedName = node.name
         }
         if selectedRelativePath.isEmpty {
             selectedRelativePath = node.parentRelativePath
         }
-        G.logger.debug(
+        LOG.debug(
             "Selected: ['\(selectedRelativePath)', '\(selectedName)']")
     }
 

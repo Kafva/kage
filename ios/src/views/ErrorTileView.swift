@@ -5,10 +5,10 @@ struct ErrorTileView: View {
 
     var body: some View {
         TileView(iconName: "exclamationmark.circle") {
-            Text(currentError ?? "No error").font(G.footnoteFont)
+            Text(currentError ?? "No error").font(FOOTNOTE_FONT)
                 .frame(alignment: .leading)
         }
-        .foregroundColor(G.errorColor)
+        .foregroundColor(ERROR_COLOR)
         .onTapGesture { currentError = nil }
         // Keep dimesions when hidden
         .opacity(currentError != nil ? 1.0 : 0.0)

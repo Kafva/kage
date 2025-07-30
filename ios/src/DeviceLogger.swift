@@ -1,5 +1,7 @@
 import OSLog
 
+let LOG = DeviceLogger()
+
 /// Make all data in log messages public for debug builds
 struct DeviceLogger {
     let logger: Logger

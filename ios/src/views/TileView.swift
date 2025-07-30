@@ -5,7 +5,7 @@ struct TileView<Content: View>: View {
     @ViewBuilder let content: Content
 
     var body: some View {
-        let width = G.screenWidth * 0.1
+        let width = SCREEN_WIDTH * 0.1
         return HStack {
             Image(systemName: iconName ?? "globe").opacity(
                 iconName != nil ? 1.0 : 0.0

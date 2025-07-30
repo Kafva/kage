@@ -27,13 +27,13 @@ struct PasswordView: View {
         }
 
         return VStack(alignment: .center) {
-            Text(headerText).font(G.title2Font)
+            Text(headerText).font(TITLE2_FONT)
                 .padding(.bottom, 10)
                 .textCase(nil)
 
             if appState.identityIsUnlocked {
                 Text(hidePlaintext ? "••••••••" : plaintext)
-                    .font(G.title3Font)
+                    .font(TITLE3_FONT)
                     .bold()
                     .monospaced()
                     .foregroundColor(.accentColor)
@@ -49,7 +49,7 @@ struct PasswordView: View {
             else {
                 VStack {
                     SecureField("Password", text: $passphrase)
-                        .font(G.title3Font)
+                        .font(TITLE3_FONT)
                         // The .oneTimeCode content appears to consistently disable all password etc.
                         // suggestions in the on-screen keyboard, for now (iOS 18.0).
                         .textContentType(.oneTimeCode)
@@ -78,19 +78,19 @@ struct PasswordView: View {
                 .buttonStyle(.bordered)
                 .tint(.accentColor)
             }
-            .font(G.bodyFont)
+            .font(BODY_FONT)
             .padding(.top, 30)
 
             ErrorTileView(currentError: $currentError).padding(.top, 30)
         }
-        .frame(width: 0.8 * G.screenWidth, height: G.screenHeight)
+        .frame(width: 0.8 * SCREEN_WIDTH, height: SCREEN_HEIGHT)
         .navigationBarHidden(true)
     }
 
     private func handleSubmit() {
         if appState.identityIsUnlocked {
             UIPasteboard.general.string = plaintext
-            G.logger.debug("Copied '\(node.name)' to clipboard")
+            LOG.debug("Copied '\(node.name)' to clipboard")
         }
         else {
             do {
@@ -109,7 +109,7 @@ struct PasswordView: View {
 
     private func handleShowPlaintext() {
         if !node.isPassword {
-            G.logger.error(
+            LOG.error(
                 "Cannot show password for non-password node: '\(node.name)'")
             return
         }

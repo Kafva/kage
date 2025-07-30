@@ -7,21 +7,21 @@ struct ErrorView: View {
     var body: some View {
         VStack(alignment: .leading) {
             Text("An error has occured")
-                .foregroundColor(G.textColor)
+                .foregroundColor(TEXT_COLOR)
                 .bold()
-                .font(G.title2Font)
+                .font(TITLE2_FONT)
                 .padding(.bottom, 10)
                 .padding(.top, 10)
             Text(currentError ?? "No description available")
-                .font(G.bodyFont)
-                .foregroundColor(G.errorColor)
+                .font(BODY_FONT)
+                .foregroundColor(ERROR_COLOR)
 
             HStack {
                 Button(action: {
                     currentError = nil
                     dismiss()
                 }) {
-                    Text("Dismiss").font(G.bodyFont)
+                    Text("Dismiss").font(BODY_FONT)
                 }
                 .buttonStyle(.bordered)
                 Spacer()

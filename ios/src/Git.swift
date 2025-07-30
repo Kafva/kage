@@ -54,7 +54,7 @@ func ffi_git_strerror() -> UnsafeMutablePointer<CChar>?
 
 ////////////////////////////////////////////////////////////////////////////////
 
-private let repo = G.gitDir
+private let repo = GIT_DIR
 
 enum Git {
     /// Stage and commit a new file or folder
@@ -91,7 +91,7 @@ enum Git {
         let repoC = try repo.string.toCString()
         let urlC = try remote.toCString()
 
-        G.logger.debug("Cloning from: \(remote)")
+        LOG.debug("Cloning from: \(remote)")
 
         let r = ffi_git_clone(urlC, into: repoC)
         if r != 0 {
@@ -105,7 +105,7 @@ enum Git {
         if r != 0 {
             try throwError(code: r)
         }
-        G.logger.debug("Push successful")
+        LOG.debug("Push successful")
     }
 
     static func localHeadMatchesRemote() throws -> Bool {
@@ -118,7 +118,7 @@ enum Git {
     }
 
     static func reset() throws {
-        G.logger.warning("Resetting to local HEAD")
+        LOG.warning("Resetting to local HEAD")
         let repoC = try repo.string.toCString()
         let r = ffi_git_reset(repoC)
         if r != 0 {
@@ -136,7 +136,7 @@ enum Git {
     }
 
     static func log() throws -> [CommitInfo] {
-        G.logger.debug("Fetching commit messages")
+        LOG.debug("Fetching commit messages")
         var messages = [CommitInfo]()
 
         let repoC = try repo.string.toCString()
@@ -160,8 +160,8 @@ enum Git {
     }
 
     static func repoIsInitialized() -> Bool {
-        let idents = G.gitDir.appending(".age-identities")
-        let recips = G.gitDir.appending(".age-recipients")
+        let idents = GIT_DIR.appending(".age-identities")
+        let recips = GIT_DIR.appending(".age-recipients")
         return FileManager.default.isFile(idents)
             && FileManager.default.isFile(recips)
     }
@@ -184,7 +184,7 @@ enum Git {
         if r != 0 {
             try throwError(code: r)
         }
-        G.logger.debug("Staged '\(relativePath)'")
+        LOG.debug("Staged '\(relativePath)'")
     }
 
     static private func throwError(code: CInt) throws {

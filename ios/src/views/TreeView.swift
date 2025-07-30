@@ -29,7 +29,7 @@ struct TreeView: View {
         }
         .listStyle(.plain)
         .frame(
-            width: 0.9 * G.screenWidth,
+            width: 0.9 * SCREEN_WIDTH,
             alignment: .top)
     }
 
@@ -98,7 +98,7 @@ private struct PwNodeTreeItemView: View {
             }
             Text(node.name)
         }
-        .font(G.bodyFont)
+        .font(BODY_FONT)
         .swipeActions(allowsFullSwipe: false) {
             Button(action: {
                 hideKeyboard()
@@ -136,7 +136,7 @@ private struct PwNodeTreeItemView: View {
                 try Git.reset()
             }
             catch {
-                G.logger.error("\(error.localizedDescription)")
+                LOG.error("\(error.localizedDescription)")
             }
         }
     }

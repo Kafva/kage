@@ -19,7 +19,7 @@ final class KageTests {
     /// Setup to run before each test method
     init() throws {
         print("Running setup...")
-        try? FileManager.default.removeItem(atPath: G.gitDir.string)
+        try? FileManager.default.removeItem(atPath: GIT_DIR.string)
         do {
             try Git.clone(remote: REMOTE)
         }
@@ -331,7 +331,7 @@ final class KageTests {
     @Test func badPasswords() throws {
         let name = getTestcaseNodeName()
         let invalidPasswords = [
-            String(repeating: "a", count: G.maxPasswordLength + 1),
+            String(repeating: "a", count: MAX_PASSWORD_LENGTH + 1),
             "",
         ]
 
@@ -350,7 +350,7 @@ final class KageTests {
     @Test func badNodeNames() throws {
         let invalidNames = [
             "",
-            G.rootNodeName,
+            ROOT_NODE_NAME,
             "name.age",
             "/",
             "/abc/",  // no slashes allowed in node names
@@ -416,7 +416,7 @@ final class KageTests {
             relativePath: name,
             password: password)
 
-        try FileManager.default.mkdirp(G.gitDir.appending("\(name)/a"))
+        try FileManager.default.mkdirp(GIT_DIR.appending("\(name)/a"))
 
         let invalidPairs = [
             // Already taken
@@ -457,7 +457,7 @@ final class KageTests {
         password: String
     ) throws -> PwNode {
         try FileManager.default.mkdirp(
-            G.gitDir.appending(relativePath))
+            GIT_DIR.appending(relativePath))
 
         let newPwNode = try PwManager.submit(
             selectedName: name,

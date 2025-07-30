@@ -102,7 +102,7 @@ enum PwManager {
         // Update the password if one was provided
         if !password.isEmpty {
             try checkPassword(password: password)
-            let recipientPath = G.gitDir.appending(".age-recipients")
+            let recipientPath = GIT_DIR.appending(".age-recipients")
 
             try Age.encrypt(
                 recipientPath: recipientPath,
@@ -121,7 +121,7 @@ enum PwManager {
             try checkPassword(password: password)
         }
 
-        let recipientPath = G.gitDir.appending(".age-recipients")
+        let recipientPath = GIT_DIR.appending(".age-recipients")
         let plaintext = generate ? randomString(20) : password
 
         try Age.encrypt(
@@ -133,7 +133,7 @@ enum PwManager {
     }
 
     private static func checkPassword(password: String) throws {
-        if password.count > G.maxPasswordLength || password.isEmpty {
+        if password.count > MAX_PASSWORD_LENGTH || password.isEmpty {
             throw AppError.invalidPasswordFormat
         }
     }

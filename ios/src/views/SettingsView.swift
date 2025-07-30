@@ -53,7 +53,7 @@ struct SettingsView: View {
         .navigationBarHidden(true)
         .onAppear {
             #if targetEnvironment(simulator)
-                G.logger.debug("Configuring preset remote")
+                LOG.debug("Configuring preset remote")
                 remoteAddressStore = "127.0.0.1"
                 repoPathStore = "james.git"
             #endif
@@ -109,7 +109,7 @@ struct SettingsView: View {
                 }
                 else {
                     Text(text).lineLimit(1)
-                        .foregroundColor(G.accentColor)
+                        .foregroundColor(ACCENT_COLOR)
                 }
             }
             .alert("Replace all local data?", isPresented: $showAlert) {
@@ -124,7 +124,7 @@ struct SettingsView: View {
 
     private var versionTile: some View {
         TileView(iconName: nil) {
-            Text(G.gitVersion).font(G.captionFont)
+            Text(GIT_VERSION).font(CAPTION_FONT)
                 .foregroundColor(.gray)
                 .frame(alignment: .leading)
         }
@@ -140,11 +140,11 @@ struct SettingsView: View {
     }
 
     private var passwordCountTile: some View {
-        let passwords = try? FileManager.default.findFiles(G.gitDir)
+        let passwords = try? FileManager.default.findFiles(GIT_DIR)
         let count = passwords?.count ?? 0
         return TileView(iconName: nil) {
             Text(String(localized: "Storage: \(count) password"))
-                .font(G.captionFont)
+                .font(CAPTION_FONT)
                 .foregroundColor(.gray)
                 .frame(alignment: .leading)
         }
@@ -187,7 +187,7 @@ struct SettingsView: View {
 
         remoteAddressStore = remoteAddress
         repoPathStore = repoPath
-        G.logger.info("Updated remote: \(remote)")
+        LOG.info("Updated remote: \(remote)")
         currentError = nil
     }
 
@@ -209,7 +209,7 @@ struct SettingsView: View {
         {
             do {
 
-                try? FileManager.default.removeItem(atPath: G.gitDir.string)
+                try? FileManager.default.removeItem(atPath: GIT_DIR.string)
                 try Git.clone(remote: remote)
                 try Git.configSetUser(username: repoPath)
 
@@ -226,7 +226,7 @@ struct SettingsView: View {
                 }
             }
             catch {
-                try? FileManager.default.removeItem(atPath: G.gitDir.string)
+                try? FileManager.default.removeItem(atPath: GIT_DIR.string)
                 DispatchQueue.main.async { @MainActor in
                     currentError = uiError("\(error.localizedDescription)")
                     appState.backgroundTaskInProgress = false

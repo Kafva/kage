@@ -29,7 +29,7 @@ struct AppView: View {
             // Do not move navigation bar items when the keyboard appears
             .ignoresSafeArea(.keyboard)
             .onAppear {
-                if !FileManager.default.isDir(G.gitDir) {
+                if !FileManager.default.isDir(GIT_DIR) {
                     return
                 }
 
@@ -48,10 +48,10 @@ struct AppView: View {
     private var uninitializedTreeView: some View {
         VStack(alignment: .center, spacing: 5) {
             Image(systemName: "rays")
-                .font(G.title2Font)
+                .font(TITLE2_FONT)
 
             Text("Uninitialized password repoistory")
-                .font(G.bodyFont)
+                .font(BODY_FONT)
         }
         .foregroundColor(.gray)
     }
@@ -68,7 +68,7 @@ struct AppView: View {
             NavigationLink(destination: PwNodeView(node: nil)) {
                 Image(systemName: "plus.rectangle.portrait")
             }
-            .disabled(!FileManager.default.isDir(G.gitDir))
+            .disabled(!FileManager.default.isDir(GIT_DIR))
 
             Spacer()
 
@@ -102,7 +102,7 @@ struct AppView: View {
                     destination: ErrorView(currentError: $currentError)
                 ) {
                     Image(systemName: "exclamationmark.circle").foregroundColor(
-                        G.errorColor)
+                        ERROR_COLOR)
                 }
                 .padding(.trailing, edgesSpacing)
             }
@@ -116,7 +116,7 @@ struct AppView: View {
                 .padding(.trailing, edgesSpacing)
             }
         }
-        .font(G.toolbarIconFont)
+        .font(TOOLBAR_ICON_FONT)
         .padding(.bottom, 10)
     }
 

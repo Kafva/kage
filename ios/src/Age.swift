@@ -48,7 +48,7 @@ enum Age {
         if r != 0 {
             try throwError(code: r)
         }
-        G.logger.debug("OK: identity unlocked")
+        LOG.debug("OK: identity unlocked")
     }
 
     static func lockIdentity() throws {
@@ -56,7 +56,7 @@ enum Age {
         if r != 0 {
             try throwError(code: r)
         }
-        G.logger.debug("OK: identity locked")
+        LOG.debug("OK: identity locked")
     }
 
     static func decrypt(_ at: FilePath) throws -> String {

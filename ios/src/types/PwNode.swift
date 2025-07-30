@@ -12,22 +12,22 @@ struct PwNode: Identifiable, Hashable {
     /// Name without file extension
     var name: String {
         let name = (path.lastComponent?.string ?? "").deletingSuffix(".age")
-        if name == G.gitDirName {
-            return G.rootNodeName
+        if name == GIT_DIR_NAME {
+            return ROOT_NODE_NAME
         }
         return name
     }
 
     var parentName: String {
-        if self.name == G.gitDirName {
-            return G.rootNodeName
+        if self.name == GIT_DIR_NAME {
+            return ROOT_NODE_NAME
         }
         return path.removingLastComponent().lastComponent?.string ?? ""
     }
 
     var parentRelativePath: String {
-        if parentName == G.gitDirName || name == G.rootNodeName {
-            return G.rootNodeName
+        if parentName == GIT_DIR_NAME || name == ROOT_NODE_NAME {
+            return ROOT_NODE_NAME
         }
         else {
             return relativePath
@@ -37,10 +37,10 @@ struct PwNode: Identifiable, Hashable {
     /// Path relative to git root
     var relativePath: String {
         let s = path.string
-            .deletingPrefix(G.gitDir.string)
+            .deletingPrefix(GIT_DIR.string)
             .trimmingCharacters(in: CharacterSet(charactersIn: "/"))
         if s.isEmpty {
-            return G.rootNodeName
+            return ROOT_NODE_NAME
         }
         return s
     }
@@ -85,10 +85,10 @@ struct PwNode: Identifiable, Hashable {
         var parentPath = path
 
         // Do not iterate forever if we are in a bad state where gitDir is missing
-        for _ in 0...G.maxTreeDepth {
+        for _ in 0...MAX_TREE_DEPTH {
             parentPath.removeLastComponent()
             let parentName = parentPath.lastComponent?.string ?? ""
-            if parentName == G.gitDirName {
+            if parentName == GIT_DIR_NAME {
                 break
             }
 
@@ -137,7 +137,7 @@ struct PwNode: Identifiable, Hashable {
     static func createAbsPath(
         name: String, relativePath: String, expectPassword: Bool
     ) -> FilePath {
-        return G.gitDir.appending(
+        return GIT_DIR.appending(
             "\(relativePath)/\(name)\(expectPassword ? ".age" : "")"
         )
     }
@@ -148,7 +148,7 @@ struct PwNode: Identifiable, Hashable {
         throws
     {
         let name = path.lastComponent?.string ?? ""
-        if name.isEmpty || name == ".age" || name == G.gitDirName {
+        if name.isEmpty || name == ".age" || name == GIT_DIR_NAME {
             throw AppError.invalidNodePath("No name provided")
         }
 

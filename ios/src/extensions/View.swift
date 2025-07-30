@@ -11,7 +11,7 @@ extension View {
     }
 
     func formHeaderStyle() -> some View {
-        return self.font(G.title3Font)
+        return self.font(TITLE3_FONT)
             .padding(.bottom, 10)
             .padding(.top, 40)
             .lineLimit(1)
@@ -21,7 +21,7 @@ extension View {
     func uiError(_ message: String, line: Int = #line, fileID: String = #fileID)
         -> String
     {
-        G.logger.error(message, line: line, fileID: fileID)
+        LOG.error(message, line: line, fileID: fileID)
         return message
     }
 

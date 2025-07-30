@@ -5,13 +5,13 @@ struct SearchView: View {
 
     var body: some View {
         let background = RoundedRectangle(cornerRadius: 5)
-            .fill(G.textFieldBgColor)
+            .fill(TEXT_FIELD_BG_COLOR)
 
         return TextField("Search…", text: $searchText)
             .textContentType(.oneTimeCode)
             .multilineTextAlignment(.center)
-            .font(G.title3Font)
-            .frame(width: G.screenWidth * 0.7)
+            .font(TITLE3_FONT)
+            .frame(width: SCREEN_WIDTH * 0.7)
             // Padding inside the textbox
             .padding(.all, 10)
             .background(background)
@@ -26,7 +26,7 @@ struct SearchView: View {
                             } label: {
                                 Image(systemName: "multiply.circle.fill")
                                     .foregroundColor(.secondary)
-                                    .font(G.bodyFont)
+                                    .font(BODY_FONT)
                                     .padding(.trailing, 10)
                             }
                         }

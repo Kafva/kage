@@ -22,7 +22,7 @@ struct kageApp: App {
             if oldPhase == newPhase {
                 return
             }
-            G.logger.debug(
+            LOG.debug(
                 "scene: \(oldPhase.description) -> \(newPhase.description)")
 
             // Check if the identity should be re-locked every time the app moves
@@ -38,8 +38,8 @@ struct kageApp: App {
             }
 
             let seconds = identityUnlockedAt.distance(to: .now)
-            if seconds > G.autoLockSeconds {
-                G.logger.debug(
+            if seconds > AUTO_LOCK_SECONDS {
+                LOG.debug(
                     "Locking identity due to timeout: [\(seconds.rounded()) sec]"
                 )
                 try? appState.lockIdentity()
