@@ -1,43 +1,41 @@
 import SwiftUI
-import XCTest
+import Testing
 
 @testable import kage
 
-final class kageTests: XCTestCase {
-    var appState: AppState!
+/// Expected passphrase for the test data
+let PASSPHRASE = "x"
+let REMOTE = "git://127.0.0.1/ios.git"
+let USERNAME = "ios"
 
-    /// Expected passphrase for the test data
-    static let passphrase = "x"
-    static let remote = "git://127.0.0.1/ios.git"
-    static let username = "ios"
+let INVALID_NODE_PATH_ERROR = AppError.invalidNodePath("")
+    .localizedDescription
 
-    /// Setup to run ONCE before any tests start
-    override class func setUp() {
+/// The testcases can not run in parallel, use `.serialized`
+@Suite(.serialized)
+final class KageTests {
+    var appState: AppState
+
+    /// Setup to run before each test method
+    init() throws {
         print("Running setup...")
         try? FileManager.default.removeItem(atPath: G.gitDir.string)
         do {
-            try Git.clone(remote: Self.remote)
+            try Git.clone(remote: REMOTE)
         }
         catch {
-            XCTFail("\(error.localizedDescription)")
+            Issue.record("\(error.localizedDescription)")
         }
-    }
-
-    /// Setup to run before each test method
-    override func setUpWithError() throws {
-        print("Running test case setup...")
-        // Stop when a XCTAssert() fails (why is this not the default...?)
-        self.continueAfterFailure = false
 
         // (Re-)initialise app state and reset
         self.appState = AppState()
-        try Git.configSetUser(username: Self.username)
+        try Git.configSetUser(username: USERNAME)
         try Git.reset()
         try appState.reloadGitTree()
     }
 
-    /// Teardown to run ONCE after all tests
-    override class func tearDown() {
+    /// Teardown to run after each test
+    deinit {
         print("Running teardown...")
         // Each test case expects that it starts out being up-to-date
         do {
@@ -48,13 +46,8 @@ final class kageTests: XCTestCase {
         }
     }
 
-    /// Teardown to run after each test method
-    override func tearDownWithError() throws {
-        print("Running test case teardown...")
-    }
-
     /// Add a new password and push it to the remote
-    func testAddPassword() throws {
+    @Test func addPassword() throws {
         let name = getTestcaseNodeName()
         let password = getTestcasePassword()
         do {
@@ -69,26 +62,26 @@ final class kageTests: XCTestCase {
             try appState.reloadGitTree()
 
             // There should be a change between our local repo and the remote
-            XCTAssert(!appState.localHeadMatchesRemote)
+            #expect(!appState.localHeadMatchesRemote)
 
             // Verify that the node was inserted as expected
             let matches = appState.rootNode.findChildren(predicate: name)
             if matches.count != 1 {
-                XCTFail("New node not found in tree")
+                Issue.record("New node not found in tree")
                 return
             }
 
-            try appState.unlockIdentity(passphrase: Self.passphrase)
+            try appState.unlockIdentity(passphrase: PASSPHRASE)
             let plaintext = try Age.decrypt(newPwNode.path)
-            XCTAssert(plaintext == password)
+            #expect(plaintext == password)
         }
         catch {
-            XCTFail("\(error.localizedDescription)")
+            Issue.record("\(error.localizedDescription)")
         }
     }
 
     /// Change the plaintext value of a password
-    func testModifyPassword() throws {
+    @Test func modifyPassword() throws {
         let name = getTestcaseNodeName()
         let password = getTestcasePassword()
         do {
@@ -102,9 +95,9 @@ final class kageTests: XCTestCase {
             // Reload git tree with new entry
             try appState.reloadGitTree()
 
-            try appState.unlockIdentity(passphrase: Self.passphrase)
+            try appState.unlockIdentity(passphrase: PASSPHRASE)
             var plaintext = try Age.decrypt(currentPwNode.path)
-            XCTAssert(plaintext == password)
+            #expect(plaintext == password)
 
             // Submit anew for the same node with a new password
             let newPwNode = try PwManager.submit(
@@ -115,20 +108,20 @@ final class kageTests: XCTestCase {
             try appState.reloadGitTree()
 
             plaintext = try Age.decrypt(newPwNode.path)
-            XCTAssert(plaintext == "NewPassword")
+            #expect(plaintext == "NewPassword")
 
         }
         catch {
-            XCTFail("\(error.localizedDescription)")
+            Issue.record("\(error.localizedDescription)")
         }
     }
 
     /// Move a node while keeping the same password
-    func testMovePassword() throws {
+    @Test func movePassword() throws {
         let name = getTestcaseNodeName()
         let password = getTestcasePassword()
         do {
-            let currentPwNode = try addPassword(
+            let currentPwNode = try addPasswordHelper(
                 name: name,
                 relativePath: "blue/a", password: password)
 
@@ -142,24 +135,24 @@ final class kageTests: XCTestCase {
             // Reload git tree with new entry
             try appState.reloadGitTree()
 
-            XCTAssert(FileManager.default.exists(newPwNode.path))
-            XCTAssertFalse(FileManager.default.exists(currentPwNode.path))
+            #expect(FileManager.default.exists(newPwNode.path))
+            #expect(!FileManager.default.exists(currentPwNode.path))
 
-            try appState.unlockIdentity(passphrase: Self.passphrase)
+            try appState.unlockIdentity(passphrase: PASSPHRASE)
             let plaintext = try Age.decrypt(newPwNode.path)
-            XCTAssert(plaintext == password)
+            #expect(plaintext == password)
         }
         catch {
-            XCTFail("\(error.localizedDescription)")
+            Issue.record("\(error.localizedDescription)")
         }
     }
 
     /// Change the name and decrypted content for a node
-    func testMoveAndModifyPassword() throws {
+    @Test func moveAndModifyPassword() throws {
         let name = getTestcaseNodeName()
         let password = getTestcasePassword()
         do {
-            let currentPwNode = try addPassword(
+            let currentPwNode = try addPasswordHelper(
                 name: name,
                 relativePath: "blue/a", password: password)
 
@@ -171,20 +164,20 @@ final class kageTests: XCTestCase {
             // Reload git tree with new entry
             try appState.reloadGitTree()
 
-            try appState.unlockIdentity(passphrase: Self.passphrase)
+            try appState.unlockIdentity(passphrase: PASSPHRASE)
             let plaintext = try Age.decrypt(newPwNode.path)
-            XCTAssert(plaintext == password)
+            #expect(plaintext == password)
         }
         catch {
-            XCTFail("\(error.localizedDescription)")
+            Issue.record("\(error.localizedDescription)")
         }
     }
 
-    func testDeletePassword() throws {
+    @Test func deletePassword() throws {
         let name = getTestcaseNodeName()
         let password = getTestcasePassword()
         do {
-            let node = try addPassword(
+            let node = try addPasswordHelper(
                 name: name,
                 relativePath: "blue/a",
                 password: password)
@@ -200,31 +193,31 @@ final class kageTests: XCTestCase {
                 .findChildren(predicate: "a").first!
                 .findChildren(predicate: node.name)
 
-            XCTAssert(matches.count == 0)
-            XCTAssertFalse(FileManager.default.exists(node.path))
+            #expect(matches.count == 0)
+            #expect(!FileManager.default.exists(node.path))
         }
         catch {
-            XCTFail("\(error.localizedDescription)")
+            Issue.record("\(error.localizedDescription)")
         }
     }
 
-    func testAddFolder() throws {
+    @Test func addFolder() throws {
         let name = getTestcaseNodeName()
         do {
-            _ = try addFolder(name: name)
+            _ = try addFolderHelper(name: name)
         }
         catch {
-            XCTFail("\(error.localizedDescription)")
+            Issue.record("\(error.localizedDescription)")
         }
     }
 
     /// Move 'green/<folder>' -> 'green/<folder>-new'
-    func testMoveFolder() throws {
+    @Test func moveFolder() throws {
         let name = getTestcaseNodeName()
         let password = getTestcasePassword()
         do {
             // Create the folder to move and a password beneath it
-            let _ = try addPassword(
+            let _ = try addPasswordHelper(
                 name: "pass",
                 relativePath: "green/\(name)",
                 password: password)
@@ -239,19 +232,19 @@ final class kageTests: XCTestCase {
                 password: "")
 
             // Make sure the folders were moved
-            XCTAssertFalse(FileManager.default.isDir(currentPwNode.path))
-            XCTAssert(FileManager.default.isDir(newPwNode.path))
+            #expect(!FileManager.default.isDir(currentPwNode.path))
+            #expect(FileManager.default.isDir(newPwNode.path))
 
             // Make sure a commit was created
             try appState.reloadGitTree()
-            XCTAssertFalse(appState.localHeadMatchesRemote)
+            #expect(!appState.localHeadMatchesRemote)
         }
         catch {
-            XCTFail("\(error.localizedDescription)")
+            Issue.record("\(error.localizedDescription)")
         }
     }
 
-    func testMoveEmptyFolders() throws {
+    @Test func moveEmptyFolders() throws {
         let name = getTestcaseNodeName()
         do {
             let currentPwNode = try PwNode.loadValidatedFrom(
@@ -268,15 +261,15 @@ final class kageTests: XCTestCase {
                 selectedDirectory: true, currentPwNode: currentPwNode,
                 password: "")
 
-            XCTAssertFalse(FileManager.default.isDir(currentPwNode.path))
-            XCTAssert(FileManager.default.isDir(newPwNode.path))
+            #expect(!FileManager.default.isDir(currentPwNode.path))
+            #expect(FileManager.default.isDir(newPwNode.path))
         }
         catch {
-            XCTFail("\(error.localizedDescription)")
+            Issue.record("\(error.localizedDescription)")
         }
     }
 
-    func testDeleteEmptyFolders() throws {
+    @Test func deleteEmptyFolders() throws {
         let name = getTestcaseNodeName()
         do {
             let currentPwNode = try PwNode.loadValidatedFrom(
@@ -290,23 +283,23 @@ final class kageTests: XCTestCase {
 
             try PwManager.remove(node: currentPwNode)
 
-            XCTAssertFalse(FileManager.default.isDir(currentPwNode.path))
+            #expect(!FileManager.default.isDir(currentPwNode.path))
         }
         catch {
-            XCTFail("\(error.localizedDescription)")
+            Issue.record("\(error.localizedDescription)")
         }
     }
 
-    func testMoveWithSpecialCharactersInPath() throws {
+    @Test func moveWithSpecialCharactersInPath() throws {
         let folderName = "\(getTestcaseNodeName())-ÅÄÖ-åäö"
         let name = "\(getTestcaseNodeName())-åäö-ÅÖÖ"
         let password = getTestcasePassword()
         do {
             // Add a folder with special characters
-            let currentFolderNode = try addFolder(name: folderName)
+            let currentFolderNode = try addFolderHelper(name: folderName)
 
             // Add a password beneath it with special characters
-            _ = try addPassword(
+            _ = try addPasswordHelper(
                 name: name,
                 relativePath: "/\(folderName)",
                 password: password)
@@ -322,20 +315,20 @@ final class kageTests: XCTestCase {
             // Reload git tree with new entry
             try appState.reloadGitTree()
 
-            XCTAssert(FileManager.default.exists(newPwNode.path))
-            XCTAssertFalse(FileManager.default.exists(currentFolderNode.path))
+            #expect(FileManager.default.exists(newPwNode.path))
+            #expect(!FileManager.default.exists(currentFolderNode.path))
 
             // Decrypt the password beneath the new folder path
-            try appState.unlockIdentity(passphrase: Self.passphrase)
+            try appState.unlockIdentity(passphrase: PASSPHRASE)
             let plaintext = try Age.decrypt(newPwNode.path.appending("\(name).age"))
-            XCTAssert(plaintext == password)
+            #expect(plaintext == password)
         }
         catch {
-            XCTFail("\(error.localizedDescription)")
+            Issue.record("\(error.localizedDescription)")
         }
     }
 
-    func testBadPasswords() throws {
+    @Test func badPasswords() throws {
         let name = getTestcaseNodeName()
         let invalidPasswords = [
             String(repeating: "a", count: G.maxPasswordLength + 1),
@@ -343,21 +336,18 @@ final class kageTests: XCTestCase {
         ]
 
         for invalidPassword in invalidPasswords {
-            XCTAssertThrowsError(
+            #expect(throws: AppError.invalidPasswordFormat, performing: {
                 try PwManager.submit(
                     selectedName: name,
                     selectedRelativePath: "/",
                     selectedDirectory: false,
                     currentPwNode: nil,
                     password: invalidPassword)
-            ) { error in
-                XCTAssertEqual(
-                    error as! AppError, AppError.invalidPasswordFormat)
-            }
+            })
         }
     }
 
-    func testBadNodeNames() throws {
+    @Test func badNodeNames() throws {
         let invalidNames = [
             "",
             G.rootNodeName,
@@ -376,35 +366,30 @@ final class kageTests: XCTestCase {
 
         for invalidName in invalidNames {
             print("Checking: '\(invalidName)'")
-            XCTAssertThrowsError(
+
+            #expect("Invalid folder name", performing: {
                 try PwNode.loadValidatedFrom(
                     name: invalidName, relativePath: "/", expectPassword: false,
                     checkParents: false, allowNameTaken: true)
-            ) { error in
+            }, throws: { error in
                 // Do not check the exact error message, just that it
                 // has the expected type
                 let appError = (error as! AppError).localizedDescription
-                let invalidNodePathError = AppError.invalidNodePath("")
-                    .localizedDescription
-                XCTAssert(appError.starts(with: invalidNodePathError))
-            }
+                return appError.starts(with: INVALID_NODE_PATH_ERROR)
+            })
 
-            XCTAssertThrowsError(
+            #expect("Invalid password name", performing: {
                 try PwNode.loadValidatedFrom(
                     name: invalidName, relativePath: "/", expectPassword: true,
                     checkParents: false, allowNameTaken: true)
-            ) { error in
-                // Do not check the exact error message, just that it
-                // has the expected type
+            }, throws: { error in
                 let appError = (error as! AppError).localizedDescription
-                let invalidNodePathError = AppError.invalidNodePath("")
-                    .localizedDescription
-                XCTAssert(appError.starts(with: invalidNodePathError))
-            }
+                return appError.starts(with: INVALID_NODE_PATH_ERROR)
+            })
         }
     }
 
-    func testOkNodeNames() throws {
+    @Test func okNodeNames() throws {
         let validNames = [
             "person123@gmail.com",
             "name_with-special.chars",
@@ -422,11 +407,11 @@ final class kageTests: XCTestCase {
         }
     }
 
-    func testBadNodePaths() throws {
+    @Test func badNodePaths() throws {
         let password = getTestcasePassword()
         let name = getTestcaseNodeName()
 
-        let node = try addPassword(
+        let node = try addPasswordHelper(
             name: "pass1",
             relativePath: name,
             password: password)
@@ -448,7 +433,7 @@ final class kageTests: XCTestCase {
 
         for invalidPair in invalidPairs {
             print("Checking: ('\(invalidPair[0])', '\(invalidPair[1])')")
-            XCTAssertThrowsError(
+            #expect("Invalid node path", performing: {
                 try PwManager.submit(
                     selectedName: invalidPair[1],
                     selectedRelativePath: invalidPair[0],
@@ -456,19 +441,17 @@ final class kageTests: XCTestCase {
                     currentPwNode: nil,
                     password: password)
 
-            ) { error in
+            }, throws: { error in
                 let appError = (error as! AppError).localizedDescription
-                let invalidNodePathError = AppError.invalidNodePath("")
-                    .localizedDescription
-                XCTAssert(appError.starts(with: invalidNodePathError))
-            }
+                return appError.starts(with: INVALID_NODE_PATH_ERROR)
+            })
         }
     }
 
     ////////////////////////////////////////////////////////////////////////////
 
     /// Helper to create a passwrod that can be moved etc.
-    private func addPassword(
+    private func addPasswordHelper(
         name: String,
         relativePath: String,
         password: String
@@ -489,7 +472,7 @@ final class kageTests: XCTestCase {
         return newPwNode
     }
 
-    private func addFolder(name: String) throws -> PwNode {
+    private func addFolderHelper(name: String) throws -> PwNode {
         let newPwNode = try PwManager.submit(
             selectedName: name,
             selectedRelativePath: "/",
@@ -502,10 +485,10 @@ final class kageTests: XCTestCase {
         // Verify that the node was inserted as expected
         let matches = appState.rootNode.findChildren(predicate: name)
         if matches.count != 1 {
-            XCTFail("New node not found in tree")
+            Issue.record("New node not found in tree")
         }
 
-        XCTAssertTrue(FileManager.default.isDir(newPwNode.path))
+        #expect(FileManager.default.isDir(newPwNode.path))
         return newPwNode
     }
 
