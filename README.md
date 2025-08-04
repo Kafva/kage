@@ -31,6 +31,10 @@ git daemon --base-path="$NAME" \
 To enable anonymous pushing(!) pass `--enable=receive-pack`, this is not
 relevant for the Android client since it does not support making local changes.
 
+Note: all password files named `otp.age` will be treated as encrypted
+`otpauth://` URLs and kage will automatically try to resolve them into a
+time-based one time password (TOTP).
+
 ## Development notes
 
 ### Core library

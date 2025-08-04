@@ -94,7 +94,7 @@ _age_generate_keys() {
 
 git_server_setup() {
     info "Creating $JAMES_REPO_CLIENT"
-    mkdir -p $JAMES_REPO_CLIENT
+    mkdir -p $JAMES_REPO_CLIENT/invalid
 
     _age_generate_keys "$JAMES_KEY" "$JAMES_PUBKEY"
     _age_generate_files "$JAMES_REPO_CLIENT/red" "$JAMES_PUBKEY"
@@ -102,9 +102,19 @@ git_server_setup() {
     _age_generate_files "$JAMES_REPO_CLIENT/green/a" "$JAMES_PUBKEY"
     _age_generate_files "$JAMES_REPO_CLIENT/green/b" "$JAMES_PUBKEY"
     _age_generate_files "$JAMES_REPO_CLIENT/blue/a" "$JAMES_PUBKEY"
+
     echo "This is not the right format ???" > "$JAMES_REPO_CLIENT/invalid_content.age"
     # Overlapping name to test edge cases for search behaviour
     echo "This is not the right format ???" > "$JAMES_REPO_CLIENT/green/b/green.age"
+
+    # OTP codes
+    age -r "$(cat $JAMES_PUBKEY)" \
+        -o  "$JAMES_REPO_CLIENT/otp.age" - <<< \
+        "otpauth://james/?secret=NBSWY3DPEBZWQYJVGEZAU&algorithm=SHA512&digits=6"
+
+    age -r "$(cat $JAMES_PUBKEY)" \
+        -o  "$JAMES_REPO_CLIENT/invalid/otp.age" - <<< \
+        "otpauth://invalid"
 
     info "Creating $JAMES_REPO_REMOTE"
     mkdir -p $JAMES_REPO_REMOTE

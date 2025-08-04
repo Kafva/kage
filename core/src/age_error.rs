@@ -11,6 +11,7 @@ pub enum AgeError {
     BadCipherInput,
     BadKey,
     NoIdentity,
+    TotpError(totp::TotpError),
     IoError(std::io::Error),
     EncryptError(age::EncryptError),
     DecryptError(age::DecryptError),
@@ -41,6 +42,12 @@ impl From<std::string::FromUtf8Error> for AgeError {
     }
 }
 
+impl From<totp::TotpError> for AgeError {
+    fn from(err: totp::TotpError) -> AgeError {
+        AgeError::TotpError(err)
+    }
+}
+
 impl std::fmt::Display for AgeError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         use AgeError::*;
@@ -52,6 +59,7 @@ impl std::fmt::Display for AgeError {
             NoIdentity => f.write_str("No identity loaded"),
             EncryptError(err) => err.fmt(f),
             DecryptError(err) => err.fmt(f),
+            TotpError(err) => err.fmt(f),
             IoError(err) => err.fmt(f),
             Utf8Error(err) => err.fmt(f),
         }

@@ -20,6 +20,9 @@ zeroize = "1.7.0"
 # With support for the ASCII armored format
 age = { version = "0.11.1", features = ["armor"] }
 
+# TOTP decoder
+totp = { version = "0.1.1", git = "https://github.com/kafva/totp.git" }
+
 # libgit2 depends on:
 #    - libiconv2
 #    - libz

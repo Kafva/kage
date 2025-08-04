@@ -5,6 +5,8 @@ use std::ffi::{CStr, CString};
 use std::os::raw::{c_char, c_int};
 use std::ptr::null;
 
+use totp::calculate_totp_now;
+
 use crate::*;
 
 #[no_mangle]
@@ -94,6 +96,8 @@ pub extern "C" fn ffi_age_encrypt(
 
 /// Returns the decrypted value for a given path, the returned pointer
 /// must be passed back to rust and freed!
+/// Nodes with the name 'otp' are expected to contain an otpauth://
+/// URL, these will be resolved into TOTP codes before being returned.
 #[no_mangle]
 pub extern "C" fn ffi_age_decrypt(
     encrypted_path: *const c_char,
@@ -117,10 +121,30 @@ pub extern "C" fn ffi_age_decrypt(
     match std::fs::read(encrypted_path) {
         Ok(data) => match age_state.decrypt(data.as_slice()) {
             Ok(data) => {
-                let Ok(s) = CString::new(data) else {
-                    return null();
-                };
-                return s.into_raw();
+                if encrypted_path.ends_with("otp.age") {
+                    let Ok(url) = String::from_utf8(data) else {
+                        return null()
+                    };
+                    match calculate_totp_now(url.as_str()) {
+                        Ok((code, _)) => {
+                            let Ok(s) = CString::new(code) else {
+                                return null();
+                            };
+                            return s.into_raw();
+                        },
+                        Err(err) => {
+                            error!("{}: {}", filename, err);
+                            age_state.last_error = Some(AgeError::TotpError(err));
+                            return null()
+                        }
+                    }
+                }
+                else {
+                    let Ok(s) = CString::new(data) else {
+                        return null();
+                    };
+                    return s.into_raw();
+                }
             }
             Err(err) => {
                 error!("{}: {}", filename, err);
