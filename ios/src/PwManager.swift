@@ -11,6 +11,12 @@ enum PwManager {
         password: String,
         generate: Bool = false
     ) throws -> PwNode {
+        if selectedName == "otp" {
+            // The "otp" name has special handling, these entries should not be
+            // added or edited within the app.
+            throw AppError.invalidNodePath("The name 'otp' is reserved")
+        }
+
         // Selected name is only allowed to be taken if it is equal to the currentPwNode
         let selectedPath = PwNode.createAbsPath(
             name: selectedName,
