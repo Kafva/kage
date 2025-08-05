@@ -2,6 +2,8 @@ use jni::objects::{JClass, JString};
 use jni::sys::jint;
 use jni::JNIEnv;
 
+use totp::calculate_totp_now;
+
 use crate::age::age_try_lock;
 use crate::age_error::AgeError;
 use crate::util::path_to_filename;
@@ -79,10 +81,27 @@ pub extern "system" fn Java_one_kafva_kage_jni_Age_decrypt<'local>(
                 let Ok(s) = String::from_utf8(data) else {
                     return JString::default();
                 };
-                let Ok(s) = env.new_string(s) else {
-                    return JString::default();
-                };
-                return s;
+                if encrypted_path.ends_with("otp.age") {
+                    match calculate_totp_now(s.as_str()) {
+                        Ok((code, _)) => {
+                            let Ok(s) = env.new_string(code) else {
+                                return JString::default();
+                            };
+                            return s;
+                        },
+                        Err(err) => {
+                            error!("{}: {}", filename, err);
+                            age_state.last_error = Some(AgeError::TotpError(err));
+                            return JString::default();
+                        }
+                    }
+                }
+                else {
+                    let Ok(s) = env.new_string(s) else {
+                        return JString::default();
+                    };
+                    return s;
+                }
             }
             Err(err) => {
                 error!("{}: {}", filename, err);

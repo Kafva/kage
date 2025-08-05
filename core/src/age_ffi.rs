@@ -1,6 +1,3 @@
-use crate::age::age_try_lock;
-use crate::age_error::AgeError;
-use crate::util::path_to_filename;
 use std::ffi::{CStr, CString};
 use std::os::raw::{c_char, c_int};
 use std::ptr::null;
@@ -8,6 +5,9 @@ use std::ptr::null;
 use totp::calculate_totp_now;
 
 use crate::*;
+use crate::age::age_try_lock;
+use crate::age_error::AgeError;
+use crate::util::path_to_filename;
 
 #[no_mangle]
 pub extern "C" fn ffi_age_unlock_identity(
