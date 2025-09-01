@@ -87,12 +87,27 @@ struct PasswordView: View {
         .navigationBarHidden(true)
     }
 
-    private func handleSubmit() {
-        if appState.identityIsUnlocked {
-            UIPasteboard.general.string = plaintext
-            LOG.debug("Copied '\(node.name)' to clipboard")
+    private func setPlaintext() {
+        if !plaintext.isEmpty {
+            return
         }
-        else {
+
+        do {
+            plaintext = try Age.decrypt(node.path)
+            if plaintext.isEmpty {
+                currentError = uiError("No data retrieved")
+            }
+            else {
+                currentError = nil
+            }
+        }
+        catch {
+            currentError = uiError(error.localizedDescription)
+        }
+    }
+
+    private func handleSubmit() {
+        if !appState.identityIsUnlocked {
             do {
                 try appState.unlockIdentity(passphrase: passphrase)
                 currentError = nil
@@ -102,29 +117,22 @@ struct PasswordView: View {
                 hideKeyboard()
             }
             catch {
-                currentError = uiError("\(error.localizedDescription)")
+                currentError = uiError(error.localizedDescription)
+                return
             }
+        }
+
+        setPlaintext()
+        if currentError == nil {
+            UIPasteboard.general.string = plaintext
+            LOG.debug("Copied '\(node.name)' to clipboard")
         }
     }
 
     private func handleShowPlaintext() {
-        if !node.isPassword {
-            LOG.error(
-                "Cannot show password for non-password node: '\(node.name)'")
-            return
-        }
-        do {
-            plaintext = try Age.decrypt(node.path)
-            if plaintext == "" {
-                currentError = uiError("No data retrieved")
-            }
-            else {
-                currentError = nil
-                hidePlaintext = false
-            }
-        }
-        catch {
-            currentError = uiError("\(error.localizedDescription)")
+        setPlaintext()
+        if currentError == nil {
+            hidePlaintext = false
         }
     }
 }
