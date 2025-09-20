@@ -52,13 +52,13 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import one.kafva.kage.BODY_FONT_SIZE
 import one.kafva.kage.CONTAINER_MODIFIER_CENTERED
 import one.kafva.kage.CORNER_RADIUS
 import one.kafva.kage.FOOTNOTE_FONT_SIZE
 import one.kafva.kage.ICON_SIZE
 import one.kafva.kage.Log
 import one.kafva.kage.R
-import one.kafva.kage.TITLE3_FONT_SIZE
 import one.kafva.kage.data.AppDataSource
 import one.kafva.kage.data.GitDataSource
 import one.kafva.kage.data.GitException
@@ -319,7 +319,7 @@ private fun TextLinkView(
 
         Text(
             text,
-            fontSize = TITLE3_FONT_SIZE.sp,
+            fontSize = BODY_FONT_SIZE.sp,
             color = MaterialTheme.colorScheme.onSurface,
             maxLines = 1,
             modifier =

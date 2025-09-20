@@ -12,8 +12,7 @@ const val AUTO_LOCK_SECONDS: Long = 120
 
 const val TITLE_FONT_SIZE = 22
 const val TITLE2_FONT_SIZE = 18
-const val TITLE3_FONT_SIZE = 14
-const val BODY_FONT_SIZE = 12
+const val BODY_FONT_SIZE = 14
 const val FOOTNOTE_FONT_SIZE = 10
 
 const val MEDIUM_ICON_SIZE = 30
