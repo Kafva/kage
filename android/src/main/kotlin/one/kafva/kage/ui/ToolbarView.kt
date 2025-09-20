@@ -40,6 +40,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dagger.hilt.android.lifecycle.HiltViewModel
+import one.kafva.kage.CORNER_RADIUS
 import one.kafva.kage.MEDIUM_ICON_SIZE
 import one.kafva.kage.R
 import one.kafva.kage.TITLE2_FONT_SIZE
@@ -214,14 +215,14 @@ private fun SearchView(viewModel: ToolbarViewModel = hiltViewModel()) {
         placeholder = {
             Text(
                 stringResource(R.string.search_placeholder),
-                modifier = Modifier.fillMaxWidth(0.65f),
-                textAlign = TextAlign.Start,
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center,
                 fontSize = TITLE2_FONT_SIZE.sp,
                 color = MaterialTheme.colorScheme.outline,
             )
         },
         singleLine = true,
-        shape = RoundedCornerShape(8.dp),
+        shape = RoundedCornerShape(CORNER_RADIUS),
         keyboardOptions =
             KeyboardOptions(
                 imeAction = ImeAction.Done,
@@ -241,6 +242,6 @@ private fun SearchView(viewModel: ToolbarViewModel = hiltViewModel()) {
                 textAlign = TextAlign.Start,
                 fontSize = TITLE2_FONT_SIZE.sp,
             ),
-        modifier = Modifier.fillMaxWidth(0.6f),
+        modifier = Modifier.fillMaxWidth(0.75f),
     )
 }

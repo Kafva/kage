@@ -10,6 +10,7 @@ import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -22,13 +23,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dagger.hilt.android.lifecycle.HiltViewModel
+import one.kafva.kage.BODY_FONT_SIZE
 import one.kafva.kage.CONTAINER_MODIFIER
 import one.kafva.kage.CORNER_RADIUS
+import one.kafva.kage.ICON_SIZE
 import one.kafva.kage.MEDIUM_ICON_SIZE
+import one.kafva.kage.TITLE3_FONT_SIZE
 import one.kafva.kage.data.GitDataSource
 import one.kafva.kage.data.RuntimeSettingsDataSource
 import one.kafva.kage.types.PwNode
@@ -87,7 +92,8 @@ private fun TreeChildView(
     ListItem(
         headlineContent = {
             Text(
-                text = node.name,
+                node.name,
+                fontSize = BODY_FONT_SIZE.sp,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
@@ -103,13 +109,14 @@ private fun TreeChildView(
                 Icon(
                     icon,
                     contentDescription = "Folder",
-                    modifier = Modifier.size(MEDIUM_ICON_SIZE.dp),
+                    modifier = Modifier.size(ICON_SIZE.dp),
+                    tint = MaterialTheme.colorScheme.primary,
                 )
             }
         },
         modifier =
             Modifier
-                .padding(start = (depth * 15).dp, bottom = 10.dp)
+                .padding(start = (depth * 15).dp)
                 .clip(RoundedCornerShape(CORNER_RADIUS))
                 .clickable {
                     if (isPassword) {

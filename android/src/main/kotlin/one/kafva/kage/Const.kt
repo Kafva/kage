@@ -14,11 +14,11 @@ const val LOCAL_REPO_NAME = "git-adc83b19e"
 
 const val AUTO_LOCK_SECONDS: Long = 120
 
-const val TITLE_FONT_SIZE = 26
-const val TITLE2_FONT_SIZE = 22
-const val BODY_FONT_SIZE = 18
-const val FOOTNOTE_FONT_SIZE = 12
-const val FOOTNOTE2_FONT_SIZE = 10
+const val TITLE_FONT_SIZE = 22
+const val TITLE2_FONT_SIZE = 18
+const val TITLE3_FONT_SIZE = 16
+const val BODY_FONT_SIZE = 12
+const val FOOTNOTE_FONT_SIZE = 10
 
 const val MEDIUM_ICON_SIZE = 30
 const val ICON_SIZE = 20

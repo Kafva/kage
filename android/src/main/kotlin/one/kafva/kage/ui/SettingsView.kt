@@ -56,11 +56,12 @@ import one.kafva.kage.BODY_FONT_SIZE
 import one.kafva.kage.CONTAINER_MODIFIER
 import one.kafva.kage.CONTAINER_MODIFIER_CENTERED
 import one.kafva.kage.CORNER_RADIUS
-import one.kafva.kage.FOOTNOTE2_FONT_SIZE
 import one.kafva.kage.FOOTNOTE_FONT_SIZE
 import one.kafva.kage.ICON_SIZE
 import one.kafva.kage.Log
 import one.kafva.kage.R
+import one.kafva.kage.TITLE2_FONT_SIZE
+import one.kafva.kage.TITLE3_FONT_SIZE
 import one.kafva.kage.data.AppDataSource
 import one.kafva.kage.data.GitDataSource
 import one.kafva.kage.data.GitException
@@ -199,7 +200,7 @@ private fun ErrorView(currentError: MutableState<String?>) {
         Text(
             context.getString(R.string.error, currentError.value),
             color = MaterialTheme.colorScheme.error,
-            fontSize = FOOTNOTE2_FONT_SIZE.sp,
+            fontSize = FOOTNOTE_FONT_SIZE.sp,
             modifier =
                 Modifier.padding(
                     start = 8.dp,
@@ -274,7 +275,7 @@ private fun TextFooterView(text: String) {
     Text(
         text,
         modifier = Modifier.padding(start = (LEADING_PADDING + 12).dp),
-        fontSize = FOOTNOTE2_FONT_SIZE.sp,
+        fontSize = FOOTNOTE_FONT_SIZE.sp,
         fontStyle = FontStyle.Italic,
         maxLines = 1,
         color = MaterialTheme.colorScheme.outline,
@@ -320,7 +321,7 @@ private fun TextLinkView(
 
         Text(
             text,
-            fontSize = BODY_FONT_SIZE.sp,
+            fontSize = TITLE3_FONT_SIZE.sp,
             color = MaterialTheme.colorScheme.onSurface,
             maxLines = 1,
             modifier =
