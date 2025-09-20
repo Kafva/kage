@@ -7,11 +7,14 @@
     <string name="version_release">%1$s (release)</string>
     <string name="alert_title">Are you sure?</string>
     <string name="alert_text">This operation will delete the local checkout.</string>
+    <string name="edit_node_text">What do you want to do?</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
+    <string name="cancel">Cancel</string>
     <string name="error">Error: %1$s</string>
     <string name="authentication">Authentication required</string>
     <string name="copy">Copy…</string>
+    <string name="delete">Delete node</string>
     <string name="password">Password</string>
     <string name="password_placeholder" translatable="false">•••••••••</string>
     <string name="search_placeholder">Search…</string>

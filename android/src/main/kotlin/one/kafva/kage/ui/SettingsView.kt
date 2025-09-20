@@ -2,7 +2,6 @@ package one.kafva.kage.ui
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -53,15 +52,12 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import one.kafva.kage.BODY_FONT_SIZE
-import one.kafva.kage.CONTAINER_MODIFIER
 import one.kafva.kage.CONTAINER_MODIFIER_CENTERED
 import one.kafva.kage.CORNER_RADIUS
 import one.kafva.kage.FOOTNOTE_FONT_SIZE
 import one.kafva.kage.ICON_SIZE
 import one.kafva.kage.Log
 import one.kafva.kage.R
-import one.kafva.kage.TITLE2_FONT_SIZE
 import one.kafva.kage.TITLE3_FONT_SIZE
 import one.kafva.kage.data.AppDataSource
 import one.kafva.kage.data.GitDataSource
@@ -147,7 +143,8 @@ fun SettingsView(
                     .fillMaxWidth(WIDTH)
                     .clip(RoundedCornerShape(CORNER_RADIUS))
                     .background(
-                        color = MaterialTheme.colorScheme.surfaceContainerHighest,
+                        color =
+                            MaterialTheme.colorScheme.surfaceContainerHighest,
                     ),
         ) {
             Spacer(modifier = Modifier.height(8.dp))
@@ -345,7 +342,7 @@ private fun TextFieldView(
     TextField(
         value = text.value,
         leadingIcon = leadingIcon,
-        textStyle = TextStyle(fontSize = 12.sp),
+        textStyle = TextStyle(fontSize = 12.sp, fontStyle = FontStyle.Italic),
         label = label,
         onValueChange = {
             text.value = it

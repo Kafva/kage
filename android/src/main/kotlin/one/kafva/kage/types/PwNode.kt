@@ -1,5 +1,6 @@
 package one.kafva.kage.types
 
+import one.kafva.kage.Log
 import java.io.File
 
 data class PwNode(
@@ -78,5 +79,16 @@ data class PwNode(
     fun passwordCount(): Int {
         val childCount = children.count { it.isPassword }
         return childCount + children.sumOf { it.passwordCount() }
+    }
+
+    /** Deletes the node and all its children (if any) */
+    fun delete(): Boolean {
+        for (child in children) {
+            if (!child.delete()) {
+                Log.e("Error deleting: '${child.name}'")
+                return false
+            }
+        }
+        return path.delete()
     }
 }

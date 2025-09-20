@@ -10,8 +10,8 @@ The layout of the git repository that kage expects can be setup with:
 tools/repoinit $NAME
 ```
 
-Only the iOS version supports modifying the password store on device, for
-Android all changes to the password store are made remotely and fetched.
+Only the iOS version supports properly modifying the password store on device,
+for Android changes to the password store are made remotely and (re-)fetched.
 
 To use the password store on macOS/Linux etc. you can write a basic
 wrapper yourself or use [passage](https://github.com/FiloSottile/passage):

@@ -7,11 +7,14 @@
     <string name="version_release">%1$s (release)</string>
     <string name="alert_title">Är du säker?</string>
     <string name="alert_text">Den här operationen kommer ta bort all lokal data.</string>
+    <string name="edit_node_text">Vad vill du göra?</string>
     <string name="yes">Ja</string>
     <string name="no">Nej</string>
+    <string name="cancel">Avbryt</string>
     <string name="error">Error: %1$s</string>
     <string name="authentication">Autentisering krävs</string>
     <string name="copy">Kopiera…</string>
+    <string name="delete">Radera nod</string>
     <string name="password">Lösenord</string>
     <string name="search_placeholder">Sök…</string>
     <string name="decryption_failed">Dekryptering misslyckades</string>

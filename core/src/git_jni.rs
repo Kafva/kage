@@ -4,10 +4,25 @@ use jni::JNIEnv;
 
 use crate::git::git_clone;
 use crate::git::git_log;
+use crate::git::git_reset;
+use crate::git::git_stage;
+use crate::git::git_commit;
 use crate::git::git_setup;
 use crate::git::git_try_lock;
+use crate::git::git_config_set_user;
 use crate::git_call;
 use crate::KAGE_ERROR_LOCK_TAKEN;
+
+macro_rules! load_jstring {
+    ($env:ident, $string:ident) => (
+        let Ok($string) = $env.get_string(&$string) else {
+            return -1 as jint;
+        };
+        let Ok($string) = $string.to_str() else {
+            return -1 as jint;
+        };
+    )
+}
 
 #[no_mangle]
 pub extern "system" fn Java_one_kafva_kage_jni_Git_clone<'local>(
@@ -22,21 +37,71 @@ pub extern "system" fn Java_one_kafva_kage_jni_Git_clone<'local>(
 
     git_setup();
 
-    let Ok(url) = env.get_string(&url) else {
-        return -1 as jint;
-    };
-    let Ok(url) = url.to_str() else {
-        return -1 as jint;
-    };
-
-    let Ok(into) = env.get_string(&into) else {
-        return -1 as jint;
-    };
-    let Ok(into) = into.to_str() else {
-        return -1 as jint;
-    };
-
+    load_jstring!(env, url);
+    load_jstring!(env, into);
     git_call!(git_clone(url, into), git_last_error) as jint
+}
+
+#[no_mangle]
+pub extern "system" fn Java_one_kafva_kage_jni_Git_setUser<'local>(
+    mut env: JNIEnv<'local>,
+    _class: JClass<'local>,
+    repo_path: JString<'local>,
+    username: JString<'local>,
+) -> jint {
+    let Some(mut git_last_error) = git_try_lock() else {
+        return KAGE_ERROR_LOCK_TAKEN as jint;
+    };
+
+    load_jstring!(env, repo_path);
+    load_jstring!(env, username);
+    git_call!(git_config_set_user(repo_path, username), git_last_error) as jint
+}
+
+#[no_mangle]
+pub extern "system" fn Java_one_kafva_kage_jni_Git_stage<'local>(
+    mut env: JNIEnv<'local>,
+    _class: JClass<'local>,
+    repo_path: JString<'local>,
+    relative_path: JString<'local>,
+) -> jint {
+    let Some(mut git_last_error) = git_try_lock() else {
+        return KAGE_ERROR_LOCK_TAKEN as jint;
+    };
+
+    load_jstring!(env, repo_path);
+    load_jstring!(env, relative_path);
+    git_call!(git_stage(repo_path, relative_path), git_last_error) as jint
+}
+
+#[no_mangle]
+pub extern "system" fn Java_one_kafva_kage_jni_Git_reset<'local>(
+    mut env: JNIEnv<'local>,
+    _class: JClass<'local>,
+    repo_path: JString<'local>,
+) -> jint {
+    let Some(mut git_last_error) = git_try_lock() else {
+        return KAGE_ERROR_LOCK_TAKEN as jint;
+    };
+
+    load_jstring!(env, repo_path);
+    git_call!(git_reset(repo_path), git_last_error) as jint
+}
+
+#[no_mangle]
+pub extern "system" fn Java_one_kafva_kage_jni_Git_commit<'local>(
+    mut env: JNIEnv<'local>,
+    _class: JClass<'local>,
+    repo_path: JString<'local>,
+    message: JString<'local>,
+) -> jint {
+    let Some(mut git_last_error) = git_try_lock() else {
+        return KAGE_ERROR_LOCK_TAKEN as jint;
+    };
+
+    load_jstring!(env, repo_path);
+    load_jstring!(env, message);
+    git_call!(git_commit(repo_path, message), git_last_error) as jint
 }
 
 #[no_mangle]

@@ -72,7 +72,43 @@ class GitDataSource
             }
 
             Log.d("Clone ok")
+
+            // Use the repo name as the username
+            val username = appDataSource.localRepo.nameWithoutExtension
+            val repoPath = appDataSource.localRepo.toPath().toString()
+            Jni.setUser(repoPath, username)
+            Log.d("Set user.name=$username")
+
             setup()
+        }
+
+        /** Delete the provided `node` from the tree and commit the change,
+         * resets to the local HEAD on error.
+         */
+        @Throws(GitException::class)
+        fun remove(node: PwNode) {
+            var r: Int
+            val path =
+                appDataSource.localRepo.toPath()
+                    ?: throw GitException("No root node set")
+            val repoPath = path.toString()
+
+            if (!node.delete()) {
+                Jni.reset(repoPath)
+                throw GitException("Failed to remove: '${node.name}'")
+            }
+
+            r = Jni.stage(repoPath, node.name)
+            if (r != 0) {
+                Jni.reset(repoPath)
+                raiseError()
+            }
+
+            r = Jni.commit(repoPath, "Removed ${node.name}")
+            if (r != 0) {
+                Jni.reset(repoPath)
+                raiseError()
+            }
         }
 
         fun log(): List<CommitInfo> =

@@ -5,7 +5,7 @@ CONFIGURATION ?= Debug
 
 CARGO_CRATE_TYPE = staticlib
 DIST = $(CURDIR)/../ios/dist
-LIB = libkage_core.a
+LIB = $(IOS_LIB)
 
 ifeq ($(TARGET_DEVICE_PLATFORM_NAME),iphonesimulator)
 

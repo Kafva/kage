@@ -9,7 +9,7 @@ ANDROID_TARGET_ARCH = aarch64
 endif
 
 CARGO_CRATE_TYPE = dylib
-LIB = libkage_core.so
+LIB = $(ANDROID_LIB)
 
 CARGO_TARGET = $(ANDROID_TARGET_ARCH)-linux-android
 
