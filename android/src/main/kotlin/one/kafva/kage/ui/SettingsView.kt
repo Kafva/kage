@@ -42,6 +42,7 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
@@ -265,7 +266,7 @@ private fun AlertView(
                     )
                 }
             },
-            modifier = Modifier.fillMaxWidth(0.95f),
+            modifier = Modifier.fillMaxWidth(0.9f),
         )
     }
 }
@@ -344,6 +345,7 @@ private fun TextFieldView(
     TextField(
         value = text.value,
         leadingIcon = leadingIcon,
+        textStyle = TextStyle(fontSize = 12.sp),
         label = label,
         onValueChange = {
             text.value = it
