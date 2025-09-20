@@ -214,7 +214,7 @@ private fun AlertView(
     if (openAlertDialog.value) {
         AlertDialog(
             title = {
-                Text(node.name)
+                Text(node.name, maxLines = 1, overflow = TextOverflow.Ellipsis)
             },
             text = {
                 if (currentError.value != null) {
