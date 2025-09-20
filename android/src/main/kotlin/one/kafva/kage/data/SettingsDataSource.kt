@@ -18,7 +18,7 @@ import javax.inject.Singleton
 
 // https://github.com/Kotlin-Android-Open-Source/DataStore-sample
 @Singleton
-class SettingsRepository
+class SettingsDataSource
     @Inject
     constructor(
         private val dataStore: DataStore<Preferences>,

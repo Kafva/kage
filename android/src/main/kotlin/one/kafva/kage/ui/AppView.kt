@@ -24,8 +24,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.lifecycle.HiltViewModel
-import one.kafva.kage.data.AgeRepository
-import one.kafva.kage.data.AppRepository
+import one.kafva.kage.data.AgeDataSource
+import one.kafva.kage.data.AppDataSource
 import one.kafva.kage.types.Screen
 import javax.inject.Inject
 
@@ -33,8 +33,8 @@ import javax.inject.Inject
 class AppViewModel
     @Inject
     constructor(
-        val appRepository: AppRepository,
-        val ageRepository: AgeRepository,
+        val appDataSource: AppDataSource,
+        val ageDataSource: AgeDataSource,
     ) : ViewModel()
 
 @Composable
@@ -72,7 +72,7 @@ fun AppView(
                     TreeView({ node ->
                         val nodePath =
                             node.toRoutePath(
-                                viewModel.appRepository.filesDir,
+                                viewModel.appDataSource.filesDir,
                             )
                         navController.navigate(
                             "${Screen.Password.route}/$nodePath",
@@ -101,6 +101,6 @@ fun AppView(
     }
 
     LaunchedEffect(lifecycleState) {
-        viewModel.ageRepository.onStateChange(lifecycleState)
+        viewModel.ageDataSource.onStateChange(lifecycleState)
     }
 }

@@ -57,10 +57,10 @@ import one.kafva.kage.FOOTNOTE_FONT_SIZE
 import one.kafva.kage.ICON_SIZE
 import one.kafva.kage.Log
 import one.kafva.kage.R
-import one.kafva.kage.data.AppRepository
+import one.kafva.kage.data.AppDataSource
+import one.kafva.kage.data.GitDataSource
 import one.kafva.kage.data.GitException
-import one.kafva.kage.data.GitRepository
-import one.kafva.kage.data.SettingsRepository
+import one.kafva.kage.data.SettingsDataSource
 import one.kafva.kage.types.Settings
 import javax.inject.Inject
 
@@ -70,9 +70,9 @@ const val LEADING_PADDING = 10
 class SettingsViewModel
     @Inject
     constructor(
-        val gitRepository: GitRepository,
-        val settingsRepository: SettingsRepository,
-        val appRepository: AppRepository,
+        val gitDataSource: GitDataSource,
+        val settingsDataSource: SettingsDataSource,
+        val appDataSource: AppDataSource,
     ) : ViewModel()
 
 @Composable
@@ -85,12 +85,12 @@ fun SettingsView(
     val openAlertDialog = remember { mutableStateOf(false) }
     val cloneUrl = remember { mutableStateOf("") }
     val currentError: MutableState<String?> = remember { mutableStateOf(null) }
-    val passwordCount = viewModel.gitRepository.passwordCount.collectAsState()
+    val passwordCount = viewModel.gitDataSource.passwordCount.collectAsState()
 
     val onDone: (KeyboardActionScope) -> Unit = {
         coroutineScope.launch {
             val newSettings = Settings(cloneUrl.value)
-            viewModel.settingsRepository.updateSettings(newSettings)
+            viewModel.settingsDataSource.updateSettings(newSettings)
         }
     }
 
@@ -139,7 +139,7 @@ fun SettingsView(
 
             TextFooterView(
                 context.getString(
-                    if (viewModel.appRepository.isDebug) {
+                    if (viewModel.appDataSource.isDebug) {
                         R.string.version_debug
                     } else {
                         R.string.version_release
@@ -178,7 +178,7 @@ fun SettingsView(
         LaunchedEffect(Unit) {
             // Fill the text fields with the current configuration from the
             // datastore when the view appears.
-            viewModel.settingsRepository.flow.collect { s ->
+            viewModel.settingsDataSource.flow.collect { s ->
                 cloneUrl.value = s.cloneUrl
             }
             currentError.value = null
@@ -196,9 +196,9 @@ private fun AlertView(
 
     val cloneOnClick: () -> Unit = {
         coroutineScope.launch {
-            viewModel.settingsRepository.flow.collect { s ->
+            viewModel.settingsDataSource.flow.collect { s ->
                 try {
-                    viewModel.gitRepository.clone(s.cloneUrl)
+                    viewModel.gitDataSource.clone(s.cloneUrl)
                     currentError.value = null
                 } catch (e: GitException) {
                     currentError.value = e.message

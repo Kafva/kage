@@ -16,10 +16,10 @@ class AgeException(
 ) : Exception(message)
 
 @Singleton
-class AgeRepository
+class AgeDataSource
     @Inject
     constructor(
-        private val appRepository: AppRepository,
+        private val appDataSource: AppDataSource,
     ) {
         private val _identityUnlockedAt = MutableStateFlow<Long?>(null)
         val identityUnlockedAt: StateFlow<Long?> = _identityUnlockedAt
@@ -41,7 +41,7 @@ class AgeRepository
         @Throws(AgeException::class)
         fun unlockIdentity(password: String) {
             val encryptedIdentityPath =
-                File("${appRepository.localRepo.toPath()}/.age-identities")
+                File("${appDataSource.localRepo.toPath()}/.age-identities")
             val encryptedIdentity =
                 encryptedIdentityPath.readText(
                     Charsets.UTF_8,
@@ -87,7 +87,7 @@ class AgeRepository
             }
             val value =
                 Jni.decrypt(
-                    "${appRepository.filesDir.toPath()}/$nodePath",
+                    "${appDataSource.filesDir.toPath()}/$nodePath",
                 )
             if (value == null) {
                 raiseError()

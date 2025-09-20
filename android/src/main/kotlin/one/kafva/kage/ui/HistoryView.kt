@@ -26,7 +26,7 @@ import one.kafva.kage.BODY_FONT_SIZE
 import one.kafva.kage.CONTAINER_MODIFIER
 import one.kafva.kage.CORNER_RADIUS
 import one.kafva.kage.FOOTNOTE_FONT_SIZE
-import one.kafva.kage.data.GitRepository
+import one.kafva.kage.data.GitDataSource
 import one.kafva.kage.types.CommitInfo
 import javax.inject.Inject
 
@@ -34,7 +34,7 @@ import javax.inject.Inject
 class HistoryViewModel
     @Inject
     constructor(
-        val gitRepository: GitRepository,
+        val gitDataSource: GitDataSource,
     ) : ViewModel()
 
 @Composable
@@ -42,7 +42,7 @@ fun HistoryView(viewModel: HistoryViewModel = hiltViewModel()) {
     val expandEntry: MutableState<String?> = remember { mutableStateOf(null) }
 
     LazyColumn(modifier = CONTAINER_MODIFIER) {
-        viewModel.gitRepository.log().forEach { log ->
+        viewModel.gitDataSource.log().forEach { log ->
             item {
                 if (log.revision == expandEntry.value) {
                     ExpandedEntryView(log, expandEntry)

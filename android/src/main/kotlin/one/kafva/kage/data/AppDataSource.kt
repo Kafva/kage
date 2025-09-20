@@ -5,7 +5,7 @@ import java.io.File
 import javax.inject.Singleton
 
 @Singleton
-class AppRepository(
+class AppDataSource(
     val isDebug: Boolean,
     val filesDir: File,
 ) {

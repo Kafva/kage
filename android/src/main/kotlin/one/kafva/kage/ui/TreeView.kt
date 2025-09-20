@@ -29,8 +29,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import one.kafva.kage.CONTAINER_MODIFIER
 import one.kafva.kage.CORNER_RADIUS
 import one.kafva.kage.MEDIUM_ICON_SIZE
-import one.kafva.kage.data.GitRepository
-import one.kafva.kage.data.RuntimeSettingsRepository
+import one.kafva.kage.data.GitDataSource
+import one.kafva.kage.data.RuntimeSettingsDataSource
 import one.kafva.kage.types.PwNode
 import javax.inject.Inject
 
@@ -38,8 +38,8 @@ import javax.inject.Inject
 class TreeViewModel
     @Inject
     constructor(
-        val gitRepository: GitRepository,
-        val runtimeSettingsRepository: RuntimeSettingsRepository,
+        val gitDataSource: GitDataSource,
+        val runtimeSettingsDataSource: RuntimeSettingsDataSource,
     ) : ViewModel()
 
 @Composable
@@ -47,8 +47,8 @@ fun TreeView(
     navigateToPassword: (node: PwNode) -> Unit,
     viewModel: TreeViewModel = hiltViewModel(),
 ) {
-    val searchMatches by viewModel.gitRepository.searchMatches.collectAsState()
-    val expandRecursively by viewModel.runtimeSettingsRepository
+    val searchMatches by viewModel.gitDataSource.searchMatches.collectAsState()
+    val expandRecursively by viewModel.runtimeSettingsDataSource
         .expandRecursively
         .collectAsStateWithLifecycle()
 
@@ -69,7 +69,7 @@ fun TreeView(
     }
 
     LaunchedEffect(Unit) {
-        viewModel.gitRepository.setup()
+        viewModel.gitDataSource.setup()
     }
 }
 

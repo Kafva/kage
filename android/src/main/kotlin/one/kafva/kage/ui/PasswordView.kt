@@ -51,8 +51,8 @@ import one.kafva.kage.Log
 import one.kafva.kage.R
 import one.kafva.kage.TITLE2_FONT_SIZE
 import one.kafva.kage.TITLE_FONT_SIZE
+import one.kafva.kage.data.AgeDataSource
 import one.kafva.kage.data.AgeException
-import one.kafva.kage.data.AgeRepository
 import one.kafva.kage.types.PwNode
 import javax.inject.Inject
 
@@ -60,7 +60,7 @@ import javax.inject.Inject
 class PasswordViewModel
     @Inject
     constructor(
-        val ageRepository: AgeRepository,
+        val ageDataSource: AgeDataSource,
     ) : ViewModel()
 
 @Composable
@@ -69,7 +69,7 @@ fun PasswordView(
     viewModel: PasswordViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
-    val identityUnlockedAt by viewModel.ageRepository.identityUnlockedAt
+    val identityUnlockedAt by viewModel.ageDataSource.identityUnlockedAt
         .collectAsStateWithLifecycle()
     val nodePath = PwNode.fromRoutePath(serialisedNodePath)
     val currentError: MutableState<String?> = remember { mutableStateOf(null) }
@@ -106,7 +106,7 @@ fun PasswordView(
             try {
                 // Automatically decrypt when the view appears if the identity is
                 // already unlocked
-                viewModel.ageRepository.decrypt(nodePath)
+                viewModel.ageDataSource.decrypt(nodePath)
             } catch (e: AgeException) {
                 Log.e(e.message ?: "Unknown error")
             }
@@ -124,7 +124,7 @@ private fun PlaintextView(
     val coroutineScope = rememberCoroutineScope()
     val interactionSource = remember { MutableInteractionSource() }
     val hidePlaintext: MutableState<Boolean> = remember { mutableStateOf(true) }
-    val plaintext = viewModel.ageRepository.plaintext.collectAsState()
+    val plaintext = viewModel.ageDataSource.plaintext.collectAsState()
 
     Text(
         PwNode.prettyName(nodePath),
@@ -189,7 +189,7 @@ private fun UnlockView(
     currentError: MutableState<String?>,
     viewModel: PasswordViewModel = hiltViewModel(),
 ) {
-    val password = viewModel.ageRepository.password.collectAsState()
+    val password = viewModel.ageDataSource.password.collectAsState()
 
     Text(
         stringResource(R.string.authentication),
@@ -204,7 +204,7 @@ private fun UnlockView(
         singleLine = true,
         shape = RoundedCornerShape(CORNER_RADIUS),
         onValueChange = {
-            viewModel.ageRepository.setPassword(it)
+            viewModel.ageDataSource.setPassword(it)
         },
         visualTransformation = PasswordVisualTransformation(Char(0x2A)),
         keyboardOptions =
@@ -218,12 +218,12 @@ private fun UnlockView(
             KeyboardActions(
                 onDone = {
                     try {
-                        viewModel.ageRepository.unlockIdentity(
+                        viewModel.ageDataSource.unlockIdentity(
                             password.value ?: "",
                         )
                         // Clear password after trying it
-                        viewModel.ageRepository.setPassword(null)
-                        viewModel.ageRepository.decrypt(nodePath)
+                        viewModel.ageDataSource.setPassword(null)
+                        viewModel.ageDataSource.decrypt(nodePath)
                         currentError.value = null
                     } catch (e: AgeException) {
                         currentError.value = e.message

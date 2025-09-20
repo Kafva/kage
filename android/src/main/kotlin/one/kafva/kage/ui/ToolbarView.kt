@@ -43,9 +43,9 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import one.kafva.kage.MEDIUM_ICON_SIZE
 import one.kafva.kage.R
 import one.kafva.kage.TITLE2_FONT_SIZE
-import one.kafva.kage.data.AgeRepository
-import one.kafva.kage.data.GitRepository
-import one.kafva.kage.data.RuntimeSettingsRepository
+import one.kafva.kage.data.AgeDataSource
+import one.kafva.kage.data.GitDataSource
+import one.kafva.kage.data.RuntimeSettingsDataSource
 import one.kafva.kage.types.Screen
 import javax.inject.Inject
 
@@ -53,9 +53,9 @@ import javax.inject.Inject
 class ToolbarViewModel
     @Inject
     constructor(
-        val gitRepository: GitRepository,
-        val ageRepository: AgeRepository,
-        val runtimeSettingsRepository: RuntimeSettingsRepository,
+        val gitDataSource: GitDataSource,
+        val ageDataSource: AgeDataSource,
+        val runtimeSettingsDataSource: RuntimeSettingsDataSource,
     ) : ViewModel()
 
 @Composable
@@ -126,11 +126,11 @@ private fun BottomBarView(
     navigateToSettings: () -> Unit,
     viewModel: ToolbarViewModel = hiltViewModel(),
 ) {
-    val expandRecursively by viewModel.runtimeSettingsRepository
+    val expandRecursively by viewModel.runtimeSettingsDataSource
         .expandRecursively
         .collectAsStateWithLifecycle()
 
-    val identityUnlockedAt by viewModel.ageRepository.identityUnlockedAt
+    val identityUnlockedAt by viewModel.ageDataSource.identityUnlockedAt
         .collectAsStateWithLifecycle()
     IconButton(
         onClick = navigateToSettings,
@@ -146,7 +146,7 @@ private fun BottomBarView(
     Row {
         IconButton(
             onClick = {
-                viewModel.runtimeSettingsRepository.toggleExpandRecursively()
+                viewModel.runtimeSettingsDataSource.toggleExpandRecursively()
             },
             modifier = Modifier.padding(end = 10.dp),
         ) {
@@ -169,7 +169,7 @@ private fun BottomBarView(
 
         IconButton(
             onClick = {
-                viewModel.ageRepository.lockIdentity()
+                viewModel.ageDataSource.lockIdentity()
             },
             modifier = Modifier.padding(end = 10.dp),
             enabled = identityUnlockedAt != null,
@@ -197,19 +197,19 @@ private fun BottomBarView(
 
 @Composable
 private fun SearchView(viewModel: ToolbarViewModel = hiltViewModel()) {
-    val query = viewModel.gitRepository.query.collectAsState()
+    val query = viewModel.gitDataSource.query.collectAsState()
 
     TextField(
         value = query.value,
         onValueChange = {
             if (it.isEmpty()) {
                 // Disable autoexpansion when there is no query
-                viewModel.runtimeSettingsRepository.setExpandRecursively(false)
+                viewModel.runtimeSettingsDataSource.setExpandRecursively(false)
             } else {
                 // Autoexpand when there is a query string
-                viewModel.runtimeSettingsRepository.setExpandRecursively(true)
+                viewModel.runtimeSettingsDataSource.setExpandRecursively(true)
             }
-            viewModel.gitRepository.updateMatches(it)
+            viewModel.gitDataSource.updateMatches(it)
         },
         placeholder = {
             Text(

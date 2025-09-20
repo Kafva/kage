@@ -11,9 +11,9 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import one.kafva.kage.data.AgeRepository
-import one.kafva.kage.data.AppRepository
-import one.kafva.kage.data.GitRepository
+import one.kafva.kage.data.AgeDataSource
+import one.kafva.kage.data.AppDataSource
+import one.kafva.kage.data.GitDataSource
 import javax.inject.Singleton
 
 @Module
@@ -39,8 +39,8 @@ object AppContextModule {
     @Singleton
     fun provideGitContext(
         @ApplicationContext appContext: Context,
-    ): GitRepository =
-        GitRepository(
+    ): GitDataSource =
+        GitDataSource(
             provideAppContext(appContext),
         )
 
@@ -48,8 +48,8 @@ object AppContextModule {
     @Singleton
     fun provideAgeContext(
         @ApplicationContext appContext: Context,
-    ): AgeRepository =
-        AgeRepository(
+    ): AgeDataSource =
+        AgeDataSource(
             provideAppContext(appContext),
         )
 
@@ -57,7 +57,7 @@ object AppContextModule {
     @Singleton
     fun provideAppContext(
         @ApplicationContext appContext: Context,
-    ): AppRepository {
+    ): AppDataSource {
         val name = appContext.packageName
         val pInfo: PackageInfo =
             appContext.packageManager.getPackageInfo(
@@ -72,6 +72,6 @@ object AppContextModule {
 
         val filesDir = appContext.filesDir
 
-        return AppRepository(isDebug, filesDir)
+        return AppDataSource(isDebug, filesDir)
     }
 }

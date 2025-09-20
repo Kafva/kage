@@ -7,7 +7,7 @@ import javax.inject.Singleton
 
 /** Singleton to make sure all view models use the same backing object */
 @Singleton
-class RuntimeSettingsRepository
+class RuntimeSettingsDataSource
     @Inject
     constructor() {
         private val _expandRecursively = MutableStateFlow(false)

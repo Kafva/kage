@@ -16,12 +16,12 @@ class GitException(
 
 // Keep mutable state flows private, and expose non-modifiable state-flows
 @Singleton
-class GitRepository
+class GitDataSource
     @Inject
     constructor(
-        private val appRepository: AppRepository,
+        private val appDataSource: AppDataSource,
     ) {
-        private val repoStr = appRepository.localRepo.toPath().toString()
+        private val repoStr = appDataSource.localRepo.toPath().toString()
         private val rootNode = MutableStateFlow<PwNode?>(null)
 
         private val _query = MutableStateFlow("")
@@ -35,7 +35,7 @@ class GitRepository
 
         /** (Re)load password tree from disk */
         fun setup() {
-            val node = PwNode(appRepository.localRepo, listOf())
+            val node = PwNode(appDataSource.localRepo, listOf())
             // Load child nodes recursively
             node.loadChildren()
             rootNode.value = node
@@ -49,8 +49,8 @@ class GitRepository
         /** Reclone from URL */
         @Throws(GitException::class)
         fun clone(url: String) {
-            appRepository.localRepo.deleteRecursively()
-            Log.d("Cloning $url into ${appRepository.localRepo}...")
+            appDataSource.localRepo.deleteRecursively()
+            Log.d("Cloning $url into ${appDataSource.localRepo}...")
 
             // If a file:/// URL is provided, simply copy from that location.
             // Cloning from file:/// paths generally does not work due to
@@ -58,7 +58,7 @@ class GitRepository
             if (url.startsWith("file://")) {
                 val srcdir = File(url.removePrefix("file://"))
                 srcdir
-                    .copyRecursively(appRepository.localRepo, true, onError = {
+                    .copyRecursively(appDataSource.localRepo, true, onError = {
                         _,
                         e,
                         ->
