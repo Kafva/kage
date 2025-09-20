@@ -1,6 +1,8 @@
 package one.kafva.kage.ui
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -40,6 +42,7 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
@@ -53,6 +56,7 @@ import one.kafva.kage.BODY_FONT_SIZE
 import one.kafva.kage.CONTAINER_MODIFIER
 import one.kafva.kage.CONTAINER_MODIFIER_CENTERED
 import one.kafva.kage.CORNER_RADIUS
+import one.kafva.kage.FOOTNOTE2_FONT_SIZE
 import one.kafva.kage.FOOTNOTE_FONT_SIZE
 import one.kafva.kage.ICON_SIZE
 import one.kafva.kage.Log
@@ -65,6 +69,7 @@ import one.kafva.kage.types.Settings
 import javax.inject.Inject
 
 const val LEADING_PADDING = 10
+const val WIDTH = 0.85f
 
 @HiltViewModel
 class SettingsViewModel
@@ -96,7 +101,7 @@ fun SettingsView(
 
     Column(
         modifier = CONTAINER_MODIFIER_CENTERED,
-        verticalArrangement = Arrangement.Center,
+        verticalArrangement = Arrangement.spacedBy(12.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         TextFieldView(
@@ -116,22 +121,34 @@ fun SettingsView(
             onDone = onDone,
         )
 
-        Card(modifier = CONTAINER_MODIFIER) {
-            Spacer(modifier = Modifier.height(20.dp))
+        if (currentError.value != null) {
+            ErrorView(currentError)
+        }
 
-            TextLinkView(
-                stringResource(R.string.reset_repository),
-                painterResource(R.drawable.settings_backup_restore),
-            ) {
-                openAlertDialog.value = true
-            }
+        TextLinkView(
+            stringResource(R.string.reset_repository),
+            painterResource(R.drawable.settings_backup_restore),
+        ) {
+            openAlertDialog.value = true
+        }
 
-            TextLinkView(
-                stringResource(R.string.history),
-                painterResource(R.drawable.linked_services),
-            ) {
-                navigateToHistory()
-            }
+        TextLinkView(
+            stringResource(R.string.history),
+            painterResource(R.drawable.linked_services),
+        ) {
+            navigateToHistory()
+        }
+
+        Card(
+            modifier =
+                Modifier
+                    .fillMaxWidth(WIDTH)
+                    .clip(RoundedCornerShape(CORNER_RADIUS))
+                    .background(
+                        color = MaterialTheme.colorScheme.surfaceContainerHighest,
+                    ),
+        ) {
+            Spacer(modifier = Modifier.height(8.dp))
 
             TextFooterView(
                 context.getString(R.string.password_count, passwordCount.value),
@@ -148,29 +165,7 @@ fun SettingsView(
                 ),
             )
 
-            Spacer(modifier = Modifier.height(10.dp))
-        }
-
-        if (currentError.value != null) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Start,
-                modifier =
-                    Modifier
-                        .fillMaxWidth(0.85f)
-                        .padding(top = 12.dp)
-                        .clip(RoundedCornerShape(8.dp))
-                        .clickable(true) {
-                            currentError.value = null
-                        },
-            ) {
-                Text(
-                    context.getString(R.string.error, currentError.value),
-                    color = MaterialTheme.colorScheme.error,
-                    fontSize = BODY_FONT_SIZE.sp,
-                    modifier = Modifier.padding(start = 4.dp),
-                )
-            }
+            Spacer(modifier = Modifier.height(8.dp))
         }
 
         AlertView(openAlertDialog, currentError)
@@ -183,6 +178,35 @@ fun SettingsView(
             }
             currentError.value = null
         }
+    }
+}
+
+@Composable
+private fun ErrorView(currentError: MutableState<String?>) {
+    val context = LocalContext.current
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Start,
+        modifier =
+            Modifier
+                .fillMaxWidth(0.75f)
+                .clip(RoundedCornerShape(CORNER_RADIUS))
+                .background(MaterialTheme.colorScheme.errorContainer)
+                .clickable(true) {
+                    currentError.value = null
+                },
+    ) {
+        Text(
+            context.getString(R.string.error, currentError.value),
+            color = MaterialTheme.colorScheme.error,
+            fontSize = FOOTNOTE2_FONT_SIZE.sp,
+            modifier =
+                Modifier.padding(
+                    start = 8.dp,
+                    top = 8.dp,
+                    bottom = 8.dp,
+                ),
+        )
     }
 }
 
@@ -249,12 +273,9 @@ private fun AlertView(
 private fun TextFooterView(text: String) {
     Text(
         text,
-        modifier =
-            Modifier.padding(
-                start = (LEADING_PADDING + 12).dp,
-                bottom = 10.dp,
-            ),
-        fontSize = FOOTNOTE_FONT_SIZE.sp,
+        modifier = Modifier.padding(start = (LEADING_PADDING + 12).dp),
+        fontSize = FOOTNOTE2_FONT_SIZE.sp,
+        fontStyle = FontStyle.Italic,
         maxLines = 1,
         color = MaterialTheme.colorScheme.outline,
     )
@@ -273,12 +294,15 @@ private fun TextLinkView(
         modifier =
             Modifier
                 .height(50.dp)
-                .fillMaxWidth(0.85f)
-                .padding(start = LEADING_PADDING.dp, bottom = 8.dp)
-                .clip(RoundedCornerShape(8.dp))
-                .clickable(true) { action() },
+                .fillMaxWidth(WIDTH)
+                .clip(RoundedCornerShape(CORNER_RADIUS))
+                // `surfaceContainerHighest` is the same color as the default TextField
+                // and Card backgrounds.
+                .background(
+                    color = MaterialTheme.colorScheme.surfaceContainerHighest,
+                ).clickable(true, onClick = action),
     ) {
-        Row(modifier = Modifier.padding(start = 12.dp)) {
+        Row(modifier = Modifier.padding(start = LEADING_PADDING.dp)) {
             Image(
                 painter,
                 "Link",
@@ -299,7 +323,11 @@ private fun TextLinkView(
             fontSize = BODY_FONT_SIZE.sp,
             color = MaterialTheme.colorScheme.onSurface,
             maxLines = 1,
-            modifier = Modifier.padding(start = 12.dp, end = 12.dp),
+            modifier =
+                Modifier.padding(
+                    start = (LEADING_PADDING + 12).dp,
+                    end = 12.dp,
+                ),
         )
     }
 }
@@ -321,7 +349,7 @@ private fun TextFieldView(
         },
         singleLine = true,
         shape = RoundedCornerShape(CORNER_RADIUS),
-        modifier = Modifier.padding(bottom = 10.dp).fillMaxWidth(0.85f),
+        modifier = Modifier.fillMaxWidth(WIDTH),
         keyboardOptions =
             KeyboardOptions(
                 imeAction = ImeAction.Done,
