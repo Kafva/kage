@@ -75,7 +75,8 @@ rustup target add --toolchain stable aarch64-linux-android
 ```
 2. Download the Android NDK: `sdkmanager 'ndk;$VERSION'`
 3. Set `export NDK_HOME=$HOME/Library/Android/Sdk/ndk/$VERSION` (macOS)
-4. Build the library and app
+4. Set `JAVA_HOME` to point to a Java 21 installation
+5. Build the library and app
 
 ```bash
 # Make sure the library is built for all archs *before* creating the APK

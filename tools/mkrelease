@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 set -e
 
-echox () { echo "+ $*" && $@; }
-
 TAG=$(git describe --tags)
 
 echo "Building tag: $TAG"
@@ -12,8 +10,15 @@ ANDROID_TARGET_ARCH=aarch64 make -C core android
 ANDROID_TARGET_ARCH=x86_64 make -C core android
 
 export JAVA_HOME=/opt/homebrew/opt/openjdk@21
-fd version.xml android -x cat {}
-
+(cd android && ./gradlew setVersion)
 (cd android && ./gradlew build assembleRelease)
 
-echox gh release create $TAG android/build/outputs/apk/release/kage-release.apk
+echo "Checking version strings"
+set -x
+grep -q "version = \"${TAG##v}\"" core/Cargo.toml
+grep -q "version = \"${TAG##v}\"" core/Cargo.lock
+grep -q "MARKETING_VERSION = ${TAG##v}" ios/kage.xcodeproj/project.pbxproj
+grep -q "versionName = \"${TAG##v}\"" android/build.gradle.kts
+grep -q "$TAG" android/src/main/res/values/version.xml
+
+gh release create $TAG android/build/outputs/apk/release/kage-release.apk
