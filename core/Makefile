@@ -13,10 +13,9 @@ ifeq ($(filter ios,$(MAKECMDGOALS)),ios)
 include .ios.mk
 else ifeq ($(filter android,$(MAKECMDGOALS)),android)
 include .android.mk
-else ifneq ($(filter test,$(MAKECMDGOALS)),test)
-ifneq ($(filter clean,$(MAKECMDGOALS)),clean)
-$(error Please pick the `ios' or `android' target)
-endif
+else
+none:
+	$(info Please pick the `ios' or `android' target)
 endif
 
 android: $(DIST)/$(LIB)
