@@ -7,16 +7,19 @@ struct kageApp: App {
 
     var body: some Scene {
         WindowGroup {
-            AppView()
-                .ignoresSafeArea()
-                .autocorrectionDisabled()
-                .autocapitalization(.none)
-                // Default keyboard layout
-                .keyboardType(.asciiCapable)
-                // Avoid extra spacing below the toolbar
-                .navigationBarTitle("")
-                .navigationBarTitleDisplayMode(.inline)
-                .environmentObject(appState)
+            GeometryReader { g in
+                AppView()
+                    .ignoresSafeArea()
+                    .autocorrectionDisabled()
+                    .autocapitalization(.none)
+                    // Default keyboard layout
+                    .keyboardType(.asciiCapable)
+                    // Avoid extra spacing below the toolbar
+                    .navigationBarTitle("")
+                    .navigationBarTitleDisplayMode(.inline)
+                    .environment(\.screenDims, g.size)
+                    .environmentObject(appState)
+            }
         }
         .onChange(of: scenePhase, initial: true) { oldPhase, newPhase in
             if oldPhase == newPhase {

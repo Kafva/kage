@@ -11,8 +11,6 @@ let GIT_DIR: FilePath = FileManager.default.appDataDirectory
 let MAX_TREE_DEPTH: Int = 15
 let MAX_PASSWORD_LENGTH: Int = 1024
 let AUTO_LOCK_SECONDS: TimeInterval = 120.0
-let SCREEN_WIDTH = UIScreen.main.bounds.size.width
-let SCREEN_HEIGHT = UIScreen.main.bounds.size.height
 
 let TEXT_COLOR = Color(UIColor.label)
 let TEXT_FIELD_BG_COLOR = Color(UIColor.tertiarySystemFill)

@@ -36,12 +36,14 @@ struct HistoryView: View {
 }
 
 private struct HistoryItemView: View {
+    @Environment(\.screenDims) var screenDims
     let commit: CommitInfo
 
     var body: some View {
         let revColor: Color = commit.revstr.count != 40 ? .accentColor : .gray
         VStack(alignment: .leading, spacing: 5) {
-            Text(commit.summary).font(.body).padding(.top, SCREEN_HEIGHT * 0.1)
+            Text(commit.summary).font(.body).padding(
+                .top, 0.1 * screenDims.height)
             Text(commit.date).foregroundColor(.gray).font(.caption).lineLimit(1)
             Text(commit.revstr).foregroundColor(revColor).font(.caption)
                 .lineLimit(1)

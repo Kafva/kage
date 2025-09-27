@@ -3,6 +3,7 @@ import SwiftUI
 struct PasswordView: View {
     @EnvironmentObject var appState: AppState
     @Environment(\.dismiss) var dismiss
+    @Environment(\.screenDims) var screenDims
 
     var node: PwNode
     @State private var plaintext: String = ""
@@ -83,7 +84,7 @@ struct PasswordView: View {
 
             ErrorTileView(currentError: $currentError).padding(.top, 30)
         }
-        .frame(width: 0.8 * SCREEN_WIDTH, height: SCREEN_HEIGHT)
+        .frame(width: 0.8 * screenDims.width, height: screenDims.height)
         .navigationBarHidden(true)
     }
 

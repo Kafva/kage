@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct SearchView: View {
+    @Environment(\.screenDims) var screenDims
     @Binding var searchText: String
 
     var body: some View {
@@ -11,7 +12,7 @@ struct SearchView: View {
             .textContentType(.oneTimeCode)
             .multilineTextAlignment(.center)
             .font(TITLE3_FONT)
-            .frame(width: SCREEN_WIDTH * 0.7)
+            .frame(width: 0.7 * screenDims.width)
             // Padding inside the textbox
             .padding(.all, 10)
             .background(background)

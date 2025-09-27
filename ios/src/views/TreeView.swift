@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct TreeView: View {
+    @Environment(\.screenDims) var screenDims
     @EnvironmentObject var appState: AppState
 
     @Binding var searchText: String
@@ -29,7 +30,7 @@ struct TreeView: View {
         }
         .listStyle(.plain)
         .frame(
-            width: 0.9 * SCREEN_WIDTH,
+            width: 0.9 * screenDims.width,
             alignment: .top)
     }
 
